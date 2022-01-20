@@ -155,3 +155,30 @@ jobs:
           path: |
             fontforgebuilds/*.7z
             fontforgebuilds/fontforge-setup/*.exe
+  continuous:
+    permissions:
+      contents: write
+    needs:
+      - linux
+      - mac
+      - windows
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+      - name: Standardise artifact names
+        run: |
+          python3 -c '
+          import os, pathlib, re
+          os.mkdir("result")
+          for r in pathlib.Path().rglob("*"):
+            if not r.is_file() or (r.suffix == ".exe" and "x64" in r.name):
+              continue
+            nr = "result/" + re.sub(r"-(([a-f0-9]+-ci)|(\d{4}-\d{2}-\d{2}-[a-f0-9]+)|(\d{2}-\d{2}-\d{4}))", "-ci", str(r.name))
+            r.rename(nr)
+          '
+      - name: Upload Artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload continuous result/* --clobber -R ${{ github.repository }}
