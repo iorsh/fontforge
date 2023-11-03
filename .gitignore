@@ -1,4 +1,5 @@
 build/
+cmake-build-debug/
 contrib/admintools/splashimage.c
 Unicode/data/*.txt
 Unicode/data/*.zip
