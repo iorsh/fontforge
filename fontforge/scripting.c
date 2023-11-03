@@ -2797,7 +2797,7 @@ static int bDoSelect(Context *c, int signal_error, int select, int by_ranges) {
     int any = false;
 
     if ( c->a.argc==2 && (c->a.vals[1].type==v_arr || c->a.vals[1].type==v_arrfree)) {
-	struct array *arr = c->a.vals[1].u.aval;
+	struct array_struct *arr = c->a.vals[1].u.aval;
 	for ( i=0; i<arr->argc && i<c->curfv->map->enccount; ++i ) {
 	    if ( arr->vals[i].type!=v_int ) {
 		if ( signal_error )
@@ -3421,7 +3421,7 @@ static void bSetFontHasVerticalMetrics(Context *c) {
 
 static void bSetGasp(Context *c) {
     int i, base;
-    struct array *arr;
+    struct array_struct *arr;
     SplineFont *sf = c->curfv->sf;
 
     if ( c->a.argc==2 && (c->a.vals[1].type==v_arr || c->a.vals[1].type==v_arrfree)) {
@@ -6193,8 +6193,8 @@ static void bReplaceCharCounterMasks(Context *c) {
 }
 
 static void bClearPrivateEntry(Context *c) {
-    if ( c->curfv->sf->private!=NULL )
-	PSDictRemoveEntry( c->curfv->sf->private,c->a.vals[1].u.sval);
+    if (c->curfv->sf->_private != NULL )
+	PSDictRemoveEntry(c->curfv->sf->_private, c->a.vals[1].u.sval);
 }
 
 static void bPrivateGuess(Context *c) {
@@ -6202,10 +6202,10 @@ static void bPrivateGuess(Context *c) {
     char *key;
 
     key = forceASCIIcopy(c,c->a.vals[1].u.sval);
-    if ( sf->private==NULL ) {
-	sf->private = calloc(1,sizeof(struct psdict));
+    if (sf->_private == NULL ) {
+	sf->_private = calloc(1, sizeof(struct psdict));
     }
-    SFPrivateGuess(sf,c->curfv->active_layer,sf->private,key,true);
+    SFPrivateGuess(sf, c->curfv->active_layer, sf->_private, key, true);
     free(key);
 }
 
@@ -6215,13 +6215,13 @@ static void bChangePrivateEntry(Context *c) {
 
     key = forceASCIIcopy(c,c->a.vals[1].u.sval);
     val = forceASCIIcopy(c,c->a.vals[2].u.sval);
-    if ( sf->private==NULL ) {
-	sf->private = calloc(1,sizeof(struct psdict));
-	sf->private->cnt = 10;
-	sf->private->keys = calloc(10,sizeof(char *));
-	sf->private->values = calloc(10,sizeof(char *));
+    if (sf->_private == NULL ) {
+	sf->_private = calloc(1, sizeof(struct psdict));
+	sf->_private->cnt = 10;
+	sf->_private->keys = calloc(10, sizeof(char *));
+	sf->_private->values = calloc(10, sizeof(char *));
     }
-    PSDictChangeEntry(sf->private,key,val);
+    PSDictChangeEntry(sf->_private, key, val);
     free(key); free(val);
 }
 
@@ -6230,7 +6230,7 @@ static void bHasPrivateEntry(Context *c) {
 
     c->return_val.type = v_int;
     c->return_val.u.ival = 0;
-    if ( PSDictHasEntry(sf->private,c->a.vals[1].u.sval)!=NULL )	/* this works if sf->private==NULL */
+    if (PSDictHasEntry(sf->_private, c->a.vals[1].u.sval) != NULL )	/* this works if sf->private==NULL */
 	c->return_val.u.ival = 1;
 }
 
@@ -6238,11 +6238,11 @@ static void bGetPrivateEntry(Context *c) {
     int i;
 
     c->return_val.type = v_str;
-    if ( c->curfv->sf->private==NULL ||
-	    (i = PSDictFindEntry(c->curfv->sf->private,c->a.vals[1].u.sval))==-1 )
+    if (c->curfv->sf->_private == NULL ||
+        (i = PSDictFindEntry(c->curfv->sf->_private, c->a.vals[1].u.sval)) == -1 )
 	c->return_val.u.sval = copy("");
     else
-	c->return_val.u.sval = copy(c->curfv->sf->private->values[i]);
+	c->return_val.u.sval = copy(c->curfv->sf->_private->values[i]);
 }
 
 static void bSetWidth(Context *c) {
@@ -7488,7 +7488,7 @@ static void bGetSubtableOfAnchorClass(Context *c) {
 
 static void bAddSizeFeature(Context *c) {
     int i, found_english;
-    struct array *arr, *subarr;
+    struct array_struct *arr, *subarr;
     struct otfname *cur, *last;
     SplineFont *sf = c->curfv->sf;
 

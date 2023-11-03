@@ -273,10 +273,10 @@ static int figure_fontdesc(PI *pi, int sfid, struct fontdesc *fd, int fonttype, 
     if ( strstrmatch(sf->fontname,"script")) fd->flags |= 0x10;
     if ( sf->italicangle!=0 ) fd->flags |= (1<<(7-1));
 
-    if (( i = PSDictFindEntry(sf->private,"StdHW"))!=-1 )
-	fd->stemh = strtod(sf->private->values[i],NULL);
-    if (( i = PSDictFindEntry(sf->private,"StdVW"))!=-1 )
-	fd->stemv = strtod(sf->private->values[i],NULL);
+    if (( i = PSDictFindEntry(sf->_private, "StdHW")) != -1 )
+	fd->stemh = strtod(sf->_private->values[i], NULL);
+    if (( i = PSDictFindEntry(sf->_private, "StdVW")) != -1 )
+	fd->stemv = strtod(sf->_private->values[i], NULL);
 
     pdf_addobject(pi);
     fprintf( pi->out, "  <<\n" );
@@ -285,12 +285,12 @@ static int figure_fontdesc(PI *pi, int sfid, struct fontdesc *fd, int fonttype, 
     fprintf( pi->out, "    /Flags %d\n", fd->flags );
     fprintf( pi->out, "    /FontBBox [%g %g %g %g]\n",
 	    (double) fd->bb.minx, (double) fd->bb.miny, (double) fd->bb.maxx, (double) fd->bb.maxy );
-    stemv = PSDictHasEntry(sf->private,"StdVW");
+    stemv = PSDictHasEntry(sf->_private, "StdVW");
     if ( stemv!=NULL )		/* Said to be required, but meaningless for cid fonts where there should be multiple values */
 	fprintf( pi->out, "    /StemV %s\n", stemv );
     else
 	fprintf( pi->out, "    /StemV 0\n" );
-    stemv = PSDictHasEntry(sf->private,"StdHW");
+    stemv = PSDictHasEntry(sf->_private, "StdHW");
     if ( stemv!=NULL )
 	fprintf( pi->out, "    /StemH %s\n", stemv );
     fprintf( pi->out, "    /ItalicAngle %g\n", (double) sf->italicangle );

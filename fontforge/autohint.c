@@ -538,9 +538,9 @@ void QuickBlues(SplineFont *_sf, int layer, BlueData *bd) {
     bd->base = base; bd->basebelow = basebelow;
 
     bcnt = 0;
-    if ( (pt=PSDictHasEntry(sf->private,"BlueValues"))!=NULL )
+    if ((pt=PSDictHasEntry(sf->_private, "BlueValues")) != NULL )
 	bcnt = PVAddBlues(bd,bcnt,pt);
-    if ( (pt=PSDictHasEntry(sf->private,"OtherBlues"))!=NULL )
+    if ((pt=PSDictHasEntry(sf->_private, "OtherBlues")) != NULL )
 	bcnt = PVAddBlues(bd,bcnt,pt);
     if ( bcnt==0 ) {
 	if ( basebelow==-1e10 ) basebelow = base;
@@ -3374,12 +3374,12 @@ int SplineCharIsFlexible(SplineChar *sc,int layer) {
     int i;
     MMSet *mm;
 
-    pt = PSDictHasEntry(sc->parent->private,"BlueShift");
+    pt = PSDictHasEntry(sc->parent->_private, "BlueShift");
     blueshift = 7;		/* use default value here */
     if ( pt!=NULL ) {
 	blueshift = strtol(pt,NULL,10);
 	if ( blueshift>21 ) blueshift = 21;
-    } else if ( PSDictHasEntry(sc->parent->private,"BlueValues")!=NULL )
+    } else if (PSDictHasEntry(sc->parent->_private, "BlueValues") != NULL )
 	blueshift = 7;
     if ( sc->parent->mm==NULL )
 return( _SplineCharIsFlexible(sc,layer,blueshift));
@@ -3434,12 +3434,12 @@ int SplineFontIsFlexible(SplineFont *sf,int layer, int flags) {
 return( 0 );
     }
 	
-    pt = PSDictHasEntry(sf->private,"BlueShift");
+    pt = PSDictHasEntry(sf->_private, "BlueShift");
     blueshift = 21;		/* maximum possible flex, not default */
     if ( pt!=NULL ) {
 	blueshift = strtol(pt,NULL,10);
 	if ( blueshift>21 ) blueshift = 21;
-    } else if ( PSDictHasEntry(sf->private,"BlueValues")!=NULL )
+    } else if (PSDictHasEntry(sf->_private, "BlueValues") != NULL )
 	blueshift = 7;	/* The BlueValues array may depend on BlueShift having its default value */
 
     for ( i=0; i<sf->glyphcnt; ++i )

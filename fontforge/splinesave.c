@@ -1863,7 +1863,7 @@ return(width);
 int SFIsCJK(SplineFont *sf,EncMap *map) {
     char *val;
 
-    if ( (val = PSDictHasEntry(sf->private,"LanguageGroup"))!=NULL )
+    if ((val = PSDictHasEntry(sf->_private, "LanguageGroup")) != NULL )
 return( strtol(val,NULL,10));
 
     if ( map->enc->is_japanese || map->enc->is_korean ||

@@ -2623,15 +2623,15 @@ int SFD_DumpSplineFontMetadata( FILE *sfd, SplineFont *sf )
 		    fprintf( sfd, " FString: 0\n");
 	      break;
 	      case pst_class:
-		fprintf( sfd, " %d %d %d\n  ClsList:", fpst->rules[i].u.class.ncnt, fpst->rules[i].u.class.bcnt, fpst->rules[i].u.class.fcnt );
-		for ( j=0; j<fpst->rules[i].u.class.ncnt; ++j )
-		    fprintf( sfd, " %d", fpst->rules[i].u.class.nclasses[j]);
+		fprintf(sfd, " %d %d %d\n  ClsList:", fpst->rules[i].u._class.ncnt, fpst->rules[i].u._class.bcnt, fpst->rules[i].u._class.fcnt );
+		for ( j=0; j<fpst->rules[i].u._class.ncnt; ++j )
+		    fprintf( sfd, " %d", fpst->rules[i].u._class.nclasses[j]);
 		fprintf( sfd, "\n  BClsList:" );
-		for ( j=0; j<fpst->rules[i].u.class.bcnt; ++j )
-		    fprintf( sfd, " %d", fpst->rules[i].u.class.bclasses[j]);
+		for ( j=0; j<fpst->rules[i].u._class.bcnt; ++j )
+		    fprintf( sfd, " %d", fpst->rules[i].u._class.bclasses[j]);
 		fprintf( sfd, "\n  FClsList:" );
-		for ( j=0; j<fpst->rules[i].u.class.fcnt; ++j )
-		    fprintf( sfd, " %d", fpst->rules[i].u.class.fclasses[j]);
+		for ( j=0; j<fpst->rules[i].u._class.fcnt; ++j )
+		    fprintf( sfd, " %d", fpst->rules[i].u._class.fclasses[j]);
 		fprintf( sfd, "\n" );
 	      break;
 	      case pst_coverage:
@@ -2838,8 +2838,8 @@ static int SFD_Dump( FILE *sfd, SplineFont *sf, EncMap *map, EncMap *normal,
     }
     if ( sf->onlybitmaps!=0 )
 	fprintf( sfd, "OnlyBitmaps: %d\n", sf->onlybitmaps );
-    if ( sf->private!=NULL )
-	SFDDumpPrivate(sfd,sf->private);
+    if (sf->_private != NULL )
+	SFDDumpPrivate(sfd,sf->_private);
 #if HANYANG
     if ( sf->rules!=NULL )
 	SFDDumpCompositionRules(sfd,sf->rules);
@@ -6547,17 +6547,17 @@ static void SFDGetPrivate(FILE *sfd,SplineFont *sf) {
     char name[200];
     char *pt, *end;
 
-    sf->private = calloc(1,sizeof(struct psdict));
+    sf->_private = calloc(1, sizeof(struct psdict));
     getint(sfd,&cnt);
-    sf->private->next = sf->private->cnt = cnt;
-    sf->private->values = calloc(cnt,sizeof(char *));
-    sf->private->keys = calloc(cnt,sizeof(char *));
+   sf->_private->next = sf->_private->cnt = cnt;
+    sf->_private->values = calloc(cnt, sizeof(char *));
+    sf->_private->keys = calloc(cnt, sizeof(char *));
     for ( i=0; i<cnt; ++i ) {
 	getname(sfd,name);
-	sf->private->keys[i] = copy(name);
+	sf->_private->keys[i] = copy(name);
 	getint(sfd,&len);
 	nlgetc(sfd);	/* skip space */
-	pt = sf->private->values[i] = malloc(len+1);
+	pt = sf->_private->values[i] = malloc(len + 1);
 	for ( end = pt+len; pt<end; ++pt )
 	    *pt = nlgetc(sfd);
 	*pt='\0';
@@ -6830,12 +6830,12 @@ static void SFDParseChainContext(FILE *sfd,SplineFont *sf,FPST *fpst, char *tok,
 	    }
 	  break;
 	  case pst_class:
-	    fscanf( sfd, "%d %d %d", &fpst->rules[i].u.class.ncnt, &fpst->rules[i].u.class.bcnt, &fpst->rules[i].u.class.fcnt );
+	    fscanf(sfd, "%d %d %d", &fpst->rules[i].u._class.ncnt, &fpst->rules[i].u._class.bcnt, &fpst->rules[i].u._class.fcnt );
 	    for ( j=0; j<3; ++j ) {
 		getname(sfd,tok);
-		(&fpst->rules[i].u.class.nclasses)[j] = malloc((&fpst->rules[i].u.class.ncnt)[j]*sizeof(uint16_t));
-		for ( k=0; k<(&fpst->rules[i].u.class.ncnt)[j]; ++k ) {
-		    getusint(sfd,&(&fpst->rules[i].u.class.nclasses)[j][k]);
+		(&fpst->rules[i].u._class.nclasses)[j] = malloc((&fpst->rules[i].u._class.ncnt)[j] * sizeof(uint16_t));
+		for ( k=0; k<(&fpst->rules[i].u._class.ncnt)[j]; ++k ) {
+		    getusint(sfd,&(&fpst->rules[i].u._class.nclasses)[j][k]);
 		}
 	    }
 	  break;
@@ -9481,7 +9481,7 @@ return;
 
     locale_t tmplocale; locale_t oldlocale; // Declare temporary locale storage.
     switch_to_c_locale(&tmplocale, &oldlocale); // Switch to the C locale temporarily and cache the old locale.
-    if ( !sf->new && sf->origname!=NULL )	/* might be a new file */
+    if (!sf->_new && sf->origname != NULL )	/* might be a new file */
 	fprintf( asfd, "Base: %s%s\n", sf->origname,
 		sf->compression==0?"":compressors[sf->compression-1].ext );
     fprintf( asfd, "Encoding: %s\n", map->enc->enc_name );

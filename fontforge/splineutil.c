@@ -2446,8 +2446,8 @@ static void SplineFontMetaData(SplineFont *sf,struct fontdict *fd) {
 	sf->ascent = 8*em/10;
     sf->descent = em-sf->ascent;
 
-    sf->private = fd->private->private; fd->private->private = NULL;
-    PSDictRemoveEntry(sf->private, "OtherSubrs");
+    sf->_private = fd->private->private; fd->private->private = NULL;
+    PSDictRemoveEntry(sf->_private, "OtherSubrs");
 
     sf->cidregistry = copy(fd->registry);
     sf->ordering = copy(fd->ordering);
@@ -2847,7 +2847,7 @@ return( NULL );
 		}
 	    }
 	}
-	fd->private->private = PSDictCopy(sf->private);
+	fd->private->private = PSDictCopy(sf->_private);
 	if ( fd->blendprivate!=NULL ) {
 	    static char *arrnames[] = { "BlueValues", "OtherBlues", "FamilyBlues", "FamilyOtherBlues", "StdHW", "StdVW", "StemSnapH", "StemSnapV", NULL };
 	    static char *scalarnames[] = { "ForceBold", "BlueFuzz", "BlueScale", "BlueShift", NULL };
@@ -5551,9 +5551,9 @@ void FPSTRuleContentsFree(struct fpst_rule *r, enum fpossub_format format) {
 	free(r->u.glyph.fore);
       break;
       case pst_class:
-	free(r->u.class.nclasses);
-	free(r->u.class.bclasses);
-	free(r->u.class.fclasses);
+	free(r->u._class.nclasses);
+	free(r->u._class.bclasses);
+	free(r->u._class.fclasses);
       break;
       case pst_reversecoverage:
 	free(r->u.rcoverage.replacements);
@@ -5598,21 +5598,21 @@ return( NULL );
 	    t->u.glyph.fore = copy(f->u.glyph.fore);
 	  break;
 	  case pst_class:
-	    t->u.class.ncnt = f->u.class.ncnt;
-	    t->u.class.bcnt = f->u.class.bcnt;
-	    t->u.class.fcnt = f->u.class.fcnt;
-	    t->u.class.nclasses = malloc( f->u.class.ncnt*sizeof(uint16_t));
-	    memcpy(t->u.class.nclasses,f->u.class.nclasses,
-		    f->u.class.ncnt*sizeof(uint16_t));
-	    if ( t->u.class.bcnt!=0 ) {
-		t->u.class.bclasses = malloc( f->u.class.bcnt*sizeof(uint16_t));
-		memcpy(t->u.class.bclasses,f->u.class.bclasses,
-			f->u.class.bcnt*sizeof(uint16_t));
+	    t->u._class.ncnt = f->u._class.ncnt;
+	    t->u._class.bcnt = f->u._class.bcnt;
+	    t->u._class.fcnt = f->u._class.fcnt;
+	    t->u._class.nclasses = malloc(f->u._class.ncnt * sizeof(uint16_t));
+	    memcpy(t->u._class.nclasses, f->u._class.nclasses,
+              f->u._class.ncnt * sizeof(uint16_t));
+	    if (t->u._class.bcnt != 0 ) {
+		t->u._class.bclasses = malloc(f->u._class.bcnt * sizeof(uint16_t));
+		memcpy(t->u._class.bclasses, f->u._class.bclasses,
+             f->u._class.bcnt * sizeof(uint16_t));
 	    }
-	    if ( t->u.class.fcnt!=0 ) {
-		t->u.class.fclasses = malloc( f->u.class.fcnt*sizeof(uint16_t));
-		memcpy(t->u.class.fclasses,f->u.class.fclasses,
-			f->u.class.fcnt*sizeof(uint16_t));
+	    if (t->u._class.fcnt != 0 ) {
+		t->u._class.fclasses = malloc(f->u._class.fcnt * sizeof(uint16_t));
+		memcpy(t->u._class.fclasses, f->u._class.fclasses,
+             f->u._class.fcnt * sizeof(uint16_t));
 	    }
 	  break;
 	  case pst_reversecoverage:
@@ -6587,7 +6587,7 @@ return;
     TtfTablesFree(sf->ttf_tab_saved);
     UndoesFree(sf->grid.undoes);
     UndoesFree(sf->grid.redoes);
-    PSDictFree(sf->private);
+    PSDictFree(sf->_private);
     TTFLangNamesFree(sf->names);
     for ( i=0; i<sf->subfontcnt; ++i )
 	SplineFontFree(sf->subfonts[i]);

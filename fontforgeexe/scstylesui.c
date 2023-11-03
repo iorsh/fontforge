@@ -409,12 +409,12 @@ static double GuessStemThreshold(SplineFont *sf) {
     double stdvw = 0, stdhw = 0, avg;
     char *ret;
 
-    if ( sf->private!=NULL ) {
-	if ((ret=PSDictHasEntry(sf->private,"StdVW"))!=NULL ) {
+    if (sf->_private != NULL ) {
+	if ((ret=PSDictHasEntry(sf->_private, "StdVW")) != NULL ) {
 	    if ( ret[0] == '[' ) ret++;
 	    stdvw = strtod(ret,NULL);
 	}
-	if ((ret=PSDictHasEntry(sf->private,"StdHW"))!=NULL ) {
+	if ((ret=PSDictHasEntry(sf->_private, "StdHW")) != NULL ) {
 	    if ( ret[0] == '[' ) ret++;
 	    stdhw = strtod(ret,NULL);
 	}
@@ -806,9 +806,9 @@ static void MappingMatrixInit(struct matrixinit *mi,SplineFont *sf,
     mi->col_cnt = 3;
     mi->col_init = mapci;
 
-    if ( sf->private!=NULL ) {
-	b = ParseBlue(blues,sf->private,"BlueValues");
-	o = ParseBlue(others,sf->private,"OtherBlues");
+    if (sf->_private != NULL ) {
+	b = ParseBlue(blues, sf->_private, "BlueValues");
+	o = ParseBlue(others, sf->_private, "OtherBlues");
     }
 
     if ( (b>1 && (b&1)==0) || (o>1 && (o&1)==0)) {

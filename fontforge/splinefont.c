@@ -485,17 +485,17 @@ static void SFScalePrivate(SplineFont *sf,double scale) {
     int i;
 
     for ( i=0; integerscalethese[i]!=NULL; ++i ) {
-	char *str = PSDictHasEntry(sf->private,integerscalethese[i]);
+	char *str = PSDictHasEntry(sf->_private, integerscalethese[i]);
 	char *new = iscaleString(str,scale);
 	if ( new!=NULL )
-	    PSDictChangeEntry(sf->private,integerscalethese[i],new);
+	    PSDictChangeEntry(sf->_private, integerscalethese[i], new);
 	free(new);
     }
     for ( i=0; scalethese[i]!=NULL; ++i ) {
-	char *str = PSDictHasEntry(sf->private,scalethese[i]);
+	char *str = PSDictHasEntry(sf->_private, scalethese[i]);
 	char *new = scaleString(str,scale);
 	if ( new!=NULL )
-	    PSDictChangeEntry(sf->private,scalethese[i],new);
+	    PSDictChangeEntry(sf->_private, scalethese[i], new);
 	free(new);
     }
 }
@@ -555,7 +555,7 @@ int SFScaleToEm(SplineFont *sf, int as, int des) {
     sf->ufo_ascent *= scale;
     sf->ufo_descent *= scale;
 
-    if ( sf->private!=NULL )
+    if (sf->_private != NULL )
 	SFScalePrivate(sf,scale);
     if ( sf->horiz_base!=NULL )
 	ScaleBase(sf->horiz_base, scale);
@@ -1254,7 +1254,7 @@ SplineFont *_ReadSplineFont(FILE *file, const char *filename, enum openflags ope
 	    if ( wasarchived ) {
 	        norm->origname = NULL;
 	        free(norm->filename); norm->filename = NULL;
-	        norm->new = true;
+	        norm->_new = true;
 	    } else if ( sf->chosenname!=NULL && strippedname==fname ) {
 	        norm->origname = malloc(strlen(fname)+strlen(sf->chosenname)+8);
 	        strcpy(norm->origname,fname);
@@ -1755,7 +1755,7 @@ return( do_max ? -1e23 : 1e23 );		/* We didn't find any glyphs */
 
     /* Do we have a BlueValues entry? */
     /* If so, snap height to the closest alignment zone (bottom of the zone) */
-    if ( sf->private!=NULL && (blues = PSDictHasEntry(sf->private,do_max ? "BlueValues" : "OtherBlues"))!=NULL ) {
+    if (sf->_private != NULL && (blues = PSDictHasEntry(sf->_private, do_max ? "BlueValues" : "OtherBlues")) != NULL ) {
 	while ( *blues==' ' || *blues=='[' ) ++blues;
 	/* Must get at least this close, else we'll just use what we found */
 	bestheight = result; bestdiff = (sf->ascent+sf->descent)/100.0;

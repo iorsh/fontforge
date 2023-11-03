@@ -893,9 +893,9 @@ static void dumpmissingglyph(SplineFont *sf,struct glyphinfo *gi,int fixedwidth)
     char *stempt;
 
     stem = 0;
-    if ( sf->private!=NULL && (stempt=PSDictHasEntry(sf->private,"StdVW"))!=NULL )
+    if (sf->_private != NULL && (stempt=PSDictHasEntry(sf->_private, "StdVW")) != NULL )
 	stem = strtod(stempt,NULL);
-    else if ( sf->private!=NULL && (stempt=PSDictHasEntry(sf->private,"StdHW"))!=NULL )
+    else if (sf->_private != NULL && (stempt=PSDictHasEntry(sf->_private, "StdHW")) != NULL )
 	stem = strtod(stempt,NULL);
     if ( stem<=0 )
 	stem = (sf->ascent+sf->descent)/30;
@@ -1987,9 +1987,9 @@ static void dumpcffprivate(SplineFont *sf,struct alltabs *at,int subfont,
     dumpintoper(private,nomwid,21);		/* Nominative Width */
 
     bs = SplineFontIsFlexible(sf,at->gi.layer,at->gi.flags);
-    hasblue = PSDictHasEntry(sf->private,"BlueValues")!=NULL;
-    hash = PSDictHasEntry(sf->private,"StdHW")!=NULL;
-    hasv = PSDictHasEntry(sf->private,"StdVW")!=NULL;
+    hasblue = PSDictHasEntry(sf->_private, "BlueValues") != NULL;
+    hash = PSDictHasEntry(sf->_private, "StdHW") != NULL;
+    hasv = PSDictHasEntry(sf->_private, "StdVW") != NULL;
     ff_progress_change_stages(2+autohint_before_generate+!hasblue);
     if ( autohint_before_generate ) {
 	ff_progress_change_line1(_("Auto Hinting Font..."));
@@ -2024,31 +2024,31 @@ static void dumpcffprivate(SplineFont *sf,struct alltabs *at,int subfont,
     ff_progress_change_line1(_("Saving OpenType Font"));
 
     if ( hasblue )
-	DumpStrArray(PSDictHasEntry(sf->private,"BlueValues"),private,6);
+	DumpStrArray(PSDictHasEntry(sf->_private, "BlueValues"), private, 6);
     else
 	DumpDblArray(bluevalues,sizeof(bluevalues)/sizeof(bluevalues[0]),private,6);
-    if ( (pt=PSDictHasEntry(sf->private,"OtherBlues"))!=NULL )
+    if ((pt=PSDictHasEntry(sf->_private, "OtherBlues")) != NULL )
 	DumpStrArray(pt,private,7);
     else if ( !hasblue )
 	DumpDblArray(otherblues,sizeof(otherblues)/sizeof(otherblues[0]),private,7);
-    if ( (pt=PSDictHasEntry(sf->private,"FamilyBlues"))!=NULL )
+    if ((pt=PSDictHasEntry(sf->_private, "FamilyBlues")) != NULL )
 	DumpStrArray(pt,private,8);
-    bluescale = BlueScaleFigure(sf->private,bluevalues,otherblues);
-    if ( (pt=PSDictHasEntry(sf->private,"FamilyOtherBlues"))!=NULL )
+    bluescale = BlueScaleFigure(sf->_private, bluevalues, otherblues);
+    if ((pt=PSDictHasEntry(sf->_private, "FamilyOtherBlues")) != NULL )
 	DumpStrArray(pt,private,9);
-    if ( (pt=PSDictHasEntry(sf->private,"BlueScale"))!=NULL )
+    if ((pt=PSDictHasEntry(sf->_private, "BlueScale")) != NULL )
 	DumpStrDouble(pt,private,(12<<8)+9);
     else if ( bluescale!=-1 )
 	dumpdbloper(private,bluescale,(12<<8)+9);
-    if ( (pt=PSDictHasEntry(sf->private,"BlueShift"))!=NULL )
+    if ((pt=PSDictHasEntry(sf->_private, "BlueShift")) != NULL )
 	DumpStrDouble(pt,private,(12<<8)+10);
     else
 	dumpintoper(private,bs,(12<<8)+10);
-    if ( (pt=PSDictHasEntry(sf->private,"BlueFuzz"))!=NULL )
+    if ((pt=PSDictHasEntry(sf->_private, "BlueFuzz")) != NULL )
 	DumpStrDouble(pt,private,(12<<8)+11);
     if ( hash ) {
-	DumpStrDouble(PSDictHasEntry(sf->private,"StdHW"),private,10);
-	if ( (pt=PSDictHasEntry(sf->private,"StemSnapH"))!=NULL )
+	DumpStrDouble(PSDictHasEntry(sf->_private, "StdHW"), private, 10);
+	if ((pt=PSDictHasEntry(sf->_private, "StemSnapH")) != NULL )
 	    DumpStrArray(pt,private,(12<<8)|12);
     } else {
 	if ( stdhw[0]!=0 )
@@ -2056,15 +2056,15 @@ static void dumpcffprivate(SplineFont *sf,struct alltabs *at,int subfont,
 	DumpDblArray(stemsnaph,sizeof(stemsnaph)/sizeof(stemsnaph[0]),private,(12<<8)|12);
     }
     if ( hasv ) {
-	DumpStrDouble(PSDictHasEntry(sf->private,"StdVW"),private,11);
-	if ( (pt=PSDictHasEntry(sf->private,"StemSnapV"))!=NULL )
+	DumpStrDouble(PSDictHasEntry(sf->_private, "StdVW"), private, 11);
+	if ((pt=PSDictHasEntry(sf->_private, "StemSnapV")) != NULL )
 	    DumpStrArray(pt,private,(12<<8)|13);
     } else {
 	if ( stdvw[0]!=0 )
 	    dumpdbloper(private,stdvw[0],11);
 	DumpDblArray(stemsnapv,sizeof(stemsnapv)/sizeof(stemsnapv[0]),private,(12<<8)|13);
     }
-    if ( (pt=PSDictHasEntry(sf->private,"ForceBold"))!=NULL ) {
+    if ((pt=PSDictHasEntry(sf->_private, "ForceBold")) != NULL ) {
 	dumpintoper(private,*pt=='t'||*pt=='T',(12<<8)|14);
     } else if ( sf->weight!=NULL &&
 	    (strstrmatch(sf->weight,"Bold")!=NULL ||
@@ -2074,7 +2074,7 @@ static void dumpcffprivate(SplineFont *sf,struct alltabs *at,int subfont,
 	     strstrmatch(sf->weight,"Heavy")!=NULL ||
 	     strstrmatch(sf->weight,"Black")!=NULL))
 	dumpintoper(private,1,(12<<8)|14);
-    if ( (pt=PSDictHasEntry(sf->private,"LanguageGroup"))!=NULL )
+    if ((pt=PSDictHasEntry(sf->_private, "LanguageGroup")) != NULL )
 	DumpStrDouble(pt,private,(12<<8)+17);
     else if ( map==NULL )
 	/* Do Nothing */;
@@ -2083,7 +2083,7 @@ static void dumpcffprivate(SplineFont *sf,struct alltabs *at,int subfont,
 	      map->enc->is_tradchinese ||
 	      map->enc->is_simplechinese )
 	dumpintoper(private,1,(12<<8)|17);
-    if ( (pt=PSDictHasEntry(sf->private,"ExpansionFactor"))!=NULL )
+    if ((pt=PSDictHasEntry(sf->_private, "ExpansionFactor")) != NULL )
 	DumpStrDouble(pt,private,(12<<8)+18);
     if ( subrcnt!=0 )
 	dumpsizedint(private,false,ftell(private)+3+1,19);	/* Subrs */
@@ -6492,7 +6492,7 @@ static struct alltabs *ttc_prep(struct sflist *sfs, enum fontformat format,
 	    emsize = sf->ascent + sf->descent;
 	else if ( emsize != sf->ascent + sf->descent )
 return( NULL );
-	if ( format==ff_otf && !PSDictSame(sf->private,sfs->sf->private))
+	if ( format==ff_otf && !PSDictSame(sf->_private, sfs->sf->_private))
 return( NULL );
 	if ( sf->hasvmetrics ) anyvmetrics = true;
 	for ( i=0; i<sf->glyphcnt; ++i ) if ( (sc = sf->glyphs[i])!=NULL )

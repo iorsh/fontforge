@@ -828,8 +828,8 @@ static int ClassUsed(FPST *fpst, int which, int class_num) {
 
     for ( j=0; j<fpst->rule_cnt; ++j ) {
 	struct fpst_rule *r = &fpst->rules[j];
-	int cnt = which==0? r->u.class.ncnt : which==1 ? r->u.class.bcnt : r->u.class.fcnt;
-	uint16_t *checkme = which==0? r->u.class.nclasses : which==1 ? r->u.class.bclasses : r->u.class.fclasses;
+	int cnt = which==0 ? r->u._class.ncnt : which == 1 ? r->u._class.bcnt : r->u._class.fcnt;
+	uint16_t *checkme = which==0 ? r->u._class.nclasses : which == 1 ? r->u._class.bclasses : r->u._class.fclasses;
 	for ( i=0; i<cnt; ++i )
 	    if ( checkme[i] == class_num )
 return( true );
@@ -846,12 +846,12 @@ static void dump_contextpstclass(FILE *out,SplineFont *sf,
     char *start, *pt, *last_start, *last_end;
     int ch, ch2, uses_lookups=false;
 
-    for ( i=0; i<r->u.class.bcnt; ++i )
-	fprintf( out, "@cc%d_back_%d ", sub->subtable_offset, r->u.class.bclasses[i] );
-    for ( i=0; i<r->u.class.ncnt; ++i ) {
-	if ( i==0 && fpst->nclass[r->u.class.nclasses[i]]==NULL )
+    for ( i=0; i<r->u._class.bcnt; ++i )
+	fprintf( out, "@cc%d_back_%d ", sub->subtable_offset, r->u._class.bclasses[i] );
+    for ( i=0; i<r->u._class.ncnt; ++i ) {
+	if ( i==0 && fpst->nclass[r->u._class.nclasses[i]] == NULL )
     continue;
-	fprintf( out, "@cc%d_match_%d", sub->subtable_offset, r->u.class.nclasses[i] );
+	fprintf( out, "@cc%d_match_%d", sub->subtable_offset, r->u._class.nclasses[i] );
 	if ( in_ignore )
 	    putc( '\'',out );
 	else {
@@ -860,7 +860,7 @@ static void dump_contextpstclass(FILE *out,SplineFont *sf,
 	    if ( otl!=NULL ) {
 		/* Ok, I don't see any way to specify a class of value records */
 		/*  so just assume all vr will be the same for the class */
-		start = fpst->nclass[r->u.class.nclasses[i]];
+		start = fpst->nclass[r->u._class.nclasses[i]];
 		pt = nameend_from_class(start);
 		ch = *pt; *pt = '\0';
 		if ( otl->ticked ) {
@@ -872,14 +872,14 @@ static void dump_contextpstclass(FILE *out,SplineFont *sf,
 			dump_valuerecord(out,&pst->u.pos);
 		} else if ( otl->lookup_type==gpos_pair ) {
 		    if ( pos==1 ) {
-			last_start = fpst->nclass[r->u.class.nclasses[i-1]];
+			last_start = fpst->nclass[r->u._class.nclasses[i - 1]];
 			last_end = nameend_from_class(last_start);
 			ch2 = *last_end; *last_end = '\0';
 			pst = pst_from_pos_pair_lookup(sf,otl,last_start,start,&space);
 			*last_end = ch2;
 		    } else if ( i+1<r->u.coverage.ncnt ) {
 			char *next_start, *next_end;
-			next_start = fpst->nclass[r->u.class.nclasses[i+1]];
+			next_start = fpst->nclass[r->u._class.nclasses[i + 1]];
 			next_end = nameend_from_class(next_start);
 			ch2 = *next_end; *next_end = '\0';
 			pst = pst_from_pos_pair_lookup(sf,otl,start,next_start,&space);
@@ -894,16 +894,16 @@ static void dump_contextpstclass(FILE *out,SplineFont *sf,
 	}
 	putc(' ',out);
     }
-    for ( i=0; i<r->u.class.fcnt; ++i )
-	fprintf( out, "@cc%d_ahead_%d ", sub->subtable_offset, r->u.class.fclasses[i] );
+    for ( i=0; i<r->u._class.fcnt; ++i )
+	fprintf( out, "@cc%d_ahead_%d ", sub->subtable_offset, r->u._class.fclasses[i] );
     if ( r->lookup_cnt!=0 && sub->lookup->lookup_type<gpos_start && !uses_lookups ) {
 	fprintf( out, " by " );
 	for ( i=0; i<r->lookup_cnt; ++i ) {
 	    otl = r->lookups[i].lookup;
 	    if ( otl->lookup_type==gsub_single ) {
 		putc('[',out);
-		if ( fpst->nclass[r->u.class.nclasses[r->lookups[i].seq]]!=NULL ) {
-		    for ( pt=fpst->nclass[r->u.class.nclasses[r->lookups[i].seq]]; ; ) {
+		if (fpst->nclass[r->u._class.nclasses[r->lookups[i].seq]] != NULL ) {
+		    for ( pt=fpst->nclass[r->u._class.nclasses[r->lookups[i].seq]]; ; ) {
 			while ( *pt==' ' ) ++pt;
 			if ( *pt=='\0' )
 		    break;

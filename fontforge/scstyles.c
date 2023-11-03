@@ -1867,7 +1867,7 @@ return( -1 );
 
     /* Do we have a StemSnapV entry? */
     /* If so, snap width to the closest value in it */
-    if ( sf->private!=NULL && (snaps = PSDictHasEntry(sf->private,"StemSnapV"))!=NULL ) {
+    if (sf->_private != NULL && (snaps = PSDictHasEntry(sf->_private, "StemSnapV")) != NULL ) {
 	while ( *snaps==' ' || *snaps=='[' ) ++snaps;
 	/* Must get at least this close, else we'll just use what we found */
 	bestwidth = width; bestdiff = (sf->ascent+sf->descent)/100.0;
@@ -3134,7 +3134,7 @@ double SFStdVW(SplineFont *sf) {
     double stdvw = 0;
     char *ret;
 
-    if ( sf->private!=NULL && (ret=PSDictHasEntry(sf->private,"StdVW"))!=NULL )
+    if (sf->_private != NULL && (ret=PSDictHasEntry(sf->_private, "StdVW")) != NULL )
 	stdvw = strtod(ret,NULL);
 
     if ( stdvw<=0 )
@@ -4159,9 +4159,9 @@ static double SearchBlues(SplineFont *sf,int type,double value) {
 	value = 4*sf->ascent/5;		/* Guess that the cap-height is 4/5 the ascent */
 
     blues = others = NULL;
-    if ( sf->private!=NULL ) {
-	blues = PSDictHasEntry(sf->private,"BlueValues");
-	others = PSDictHasEntry(sf->private,"OtherBlues");
+    if (sf->_private != NULL ) {
+	blues = PSDictHasEntry(sf->_private, "BlueValues");
+	others = PSDictHasEntry(sf->_private, "OtherBlues");
     }
     bestvalue = 0x100000;		/* Random number outside coord range */
     if ( blues!=NULL )

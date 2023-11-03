@@ -1322,7 +1322,7 @@ void FVAutoInstr(FontViewBase *fv) {
     /* (This way the auto hinter won't complain if they existed) */
     if ( fv->sf->ttf_tables!=NULL && AllGlyphsSelected(fv))
 	ClearFpgmPrepCvt(fv->sf);
-    if ( fv->sf->private==NULL && !no_windowing_ui )
+    if (fv->sf->_private == NULL && !no_windowing_ui )
 	ff_post_notice( _("Things could be better..."), _("You will get better instructions if you fill in the Private dictionary, Element->Font Info->Private, for the font"));
     if ( !no_windowing_ui && !AnySelectedHints(fv))
 	ff_post_notice(_("Things could be better..."), _("The selected glyphs have no hints. FontForge will not produce many instructions."));

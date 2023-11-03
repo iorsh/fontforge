@@ -3132,7 +3132,7 @@ SplineFont *SplineFontNew(void) {
 
     sf = SplineFontBlank(enclen);
     sf->onlybitmaps = true;
-    sf->new = true;
+    sf->_new = true;
     sf->layers[ly_back].order2 = new_fonts_are_order2;
     sf->layers[ly_fore].order2 = new_fonts_are_order2;
     sf->grid.order2 = new_fonts_are_order2;

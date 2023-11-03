@@ -1439,8 +1439,8 @@ return;
 
 	cnt = 0;
 	for ( i=0; i<rcnt; ++i ) for ( j=0; j<rules[i].scnt; ++j ) {
-	    rule[cnt].u.class.nclasses = rules[i].subrules[j].classindeces;
-	    rule[cnt].u.class.ncnt = rules[i].subrules[j].ccnt;
+	    rule[cnt].u._class.nclasses = rules[i].subrules[j].classindeces;
+	    rule[cnt].u._class.ncnt = rules[i].subrules[j].ccnt;
 	    rules[i].subrules[j].classindeces = NULL;
 	    rule[cnt].lookup_cnt = rules[i].subrules[j].scnt;
 	    rule[cnt].lookups = rules[i].subrules[j].sl;
@@ -1615,14 +1615,14 @@ return;
 
 	cnt = 0;
 	for ( i=0; i<rcnt; ++i ) for ( j=0; j<rules[i].scnt; ++j ) {
-	    rule[cnt].u.class.nclasses = rules[i].subrules[j].classindeces;
-	    rule[cnt].u.class.ncnt = rules[i].subrules[j].ccnt;
+	    rule[cnt].u._class.nclasses = rules[i].subrules[j].classindeces;
+	    rule[cnt].u._class.ncnt = rules[i].subrules[j].ccnt;
 	    rules[i].subrules[j].classindeces = NULL;
-	    rule[cnt].u.class.bclasses = rules[i].subrules[j].bci;
-	    rule[cnt].u.class.bcnt = rules[i].subrules[j].bccnt;
+	    rule[cnt].u._class.bclasses = rules[i].subrules[j].bci;
+	    rule[cnt].u._class.bcnt = rules[i].subrules[j].bccnt;
 	    rules[i].subrules[j].bci = NULL;
-	    rule[cnt].u.class.fclasses = rules[i].subrules[j].fci;
-	    rule[cnt].u.class.fcnt = rules[i].subrules[j].fccnt;
+	    rule[cnt].u._class.fclasses = rules[i].subrules[j].fci;
+	    rule[cnt].u._class.fcnt = rules[i].subrules[j].fccnt;
 	    rules[i].subrules[j].fci = NULL;
 	    rule[cnt].lookup_cnt = rules[i].subrules[j].scnt;
 	    rule[cnt].lookups = rules[i].subrules[j].sl;

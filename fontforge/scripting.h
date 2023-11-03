@@ -50,7 +50,7 @@ struct dictionary {
     int cnt, max;
 };
 
-typedef struct array {
+typedef struct array_struct {
     int argc;
     Val *vals;
 } Array;

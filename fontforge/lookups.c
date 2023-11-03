@@ -2233,12 +2233,12 @@ static FPST *SF_AddFPST(struct sfmergecontext *mc,FPST *fpst,
 	    r->u.glyph.fore = copy( r->u.glyph.fore );
 	  break;
 	  case pst_class:
-	    r->u.class.nclasses = malloc( r->u.class.ncnt*sizeof(uint16_t));
-	    memcpy(r->u.class.nclasses,oldr->u.class.nclasses, r->u.class.ncnt*sizeof(uint16_t));
-	    r->u.class.bclasses = malloc( r->u.class.bcnt*sizeof(uint16_t));
-	    memcpy(r->u.class.bclasses,oldr->u.class.bclasses, r->u.class.bcnt*sizeof(uint16_t));
-	    r->u.class.fclasses = malloc( r->u.class.fcnt*sizeof(uint16_t));
-	    memcpy(r->u.class.fclasses,oldr->u.class.fclasses, r->u.class.fcnt*sizeof(uint16_t));
+	    r->u._class.nclasses = malloc(r->u._class.ncnt * sizeof(uint16_t));
+	    memcpy(r->u._class.nclasses, oldr->u._class.nclasses, r->u._class.ncnt * sizeof(uint16_t));
+	    r->u._class.bclasses = malloc(r->u._class.bcnt * sizeof(uint16_t));
+	    memcpy(r->u._class.bclasses, oldr->u._class.bclasses, r->u._class.bcnt * sizeof(uint16_t));
+	    r->u._class.fclasses = malloc(r->u._class.fcnt * sizeof(uint16_t));
+	    memcpy(r->u._class.fclasses, oldr->u._class.fclasses, r->u._class.fcnt * sizeof(uint16_t));
 	  break;
 	  case pst_coverage:
 	    r->u.coverage.ncovers = ClassCopy( r->u.coverage.ncnt, r->u.coverage.ncovers );
@@ -3242,12 +3242,12 @@ return( 0 );
 		if ( *pt!='\0' )
     continue;		/* didn't match */
 	    } else if ( fpst->format==pst_class ) {
-		for ( i=bskipglyphs(lookup_flags,data,pos-1), cpos=0; i>=0 && cpos<rule->u.class.bcnt; i = bskipglyphs(lookup_flags,data,i-1)) {
-		    if ( !GlyphNameInClass(data->str[i].sc->name,fpst->bclass[rule->u.class.bclasses[cpos]]) )
+		for ( i=bskipglyphs(lookup_flags,data,pos-1), cpos=0; i>=0 && cpos<rule->u._class.bcnt; i = bskipglyphs(lookup_flags, data, i - 1)) {
+		    if ( !GlyphNameInClass(data->str[i].sc->name,fpst->bclass[rule->u._class.bclasses[cpos]]) )
 		break;
 		    ++cpos;
 		}
-		if ( cpos!=rule->u.class.bcnt )
+		if ( cpos!=rule->u._class.bcnt )
     continue;		/* didn't match */
 	    } else if ( fpst->format==pst_coverage ) {
 		for ( i=bskipglyphs(lookup_flags,data,pos-1), cpos=0; i>=0 && cpos<rule->u.coverage.bcnt; i = bskipglyphs(lookup_flags,data,i-1)) {
@@ -3274,8 +3274,8 @@ return( 0 );
 	    if ( *pt!='\0' )
     continue;		/* didn't match */
 	} else if ( fpst->format==pst_class ) {
-	    for ( i=pos, cpos=0; i<data->cnt && cpos<rule->u.class.ncnt; i = skipglyphs(lookup_flags,data,i+1)) {
-		int class = rule->u.class.nclasses[cpos];
+	    for ( i=pos, cpos=0; i<data->cnt && cpos<rule->u._class.ncnt; i = skipglyphs(lookup_flags, data, i + 1)) {
+		int class = rule->u._class.nclasses[cpos];
 		if ( class!=0 ) {
 		    if ( !GlyphNameInClass(data->str[i].sc->name,fpst->nclass[class]) )
 	    break;
@@ -3290,7 +3290,7 @@ return( 0 );
 		}
 		data->str[i].context_pos = cpos++;
 	    }
-	    if ( cpos<rule->u.class.ncnt )
+	    if ( cpos<rule->u._class.ncnt )
     continue;		/* didn't match */
 	} else if ( fpst->format==pst_coverage ) {
 	    for ( i=pos, cpos=0; i<data->cnt && cpos<rule->u.coverage.ncnt; i = skipglyphs(lookup_flags,data,i+1)) {
@@ -3319,12 +3319,12 @@ return( 0 );		/* Not ready to deal with reverse chainging */
 		if ( *pt!='\0' )
     continue;		/* didn't match */
 	    } else if ( fpst->format==pst_class ) {
-		for ( i=retpos, cpos=0; i<data->cnt && cpos<rule->u.class.fcnt; i = skipglyphs(lookup_flags,data,i+1)) {
-		    if ( !GlyphNameInClass(data->str[i].sc->name,fpst->fclass[rule->u.class.fclasses[cpos]]) )
+		for ( i=retpos, cpos=0; i<data->cnt && cpos<rule->u._class.fcnt; i = skipglyphs(lookup_flags, data, i + 1)) {
+		    if ( !GlyphNameInClass(data->str[i].sc->name,fpst->fclass[rule->u._class.fclasses[cpos]]) )
 		break;
 		    cpos++;
 		}
-		if ( cpos<rule->u.class.fcnt )
+		if ( cpos<rule->u._class.fcnt )
     continue;		/* didn't match */
 	    } else if ( fpst->format==pst_coverage ) {
 		for ( i=retpos, cpos=0; i<data->cnt && cpos<rule->u.coverage.fcnt; i = skipglyphs(lookup_flags,data,i+1)) {
@@ -4801,18 +4801,18 @@ char *FPSTRule_To_Str(SplineFont *sf,FPST *fpst,struct fpst_rule *rule) {
       break;
       case pst_class:
 	/* Reverse the backtrack classes */
-	for ( i=rule->u.class.bcnt-1; i>=0; --i )
-	    GrowBufferAddClass(&gb,rule->u.class.bclasses[i],fpst->bclassnames,fpst->bccnt);
+	for ( i= rule->u._class.bcnt - 1; i >= 0; --i )
+	    GrowBufferAddClass(&gb, rule->u._class.bclasses[i], fpst->bclassnames, fpst->bccnt);
 	if ( fpst->type!=pst_contextpos && fpst->type!=pst_contextsub )
 	    GrowBufferAddStr(&gb,"| ");
-	for ( i=0; i<rule->u.class.ncnt; ++i ) {
-	    GrowBufferAddClass(&gb,rule->u.class.nclasses[i],fpst->nclassnames,fpst->nccnt);
+	for ( i=0; i<rule->u._class.ncnt; ++i ) {
+	    GrowBufferAddClass(&gb, rule->u._class.nclasses[i], fpst->nclassnames, fpst->nccnt);
 	    GrowBufferAddLookup(&gb,rule,i);
 	}
 	if ( fpst->type!=pst_contextpos && fpst->type!=pst_contextsub )
 	    GrowBufferAddStr(&gb,"| ");
-	for ( i=0; i<rule->u.class.fcnt; ++i )
-	    GrowBufferAddClass(&gb,rule->u.class.fclasses[i],fpst->fclassnames,fpst->fccnt);
+	for ( i=0; i<rule->u._class.fcnt; ++i )
+	    GrowBufferAddClass(&gb, rule->u._class.fclasses[i], fpst->fclassnames, fpst->fccnt);
       break;
       case pst_coverage:
       case pst_reversecoverage:
@@ -5103,14 +5103,14 @@ return( copy( _("A reverse contextual chaining lookup can only match one coverag
 	}
       } break;
       case pst_class:
-        rule->u.class.ncnt = last+1-first;
-	rule->u.class.nclasses = malloc(rule->u.class.ncnt*sizeof(uint16_t));
-	rule->u.class.bcnt = first;
+        rule->u._class.ncnt = last + 1 - first;
+	rule->u._class.nclasses = malloc(rule->u._class.ncnt * sizeof(uint16_t));
+	rule->u._class.bcnt = first;
 	if ( first!=0 )
-	    rule->u.class.bclasses = malloc(first*sizeof(uint16_t));
-	rule->u.class.fcnt = cnt==last?0:cnt-last-1;
-	if ( rule->u.class.fcnt!=0 )
-	    rule->u.class.fclasses = malloc(rule->u.class.fcnt*sizeof(uint16_t));
+	    rule->u._class.bclasses = malloc(first * sizeof(uint16_t));
+	rule->u._class.fcnt = cnt == last ? 0 : cnt - last - 1;
+	if (rule->u._class.fcnt != 0 )
+	    rule->u._class.fclasses = malloc(rule->u._class.fcnt * sizeof(uint16_t));
 	for ( i=0; i<cnt; ++i ) {
 	    char **classnames, *pend;
 	    int class_cnt, val;
@@ -5137,10 +5137,10 @@ return( copy( _("A reverse contextual chaining lookup can only match one coverag
 		}
 	    }
 	    if ( j==class_cnt ) {
-		free( rule->u.class.nclasses ); rule->u.class.nclasses = NULL;
-		free( rule->u.class.bclasses ); rule->u.class.bclasses = NULL;
-		free( rule->u.class.fclasses ); rule->u.class.fclasses = NULL;
-		rule->u.class.bcnt = rule->u.class.fcnt = rule->u.class.ncnt = 0;
+		free( rule->u._class.nclasses ); rule->u._class.nclasses = NULL;
+		free( rule->u._class.bclasses ); rule->u._class.bclasses = NULL;
+		free( rule->u._class.fclasses ); rule->u._class.fclasses = NULL;
+          rule->u._class.bcnt = rule->u._class.fcnt = rule->u._class.ncnt = 0;
 		if ( i<first )
 return( smprintf( _("%s is not a class name for the backtracking classes." ), parsed[i].entity ) );
 		else if ( i<=last )
@@ -5149,11 +5149,11 @@ return( smprintf( _("%s is not a class name for the matching classes." ), parsed
 return( smprintf( _("%s is not a class name for the forward classes." ), parsed[i].entity ) );
 	    }
 	    if ( i<first )
-		rule->u.class.bclasses[first-1-i] = j;	/* Reverse the backtrack classes */
+		rule->u._class.bclasses[first - 1 - i] = j;	/* Reverse the backtrack classes */
 	    else if ( i<=last )
-		rule->u.class.nclasses[i-first] = j;
+		rule->u._class.nclasses[i - first] = j;
 	    else
-		rule->u.class.fclasses[i-last-1] = j;
+		rule->u._class.fclasses[i - last - 1] = j;
 	}
       break;
       case pst_coverage:

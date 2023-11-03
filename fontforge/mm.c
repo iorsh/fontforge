@@ -557,7 +557,7 @@ static struct psdict *BlendPrivate(struct psdict *private,MMSet *mm) {
     int i,j,k, cnt;
     char *values[MmMax], buffer[32], *space, *pt, *end;
 
-    other = mm->instances[0]->private;
+    other = mm->instances[0]->_private;
     if ( other==NULL )
 return( private );
 
@@ -569,8 +569,8 @@ return( private );
 	val = strtod(private->values[i],NULL);
 	sum = 0;
 	for ( j=0; j<mm->instance_count; ++j ) {
-	    i = PSDictFindEntry(mm->instances[j]->private,"ForceBold");
-	    if ( i!=-1 && strcmp(mm->instances[j]->private->values[i],"true")==0 )
+	    i = PSDictFindEntry(mm->instances[j]->_private, "ForceBold");
+	    if ( i!=-1 && strcmp(mm->instances[j]->_private->values[i], "true") == 0 )
 		sum += mm->defweights[j];
 	}
 	data = ( sum>=val ) ? "true" : "false";
@@ -580,10 +580,10 @@ return( private );
 	if ( *other->values[i]!='[' && !isdigit( *other->values[i]) && *other->values[i]!='.' )
     continue;
 	for ( j=0; j<mm->instance_count; ++j ) {
-	    k = PSDictFindEntry(mm->instances[j]->private,other->keys[i]);
+	    k = PSDictFindEntry(mm->instances[j]->_private, other->keys[i]);
 	    if ( k==-1 )
 	break;
-	    values[j] = mm->instances[j]->private->values[k];
+	    values[j] = mm->instances[j]->_private->values[k];
 	}
 	if ( j!=mm->instance_count )
     continue;
@@ -673,7 +673,7 @@ int MMReblend(FontViewBase *fv, MMSet *mm) {
 	    SCMakeDependent(sf->glyphs[i],ref->sc);
 	}
     }
-    sf->private = BlendPrivate(sf->private,mm);
+    sf->_private = BlendPrivate(sf->_private, mm);
 
     if ( olderr == NULL )	/* No Errors */
 return( true );
@@ -750,7 +750,7 @@ SplineFont *_MMNewFont(MMSet *mm,int index,char *familyname,real *normalized) {
 	free(sf->glyphs);
 	sf->glyphs = calloc(base->glyphcnt,sizeof(SplineChar *));
 	sf->glyphcnt = sf->glyphmax = base->glyphcnt;
-	sf->new = base->new;
+	sf->_new = base->_new;
 	sf->ascent = base->ascent;
 	sf->descent = base->descent;
 	free(sf->origname);
@@ -792,7 +792,7 @@ FontViewBase *MMCreateBlendedFont(MMSet *mm,FontViewBase *fv,real blends[MmMax],
 	free(new->fontname); free(new->fullname);
 	new->fontname = fn; new->fullname = full;
 	new->weight = _MMGuessWeight(mm,axispos,new->weight);
-	new->private = BlendPrivate(PSDictCopy(hold->private),mm);
+	new->_private = BlendPrivate(PSDictCopy(hold->_private), mm);
 	new->fv = NULL;
 	fv = FontViewCreate(new,false);
 	MMReblend(fv,mm);
@@ -998,8 +998,8 @@ return( false );
 
     sf = mm->apple ? mm->normal : mm->instances[0];
 
-    if ( !mm->apple && PSDictHasEntry(sf->private,"ForceBold")!=NULL &&
-	    PSDictHasEntry(mm->normal->private,"ForceBoldThreshold")==NULL) {
+    if (!mm->apple && PSDictHasEntry(sf->_private, "ForceBold") != NULL &&
+        PSDictHasEntry(mm->normal->_private, "ForceBoldThreshold") == NULL) {
 	if ( complain )
 	    ff_post_error(_("Bad Multiple Master Font"),_("There is no ForceBoldThreshold entry in the weighted font, but there is a ForceBold entry in font %30s"),
 		    sf->fontname);
@@ -1019,16 +1019,16 @@ return( false );
 return( false );
 	}
 	if ( !mm->apple ) {
-	    if ( PSDictHasEntry(mm->instances[j]->private,"ForceBold")!=NULL &&
-		    PSDictHasEntry(mm->normal->private,"ForceBoldThreshold")==NULL) {
+	    if (PSDictHasEntry(mm->instances[j]->_private, "ForceBold") != NULL &&
+           PSDictHasEntry(mm->normal->_private, "ForceBoldThreshold") == NULL) {
 		if ( complain )
 		    ff_post_error(_("Bad Multiple Master Font"),_("There is no ForceBoldThreshold entry in the weighted font, but there is a ForceBold entry in font %30s"),
 			    mm->instances[j]->fontname);
 return( false );
 	    }
 	    for ( i=0; arrnames[i]!=NULL; ++i ) {
-		if ( ArrayCount(PSDictHasEntry(mm->instances[j]->private,arrnames[i]))!=
-				ArrayCount(PSDictHasEntry(sf->private,arrnames[i])) ) {
+		if (ArrayCount(PSDictHasEntry(mm->instances[j]->_private, arrnames[i])) !=
+          ArrayCount(PSDictHasEntry(sf->_private, arrnames[i])) ) {
 		    if ( complain )
 			ff_post_error(_("Bad Multiple Master Font"),_("The entry \"%1$.20s\" is not present in the private dictionary of both %2$.30s and %3$.30s"),
 				arrnames[i], sf->fontname, mm->instances[j]->fontname);

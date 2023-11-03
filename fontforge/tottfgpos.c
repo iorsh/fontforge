@@ -2189,10 +2189,10 @@ static uint16_t *FigureInitialClasses(FPST *fpst) {
     initial[fpst->nccnt] = 0xffff;
     for ( i=cnt=0; i<fpst->rule_cnt; ++i ) {
 	for ( j=0; j<cnt ; ++j )
-	    if ( initial[j] == fpst->rules[i].u.class.nclasses[0] )
+	    if ( initial[j] == fpst->rules[i].u._class.nclasses[0] )
 	break;
 	if ( j==cnt )
-	    initial[cnt++] = fpst->rules[i].u.class.nclasses[0];
+	    initial[cnt++] = fpst->rules[i].u._class.nclasses[0];
     }
     qsort(initial,cnt,sizeof(uint16_t),ui16cmp);
     initial[cnt] = 0xffff;
@@ -2280,7 +2280,7 @@ static int CntRulesStartingWithClass(FPST *fpst,uint16_t cval) {
     int i, cnt;
 
     for ( i=cnt=0; i<fpst->rule_cnt; ++i ) {
-	if ( fpst->rules[i].u.class.nclasses[0]==cval )
+	if (fpst->rules[i].u._class.nclasses[0] == cval )
 	    ++cnt;
     }
 return( cnt );
@@ -2472,7 +2472,7 @@ static void dumpg___ContextChainClass(FILE *lfile,SplineFont *sf,
 	    putshort(lfile,subcnt);
 	    for ( j=0; j<subcnt; ++j )
 		putshort(lfile,0);
-	    for ( j=k=0; k<fpst->rule_cnt; ++k ) if ( i==fpst->rules[k].u.class.nclasses[0] ) {
+	    for ( j=k=0; k<fpst->rule_cnt; ++k ) if ( i==fpst->rules[k].u._class.nclasses[0] ) {
 		subpos = ftell(lfile);
 		fseek(lfile,pos+(1+j)*sizeof(short),SEEK_SET);
 		putshort(lfile,subpos-pos);
@@ -2482,20 +2482,20 @@ static void dumpg___ContextChainClass(FILE *lfile,SplineFont *sf,
 		    if ( fpst->rules[k].lookups[l].lookup->lookup_index!=-1 )
 			++lc;
 		if ( iscontext ) {
-		    putshort(lfile,fpst->rules[k].u.class.ncnt);
+		    putshort(lfile,fpst->rules[k].u._class.ncnt);
 		    putshort(lfile,lc);
-		    for ( l=1; l<fpst->rules[k].u.class.ncnt; ++l )
-			putshort(lfile,fpst->rules[k].u.class.nclasses[l]);
+		    for ( l=1; l<fpst->rules[k].u._class.ncnt; ++l )
+			putshort(lfile,fpst->rules[k].u._class.nclasses[l]);
 		} else {
-		    putshort(lfile,fpst->rules[k].u.class.bcnt);
-		    for ( l=0; l<fpst->rules[k].u.class.bcnt; ++l )
-			putshort(lfile,fpst->rules[k].u.class.bclasses[l]);
-		    putshort(lfile,fpst->rules[k].u.class.ncnt);
-		    for ( l=1; l<fpst->rules[k].u.class.ncnt; ++l )
-			putshort(lfile,fpst->rules[k].u.class.nclasses[l]);
-		    putshort(lfile,fpst->rules[k].u.class.fcnt);
-		    for ( l=0; l<fpst->rules[k].u.class.fcnt; ++l )
-			putshort(lfile,fpst->rules[k].u.class.fclasses[l]);
+		    putshort(lfile,fpst->rules[k].u._class.bcnt);
+		    for ( l=0; l<fpst->rules[k].u._class.bcnt; ++l )
+			putshort(lfile,fpst->rules[k].u._class.bclasses[l]);
+		    putshort(lfile,fpst->rules[k].u._class.ncnt);
+		    for ( l=1; l<fpst->rules[k].u._class.ncnt; ++l )
+			putshort(lfile,fpst->rules[k].u._class.nclasses[l]);
+		    putshort(lfile,fpst->rules[k].u._class.fcnt);
+		    for ( l=0; l<fpst->rules[k].u._class.fcnt; ++l )
+			putshort(lfile,fpst->rules[k].u._class.fclasses[l]);
 		    putshort(lfile,lc);
 		}
 		for ( l=0; l<fpst->rules[k].lookup_cnt; ++l )
@@ -2511,7 +2511,7 @@ static void dumpg___ContextChainClass(FILE *lfile,SplineFont *sf,
 
     maxcontext = 0;
     for ( i=0; i<fpst->rule_cnt; ++i ) {
-	curcontext = fpst->rules[i].u.class.ncnt+fpst->rules[i].u.class.bcnt+fpst->rules[i].u.class.fcnt;
+	curcontext = fpst->rules[i].u._class.ncnt + fpst->rules[i].u._class.bcnt + fpst->rules[i].u._class.fcnt;
 	if ( curcontext>maxcontext ) maxcontext = curcontext;
     }
     if ( maxcontext>at->os2.maxContext )

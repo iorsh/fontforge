@@ -1795,10 +1795,10 @@ return(NULL);
     cidmaster->possub = sf->possub; sf->possub = NULL;
     cidmaster->kerns = sf->kerns; sf->kerns = NULL;
     cidmaster->vkerns = sf->vkerns; sf->vkerns = NULL;
-    if ( sf->private==NULL )
-	sf->private = calloc(1,sizeof(struct psdict));
-    if ( !PSDictHasEntry(sf->private,"lenIV"))
-	PSDictChangeEntry(sf->private,"lenIV","1");		/* It's 4 by default, in CIDs the convention seems to be 1 */
+    if (sf->_private == NULL )
+	sf->_private = calloc(1, sizeof(struct psdict));
+    if ( !PSDictHasEntry(sf->_private, "lenIV"))
+	PSDictChangeEntry(sf->_private, "lenIV", "1");		/* It's 4 by default, in CIDs the convention seems to be 1 */
     for ( fvs=sf->fv; fvs!=NULL; fvs=fvs->nextsame ) {
 	free(fvs->selected);
 	fvs->selected = calloc(fvs->sf->glyphcnt,sizeof(uint8_t));
