@@ -2,6 +2,13 @@
 
 cmake_minimum_required(VERSION 3.27)
 
+# Enable contemporary C++ module support (evidently specifying v.20/23 isn't enough...)
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API aa1f7df0-828a-4fcd-9afc-2dc80491aca7)
+# ...this also seems required to actually locate compiled modules
+add_compile_options(-fmodules)
+# ...and this stops clang-scan-deps from shitting the bed...
+add_compile_options(-fno-implicit-module-maps)
+
 # Update the version for each new release
 project(fontforge VERSION 20230101 LANGUAGES C CXX)
 
