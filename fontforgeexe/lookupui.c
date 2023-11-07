@@ -1170,7 +1170,7 @@ static char *LK_LangsDlg(GGadget *g, int r, int c) {
 	    "Hold down the control key when clicking\n"
 	    "to make disjoint selections.");
 	varray[0] = &gcd[i]; varray[1] = NULL;
-	gcd[i++].creator = GListCreate;
+	gcd[i++].creator = GDListCreate;
 
 	gcd[i].gd.pos.x = 15-3; gcd[i].gd.pos.y = gcd[i-1].gd.pos.y+gcd[i-1].gd.pos.height+5;
 	gcd[i].gd.pos.width = -1; gcd[i].gd.pos.height = 0;
@@ -2064,7 +2064,7 @@ int EditLookup(OTLookup *otl,int isgpos,SplineFont *sf) {
     gcd[1].gd.popup_msg = _(
 	"Each lookup may contain many transformations,\n"
 	"but each transformation must be of the same type.");
-    gcd[1].creator = GListButtonCreate;
+    gcd[1].creator = GDListButtonCreate;
 
     for ( i=0; lookuptypes[isgpos][i].text!=NULL || lookuptypes[isgpos][i].line; ++i ) {
 	if ( (void *) otl->lookup_type == lookuptypes[isgpos][i].userdata &&
@@ -2155,7 +2155,7 @@ int EditLookup(OTLookup *otl,int isgpos,SplineFont *sf) {
 	gcd[8].gd.u.list = SFMarkClassList(sf,class);
 	gcd[8].gd.label = &gcd[8].gd.u.list[class];
 	gcd[8].gd.cid = CID_Lookup_ProcessMark;
-	gcd[8].creator = GListButtonCreate;
+	gcd[8].creator = GDListButtonCreate;
 	flaghvarray[1] = &gcd[8]; flaghvarray[2] = GCD_Glue; flaghvarray[3] = NULL;
 
 /* GT: Mark is a noun here and Set is also a noun. */
@@ -2174,7 +2174,7 @@ int EditLookup(OTLookup *otl,int isgpos,SplineFont *sf) {
 	gcd[10].gd.u.list = SFMarkSetList(sf,class);
 	gcd[10].gd.label = &gcd[10].gd.u.list[class+1];
 	gcd[10].gd.cid = CID_Lookup_ProcessSet;
-	gcd[10].creator = GListButtonCreate;
+	gcd[10].creator = GDListButtonCreate;
 	flaghvarray[5] = &gcd[10]; flaghvarray[6] = GCD_Glue; flaghvarray[7] = NULL; flaghvarray[8] = NULL;
 
 	boxes[1].gd.flags = gg_enabled|gg_visible;
@@ -5190,7 +5190,7 @@ static void PSTKernD(SplineFont *sf, struct lookup_subtable *sub, int def_layer)
 	gcd[i].gd.cid = CID_Magnification;
 	gcd[i].gd.u.list = magnifications;
 	gcd[i].gd.handle_controlevent = PSTKD_MagnificationChanged;
-	gcd[i++].creator = GListButtonCreate;
+	gcd[i++].creator = GDListButtonCreate;
 	h2array[4] = &gcd[i-1]; h2array[5] = GCD_Glue; h2array[6] = NULL;
 
 	box[2].gd.flags = gg_enabled|gg_visible;
@@ -6498,7 +6498,7 @@ void AddRmLang(SplineFont *sf, struct lkdata *lk,int add_lang) {
     gcd[k].gd.flags = gg_visible | gg_enabled | gg_list_alphabetic;
     gcd[k].gd.cid = CID_ScriptTag;
     gcd[k].gd.handle_controlevent = ARL_TagChanged;
-    gcd[k++].creator = GListFieldCreate;
+    gcd[k++].creator = GDListFieldCreate;
     hvarray[0][1] = &gcd[k-1]; hvarray[0][2] = NULL;
 
     label[k].text = (unichar_t *) _("Language Tag:");
@@ -6513,7 +6513,7 @@ void AddRmLang(SplineFont *sf, struct lkdata *lk,int add_lang) {
     gcd[k].gd.cid = CID_Langs;
     gcd[k].gd.flags = gg_visible | gg_enabled | gg_list_alphabetic;
     gcd[k].gd.handle_controlevent = ARL_TagChanged;
-    gcd[k++].creator = GListFieldCreate;
+    gcd[k++].creator = GDListFieldCreate;
     hvarray[1][1] = &gcd[k-1]; hvarray[1][2] = NULL;
 
 
@@ -6891,7 +6891,7 @@ void FVMassGlyphRename(FontView *fv) {
     gcd[k].gd.flags = gg_enabled|gg_visible;
     gcd[k].gd.cid = CID_SubTable;
     gcd[k].gd.handle_controlevent = MRD_Subtable;
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
     hvarray[i][0] = GCD_Glue; hvarray[i][1] = &gcd[k-1]; hvarray[i++][2] = NULL;
     hvarray[i][0] = hvarray[i][1] = GCD_Glue; hvarray[i++][2] = NULL;
 

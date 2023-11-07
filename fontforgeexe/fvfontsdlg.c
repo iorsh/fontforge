@@ -206,7 +206,7 @@ void FVMergeFonts(FontView *fv) {
 	gcd[1].gd.u.list = BuildFontList(fv);
 	gcd[1].gd.label = &gcd[1].gd.u.list[0];
 	gcd[1].gd.u.list[0].selected = true;
-	gcd[1].creator = GListButtonCreate;
+	gcd[1].creator = GDListButtonCreate;
 	varray[2] = &gcd[1]; varray[3] = NULL;
 
 	label[2].text = (unichar_t *) _("Preserve cross-font kerning");
@@ -365,7 +365,7 @@ void FVInterpolateFonts(FontView *fv) {
 	gcd[1].gd.u.list[1].selected = true;
 	gcd[1].gd.flags = gg_visible;
     }
-    gcd[1].creator = GListButtonCreate;
+    gcd[1].creator = GDListButtonCreate;
 
     sprintf( buf2, "%g", last_amount );
     label[2].text = (unichar_t *) buf2;

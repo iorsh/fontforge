@@ -221,7 +221,7 @@ int GotoChar(SplineFont *sf,EncMap *map,int *merge_with_selection) {
 	gcd[k].creator = GTextCompletionCreate;
     else {
 	gcd[k].gd.u.list = ranges;
-	gcd[k].creator = GListFieldCreate;
+	gcd[k].creator = GDListFieldCreate;
     }
     hvarray[j][0] = &gcd[k++]; hvarray[j++][1] = NULL;
 

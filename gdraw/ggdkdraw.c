@@ -85,7 +85,7 @@ static void _GGDKDraw_SetOpaqueRegion(GGDKWindow gw) {
 }
 
 static void _GGDKDraw_ClearSelData(GGDKDisplay *gdisp, enum selnames sn) {
-    GList_Glib *ptr = gdisp->selinfo[sn].datalist;
+    GList *ptr = gdisp->selinfo[sn].datalist;
     while (ptr != NULL) {
         GGDKSelectionData *data = (GGDKSelectionData *)ptr->data;
         if (data->data) {
@@ -125,7 +125,7 @@ static bool _GGDKDraw_TransmitSelection(GGDKDisplay *gdisp, GdkEventSelection *e
     if (e->target == gdk_atom_intern_static_string("TARGETS")) {
         guint i = 0, dlen = g_list_length(sel->datalist);
         GdkAtom *targets = calloc(2 + dlen, sizeof(GdkAtom));
-        GList_Glib *ptr = sel->datalist;
+        GList *ptr = sel->datalist;
 
         targets[i++] = gdk_atom_intern_static_string("TIMESTAMP");
         targets[i++] = gdk_atom_intern_static_string("TARGETS");
@@ -146,7 +146,7 @@ static bool _GGDKDraw_TransmitSelection(GGDKDisplay *gdisp, GdkEventSelection *e
         gdk_property_change(requestor, e->property, gdk_atom_intern_static_string("INTEGER"),
                             32, GDK_PROP_MODE_REPLACE, (const guchar *)&sel->timestamp, 1);
     } else {
-        GList_Glib *ptr = sel->datalist;
+        GList *ptr = sel->datalist;
         GGDKSelectionData *data = NULL;
         while (ptr != NULL) {
             if (((GGDKSelectionData *)ptr->data)->type_atom == e->target) {
@@ -221,9 +221,9 @@ static gboolean _GGDKDraw_OnWindowDestroyed(gpointer data) {
 
         // Remove all relevant timers that haven't been cleaned up by the user
         // Note: We do not free the GTimer struct as the user may then call DestroyTimer themselves...
-        GList_Glib *ent = gw->display->timers;
+        GList *ent = gw->display->timers;
         while (ent != NULL) {
-            GList_Glib *next = ent->next;
+            GList *next = ent->next;
             GGDKTimer *timer = (GGDKTimer *)ent->data;
             if (timer->owner == (GWindow)gw) {
                 //Since we update the timer list ourselves, don't all GGDKDrawCancelTimer.
@@ -561,7 +561,7 @@ static GWindow _GGDKDraw_CreateWindow(GGDKDisplay *gdisp, GGDKWindow gw, GRect *
         if (icon != NULL) {
             GdkPixbuf *pb = gdk_pixbuf_get_from_surface(icon->cs, 0, 0, icon->pos.width, icon->pos.height);
             if (pb != NULL) {
-                GList_Glib ent = {.data = pb};
+                GList ent = {.data = pb};
                 gdk_window_set_icon_list(nw->w, &ent);
                 g_object_unref(pb);
             }
@@ -1353,8 +1353,8 @@ static void GGDKDrawDestroyWindow(GWindow w) {
     gw->is_notified_of_selection = false;
 
     if (!gw->is_pixmap && gw != gw->display->groot) {
-        GList_Glib *list = gdk_window_get_children(gw->w);
-        GList_Glib *child = list;
+        GList *list = gdk_window_get_children(gw->w);
+        GList *child = list;
         while (child != NULL) {
             GWindow c = g_object_get_data(child->data, "GGDKWindow");
             assert(c != NULL);
@@ -1543,7 +1543,7 @@ static void GGDKDrawSetTransientFor(GWindow transient, GWindow owner) {
     }
 
     if (owner == (GWindow) - 1) {
-        for (GList_Glib *pw = gdisp->mru_windows->head; pw != NULL; pw = pw->next) {
+        for (GList *pw = gdisp->mru_windows->head; pw != NULL; pw = pw->next) {
             GGDKWindow tw = (GGDKWindow)pw->data;
             if (tw != gw && tw->is_visible) {
                 ow = tw;
@@ -1779,7 +1779,7 @@ static void GGDKDrawAddSelectionType(GWindow w, enum selnames sel, char *type, v
     GGDKDisplay *gdisp = gw->display;
     GdkAtom type_atom = gdk_atom_intern(type, false);
     GGDKSelectionData *sd = NULL;
-    GList_Glib *dl = gdisp->selinfo[sel].datalist;
+    GList *dl = gdisp->selinfo[sel].datalist;
 
     if (unitsize != 1 && unitsize != 2 && unitsize != 4) {
         GDrawIError("Bad unitsize to GGDKDrawAddSelectionType");
@@ -1846,7 +1846,7 @@ static void *GGDKDrawRequestSelection(GWindow w, enum selnames sn, char *typenam
 
     // If we own the selection, get the data ourselves...
     if (gdisp->selinfo[sn].owner != NULL) {
-        GList_Glib *ptr = gdisp->selinfo[sn].datalist;
+        GList *ptr = gdisp->selinfo[sn].datalist;
         while (ptr != NULL) {
             GGDKSelectionData *sd = (GGDKSelectionData *)ptr->data;
             if (sd->type_atom == type_atom) {
@@ -1932,7 +1932,7 @@ static int GGDKDrawSelectionHasType(GWindow w, enum selnames sn, char *typename)
 
     // Check if we own it
     if (gdisp->selinfo[sn].owner != NULL) {
-        GList_Glib *ptr = gdisp->selinfo[sn].datalist;
+        GList *ptr = gdisp->selinfo[sn].datalist;
         while (ptr != NULL) {
             if (((GGDKSelectionData *)ptr->data)->type_atom == sel_type) {
                 return true;

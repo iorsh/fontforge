@@ -838,12 +838,12 @@ extern unichar_t *ShowScripts(unichar_t *usedef);
 extern GTextInfo *SFLangList(SplineFont *sf,int addfinal,SplineChar *default_script);
 extern GTextInfo **SFLangArray(SplineFont *sf,int addfinal);
 extern int  ScriptLangList(SplineFont *sf,GGadget *list,int sli);
-extern void GListDelSelected(GGadget *list);
-extern void GListMoveOneSelected(GGadget *list,int offset);
-extern GTextInfo *GListChangeLine(GGadget *list,int pos, const unichar_t *line);
-extern GTextInfo *GListAppendLine(GGadget *list,const unichar_t *line,int select);
-extern GTextInfo *GListChangeLine8(GGadget *list,int pos, const char *line);
-extern GTextInfo *GListAppendLine8(GGadget *list,const char *line,int select);
+extern void GDListDelSelected(GGadget *list);
+extern void GDListMoveOneSelected(GGadget *list,int offset);
+extern GTextInfo *GDListChangeLine(GGadget *list,int pos, const unichar_t *line);
+extern GTextInfo *GDListAppendLine(GGadget *list,const unichar_t *line,int select);
+extern GTextInfo *GDListChangeLine8(GGadget *list,int pos, const char *line);
+extern GTextInfo *GDListAppendLine8(GGadget *list,const char *line,int select);
 extern void CharInfoInit(void);
 extern void SCLigCaretCheck(SplineChar *sc,int clean);
 extern char *DevTab_Dlg(GGadget *g, int r, int c);
@@ -967,7 +967,7 @@ extern int CVAnySelPoints(CharView *cv);
  * Get all the selected points in the current cv.
  * Caller must g_list_free() the returned value.
  */
-extern GList_Glib* CVGetSelectedPoints(CharView *cv);
+extern GList* CVGetSelectedPoints(CharView *cv);
 extern void CVSelectPointAt(CharView *cv);
 extern int CVClearSel(CharView *cv);
 extern int CVSetSel(CharView *cv,int mask);
@@ -1101,8 +1101,8 @@ extern GTextInfo *SLOfFont(SplineFont *sf);
 extern void DoPrefs(void);
 extern void DoXRes(void);
 extern void PointerDlg(CharView *cv);
-extern void GListAddStr(GGadget *list,unichar_t *str, void *ud);
-extern void GListReplaceStr(GGadget *list,int index, unichar_t *str, void *ud);
+extern void GDListAddStr(GGadget *list,unichar_t *str, void *ud);
+extern void GDListReplaceStr(GGadget *list,int index, unichar_t *str, void *ud);
 extern struct macname *NameGadgetsGetNames( GWindow gw );
 extern void NameGadgetsSetEnabled( GWindow gw, int enable );
 extern int GCDBuildNames(GGadgetCreateData *gcd,GTextInfo *label,int pos,struct macname *names);

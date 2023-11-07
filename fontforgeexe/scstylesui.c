@@ -1031,7 +1031,7 @@ void GlyphChangeDlg(FontView *fv,CharView *cv, enum glyphchange_type gc) {
 	    gcd[k].gd.cid = CID_Feature;
 	    gcd[k].gd.u.list = ss_features;
 	    gcd[k].gd.handle_controlevent = SS_Feature_Changed;
-	    gcd[k++].creator = GListFieldCreate;
+	    gcd[k++].creator = GDListFieldCreate;
 	    extarray[1] = &gcd[k-1];
 
 	    label[k].text = (unichar_t *) _("Glyph Extension:");

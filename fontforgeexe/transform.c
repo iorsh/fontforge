@@ -350,7 +350,7 @@ static GGadgetCreateData *MakeTransBlock(TransData *td,int bnum,
     gcd[0].gd.label = &transformtypes[0];
     gcd[0].gd.u.list = transformtypes;
     gcd[0].gd.cid = CID_Type+offset;
-    gcd[0].creator = GListButtonCreate;
+    gcd[0].creator = GDListButtonCreate;
     gcd[0].data = (void *) -1;
     gcd[0].gd.handle_controlevent = Trans_TypeChange;
     transformtypes[0].selected = true;
@@ -634,7 +634,7 @@ void TransformDlgCreate(void *data,void (*transfunc)(void *,real *,int,BVTFunc *
 	gcd[1].gd.label = &origin[1];
 	gcd[1].gd.u.list = origin;
 	gcd[1].gd.cid = CID_Origin;
-	gcd[1].creator = GListButtonCreate;
+	gcd[1].creator = GDListButtonCreate;
 	origin[1].selected = true;
 
 	origarray[0] = &gcd[0]; origarray[1] = &gcd[1]; origarray[2] = GCD_Glue; origarray[3] = NULL;

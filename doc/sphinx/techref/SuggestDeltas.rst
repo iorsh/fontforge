@@ -24,7 +24,7 @@ The dialog opposite will check the glyph at pointsizes 7-40, 72, 80, ... where
 the screen resolution is 100 for places where a spline comes within .01 (in
 pixel units) of the center of a pixel.
 
-.. image:: /images/QGList.png
+.. image:: /images/QGDList.png
 
 The results will look like those at right. Clicking on an entry will toggle
 whether that entry is open (and its children visible) or not.

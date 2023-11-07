@@ -1190,9 +1190,9 @@ GGadget 2
 The Gadgets
 ~~~~~~~~~~~
 
-.. object:: Gdraw.GListMark... controls the shape of the mark used to show the menu of a combo box.
+.. object:: Gdraw.GDListMark... controls the shape of the mark used to show the menu of a combo box.
 
-   .. image:: /images/GListMark.png
+   .. image:: /images/GDListMark.png
 
    See below for additional directives.
 .. object:: Gdraw.GLabel...
@@ -1241,7 +1241,7 @@ The Gadgets
    .. image:: /images/GComboBox.png
 
    Also called a "List Field"
-.. object:: Gdraw.GComboBoxMenu...    Inherits from GComboBox (This is the box drawn around the GListMark in a ComboBox)
+.. object:: Gdraw.GComboBoxMenu...    Inherits from GComboBox (This is the box drawn around the GDListMark in a ComboBox)
 
    .. image:: /images/GComboBoxMenu.png
 .. object:: Gdraw.GNumericField...    Inherits from GTextField
@@ -1253,7 +1253,7 @@ The Gadgets
 .. object:: Gdraw.GScrollBar...
 
    A scroll bar widget. See below for additional directives.
-.. object:: Gdraw.GList...
+.. object:: Gdraw.GDList...
             Gdraw.GScrollBarThumb...
             Gdraw.GGroup... -- a frame around groups of gadgets.
             Gdraw.GLine...
@@ -1289,25 +1289,25 @@ The Gadgets
 
    An integer specifying the time between repeats in milliseconds.
 
-.. object:: Gdraw.GListMark.Width
+.. object:: Gdraw.GDListMark.Width
 
    An integer (points)
 
    Specifies the width for the little mark at the end of comboboxes and drop
    lists.
 
-.. object:: Gdraw.GListMark.Image
+.. object:: Gdraw.GDListMark.Image
 
    A filename of an image file
 
-   Will be used instead of GListMark.Box if present. This is either a fully
+   Will be used instead of GDListMark.Box if present. This is either a fully
    qualified pathname, or the filename of an image in the pixmap directory.
 
-.. object:: Gdraw.GListMark.DisabledImage
+.. object:: Gdraw.GDListMark.DisabledImage
 
    A filename of an image file
 
-   Will be used instead of GListMark.Box for disabled (non-clickable) instances,
+   Will be used instead of GDListMark.Box for disabled (non-clickable) instances,
    if present. This is either a fully qualified pathname, or the filename of an
    image in the pixmap directory.
 

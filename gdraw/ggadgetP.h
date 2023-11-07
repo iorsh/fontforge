@@ -169,7 +169,7 @@ typedef struct glistbutton {
     GTextInfo **ti;
     uint16_t ltot;
     GWindow popup;
-} GListButton;
+} GDListButton;
 
 typedef struct gcolorbutton {
     GGadget g;
@@ -245,7 +245,7 @@ typedef struct gscrollbar {		/* and slider */
     GBox *thumbbox;
 } GScrollBar;
 
-typedef struct glist {
+typedef struct gdlist {
     GGadget g;
     uint8_t fh;
     uint8_t as;
@@ -270,7 +270,7 @@ typedef struct glist {
     GTimer *enduser;
     GTimer *pressed;
     void (*popup_callback)(GGadget *g,int pos);
-} GList;
+} GDList;
 
 typedef struct gscroll1box {
     GGadget g;
@@ -339,10 +339,10 @@ typedef struct glistfield {
     GTextInfo **ti;
     uint16_t ltot;
     GWindow popup;
-} GListField;
+} GDListField;
 
 typedef struct gcompletionfield {
-    GListField gl;
+    GDListField gl;
     unichar_t **choices;
     uint16_t ctot; int16_t selected;
     GWindow choice_popup;
@@ -412,8 +412,8 @@ struct gdirentry;
 typedef struct gfilechooser {
     struct ggadget g;
     GTextField *name;
-    GList *files, *subdirs;
-    GListButton *directories;
+    GDList *files, *subdirs;
+    GDListButton *directories;
     GButton *ok, *filterb;	/* Not created by us, can be set by user to give chooser a better appearance */
     unichar_t **mimetypes;
     unichar_t *wildcard;
@@ -537,10 +537,10 @@ typedef struct rowcol {
 
 extern int _GScrollBar_StartTime,_GScrollBar_RepeatTime;	/* in millisecs */
 extern int _GScrollBar_Width;		/* in points */
-extern int _GListMarkSize;		/* in points, def width of popup mark in buttons */
+extern int _GDListMarkSize;		/* in points, def width of popup mark in buttons */
 extern int _GGadget_Skip;		/* in points, def hor space between gadgets */
 extern int _GGadget_TextImageSkip;	/* in points, def hor space text and image */
-extern GBox _GListMark_Box, _GGroup_LineBox;
+extern GBox _GDListMark_Box, _GGroup_LineBox;
 extern GResFont _ggadget_default_font;
 
 void _GWidget_AddGGadget(GWindow gw,struct ggadget *g);
@@ -609,13 +609,13 @@ extern GGadget *_GGadget_Create(GGadget *g, struct gwindow *base, GGadgetData *g
 extern void _GGadget_FinalPosition(GGadget *g, struct gwindow *base, GGadgetData *gd);
 extern void _ggadget_destroy(GGadget *g);
 
-extern GWindow GListPopupCreate(GGadget *owner,void (*inform)(GGadget *,int), GTextInfo **ti);
+extern GWindow GDListPopupCreate(GGadget *owner,void (*inform)(GGadget *,int), GTextInfo **ti);
 
 extern int GMenuPopupCheckKey(GEvent *event);
 extern int GMenuBarCheckKey(GWindow top, GGadget *g, GEvent *event);
 extern void _GButton_SetDefault(GGadget *g,int32_t is_default);
 extern void _GButtonInit(void);
-extern void GListMarkDraw(GWindow pixmap,int x, int y, int height, enum gadget_state state );
+extern void GDListMarkDraw(GWindow pixmap,int x, int y, int height, enum gadget_state state );
 extern const char* const* _GGadget_GetImagePath(void);
 extern int _GGadget_ImageInCache(GImage *image);
 

@@ -1136,7 +1136,7 @@ return;
     gcd[1].gd.cid = CID_Size;
     gcd[1].gd.u.list = sizes;
     gcd[1].gd.handle_controlevent = KP_ChangeSize;
-    gcd[1].creator = GListButtonCreate;
+    gcd[1].creator = GDListButtonCreate;
     hvarray[0][1] = &gcd[1]; hvarray[0][2] = NULL;
 
     label[2].text = (unichar_t *) _("Sort By:");
@@ -1159,7 +1159,7 @@ return;
     gcd[3].gd.cid = CID_SortBy;
     gcd[3].gd.u.list = sortby;
     gcd[3].gd.handle_controlevent = KP_ChangeSort;
-    gcd[3].creator = GListButtonCreate;
+    gcd[3].creator = GDListButtonCreate;
     hvarray[1][1] = &gcd[3]; hvarray[1][2] = NULL; hvarray[2][0] = NULL;
 
     boxes[2].gd.flags = gg_enabled|gg_visible;

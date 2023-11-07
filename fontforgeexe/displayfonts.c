@@ -432,7 +432,7 @@ static int PageSetup(PD *pi) {
     gcd[8].gd.flags = gg_visible | gg_enabled;
     gcd[8].gd.cid = CID_Pagesize;
     gcd[8].gd.u.list = pagesizes;
-    gcd[8].creator = GListFieldCreate;
+    gcd[8].creator = GDListFieldCreate;
     txtarray[0][1] = &gcd[8];
 
 
@@ -481,7 +481,7 @@ static int PageSetup(PD *pi) {
     gcd[12].gd.flags = gg_visible | gg_enabled;
     gcd[12].gd.cid = CID_Printer;
     gcd[12].gd.u.list = PrinterList();
-    gcd[12].creator = GListFieldCreate;
+    gcd[12].creator = GDListFieldCreate;
     txtarray[1][1] = &gcd[12];
     txtarray[1][2] = GCD_ColSpan; txtarray[1][3] = GCD_Glue; txtarray[1][4] = NULL;
     txtarray[2][0] = NULL;
@@ -1638,7 +1638,7 @@ return;
 	    (gg_visible):
 	    (gg_visible | gg_enabled);
     gcd[0].gd.handle_controlevent = DSP_FontChanged;
-    gcd[0].creator = GListButtonCreate;
+    gcd[0].creator = GDListButtonCreate;
     varray[0] = &gcd[0]; varray[1] = NULL;
 
     label[2].text = (unichar_t *) _("_Size:");
@@ -1792,7 +1792,7 @@ return;
     gcd[10].gd.cid = CID_ScriptLang;
     gcd[10].gd.u.list = active->scriptlangs = SLOfFont(sf);
     gcd[10].gd.handle_controlevent = DSP_ScriptLangChanged;
-    gcd[10].creator = GListFieldCreate;
+    gcd[10].creator = GDListFieldCreate;
     varray[6] = GCD_Glue; varray[7] = NULL;
     varray[8] = &gcd[10]; varray[9] = NULL; varray[10] = NULL;
 
@@ -1806,7 +1806,7 @@ return;
     gcd[11].gd.flags = gg_visible | gg_enabled| gg_list_alphabetic | gg_list_multiplesel;
     gcd[11].gd.cid = CID_Features;
     gcd[11].gd.handle_controlevent = DSP_FeaturesChanged;
-    gcd[11].creator = GListCreate;
+    gcd[11].creator = GDListCreate;
     harray2[0] = &gcd[11];
 
     label[12].image = &GIcon_menudelta;
@@ -2213,8 +2213,8 @@ return;
     }
 
     GGadgetsCreate(active->gw,boxes);
-    GListSetSBAlwaysVisible(gcd[11].ret,true);
-    GListSetPopupCallback(gcd[11].ret,MV_FriendlyFeatures);
+    GDListSetSBAlwaysVisible(gcd[11].ret,true);
+    GDListSetPopupCallback(gcd[11].ret,MV_FriendlyFeatures);
 
     GTextInfoListFree(gcd[0].gd.u.list);
     DSP_SetFont(active,true);

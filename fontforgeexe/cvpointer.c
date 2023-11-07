@@ -92,10 +92,10 @@ return( true );
 return( false );
 }
 
-GList_Glib*
+GList*
 CVGetSelectedPoints(CharView *cv)
 {
-    GList_Glib* ret = 0;
+    GList* ret = 0;
     /* if there are any points selected */
     SplinePointList *spl;
     Spline *spline, *first;

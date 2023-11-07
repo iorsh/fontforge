@@ -1306,7 +1306,7 @@ void DefineGroups(FontView *fv) {
     gcd[k].gd.u.list = std_colors;
     gcd[k].gd.handle_controlevent = Group_AddColor;
     gcd[k].gd.flags = gg_visible;
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
 
     gcd[k].gd.pos.width = GDrawPixelsToPoints(NULL,pos.width)-20;
     gcd[k].gd.pos.x = 10;

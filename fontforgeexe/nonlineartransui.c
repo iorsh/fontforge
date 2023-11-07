@@ -363,7 +363,7 @@ int PointOfViewDlg(struct pov_data *pov, SplineFont *sf, int flags) {
     gcd[k].gd.label = &originx[pov->xorigin];
     gcd[k].gd.u.list = originx;
     gcd[k].gd.cid = CID_XType;
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
     harray1[1] = &gcd[k-1]; harray1[2] = NULL;
 
     boxes[2].gd.flags = gg_enabled|gg_visible;
@@ -399,7 +399,7 @@ int PointOfViewDlg(struct pov_data *pov, SplineFont *sf, int flags) {
     gcd[k].gd.label = &originy[pov->yorigin];
     gcd[k].gd.u.list = originy;
     gcd[k].gd.cid = CID_YType;
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
     harray2[1] = &gcd[k-1]; harray2[2] = NULL;
 
     boxes[3].gd.flags = gg_enabled|gg_visible;

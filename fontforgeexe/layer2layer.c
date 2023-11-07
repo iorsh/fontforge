@@ -235,7 +235,7 @@ static void Layer2Layer(CharView *cv,FontView *fv,enum l2l_type l2l,int def_laye
     gcd[k].gd.flags = gg_enabled|gg_visible;
     gcd[k].gd.cid = CID_FromLayer;
     gcd[k].gd.u.list = SFLayerList(d.sf,def_layer);
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
     hvarray2[1] = &gcd[k-1]; hvarray2[2] = NULL;
 
     label[k].text = (unichar_t *) (l2l==l2l_copy ? _("To:") : _("Other:"));
@@ -248,7 +248,7 @@ static void Layer2Layer(CharView *cv,FontView *fv,enum l2l_type l2l,int def_laye
     gcd[k].gd.flags = gg_enabled|gg_visible;
     gcd[k].gd.cid = CID_ToLayer;
     gcd[k].gd.u.list = SFLayerList(d.sf,def_layer==ly_fore ? ly_back : ly_fore );
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
     hvarray2[4] = &gcd[k-1]; hvarray2[5] = NULL; hvarray2[6] = NULL;
 
     boxes[3].gd.flags = gg_enabled|gg_visible;

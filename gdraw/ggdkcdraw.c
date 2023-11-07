@@ -579,7 +579,7 @@ bool _GGDKDraw_InitPangoCairo(GGDKWindow gw) {
 }
 
 cairo_region_t *_GGDKDraw_ExcludeChildRegions(GGDKWindow gw, cairo_region_t *r, bool force) {
-    GList_Glib *children = gdk_window_peek_children(gw->w);
+    GList *children = gdk_window_peek_children(gw->w);
     cairo_region_t *reg = NULL;
 
     if (children) {

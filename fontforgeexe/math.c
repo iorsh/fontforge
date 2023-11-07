@@ -1922,7 +1922,7 @@ void MathKernDialog(SplineChar *sc,int def_layer) {
     gcd[k].gd.flags = gg_visible|gg_enabled ;
     gcd[k].gd.cid = CID_Glyph;
     gcd[k].gd.handle_controlevent = MathKernD_GlyphChanged;
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
 
     label[k].text = (unichar_t *) _("_OK");
     label[k].text_is_1byte = true;

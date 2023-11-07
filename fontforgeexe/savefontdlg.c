@@ -2209,7 +2209,7 @@ return( 0 );
     gcd[6].gd.pos.x = 12; gcd[6].gd.pos.y = 190; gcd[6].gd.pos.width = 0; gcd[6].gd.pos.height = 0;
     gcd[6].gd.flags = gg_visible | gg_enabled ;
     gcd[6].gd.u.list = formattypes;
-    gcd[6].creator = GListButtonCreate;
+    gcd[6].creator = GDListButtonCreate;
     hvarray[0] = &gcd[6]; hvarray[1] = GCD_ColSpan;
 
     any = false;
@@ -2334,7 +2334,7 @@ return( 0 );
     gcd[8].gd.pos.x = 155; gcd[8].gd.pos.y = 190; gcd[8].gd.pos.width = 126;
     gcd[8].gd.flags = gg_visible | gg_enabled;
     gcd[8].gd.u.list = bitmaptypes;
-    gcd[8].creator = GListButtonCreate;
+    gcd[8].creator = GDListButtonCreate;
     for ( i=0; i<sizeof(bitmaptypes)/sizeof(bitmaptypes[0]); ++i ) {
 	bitmaptypes[i].selected = false;
 	bitmaptypes[i].disabled = false;
@@ -2415,7 +2415,7 @@ return( 0 );
     gcd[k].gd.pos.width = gcd[k-2].gd.pos.width;
     gcd[k].gd.flags = gg_visible | gg_enabled;
     gcd[k].gd.popup_msg = _("In the saved font, force all glyph names to match those in the specified namelist");
-    gcd[k].creator = GListButtonCreate;
+    gcd[k].creator = GDListButtonCreate;
     nlnames = AllNamelistNames();
     for ( cnt=0; nlnames[cnt]!=NULL; ++cnt);
     namelistnames = calloc(cnt+3,sizeof(GTextInfo));
@@ -2454,7 +2454,7 @@ return( 0 );
 	gcd[k].gd.pos.width = gcd[k-2].gd.pos.width;
 	gcd[k].gd.flags = gg_visible | gg_enabled;
 	gcd[k].gd.popup_msg = _("Save a font based on the specified layer");
-	gcd[k].creator = GListButtonCreate;
+	gcd[k].creator = GDListButtonCreate;
 	gcd[k].gd.cid = CID_Layers;
 	gcd[k++].gd.u.list = lynames = SFUsableLayerNames(sf,layer);
 	if ( lynames[1].text==NULL ) {

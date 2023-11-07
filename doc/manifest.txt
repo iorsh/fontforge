@@ -97,7 +97,7 @@ sphinx/images/GComboBoxMenu.png
 sphinx/images/GDefaultButton.png
 sphinx/images/GDropList.png
 sphinx/images/GLabel.png
-sphinx/images/GListMark.png
+sphinx/images/GDListMark.png
 sphinx/images/GNumericField.png
 sphinx/images/GNumericFieldSpinner.png
 sphinx/images/GRadio.png
@@ -155,7 +155,7 @@ sphinx/images/PathToBind.png
 sphinx/images/PoV.png
 sphinx/images/Print.png
 sphinx/images/QGDlg.png
-sphinx/images/QGList.png
+sphinx/images/QGDList.png
 sphinx/images/RadialGradient.png
 sphinx/images/RadialGradientDlg.png
 sphinx/images/ReviewHints.png

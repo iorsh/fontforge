@@ -20,7 +20,7 @@ typedef struct plugin_entry {
     int is_present, is_well_formed, has_prefs;
 } PluginEntry;
 
-extern GList_Glib *plugin_data;
+extern GList *plugin_data;
 
 void FreePluginEntry(PluginEntry *pe);
 char *PluginStartupModeString(enum plugin_startup_mode_type sm, int global);

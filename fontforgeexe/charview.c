@@ -8664,7 +8664,7 @@ static void _CVMergeToLine(CharView *cv, int elide) {
 
     // Select the other side of the new curve
     if (!CVInSpiro(cv)) {
-        GList_Glib* gl = CVGetSelectedPoints( cv );
+        GList* gl = CVGetSelectedPoints( cv );
         if( g_list_first(gl) )
         SPSelectPrevPoint( (SplinePoint*)g_list_first(gl)->data, 1 );
         g_list_free( gl );
@@ -12934,7 +12934,7 @@ CharView *CharViewCreateExtended(SplineChar *sc, FontView *fv,int enc, int show 
     gd.flags = gg_visible|gg_enabled|gg_pos_in_pixels|gg_text_xim;
     gd.handle_controlevent = CV_OnCharSelectorTextChanged;
     gd.u.list = cv_charselector_init;
-    cv->charselector = GListFieldCreate(cv->gw,&gd,cv);
+    cv->charselector = GDListFieldCreate(cv->gw,&gd,cv);
     CVSetCharSelectorValueFromSC( cv, sc );
     GGadgetSetSkipUnQualifiedHotkeyProcessing( cv->charselector, 1 );
 

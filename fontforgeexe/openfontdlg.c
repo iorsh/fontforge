@@ -539,7 +539,7 @@ return( false );
 return( false );
     if ( !GGadgetWithin(list,event->u.mouse.x,event->u.mouse.y) )
         return( false );
-    pos = GListIndexFromY(list,event->u.mouse.y);
+    pos = GDListIndexFromY(list,event->u.mouse.y);
     if ( pos == d->filename_popup_pos )
 return( pos!=-1 );
     if ( pos==-1 || GFileChooserPosIsDir(d->gfc,pos)) {
@@ -678,7 +678,7 @@ static unichar_t *FVOpenFont(char *title, const char *defaultfile, bool mult, bo
     gcd[i].gd.popup_msg = _("Display files of this type");
     gcd[i].gd.handle_controlevent = GFD_FilterSelected;
     harray1[2] = &gcd[i]; harray1[3] = GCD_Glue; harray1[4] = GCD_Glue; harray1[5] = GCD_Glue; harray1[6] = NULL;
-    gcd[i++].creator = GListButtonCreate;
+    gcd[i++].creator = GDListButtonCreate;
 
     boxes[2].gd.flags = gg_visible | gg_enabled;
     boxes[2].gd.u.boxelements = harray1;
@@ -698,7 +698,7 @@ static unichar_t *FVOpenFont(char *title, const char *defaultfile, bool mult, bo
     gcd[i].gd.pos.x = 0; gcd[i].gd.pos.y = gcd[i-1].gd.pos.y-6;
     gcd[i].gd.flags = gg_visible | gg_enabled;
     gcd[i].gd.popup_msg = _("In the saved font, force all glyph names to match those in the specified namelist");
-    gcd[i].creator = GListButtonCreate;
+    gcd[i].creator = GDListButtonCreate;
     nlnames = AllNamelistNames();
     for ( cnt=0; nlnames[cnt]!=NULL; ++cnt);
     namelistnames = calloc(cnt+3,sizeof(GTextInfo));

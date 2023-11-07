@@ -2108,7 +2108,7 @@ static void FVSelectByScript(FontView *fv,int merge) {
     gcd[k].gd.flags = gg_visible|gg_enabled ;
     gcd[k].gd.u.list = scripts;
     gcd[k].gd.handle_controlevent = SS_ScriptChanged;
-    gcd[k++].creator = GListFieldCreate;
+    gcd[k++].creator = GDListFieldCreate;
     hvarray[i][0] = &gcd[k-1]; hvarray[i++][1] = NULL;
 
     label[k].text = (unichar_t *) _("All glyphs");

@@ -162,8 +162,8 @@ struct multi_expand {
 };
 
 struct multi_postproc {
-    GList_Glib *memlist;
-    GList_Glib *expands;
+    GList *memlist;
+    GList *expands;
     int strcid;
     int listcid;
     int fbpair;
@@ -271,7 +271,7 @@ static GGadgetCreateData *LayoutMultiDlgQuestion(MultiDlgQuestion *qstn, struct 
             gcd[g].gd.flags = gg_visible | gg_enabled;
             gcd[g].gd.mnemonic = qmne;
             gcd[g].gd.cid = mpp->listcid + CID_LIST_START;
-            gcd[g].creator = GListCreate;
+            gcd[g].creator = GDListCreate;
             gcd[g].data = qstn;
             gcd[g].gd.handle_controlevent = Multi_DoL;
             if (qstn->multiple) {
@@ -468,11 +468,11 @@ int UI_Ask_Multi(const char *title, MultiDlgSpec *dlg) {
     }
 
     if (err) {
-        for (GList_Glib *e = mpp.expands; e != NULL; e = e->next) {
+        for (GList *e = mpp.expands; e != NULL; e = e->next) {
             free(e->data);
         }
         g_list_free(mpp.expands);
-        for (GList_Glib *m = mpp.memlist; m != NULL; m = m->next) {
+        for (GList *m = mpp.memlist; m != NULL; m = m->next) {
             free(m->data);
         }
         g_list_free(mpp.memlist);
@@ -556,7 +556,7 @@ int UI_Ask_Multi(const char *title, MultiDlgSpec *dlg) {
 
     GHVBoxSetExpandableRow(boxes[0].ret, 0);
     GHVBoxSetExpandableCol(boxes[2].ret, gb_expandglue);
-    for (GList_Glib *e = mpp.expands; e != NULL; e = e->next) {
+    for (GList *e = mpp.expands; e != NULL; e = e->next) {
         struct multi_expand *me = (struct multi_expand *) e->data;
         if (me->is_row) {
             GHVBoxSetExpandableRow(me->gcd->ret, me->loc);
@@ -631,7 +631,7 @@ int UI_Ask_Multi(const char *title, MultiDlgSpec *dlg) {
     GDrawResize(gw, targetwidth, targetheight);
     GDrawMove(gw, (scsize.width - targetwidth) / 2, (scsize.height - targetheight) / 2);
 
-    for (GList_Glib *m = mpp.memlist; m != NULL; m = m->next) {
+    for (GList *m = mpp.memlist; m != NULL; m = m->next) {
         free(m->data);
     }
     g_list_free(mpp.memlist);

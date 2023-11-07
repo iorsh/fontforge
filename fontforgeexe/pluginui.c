@@ -261,7 +261,7 @@ struct plg_data {
 
 static int PLUG_OK(GGadget *g, GEvent *e) {
     int len, i;
-    GList_Glib *l;
+    GList *l;
     struct plg_data *d = (struct plg_data *) GDrawGetUserData(GGadgetGetWindow(g));
 
     if (e->type != et_controlevent || e->u.control.subtype != et_buttonactivate) {
@@ -346,7 +346,7 @@ static unichar_t *pluginDescString(PluginEntry *pe, int *has_err) {
 
 static void FigurePluginList(struct plg_data *d) {
     GGadget *list = GWidgetGetControl(d->gw, CID_PluginList);
-    GList_Glib *p;
+    GList *p;
     int l = g_list_length(plugin_data), i, has_err;
 
     GGadgetClearList(list);
@@ -396,7 +396,7 @@ static int PLUG_PluginListChange(GGadget *g, GEvent *e) {
     return true;
 }
 
-void GListMoveOneSelected(GGadget *list, int offset) {
+void GDListMoveOneSelected(GGadget *list, int offset) {
     int32_t len;
     int i, pos = -1;
     GTextInfo **old, **new, *tmp;
@@ -448,16 +448,16 @@ static int PLUG_PluginListOrder(GGadget *g, GEvent *e) {
 
     if (cid == CID_Top) {
         assert(pos > 0);
-        GListMoveOneSelected(list, newpos = 0);
+        GDListMoveOneSelected(list, newpos = 0);
     } else if (cid == CID_Up) {
         assert(pos > 0);
-        GListMoveOneSelected(list, newpos = pos - 1);
+        GDListMoveOneSelected(list, newpos = pos - 1);
     } else if (cid == CID_Down) {
         assert(pos < len - 1);
-        GListMoveOneSelected(list, newpos = pos + 1);
+        GDListMoveOneSelected(list, newpos = pos + 1);
     } else if (cid == CID_Bottom) {
         assert(pos < len - 1);
-        GListMoveOneSelected(list, newpos = len - 1);
+        GDListMoveOneSelected(list, newpos = len - 1);
     }
     GGadgetSelectOneListItem(list, newpos);
     PLUG_EnableButtons(d);
@@ -503,7 +503,7 @@ static int PLUG_PluginOp(GGadget *g, GEvent *e) {
     } else if (cid == CID_Delete) {
         pe->new_mode = sm_ask;
         if (!pe->is_present)
-            GListDelSelected(list);
+            GDListDelSelected(list);
         PLUG_EnableButtons(d);
     } else if (cid == CID_MoreInfo) {
         PluginInfoDlg(pe);
@@ -779,7 +779,7 @@ void _PluginDlg(void) {
     gcd[k].gd.handle_controlevent = PLUG_PluginListChange;
     gcd[k].gd.cid = CID_PluginList;
     gcd[k].gd.pos.width = 200;
-    gcd[k++].creator = GListCreate;
+    gcd[k++].creator = GDListCreate;
 
     horiz[0] = &gcd[k - 1];
     horiz[1] = &boxes[3];

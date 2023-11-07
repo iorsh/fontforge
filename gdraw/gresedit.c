@@ -1683,7 +1683,7 @@ static void GResEditDlg(GResInfo *all,const char *def_res_file,void (*change_res
 	    gcd[k].gd.cid = tofree[i].btcid = ++cid;
 	    gcd[k].gd.handle_controlevent = GRE_ListChanged;
 	    gcd[k].data = &res->boxdata->border_type;
-	    gcd[k++].creator = GListButtonCreate;
+	    gcd[k++].creator = GDListButtonCreate;
 	    tofree[i].carray[l][2] = &gcd[k-1];
 	    tofree[i].carray[l][3] = GCD_ColSpan;
 	    if ( res->inherits_from==NULL )
@@ -1719,7 +1719,7 @@ static void GResEditDlg(GResInfo *all,const char *def_res_file,void (*change_res
 	    gcd[k].gd.cid = ++cid;
 	    gcd[k].gd.handle_controlevent = GRE_ListChanged;
 	    gcd[k].data = &res->boxdata->border_shape;
-	    gcd[k++].creator = GListButtonCreate;
+	    gcd[k++].creator = GDListButtonCreate;
 	    tofree[i].carray[l][6] = &gcd[k-1];
 	    if ( res->inherits_from==NULL )
 		gcd[k-3].gd.flags &= ~gg_enabled;

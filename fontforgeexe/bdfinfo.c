@@ -800,7 +800,7 @@ return;
     gcd[i].gd.flags = gg_visible | gg_enabled;
     gcd[i].gd.u.list = ti;
     gcd[i].gd.handle_controlevent = BdfP_ChangeBDF;
-    gcd[i++].creator = GListButtonCreate;
+    gcd[i++].creator = GDListButtonCreate;
 
     gcd[i].gd.pos.x = bd.vwidth; gcd[i].gd.pos.y = subpos.y-1;
     gcd[i].gd.pos.width = sbwidth; gcd[i].gd.pos.height = subpos.height+2;

@@ -3143,7 +3143,7 @@ void FontCompareDlg(FontView *fv) {
 	gcd[k].gd.u.list = BuildFontList(fv);
 	gcd[k].gd.label = &gcd[k].gd.u.list[0];
 	gcd[k].gd.u.list[0].selected = true;
-	gcd[k++].creator = GListButtonCreate;
+	gcd[k++].creator = GDListButtonCreate;
 
 	gcd[k].gd.pos.x = 5; gcd[k].gd.pos.y = gcd[k-1].gd.pos.y+24;
 	if ( fv->b.sf->onlybitmaps )

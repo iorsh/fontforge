@@ -202,19 +202,19 @@ Gdraw.GGadget.FirstLine: 6
 Gdraw.GGadget.LeftMargin: 6
 Gdraw.GGadget.TextImageSkip: 4
 Gdraw.GGadget.ImagePath: ~/.FontForge/tango-ct.theme:~/.FontForge/tango-ct.theme/tango:/Applications/FontForge.app/Contents/Resources/opt/local/share/fontforge/pixmaps/:=
-Gdraw.GListMark.Box.BorderInner: True
-Gdraw.GListMark.Box.NormalBackground: #e5e4e3
-Gdraw.GListMark.Box.BorderBrightest: #fcfbfa
-Gdraw.GListMark.Box.BorderBrighter: #fcfbfa
-Gdraw.GListMark.Box.BorderDarker: #dddcdb
-Gdraw.GListMark.Box.BorderDarkest: #dddcdb
-Gdraw.GListMark.Box.BorderInnerCol: #adacab
-Gdraw.GListMark.Box.BorderType: lowered
-Gdraw.GListMark.Box.BorderWidth: 2
-Gdraw.GListMark.Box.Padding: 0
-Gdraw.GListMark.Image: downarrow.png
-Gdraw.GListMark.DisabledImage: downarrow_disabled.png
-Gdraw.GListMark.Width: 8
+Gdraw.GDListMark.Box.BorderInner: True
+Gdraw.GDListMark.Box.NormalBackground: #e5e4e3
+Gdraw.GDListMark.Box.BorderBrightest: #fcfbfa
+Gdraw.GDListMark.Box.BorderBrighter: #fcfbfa
+Gdraw.GDListMark.Box.BorderDarker: #dddcdb
+Gdraw.GDListMark.Box.BorderDarkest: #dddcdb
+Gdraw.GDListMark.Box.BorderInnerCol: #adacab
+Gdraw.GDListMark.Box.BorderType: lowered
+Gdraw.GDListMark.Box.BorderWidth: 2
+Gdraw.GDListMark.Box.Padding: 0
+Gdraw.GDListMark.Image: downarrow.png
+Gdraw.GDListMark.DisabledImage: downarrow_disabled.png
+Gdraw.GDListMark.Width: 8
 Gdraw.GLabel.Box.BorderType: none
 Gdraw.GLabel.Box.BorderWidth: 0
 Gdraw.GLabel.Box.Padding: 0
@@ -328,10 +328,10 @@ Gdraw.GNumericFieldSpinner.Box.BorderOuterCol: #dddcdb
 Gdraw.GNumericFieldSpinner.Box.BorderType: box
 Gdraw.GNumericFieldSpinner.Box.BorderWidth: 1
 Gdraw.GNumericFieldSpinner.Box.Padding: 2
-Gdraw.GList.Box.BorderOuter: False
-Gdraw.GList.Box.NormalBackground: #ffffff
-Gdraw.GList.Box.BorderType: box
-Gdraw.GList.Font: 83% ^View.DefaultFont
+Gdraw.GDList.Box.BorderOuter: False
+Gdraw.GDList.Box.NormalBackground: #ffffff
+Gdraw.GDList.Box.BorderType: box
+Gdraw.GDList.Font: 83% ^View.DefaultFont
 Gdraw.GScrollBar.Box.BorderOuter: False
 Gdraw.GScrollBar.Box.NormalForeground: #e6e3e3
 Gdraw.GScrollBar.Box.DisabledForeground: #e6e6e3

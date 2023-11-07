@@ -146,7 +146,7 @@ return;
     gcd[0].gd.cid = CID_Encodings;
     gcd[0].gd.u.list = EncodingList();
     gcd[0].gd.handle_controlevent = DE_Delete;
-    gcd[0].creator = GListCreate;
+    gcd[0].creator = GDListCreate;
 
     gcd[2].gd.pos.x = -10; gcd[2].gd.pos.y = gcd[0].gd.pos.y+gcd[0].gd.pos.height+5;
     gcd[2].gd.pos.width = -1; gcd[2].gd.pos.height = 0;

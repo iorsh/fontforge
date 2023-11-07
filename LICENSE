@@ -150,7 +150,7 @@ gcontainer.c		gimagepsdraw.c		gspacer.c
 gdraw.c			gimagewriteeps.c	gtabset.c
 gdrawable.c		gimagexdraw.c		gtextfield.c
 gdrawbuildchars.c	gkeysym.c		gtextinfo.c
-gdrawerror.c		glist.c			gwidgetP.h
+gdrawerror.c		gdlist.c			gwidgetP.h
 gdrawgimage.c		gmatrixedit.c		gwidgets.c
 gdrawP.h		gmenu.c			gxcdraw.c
 gdrawtxt.c		gprogress.c		gxcdrawP.h

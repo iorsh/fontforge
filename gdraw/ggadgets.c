@@ -52,12 +52,12 @@ GBox _ggadget_Default_Box = { bt_raised, bs_rect, 2, 2, 0, 0,
     COLOR_CREATE(0x00,0x00,0x00),		/* border inner */
     COLOR_CREATE(0x00,0x00,0x00),		/* border outer */
 };
-GBox _GListMark_Box = GBOX_EMPTY; /* Don't initialize here */
+GBox _GDListMark_Box = GBOX_EMPTY; /* Don't initialize here */
 GResFont _ggadget_default_font = GRESFONT_INIT("400 10pt " SANS_UI_FAMILIES);
 GResFont popup_font = GRESFONT_INIT("400 8pt " SANS_UI_FAMILIES);
-int _GListMarkSize = 12;
-GResImage _GListMark_Image = GRESIMAGE_INIT("downarrow.png");
-GResImage _GListMark_DisImage = GRESIMAGE_INIT("downarrow_disabled.png");
+int _GDListMarkSize = 12;
+GResImage _GDListMark_Image = GRESIMAGE_INIT("downarrow.png");
+GResImage _GDListMark_DisImage = GRESIMAGE_INIT("downarrow_disabled.png");
 static int _GGadget_FirstLine = 6;
 static int _GGadget_LeftMargin = 6;
 static int _GGadget_LineSkip = 3;
@@ -158,9 +158,9 @@ GResInfo gpopup_ri = {
     NULL
 };
 static struct resed listmark_re[] = {
-    { N_("Image"), "Image", rt_image, &_GListMark_Image, N_("Image used for enabled listmarks (overrides the box)"), NULL, { 0 }, 0, 0 },
-    { N_("Disabled Image"), "DisabledImage", rt_image, &_GListMark_DisImage, N_("Image used for disabled listmarks (overrides the box)"), NULL, { 0 }, 0, 0 },
-    { N_("Width"), "Width", rt_int, &_GListMarkSize, N_("Size of the list mark"), NULL, { 0 }, 0, 0 },
+    { N_("Image"), "Image", rt_image, &_GDListMark_Image, N_("Image used for enabled listmarks (overrides the box)"), NULL, { 0 }, 0, 0 },
+    { N_("Disabled Image"), "DisabledImage", rt_image, &_GDListMark_DisImage, N_("Image used for disabled listmarks (overrides the box)"), NULL, { 0 }, 0, 0 },
+    { N_("Width"), "Width", rt_int, &_GDListMarkSize, N_("Size of the list mark"), NULL, { 0 }, 0, 0 },
     RESED_EMPTY
 };
 static GTextInfo list_choices[] = {
@@ -170,8 +170,8 @@ static GTextInfo list_choices[] = {
     GTEXTINFO_EMPTY
 };
 static GGadgetCreateData droplist_gcd[] = {
-    { GListFieldCreate, { {0, 0, 80, 0 }, NULL, 0, 0, 0, 0, 0, &list_choices[0], { list_choices }, gg_visible, NULL, NULL }, NULL, NULL },
-    { GListFieldCreate, { {0, 0, 80, 0 }, NULL, 0, 0, 0, 0, 0, &list_choices[1], { list_choices }, gg_visible|gg_enabled, NULL, NULL }, NULL, NULL }
+    { GDListFieldCreate, { {0, 0, 80, 0 }, NULL, 0, 0, 0, 0, 0, &list_choices[0], { list_choices }, gg_visible, NULL, NULL }, NULL, NULL },
+    { GDListFieldCreate, { {0, 0, 80, 0 }, NULL, 0, 0, 0, 0, 0, &list_choices[1], { list_choices }, gg_visible|gg_enabled, NULL, NULL }, NULL, NULL }
 };
 static GGadgetCreateData *dlarray[] = { GCD_Glue, &droplist_gcd[0], GCD_Glue, &droplist_gcd[1], GCD_Glue, NULL, NULL };
 static GGadgetCreateData droplistbox =
@@ -179,14 +179,14 @@ static GGadgetCreateData droplistbox =
 extern GResInfo glabel_ri;
 GResInfo listmark_ri = {
     &glabel_ri, &ggadget_ri, NULL,NULL,
-    &_GListMark_Box,	/* No box */
+    &_GDListMark_Box,	/* No box */
     NULL,
     &droplistbox,
     listmark_re,
     N_("List Mark"),
     N_("This is the mark that differentiates ComboBoxes and ListButtons\n"
 	"from TextFields and normal Buttons." ),
-    "GListMark",
+    "GDListMark",
     "Gdraw",
     false,
     false,
@@ -210,18 +210,18 @@ void GGadgetInit(void) {
     GResEditDoInit(&listmark_ri);
 }
 
-void GListMarkDraw(GWindow pixmap,int x, int y, int height, enum gadget_state state ) {
+void GDListMarkDraw(GWindow pixmap,int x, int y, int height, enum gadget_state state ) {
     GRect r, old;
     GImage *mi, *mdi;
-    int gmsize = GDrawPointsToPixels(pixmap,_GListMarkSize);
-    if ( (mi=GResImageGetImage(&_GListMark_Image))!=NULL ) {
+    int gmsize = GDrawPointsToPixels(pixmap,_GDListMarkSize);
+    if ( (mi=GResImageGetImage(&_GDListMark_Image))!=NULL ) {
 	int size = GImageGetWidth(mi);
 	if ( size>gmsize )
 	    gmsize = size;
     }
     int marklen = gmsize;
 
-    if ( state == gs_disabled && (mdi=GResImageGetImage(&_GListMark_DisImage))!=NULL) {
+    if ( state == gs_disabled && (mdi=GResImageGetImage(&_GDListMark_DisImage))!=NULL) {
 	GDrawDrawScaledImage(pixmap,mdi,x,
 		y + (height-GImageGetScaledHeight(pixmap,mdi))/2);
     } else if ( mi!=NULL ) {
@@ -229,13 +229,13 @@ void GListMarkDraw(GWindow pixmap,int x, int y, int height, enum gadget_state st
 		y + (height-GImageGetScaledHeight(pixmap,mi))/2);
     } else {
 	r.x = x; r.width = marklen;
-	r.height = 2*GDrawPointsToPixels(pixmap,_GListMark_Box.border_width) +
+	r.height = 2*GDrawPointsToPixels(pixmap,_GDListMark_Box.border_width) +
 		    GDrawPointsToPixels(pixmap,3);
 	r.y = y + (height-r.height)/2;
 	GDrawPushClip(pixmap,&r,&old);
 
-	GBoxDrawBackground(pixmap,&r,&_GListMark_Box, state,false);
-	GBoxDrawBorder(pixmap,&r,&_GListMark_Box,state,false);
+	GBoxDrawBackground(pixmap,&r,&_GDListMark_Box, state,false);
+	GBoxDrawBorder(pixmap,&r,&_GDListMark_Box,state,false);
 	GDrawPopClip(pixmap,&old);
     }
 }

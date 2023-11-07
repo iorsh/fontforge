@@ -39,7 +39,7 @@ int use_plugins = true; // Prefs variable
 int attempted_plugin_load = false;
 
 enum plugin_startup_mode_type plugin_startup_mode = sm_ask;
-GList_Glib *plugin_data = NULL;
+GList *plugin_data = NULL;
 
 void FreePluginEntry(PluginEntry *pe) {
     free(pe->name);
@@ -150,7 +150,7 @@ void SetPluginStartupMode(void *modevoid) {
 
 void SavePluginConfig() {
     GKeyFile *conf = g_key_file_new();
-    for (GList_Glib *i = plugin_data; i != NULL; i = i->next) {
+    for (GList *i = plugin_data; i != NULL; i = i->next) {
         PluginEntry *pe = (PluginEntry *) i->data;
         if (pe->startup_mode == sm_ask) {
             continue;    // Don't save merely discovered plugin config
@@ -273,7 +273,7 @@ void LoadPlugin(PluginEntry *pe) {
 }
 
 static void ReimportPlugins() {
-    GList_Glib *i;
+    GList *i;
     if (!use_plugins) {
         return;
     }
@@ -288,7 +288,7 @@ static void ReimportPlugins() {
 static bool DiscoverPlugins(int do_import) {
     int do_ask = false;
     PluginEntry *pe;
-    GList_Glib *i;
+    GList *i;
     PyObject *str, *str2, *iter, *tmp, *tmp2, *entrypoint;
     PyObject *pkgres = PyImport_ImportModule("pkg_resources");
     if (pkgres == NULL || !PyObject_HasAttrString(pkgres, "iter_entry_points")) {
@@ -448,7 +448,7 @@ void PyFF_ImportPlugins(int do_import) {
 
 extern PyObject *PyFF_GetPluginInfo(PyObject *UNUSED(noself), PyObject *UNUSED(args)) {
     PyObject *r, *d;
-    GList_Glib *l;
+    GList *l;
     PluginEntry *pe;
 
     r = PyList_New(0);
@@ -471,7 +471,7 @@ extern PyObject *PyFF_GetPluginInfo(PyObject *UNUSED(noself), PyObject *UNUSED(a
 
 extern PyObject *PyFF_ConfigurePlugins(PyObject *UNUSED(noself), PyObject *args) {
     PyObject *iter = NULL, *item;
-    GList_Glib *l, *nl = NULL;
+    GList *l, *nl = NULL;
     PluginEntry *pe;
     int type_error = false;
     if (args != NULL || PyTuple_Check(args) || PyTuple_Size(args) == 1) {

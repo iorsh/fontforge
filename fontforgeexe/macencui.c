@@ -405,9 +405,9 @@ return( true );
 	    utf82u_strcpy(full+u_strlen(full),temp);
 
 	    if ( nd->index==-1 )
-		GListAddStr(nd->namelist,full,nd->changing);
+		GDListAddStr(nd->namelist,full,nd->changing);
 	    else {
-		GListReplaceStr(nd->namelist,nd->index,full,nd->changing);
+		GDListReplaceStr(nd->namelist,nd->index,full,nd->changing);
 		if ( nd->all==nd->changing )
 		    nd->all = nd->changing->next;
 		else {
@@ -478,7 +478,7 @@ static char *AskName(struct macname *changing,struct macname *all,GGadget *list,
     gcd[1].gd.flags = gg_enabled|gg_visible | gg_list_alphabetic;
     gcd[1].gd.u.list = maclanguages;
     gcd[1].gd.cid = CID_Language;
-    gcd[1].creator = GListButtonCreate;
+    gcd[1].creator = GDListButtonCreate;
 
     for ( i=0; maclanguages[i].text!=NULL; ++i ) {
 	if ( maclanguages[i].userdata == (void *) (intptr_t) (changing->lang) )
@@ -586,7 +586,7 @@ static int Pref_DelName(GGadget *g, GEvent *e) {
 		p = mn;
 	}
 	GGadgetSetUserData(list,all);
-	GListDelSelected(list);
+	GDListDelSelected(list);
 	GGadgetSetEnabled(GWidgetGetControl(gw,CID_NameDel),false);
 	GGadgetSetEnabled(GWidgetGetControl(gw,CID_NameEdit),false);
     }
@@ -652,7 +652,7 @@ int GCDBuildNames(GGadgetCreateData *gcd,GTextInfo *label,int pos,struct macname
     gcd[pos].data = names = MacNameCopy(names);
     gcd[pos].gd.u.list = Pref_MacNamesList(names);
     gcd[pos].gd.handle_controlevent = Pref_NameSel;
-    gcd[pos++].creator = GListCreate;
+    gcd[pos++].creator = GDListCreate;
 
     gcd[pos].gd.pos.x = 6; gcd[pos].gd.pos.y = gcd[pos-1].gd.pos.y+gcd[pos-1].gd.pos.height+10;
     gcd[pos].gd.flags = gg_visible | gg_enabled;
@@ -762,9 +762,9 @@ return( true );
 	    free(temp);
 
 	    if ( sd->index==-1 )
-		GListAddStr(sd->settinglist,res,sd->changing);
+		GDListAddStr(sd->settinglist,res,sd->changing);
 	    else {
-		GListReplaceStr(sd->settinglist,sd->index,res,sd->changing);
+		GDListReplaceStr(sd->settinglist,sd->index,res,sd->changing);
 		if ( sd->all==sd->changing )
 		    sd->all = sd->changing->next;
 		else {
@@ -955,7 +955,7 @@ static int Pref_DelSetting(GGadget *g, GEvent *e) {
 		p = ms;
 	}
 	GGadgetSetUserData(list,all);
-	GListDelSelected(list);
+	GDListDelSelected(list);
 	GGadgetSetEnabled(GWidgetGetControl(gw,CID_SettingDel),false);
 	GGadgetSetEnabled(GWidgetGetControl(gw,CID_SettingEdit),false);
     }
@@ -1064,9 +1064,9 @@ return( true );
 	    free(temp);
 
 	    if ( fd->index==-1 )
-		GListAddStr(fd->featurelist,res,fd->changing);
+		GDListAddStr(fd->featurelist,res,fd->changing);
 	    else {
-		GListReplaceStr(fd->featurelist,fd->index,res,fd->changing);
+		GDListReplaceStr(fd->featurelist,fd->index,res,fd->changing);
 		if ( fd->all==fd->changing )
 		    fd->all = fd->changing->next;
 		else {
@@ -1171,7 +1171,7 @@ static char *AskFeature(MacFeat *changing,MacFeat *all,GGadget *list, int index)
     gcd[i].data = MacSettingCopy(changing->settings);
     gcd[i].gd.u.list = freeme = Pref_SettingsList(gcd[i].data);
     gcd[i].gd.handle_controlevent = Pref_SettingSel;
-    gcd[i++].creator = GListCreate;
+    gcd[i++].creator = GDListCreate;
 
     gcd[i].gd.pos.x = 6; gcd[i].gd.pos.y = gcd[i-1].gd.pos.y+gcd[i-1].gd.pos.height+10;
     gcd[i].gd.flags = gg_visible | gg_enabled;
@@ -1292,7 +1292,7 @@ static int Pref_DelFeat(GGadget *g, GEvent *e) {
 		p = mf;
 	}
 	GGadgetSetUserData(list,all);
-	GListDelSelected(list);
+	GDListDelSelected(list);
 	GGadgetSetEnabled(GWidgetGetControl(gw,CID_FeatureDel),false);
 	GGadgetSetEnabled(GWidgetGetControl(gw,CID_FeatureEdit),false);
     }
@@ -1362,7 +1362,7 @@ void GCDFillMacFeat(GGadgetCreateData *mfgcd,GTextInfo *mflabels, int width,
     mfgcd[sgc].gd.u.list = Pref_FeaturesList(all);
     mfgcd[sgc].gd.handle_controlevent = Pref_FeatureSel;
     mfgcd[sgc].data = all;
-    mfgcd[sgc++].creator = GListCreate;
+    mfgcd[sgc++].creator = GDListCreate;
     array[0] = &mfgcd[sgc-1];
 
     mfgcd[sgc].gd.pos.x = 6; mfgcd[sgc].gd.pos.y = mfgcd[sgc-1].gd.pos.y+mfgcd[sgc-1].gd.pos.height+10;

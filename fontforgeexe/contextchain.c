@@ -2393,7 +2393,7 @@ void ContextChainEdit(SplineFont *sf,FPST *fpst,
 	    GDrawGetText8Width(ccd->glyphs_simple,(char *)extrabuttonslab[i].text,-1))+50;
     extrabuttonsgcd[i].gd.cid = CID_GAddLookup;
     extrabuttonsgcd[i].gd.handle_controlevent = CCD_AddLookup;
-    extrabuttonsgcd[i++].creator = GListButtonCreate;
+    extrabuttonsgcd[i++].creator = GDListButtonCreate;
     GMatrixEditAddButtons(GWidgetGetControl(ccd->glyphs_simple,CID_GList_Simple),extrabuttonsgcd);
 
 	/* Pane showing a single rule from a glyph format (not classes or coverage tables) */

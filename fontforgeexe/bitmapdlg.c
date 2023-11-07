@@ -365,7 +365,7 @@ void BitmapDlg(FontView *fv,SplineChar *sc, int isavail) {
 	gcd[1].gd.pos.x = 5; gcd[1].gd.pos.y = 5+13;
 	gcd[1].gd.flags = gg_enabled|gg_visible;
 	gcd[1].gd.cid = CID_Which;
-	gcd[1].creator = GListButtonCreate;
+	gcd[1].creator = GDListButtonCreate;
 	which[bd_current].disabled = sc==NULL;
 	which[bdfcontrol_lastwhich].selected = true;
 	harray[0][0] = &gcd[1]; harray[0][1] = GCD_Glue; harray[0][2] = NULL;

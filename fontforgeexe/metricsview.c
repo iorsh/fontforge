@@ -571,7 +571,7 @@ static void MVSetFeatures(MetricsView *mv) {
     /* Never returns NULL */
     for ( cnt=0; tags[cnt]!=0; ++cnt );
 
-    /*qsort(tags,cnt,sizeof(uint32_t),tag_comp);*/ /* The glist will do this for us */
+    /*qsort(tags,cnt,sizeof(uint32_t),tag_comp);*/ /* The gdlist will do this for us */
 
     ti = malloc((cnt+2)*sizeof(GTextInfo *));
     for ( i=0; i<cnt; ++i ) {
@@ -5303,7 +5303,7 @@ MetricsView *MetricsViewCreate(FontView *fv,SplineChar *sc,BDFFont *bdf) {
     gd.flags = gg_visible|gg_enabled|gg_pos_in_pixels;
     gd.u.list = mv->scriptlangs = SLOfFont(mv->sf);
     gd.handle_controlevent = MV_ScriptLangChanged;
-    mv->script = GListFieldCreate(gw,&gd,mv);
+    mv->script = GDListFieldCreate(gw,&gd,mv);
     GGadgetGetSize(mv->script,&gsize);
     mv->topend = gsize.y + gsize.height + 2;
 
@@ -5314,7 +5314,7 @@ MetricsView *MetricsViewCreate(FontView *fv,SplineChar *sc,BDFFont *bdf) {
     gd.flags = gg_visible|gg_enabled|gg_pos_in_pixels|gg_text_xim;
     gd.handle_controlevent = MV_TextChanged;
     gd.u.list = mv_text_init;
-    mv->text = GListFieldCreate(gw,&gd,mv);
+    mv->text = GDListFieldCreate(gw,&gd,mv);
 
     // Up and Down buttons for moving through the word list.
     {
@@ -5348,16 +5348,16 @@ MetricsView *MetricsViewCreate(FontView *fv,SplineChar *sc,BDFFont *bdf) {
     gd.handle_controlevent = MV_SubtableChanged;
     gd.label = NULL;
     gd.u.list = NULL;
-    mv->subtable_list = GListButtonCreate(gw,&gd,mv);
+    mv->subtable_list = GDListButtonCreate(gw,&gd,mv);
     MVSetSubtables(master);
 
     gd.pos.y = mv->topend; gd.pos.x = 0;
     gd.flags = gg_visible|gg_enabled|gg_pos_in_pixels|gg_pos_use0|gg_list_multiplesel|gg_list_alphabetic;
     gd.pos.width = GDrawPointsToPixels(mv->gw,50);
     gd.handle_controlevent = MV_FeaturesChanged;
-    mv->features = GListCreate(gw,&gd,mv);
-    GListSetSBAlwaysVisible(mv->features,true);
-    GListSetPopupCallback(mv->features,MV_FriendlyFeatures);
+    mv->features = GDListCreate(gw,&gd,mv);
+    GDListSetSBAlwaysVisible(mv->features,true);
+    GDListSetPopupCallback(mv->features,MV_FriendlyFeatures);
     mv->xstart = gd.pos.width;
 
     pos.x = mv->xstart; pos.width = mv->dwidth - mv->xstart;

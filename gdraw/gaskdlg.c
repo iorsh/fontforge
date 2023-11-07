@@ -692,7 +692,7 @@ static GWindow ChoiceDlgCreate8(struct dlg_info *d,const char *title,
     gcd[i].gd.u.list = llabels;
     gcd[i].gd.cid = CID_List;
     listi = i;
-    gcd[i++].creator = GListCreate;
+    gcd[i++].creator = GDListCreate;
     y += gcd[i-1].gd.pos.height + GDrawPointsToPixels(gw,10);
     array[2*l] = &gcd[i-1]; array[2*l++ +1] = NULL;
 

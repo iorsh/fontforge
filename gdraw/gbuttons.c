@@ -33,7 +33,7 @@
 #include "gwidget.h"
 #include "ustring.h"
 
-static void GListButtonDoPopup(GListButton *);
+static void GDListButtonDoPopup(GDListButton *);
 
 GBox _GGadget_button_box = GBOX_EMPTY; /* Don't initialize here */
 GBox _GGadget_defaultbutton_box = GBOX_EMPTY; /* Don't initialize here */
@@ -195,8 +195,8 @@ static int GDropListRIInit(GResInfo *ri) {
 }
 
 static GGadgetCreateData droplist_gcd[] = {
-    { GListButtonCreate, { { 0, 0, 80, 0 }, NULL, 0, 0, 0, 0, 0, &list_choices[0], { list_choices }, gg_visible, NULL, NULL }, NULL, NULL },
-    { GListButtonCreate, { { 0, 0, 80, 0 }, NULL, 0, 0, 0, 0, 0, &list_choices[1], { list_choices }, gg_visible|gg_enabled, NULL, NULL }, NULL, NULL }
+    { GDListButtonCreate, { { 0, 0, 80, 0 }, NULL, 0, 0, 0, 0, 0, &list_choices[0], { list_choices }, gg_visible, NULL, NULL }, NULL, NULL },
+    { GDListButtonCreate, { { 0, 0, 80, 0 }, NULL, 0, 0, 0, 0, 0, &list_choices[1], { list_choices }, gg_visible|gg_enabled, NULL, NULL }, NULL, NULL }
 };
 static GGadgetCreateData *dlarray[] = { GCD_Glue, &droplist_gcd[0], GCD_Glue, &droplist_gcd[1], GCD_Glue, NULL, NULL };
 static GGadgetCreateData droplistbox =
@@ -257,8 +257,8 @@ return;
 static void GButtonPressed(GButton *b) {
     GEvent e;
 
-    if ( b->labeltype==2 && ((GListButton *) b)->ltot>0 )
-	GListButtonDoPopup((GListButton *) b);
+    if ( b->labeltype==2 && ((GDListButton *) b)->ltot>0 )
+	GDListButtonDoPopup((GDListButton *) b);
     else {
 	e.type = et_controlevent;
 	e.w = b->g.base;
@@ -327,7 +327,7 @@ static int gbutton_expose(GWindow pixmap, GGadget *g, GEvent *event) {
     GImage *img = gb->image;
     GRect old1, old2;
     int width;
-    int marklen = GDrawPointsToPixels(pixmap,_GListMarkSize),
+    int marklen = GDrawPointsToPixels(pixmap,_GDListMarkSize),
 	    spacing = GDrawPointsToPixels(pixmap,_GGadget_TextImageSkip);
     int yoff;
     GRect unpadded_inner;
@@ -438,7 +438,7 @@ return( false );
 
     if ( gb->labeltype==2 ) {
 	int bp = GBoxBorderWidth(g->base,g->box);
-GListMarkDraw(pixmap,
+GDListMarkDraw(pixmap,
 		g->r.x + g->r.width - marklen - spacing/2 - bp,
 		g->inner.y,
 		g->inner.height,
@@ -462,9 +462,9 @@ return( false );
     }
 
     if ( gb->labeltype==2 && event->type==et_mousedown &&
-	    ((GListButton *) gb)->popup!=NULL ) {
-	GDrawDestroyWindow(((GListButton *) gb)->popup);
-	((GListButton *) gb)->popup = NULL;
+	    ((GDListButton *) gb)->popup!=NULL ) {
+	GDrawDestroyWindow(((GDListButton *) gb)->popup);
+	((GDListButton *) gb)->popup = NULL;
 return( true );
     }
     was_state = g->state;
@@ -511,8 +511,8 @@ static int gbutton_key(GGadget *g, GEvent *event) {
 
     if ( !g->takes_input || (g->state!=gs_enabled && g->state!=gs_active ))
 return(false);
-    if ( gb->labeltype==2 && ((GListButton *) gb)->popup!=NULL ) {
-	GWindow popup = ((GListButton *) gb)->popup;
+    if ( gb->labeltype==2 && ((GDListButton *) gb)->popup!=NULL ) {
+	GWindow popup = ((GDListButton *) gb)->popup;
 	(GDrawGetEH(popup))(popup,event);
 return( true );
     }
@@ -544,7 +544,7 @@ static void gbutton_destroy(GGadget *g) {
     if ( b==NULL )
 return;
     if ( b->labeltype==2 ) {
-	GListButton *glb = (GListButton *) g;
+	GDListButton *glb = (GDListButton *) g;
 	if ( glb->popup ) {
 	    /* Must cleanup the popup before we die  */
 	    /* We do this instead of GDrawDestroyWindow because this method is synchronous */
@@ -565,7 +565,7 @@ static void GButtonSetInner(GButton *b) {
     int bp = GBoxBorderWidth(b->g.base,b->g.box);
 
     if ( b->labeltype==2 )
-	mark = GDrawPointsToPixels(b->g.base,_GListMarkSize) +
+	mark = GDrawPointsToPixels(b->g.base,_GDListMarkSize) +
 		GDrawPointsToPixels(b->g.base,_GGadget_TextImageSkip);
     width = GButtonGetDesiredWidth(b);
     if ( width<=b->g.r.width-2*bp-mark )
@@ -624,8 +624,8 @@ static FontInstance *GButtonGetFont(GGadget *g) {
 return( b->font );
 }
 
-static void GListBSelectOne(GGadget *g, int32_t pos) {
-    GListButton *gl = (GListButton *) g;
+static void GDListBSelectOne(GGadget *g, int32_t pos) {
+    GDListButton *gl = (GDListButton *) g;
     int i;
 
     for ( i=0; i<gl->ltot; ++i )
@@ -638,8 +638,8 @@ static void GListBSelectOne(GGadget *g, int32_t pos) {
     }
 }
 
-static int32_t GListBIsSelected(GGadget *g, int32_t pos) {
-    GListButton *gl = (GListButton *) g;
+static int32_t GDListBIsSelected(GGadget *g, int32_t pos) {
+    GDListButton *gl = (GDListButton *) g;
 
     if ( pos>=gl->ltot )
 return( false );
@@ -651,9 +651,9 @@ return( gl->ti[pos]->selected );
 return( false );
 }
 
-static int32_t GListBGetFirst(GGadget *g) {
+static int32_t GDListBGetFirst(GGadget *g) {
     int i;
-    GListButton *gl = (GListButton *) g;
+    GDListButton *gl = (GDListButton *) g;
 
     for ( i=0; i<gl->ltot; ++i )
 	if ( gl->ti[i]->selected )
@@ -662,22 +662,22 @@ return( i );
 return( -1 );
 }
 
-static GTextInfo **GListBGet(GGadget *g,int32_t *len) {
-    GListButton *gl = (GListButton *) g;
+static GTextInfo **GDListBGet(GGadget *g,int32_t *len) {
+    GDListButton *gl = (GDListButton *) g;
     if ( len!=NULL ) *len = gl->ltot;
 return( gl->ti );
 }
 
-static GTextInfo *GListBGetItem(GGadget *g,int32_t pos) {
-    GListButton *gl = (GListButton *) g;
+static GTextInfo *GDListBGetItem(GGadget *g,int32_t pos) {
+    GDListButton *gl = (GDListButton *) g;
     if ( pos<0 || pos>=gl->ltot )
 return( NULL );
 
 return(gl->ti[pos]);
 }
 
-static void GListButSet(GGadget *g,GTextInfo **ti,int32_t docopy) {
-    GListButton *gl = (GListButton *) g;
+static void GDListButSet(GGadget *g,GTextInfo **ti,int32_t docopy) {
+    GDListButton *gl = (GDListButton *) g;
     int i;
 
     GTextInfoArrayFree(gl->ti);
@@ -693,8 +693,8 @@ static void GListButSet(GGadget *g,GTextInfo **ti,int32_t docopy) {
     }
 }
 
-static void GListButClear(GGadget *g) {
-    GListButSet(g,NULL,true);
+static void GDListButClear(GGadget *g) {
+    GDListButSet(g,NULL,true);
 }
 
 static int GButtonIsDefault(GGadget *g) {
@@ -767,11 +767,11 @@ static void GButtonGetDesiredSize(GGadget *g, GRect *outer, GRect *inner) {
 	iheight = fh;
 
     if ( gl->labeltype==2 ) {
-	GListButton *glb = (GListButton *) gl;
+	GDListButton *glb = (GDListButton *) gl;
 	int temp;
-	int extra = GDrawPointsToPixels(gl->g.base,_GListMarkSize) +
+	int extra = GDrawPointsToPixels(gl->g.base,_GDListMarkSize) +
 		    2*GDrawPointsToPixels(gl->g.base,_GGadget_TextImageSkip) +
-		    GBoxBorderWidth(gl->g.base,&_GListMark_Box);
+		    GBoxBorderWidth(gl->g.base,&_GDListMark_Box);
 	for ( i=0; i<glb->ltot; ++i ) {
 	    temp = GTextInfoGetWidth(gl->g.base,glb->ti[i],gl->font) + extra;
 	    if ( temp>width ) width = temp;
@@ -780,7 +780,7 @@ static void GButtonGetDesiredSize(GGadget *g, GRect *outer, GRect *inner) {
 		iheight = temp;
 	}
 	width += GDrawPointsToPixels(gl->g.base,_GGadget_TextImageSkip) +
-		GDrawPointsToPixels(gl->g.base,_GListMarkSize);
+		GDrawPointsToPixels(gl->g.base,_GDListMarkSize);
     }
 
     if ( gl->shiftonpress ) {
@@ -904,14 +904,14 @@ struct gfuncs glistbutton_funcs = {
     GButtonSetFont,
     GButtonGetFont,
 
-    GListButClear,
-    GListButSet,
-    GListBGet,
-    GListBGetItem,
+    GDListButClear,
+    GDListButSet,
+    GDListBGet,
+    GDListBGetItem,
     NULL,
-    GListBSelectOne,
-    GListBIsSelected,
-    GListBGetFirst,
+    GDListBSelectOne,
+    GDListBIsSelected,
+    GDListBGetFirst,
     NULL,
     NULL,
     NULL,
@@ -1011,7 +1011,7 @@ return( gl );
 }
 
 GGadget *GLabelCreate(struct gwindow *base, GGadgetData *gd,void *data) {
-    GLabel *gl = calloc(1,sizeof(GListButton));
+    GLabel *gl = calloc(1,sizeof(GDListButton));
     int i;
 
     if ( gd->u.list!=NULL ) {
@@ -1081,8 +1081,8 @@ Color GColorButtonGetColor(GGadget *g) {
 return( ((GColorButton *) g)->col );
 }
 
-static void GListButtonSelected(GGadget *g, int i) {
-    GListButton *gl = (GListButton *) g;
+static void GDListButtonSelected(GGadget *g, int i) {
+    GDListButton *gl = (GDListButton *) g;
     GEvent e;
 
     gl->popup = NULL;
@@ -1106,18 +1106,18 @@ return;
 	GDrawPostEvent(&e);
 }
 
-static void GListButtonDoPopup(GListButton *gl) {
+static void GDListButtonDoPopup(GDListButton *gl) {
     gl->within = false; gl->pressed = false;
-    gl->popup = GListPopupCreate(&gl->g,GListButtonSelected,gl->ti);
+    gl->popup = GDListPopupCreate(&gl->g,GDListButtonSelected,gl->ti);
 }
 
-static int _GListAlphaCompare(const void *v1, const void *v2) {
+static int _GDListAlphaCompare(const void *v1, const void *v2) {
     GTextInfo * const *pt1 = v1, * const *pt2 = v2;
 return( GTextInfoCompare(*pt1,*pt2));
 }
 
-GGadget *GListButtonCreate(struct gwindow *base, GGadgetData *gd,void *data) {
-    GListButton *gl = calloc(1,sizeof(GListButton));
+GGadget *GDListButtonCreate(struct gwindow *base, GGadgetData *gd,void *data) {
+    GDListButton *gl = calloc(1,sizeof(GDListButton));
     int i;
 
     gl->labeltype = 2;
@@ -1125,7 +1125,7 @@ GGadget *GListButtonCreate(struct gwindow *base, GGadgetData *gd,void *data) {
     if ( gd->u.list!=NULL ) {
 	gl->ti = GTextInfoArrayFromList(gd->u.list,&gl->ltot);
 	if ( gd->flags & gg_list_alphabetic )
-	    qsort(gl->ti,gl->ltot,sizeof(GTextInfo *),_GListAlphaCompare);
+	    qsort(gl->ti,gl->ltot,sizeof(GTextInfo *),_GDListAlphaCompare);
     }
     if ( gd->label==NULL && gd->u.list!=NULL ) {
 	/* find first selected item if there is one */

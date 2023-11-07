@@ -150,7 +150,7 @@ typedef struct ggdkselectioninfo {
     /** Time of owning the selection **/
     guint32 timestamp;
     /** Types of selection data made available **/
-    GList_Glib *datalist;
+    GList *datalist;
 } GGDKSelectionInfo;
 
 typedef struct ggdkselectiontypes {
@@ -199,7 +199,7 @@ typedef struct ggdkdisplay { /* :GDisplay */
 
     GPtrArray *cursors; // List of cursors that the user made.
     GGDKWindow dirty_window; // Window which called drawing functions outside of an expose event.
-    GList_Glib *timers; //List of GGDKTimer's
+    GList *timers; //List of GGDKTimer's
     GHashTable *windows; // List of windows.
     GQueue *mru_windows; // MRU list of toplevel windows that are good candidates to make windows transient to
 
@@ -257,7 +257,7 @@ struct ggdkwindow { /* :GWindow */
 
     GWindow redirect_from;		/* only redirect input from this window and its children */
     struct ggdkwindow *transient_owner;
-    GList_Glib *mru_link; // This window's link in the MRU list; only used for some toplevels, NULL otherwise
+    GList *mru_link; // This window's link in the MRU list; only used for some toplevels, NULL otherwise
 
     char *window_title;
     GCursor current_cursor;

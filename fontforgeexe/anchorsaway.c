@@ -1232,7 +1232,7 @@ void AnchorControl(SplineChar *sc,AnchorPoint *ap,int layer) {
     gcd[k].gd.flags = gg_visible|gg_enabled ;
     gcd[k].gd.cid = CID_Glyph;
     gcd[k].gd.handle_controlevent = AnchorD_GlyphChanged;
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
 
     glypharray[0] = GCD_Glue; glypharray[1] = &gcd[k-1]; glypharray[2] = GCD_Glue; glypharray[3] = NULL;
 
@@ -1263,7 +1263,7 @@ void AnchorControl(SplineChar *sc,AnchorPoint *ap,int layer) {
     gcd[k].gd.handle_controlevent = AnchorD_DisplaySizeChanged;
     gcd[k].gd.popup_msg = gcd[k-1].gd.popup_msg =
 	    _("The size at which the current glyph is rasterized.\nFor small pixelsize you may want to use the magnification\nfactor below to get a clearer view.\n\nThe pulldown list contains the pixelsizes at which there\nare device table corrections.");
-    gcd[k++].creator = GListFieldCreate;
+    gcd[k++].creator = GDListFieldCreate;
     hvarray[hv++] = &gcd[k-1]; hvarray[hv++] = GCD_ColSpan; hvarray[hv++] = GCD_Glue; hvarray[hv++] = NULL;
 
 /* GT: Short for: Magnification */
@@ -1282,7 +1282,7 @@ void AnchorControl(SplineChar *sc,AnchorPoint *ap,int layer) {
     gcd[k].gd.handle_controlevent = AnchorD_MagnificationChanged;
     gcd[k].gd.popup_msg = gcd[k-1].gd.popup_msg =
 	    _("The glyph is rasterized at the size above, but it\nmay be difficult to see the alignment errors\nthat can happen at small pixelsizes. This allows\nyou to expand each pixel to show potential problems\nbetter.");
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
     hvarray[hv++] = &gcd[k-1]; hvarray[hv++] = GCD_Glue; hvarray[hv++] = NULL;
 
     label[k].text = (unichar_t *) _("_X");

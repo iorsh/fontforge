@@ -601,7 +601,7 @@ static void SMD_EditState(SMD *smd) {
 	gcd[k].gd.flags = gg_enabled|gg_visible;
 	gcd[k].gd.u.list = indicverbs_list;
 	gcd[k].gd.cid = CID_IndicVerb;
-	gcd[k++].creator = GListButtonCreate;
+	gcd[k++].creator = GDListButtonCreate;
     } else if ( smd->sm->type==asm_insert ) {
 	label[k].text = (unichar_t *) _("Current Glyph Is Kashida Like");
 	label[k].text_is_1byte = true;
@@ -682,7 +682,7 @@ static void SMD_EditState(SMD *smd) {
 	gcd[k].gd.pos.x = gcd[2].gd.pos.x; gcd[k].gd.pos.y = gcd[k-1].gd.pos.y-4;
 	gcd[k].gd.flags = gg_enabled|gg_visible;
 	gcd[k].gd.cid = CID_TagMark;
-	gcd[k++].creator = GListFieldCreate;
+	gcd[k++].creator = GDListFieldCreate;
 
 	label[k].text = (unichar_t *) _("Current Subs:");
 	label[k].text_is_1byte = true;
@@ -695,7 +695,7 @@ static void SMD_EditState(SMD *smd) {
 	gcd[k].gd.flags = gg_enabled|gg_visible;
 	gcd[k].gd.cid = CID_TagCur;
 	gcd[k].gd.u.list = gcd[k-2].gd.u.list;
-	gcd[k++].creator = GListFieldCreate;
+	gcd[k++].creator = GDListFieldCreate;
     }
 
     label[k].text = (unichar_t *) U_("_Up↑");

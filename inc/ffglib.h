@@ -22,7 +22,6 @@
 #ifndef FONTFORGE_FFGLIB_H
 #define FONTFORGE_FFGLIB_H
 
-#define GList  GList_Glib
 #define GMenuItem GMenuItem_GIO
 #define GTimer GTimer_GTK
 
@@ -39,7 +38,6 @@
 # define extended	double
 #endif
 
-#undef GList
 #undef GMenuItem
 #undef GTimer
 

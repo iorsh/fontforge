@@ -2548,7 +2548,7 @@ static void FillShowKerningWindow(KernClassDlg *kcd, GGadgetCreateData *left,
     gcd[k].gd.flags = gg_visible | gg_enabled;
     gcd[k].gd.handle_controlevent = KCD_GlyphSelected;
     gcd[k].gd.cid = CID_First;
-    gcd[k++].creator = left!=NULL ? GListButtonCreate : GTextFieldCreate;
+    gcd[k++].creator = left!=NULL ? GDListButtonCreate : GTextFieldCreate;
     harray[0] = &gcd[k-1];
 
     gcd[k].gd.pos.x = 130; gcd[k].gd.pos.y = 5;
@@ -2557,7 +2557,7 @@ static void FillShowKerningWindow(KernClassDlg *kcd, GGadgetCreateData *left,
     if ( left==NULL ) gcd[k].gd.flags |= gg_list_alphabetic;
     gcd[k].gd.handle_controlevent = KCD_GlyphSelected;
     gcd[k].gd.cid = CID_Second;
-    gcd[k++].creator = left!=NULL ? GListButtonCreate : GListFieldCreate;
+    gcd[k++].creator = left!=NULL ? GDListButtonCreate : GDListFieldCreate;
     harray[1] = &gcd[k-1];
 
     label[k].text = (unichar_t *) _("Use FreeType");
@@ -2596,7 +2596,7 @@ static void FillShowKerningWindow(KernClassDlg *kcd, GGadgetCreateData *left,
     gcd[k].gd.flags = gg_visible|gg_enabled ;
     gcd[k].gd.cid = CID_DisplaySize;
     gcd[k].gd.handle_controlevent = KCD_DisplaySizeChanged;
-    gcd[k++].creator = GListFieldCreate;
+    gcd[k++].creator = GDListFieldCreate;
     hvarray[1] = &gcd[k-1];
 
     label[k].text = (unichar_t *) _("Magnification:");
@@ -2612,7 +2612,7 @@ static void FillShowKerningWindow(KernClassDlg *kcd, GGadgetCreateData *left,
     gcd[k].gd.pos.width = 60;
     gcd[k].gd.u.list = magnifications;
     gcd[k].gd.handle_controlevent = KCD_MagnificationChanged;
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
     hvarray[3] = &gcd[k-1]; hvarray[4] = GCD_Glue; hvarray[5] = NULL;
 
     label[k].text = (unichar_t *) _("Kern Offset:");
@@ -2696,7 +2696,7 @@ static void FillShowKerningWindow(KernClassDlg *kcd, GGadgetCreateData *left,
 	gcd[k].gd.flags = gg_enabled|gg_visible;
 	gcd[k].gd.cid = CID_Subtable;
 	gcd[k].gd.handle_controlevent = KP_Subtable;
-	gcd[k++].creator = GListButtonCreate;
+	gcd[k++].creator = GDListButtonCreate;
 	flagarray[1] = &gcd[k-1]; flagarray[2] = GCD_Glue; flagarray[3] = NULL;
 
 	flagbox.gd.flags = gg_enabled|gg_visible;
@@ -3360,7 +3360,7 @@ return;
     gcd[0].gd.cid = CID_List;
     gcd[0].gd.u.list = KCLookupSubtableList(sf,isv);
     gcd[0].gd.handle_controlevent = KCL_SelChanged;
-    gcd[0].creator = GListCreate;
+    gcd[0].creator = GDListCreate;
     varray[0] = &gcd[0]; varray[1] = NULL;
 
     gcd[1].gd.pos.x = 10; gcd[1].gd.pos.y = gcd[0].gd.pos.y+gcd[0].gd.pos.height+4;

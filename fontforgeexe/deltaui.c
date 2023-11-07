@@ -1016,7 +1016,7 @@ static void StartDeltaDisplay(QGData *qg) {
     gcd[k].gd.cid = CID_Sort;
     gcd[k].gd.flags = gg_enabled|gg_visible;
     gcd[k].gd.handle_controlevent = QGSorter;
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
 
     label[k].text = (unichar_t *) _("Glyph:");
     label[k].text_is_1byte = true;
@@ -1028,7 +1028,7 @@ static void StartDeltaDisplay(QGData *qg) {
     gcd[k].gd.flags = gg_enabled|gg_visible;
     gcd[k].gd.cid = CID_GlyphSort;
     gcd[k].gd.handle_controlevent = QGSorter;
-    gcd[k++].creator = GListButtonCreate;
+    gcd[k++].creator = GDListButtonCreate;
     if ( qg->fv==NULL )
 	gcd[k-1].gd.flags = gcd[k-2].gd.flags = gg_enabled;
     harray2[0] = &gcd[k-4]; harray2[1] = &gcd[k-3]; harray2[2] = &gcd[k-2]; harray2[3] = &gcd[k-1]; harray2[4] = NULL;

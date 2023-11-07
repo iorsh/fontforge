@@ -1147,7 +1147,7 @@ static PyObject *PyFF_SpiroVersion(PyObject *UNUSED(self), PyObject *UNUSED(args
     return( ret );
 }
 
-GList_Glib* closingFunctionList = 0;
+GList* closingFunctionList = 0;
 
 static PyObject *PyFF_onAppClosing(PyObject *self, PyObject *args) {
     int cnt;

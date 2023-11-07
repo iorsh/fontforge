@@ -337,7 +337,7 @@ static void CI_AskCounters(CharInfo *ci,HintMask *old) {
 	hgcd[j].gd.handle_controlevent = HI_HintSel;
 	varray[k++] = &hgcd[j]; varray[k++] = NULL;
 	varray[k++] = GCD_Glue; varray[k++] = NULL;
-	hgcd[j++].creator = GListCreate;
+	hgcd[j++].creator = GDListCreate;
 
 	hgcd[j].gd.pos.x = 20-3; hgcd[j].gd.pos.y = HI_Height-31-3;
 	hgcd[j].gd.pos.width = -1; hgcd[j].gd.pos.height = 0;
@@ -393,14 +393,14 @@ return;		/* Cancelled */
 	if ( old==NULL ) chunkfree(cur,sizeof(HintMask));
 return;		/* Didn't add anything new */
     } else if ( old==NULL ) {
-	GListAddStr(list,CounterMaskLine(hi.sc,cur),cur);
+	GDListAddStr(list,CounterMaskLine(hi.sc,cur),cur);
 return;
     } else if ( !hi.empty ) {
-	GListReplaceStr(list,GGadgetGetFirstListSelectedItem(list),
+	GDListReplaceStr(list,GGadgetGetFirstListSelectedItem(list),
 		CounterMaskLine(hi.sc,cur),cur);
 return;
     } else {
-	GListDelSelected(list);
+	GDListDelSelected(list);
 	chunkfree(cur,sizeof(HintMask));
     }
 }
@@ -4365,7 +4365,7 @@ return;
 	ugcd[1].gd.flags = gg_enabled|gg_visible;
 	ugcd[1].gd.mnemonic = 'y';
 	ugcd[1].gd.cid = CID_UName;
-	ugcd[1].creator = GListFieldCreate;
+	ugcd[1].creator = GDListFieldCreate;
 	ugcd[1].data = (void *) (-2);
 	uhvarray[1] = &ugcd[1]; uhvarray[2] = NULL;
 
@@ -4472,7 +4472,7 @@ return;
 	ugcd[11].gd.flags = gg_visible | gg_enabled;
 	ugcd[11].gd.cid = CID_GClass;
 	ugcd[11].gd.u.list = glyphclasses;
-	ugcd[11].creator = GListButtonCreate;
+	ugcd[11].creator = GDListButtonCreate;
 	uhvarray[19] = &ugcd[11]; uhvarray[20] = NULL;
 
 	ugcd[12].gd.flags = gg_visible | gg_enabled;
@@ -4526,7 +4526,7 @@ return;
 	cgcd[3].gd.handle_controlevent = CI_PickColor;
 	std_colors[0].image = GGadgetImageCache("colorwheel.png");
 	cgcd[3].gd.u.list = std_colors;
-	cgcd[3].creator = GListButtonCreate;
+	cgcd[3].creator = GDListButtonCreate;
 	charray[1] = &cgcd[3]; charray[2] = GCD_Glue; charray[3] = NULL;
 
 	cbox[2].gd.flags = gg_enabled|gg_visible;
@@ -4574,7 +4574,7 @@ return;
 	    psgcd[6][0].gd.cid = CID_List+6*100;
 	    psgcd[6][0].gd.handle_controlevent = CI_CounterSelChanged;
 	    psgcd[6][0].gd.box = &smallbox;
-	    psgcd[6][0].creator = GListCreate;
+	    psgcd[6][0].creator = GDListCreate;
 	    pstvarray[6][0] = &psgcd[6][0];
 
 	    psgcd[6][1].gd.pos.x = 10; psgcd[6][1].gd.pos.y = psgcd[6][0].gd.pos.y+psgcd[6][0].gd.pos.height+4;
@@ -5395,7 +5395,7 @@ return;
 	gcd[i].gd.flags = gg_enabled|gg_visible/*|gg_list_exactlyone*/;
 	gcd[i].gd.u.list = ti;
 	gcd[i].gd.cid = CID_PST;
-	gcd[i++].creator = GListButtonCreate;
+	gcd[i++].creator = GDListButtonCreate;
 	varray[j++] = &gcd[i-1]; varray[j++] = NULL;
 	varray[j++] = GCD_Glue; varray[j++] = NULL;
 

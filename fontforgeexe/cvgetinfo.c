@@ -1400,7 +1400,7 @@ return;
 	sf = cv->b.sc->parent;
 	if ( sf->cidmaster ) sf = sf->cidmaster;
 	gcd[j].gd.handle_controlevent = AI_ANameChanged;
-	gcd[j].creator = GListButtonCreate;
+	gcd[j].creator = GDListButtonCreate;
 	varray[0] = &gcd[j]; varray[1] = NULL;
 	++j;
 
@@ -3172,14 +3172,14 @@ static void PointGetInfo(CharView *cv, SplinePoint *sp, SplinePointList *spl) {
 	hgcd[0].gd.cid = CID_HintMask;
 	hgcd[0].gd.u.list = SCHintList(cv->b.sc,NULL);
 	hgcd[0].gd.handle_controlevent = PI_HintSel;
-	hgcd[0].creator = GListCreate;
+	hgcd[0].creator = GDListCreate;
 
 	h2gcd[0].gd.pos.x = 5; h2gcd[0].gd.pos.y = 5;
 	h2gcd[0].gd.pos.width = PI_Width-20; h2gcd[0].gd.pos.height = gcd[j-1].gd.pos.y+10;
 	h2gcd[0].gd.flags = gg_visible | gg_list_multiplesel;
 	h2gcd[0].gd.cid = CID_ActiveHints;
 	h2gcd[0].gd.u.list = SCHintList(cv->b.sc,NULL);
-	h2gcd[0].creator = GListCreate;
+	h2gcd[0].creator = GDListCreate;
 
 	j = 0;
 

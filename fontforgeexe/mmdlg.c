@@ -755,7 +755,7 @@ return;
 	    gcd[k].gd.u.list[def_name+1].selected = true;
 	gcd[k].gd.cid = CID_Knowns;
 	gcd[k].gd.handle_controlevent = MMCB_PickedKnown;
-	gcd[k++].creator = GListButtonCreate;
+	gcd[k++].creator = GDListButtonCreate;
 
 	gcd[k].gd.pos.x = 30-3; gcd[k].gd.pos.y = GDrawPixelsToPoints(NULL,pos.height)-35-3;
 	gcd[k].gd.pos.width = -1;
@@ -964,11 +964,11 @@ return( true );
 	uc_strcat(name,buffer);
 	free(style);
 	if ( esd->index==-1 )
-	    GListAppendLine(esd->list,name,false)->userdata = mn;
+	    GDListAppendLine(esd->list,name,false)->userdata = mn;
 	else {
 	    GTextInfo *ti = GGadgetGetListItem(esd->list,esd->index);
 	    MacNameListFree(ti->userdata);
-	    GListChangeLine(esd->list,esd->index,name)->userdata = mn;
+	    GDListChangeLine(esd->list,esd->index,name)->userdata = mn;
 	}
 	esd->done = true;
 	free(name);
@@ -2289,7 +2289,7 @@ static int MMW_NamedDelete(GGadget *g, GEvent *e) {
 		ti[i]->userdata = NULL;
 	    }
 	}
-	GListDelSelected(list);
+	GDListDelSelected(list);
 	GGadgetSetEnabled(GWidgetGetControl(gw,CID_NamedDelete),false);
 	GGadgetSetEnabled(GWidgetGetControl(gw,CID_NamedEdit),false);
     }
@@ -2659,7 +2659,7 @@ void MMWizard(MMSet *mm) {
     cntgcd[k].gd.label = &axiscounts[mmw.axis_count-1];
     cntgcd[k].gd.cid = CID_AxisCount;
     cntgcd[k].gd.handle_controlevent = MMW_AxisCntChanged;
-    cntgcd[k++].creator = GListButtonCreate;
+    cntgcd[k++].creator = GDListButtonCreate;
     for ( i=0; i<4; ++i )
 	axiscounts[i].selected = false;
     axiscounts[mmw.axis_count-1].selected = true;
@@ -2676,7 +2676,7 @@ void MMWizard(MMSet *mm) {
     cntgcd[k].gd.u.list = mastercounts;
     cntgcd[k].gd.label = &mastercounts[mmw.instance_count-1];
     cntgcd[k].gd.cid = CID_MasterCount;
-    cntgcd[k++].creator = GListButtonCreate;
+    cntgcd[k++].creator = GDListButtonCreate;
     for ( i=0; i<AppleMmMax+1; ++i )
 	mastercounts[i].selected = false;
     mastercounts[mmw.instance_count-1].selected = true;
@@ -2729,7 +2729,7 @@ void MMWizard(MMSet *mm) {
 	    axislabel[i][k].text = uc_copy(mmw.mm->axes[i]);
 	    axisgcd[i][k].gd.label = &axislabel[i][k];
 	}
-	axisgcd[i][k++].creator = GListFieldCreate;
+	axisgcd[i][k++].creator = GDListFieldCreate;
 
 	axislabel[i][k].text = (unichar_t *) _("Axis Range:");
 	axislabel[i][k].text_is_1byte = true;
@@ -2916,7 +2916,7 @@ void MMWizard(MMSet *mm) {
 	designgcd[i][1].gd.flags = gg_visible | gg_enabled;
 	designgcd[i][1].gd.cid = CID_DesignFonts + i*DesignScaleFactor;
 	designgcd[i][1].gd.handle_controlevent = MMW_CheckBrowse;
-	designgcd[i][1].creator = GListButtonCreate;
+	designgcd[i][1].creator = GDListButtonCreate;
 
 	designlabel[i][2].text = (unichar_t *) _("Normalized position of this design along each axis");
 	designlabel[i][2].text_is_1byte = true;
@@ -2971,7 +2971,7 @@ void MMWizard(MMSet *mm) {
     ngcd[1].gd.flags = gg_visible | gg_enabled | gg_list_multiplesel;
     ngcd[1].gd.cid = CID_NamedDesigns;
     ngcd[1].gd.handle_controlevent = MMW_NamedSel;
-    ngcd[1].creator = GListCreate;
+    ngcd[1].creator = GDListCreate;
 
     ngcd[2].gd.pos.x = 20; ngcd[2].gd.pos.y = ngcd[1].gd.pos.y + ngcd[1].gd.pos.height+5;
     ngcd[2].gd.pos.width = -1;
