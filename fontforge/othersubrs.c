@@ -27,7 +27,7 @@
 
 #include <fontforge-config.h>
 
-#include "fontforge.h"		/* For LogError */
+#include "fontforge.h"      /* For LogError */
 #include "othersubrs.h"
 #include "splinefont.h"
 #include "ustring.h"
