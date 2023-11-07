@@ -27,9 +27,10 @@
 
 #include <fontforge-config.h>
 
-#include "fontforge.h"
+extern "C" {
+   #include "fontforge.h"
+}
 
-//#include <gtk/gtk.h>
 #include <gtkmm-4.0/gtkmm.h>
 
 int main( int argc, char **argv ) {
