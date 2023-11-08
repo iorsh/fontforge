@@ -51,6 +51,7 @@
 #include <time.h>
 #include <unistd.h>
 
+//#include <gtkmm-3.0/gtkmm.h>
 #include <gtk/gtk.h>
 
 #if defined(__MINGW32__)
@@ -821,6 +822,23 @@ int fontforge_main( int argc, char **argv ) {
 #ifdef FONTFORGE_CAN_USE_GDK
     gdk_set_allowed_backends("win32,quartz,x11");
     gtk_init(&argc, &argv);
+
+   //GtkApplication* app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+   //g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+   //Gtk::Main::init_gtkmm_internals();
+   //auto window = Gtk::Window();
+   //window.show_all();
+
+   GtkWindow* window;
+   window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
+   gtk_window_set_title(window, "GTK Window");
+   GtkButton* button;
+   button = gtk_button_new_with_label("Foo!");
+   gtk_container_add(GTK_CONTAINER(window), button);
+   gtk_window_set_default_size (GTK_WINDOW (window), 800, 600);
+   gtk_widget_show_all (GTK_WINDOW (window));
+   gtk_window_present(window);
+
 #endif
     ensureDotFontForgeIsSetup();
 #if defined(__MINGW32__) && !defined(_NO_LIBCAIRO)

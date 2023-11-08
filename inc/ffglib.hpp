@@ -29,10 +29,12 @@
 # undef extended
 #endif
 
+extern "C" {
 #include <gio/gio.h>
 #include <glib-object.h>
 #include <glib.h>
 #include <glib/gstdio.h>
+}
 
 #ifdef __GNU__
 # define extended	double

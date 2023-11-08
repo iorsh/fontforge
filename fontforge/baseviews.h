@@ -301,7 +301,7 @@ extern void FVRound2Int(FontViewBase *fv,real factor);
 extern void FVCanonicalStart(FontViewBase *fv);
 extern void FVCanonicalContours(FontViewBase *fv);
 extern void FVCluster(FontViewBase *fv);
-extern void CIDSetEncMap(FontViewBase *fv, SplineFont *new );
+extern void CIDSetEncMap(FontViewBase *fv, SplineFont *_new );
 extern void FVInsertInCID(FontViewBase *fv,SplineFont *sf);
 
 extern void FVAutoHint(FontViewBase *fv);

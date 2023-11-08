@@ -1245,8 +1245,8 @@ return( true );		/* A glyph with hints! */
 return( false );
 }
 
-void CIDSetEncMap(FontViewBase *fv, SplineFont *new ) {
-    int gcnt = new->glyphcnt;
+void CIDSetEncMap(FontViewBase *fv, SplineFont *_new ) {
+    int gcnt = _new->glyphcnt;
 
     if ( fv->cidmaster!=NULL && gcnt!=fv->sf->glyphcnt ) {
 	int i;
@@ -1265,8 +1265,8 @@ void CIDSetEncMap(FontViewBase *fv, SplineFont *new ) {
 	}
 	fv->map->enccount = gcnt;
     }
-    fv->sf = new;
-    new->fv = fv;
+    fv->sf = _new;
+   _new->fv = fv;
     FVSetTitle(fv);
     FontViewReformatOne(fv);
 }
