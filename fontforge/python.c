@@ -1081,7 +1081,7 @@ return;
     PyTuple_SetItem(arglist,1,glyph);
     PyTuple_SetItem(arglist,2,PyUnicode_DecodeUTF8(filename,strlen(filename),NULL));
     PyTuple_SetItem(arglist,2,PyUnicode_DecodeUTF8(filename,strlen(filename),NULL));
-    result = PyObject_CallObject(py_ie[ie_index].export, arglist);
+    result = PyObject_CallObject(py_ie[ie_index]._export, arglist);
     Py_DECREF(arglist);
     Py_XDECREF(result);
     if ( PyErr_Occurred()!=NULL )
@@ -1120,7 +1120,7 @@ return( NULL );
     if ( ie_cnt>=ie_max )
 	py_ie = realloc(py_ie,((ie_max += 10)+1)*sizeof(struct python_import_export));
     py_ie[ie_cnt].import = import;
-    py_ie[ie_cnt].export = export;
+    py_ie[ie_cnt]._export = export;
     py_ie[ie_cnt].data = data;
     py_ie[ie_cnt].name = name;
     py_ie[ie_cnt].extension = copy(exten);

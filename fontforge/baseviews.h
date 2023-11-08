@@ -411,7 +411,7 @@ enum flipset { flip_none = 0, flip_x, flip_y, flip_xy };
 
 extern struct python_import_export {
     struct _object *import;	/* None becomes NULL */
-    struct _object *export;	/* None becomes NULL */
+    struct _object *_export;	/* None becomes NULL */
     struct _object *data;	/* None stays None */
     char *name;
     char *extension;
