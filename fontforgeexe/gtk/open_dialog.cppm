@@ -29,7 +29,7 @@ export namespace FontDialog {
    // Browse for a font file to open. TODO: return a file handle, or pass in a callback?
    // TODO: accept modal flag
    // TODO: add multi-file mode option..?
-   RefPtr<File> open_dialog(RefPtr<File> path = {}, ustring title = nullptr) {
+   RefPtr<File> open_dialog(RefPtr<File> path = {}, ustring title = {}) {
       auto t = title != ustring{} ? title : "Open Font";
 
       auto d = Gtk::FileChooserDialog(t, Gtk::FILE_CHOOSER_ACTION_OPEN);
