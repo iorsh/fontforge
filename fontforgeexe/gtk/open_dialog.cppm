@@ -17,6 +17,7 @@ using namespace std;
 
 #include <gtkmm-3.0/gtkmm.h>
 using namespace Glib;
+using Gio::File;
 
 #include "open_filters.hpp"
 
@@ -26,11 +27,15 @@ export namespace FontDialog {
 
    // TODO: subclass this, probably?
    // Browse for a font file to open. TODO: return a file handle, or pass in a callback?
-   // TODO: accept a initial/current dir
    // TODO: accept modal flag
    // TODO: add multi-file mode option..?
-   RefPtr<Gio::File> open_dialog(ustring title = "Select a font") {
-      auto d = Gtk::FileChooserDialog(title, Gtk::FILE_CHOOSER_ACTION_OPEN);
+   RefPtr<File> open_dialog(RefPtr<File> path = {}, ustring title = nullptr) {
+      auto t = title != ustring{} ? title : "Open Font";
+
+      auto d = Gtk::FileChooserDialog(t, Gtk::FILE_CHOOSER_ACTION_OPEN);
+
+      if(path)
+         d.set_current_folder(path->get_path());
 
       d.add_button("_Open", Gtk::RESPONSE_OK);
       d.add_button("_Cancel", Gtk::RESPONSE_CANCEL);
