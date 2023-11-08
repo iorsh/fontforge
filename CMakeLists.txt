@@ -1,8 +1,9 @@
 # Distributed under the original FontForge BSD 3-clause license
 
+cmake_minimum_required(VERSION 3.27)
+
 # Update the version for each new release
 project(fontforge VERSION 20230101 LANGUAGES C CXX)
-cmake_minimum_required(VERSION 3.27)
 
 # No in source builds
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
