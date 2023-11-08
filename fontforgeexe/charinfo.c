@@ -1590,7 +1590,7 @@ static void CI_ApplyAll(CharInfo *ci) {
 	    /*  the user might have forgotten to remove it. So if s/he did */
 	    /*  forget, swap the altuni value with the old value */
 	    for ( alt=cached->altuni; alt!=NULL && (alt->unienc!=cached->unicodeenc || alt->vs!=-1 || alt->fid!=0); alt=alt->next );
-	    if ( alt!=NULL )	/* alt->unienc==new value */
+	    if ( alt!=NULL )	/* alt->unienc==_new value */
 		alt->unienc = sc->unicodeenc;
 	    sc->unicodeenc = cached->unicodeenc;
 	}
