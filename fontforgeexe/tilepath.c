@@ -358,37 +358,37 @@ static SplineSet *SplinePointListTruncateAtY(SplineSet *spl,real y) {
 return( ss );
 }
 
-static SplineSet *SplinePointListMerge(SplineSet *old,SplineSet *new) {
+static SplineSet *SplinePointListMerge(SplineSet *old,SplineSet *_new) {
     /* Merge the new splineset into the old looking for any endpoints */
     /*  common to both, and if any are found, merging them */
     SplineSet *test1, *next;
     SplineSet *oldold = old;
 
-    while ( new!=NULL ) {
-	next = new->next;
-	if ( new->first!=new->last ) {
+    while ( _new!=NULL ) {
+	next = _new->next;
+	if ( _new->first!=_new->last ) {
 	    for ( test1=oldold; test1!=NULL; test1=test1->next ) {
 		if ( test1->first!=test1->last &&
-			((test1->first->me.x==new->first->me.x && test1->first->me.y==new->first->me.y) ||
-			 (test1->last->me.x==new->first->me.x && test1->last->me.y==new->first->me.y) ||
-			 (test1->first->me.x==new->last->me.x && test1->first->me.y==new->last->me.y) ||
-			 (test1->last->me.x==new->last->me.x && test1->last->me.y==new->last->me.y)) )
+			((test1->first->me.x==_new->first->me.x && test1->first->me.y==_new->first->me.y) ||
+			 (test1->last->me.x==_new->first->me.x && test1->last->me.y==_new->first->me.y) ||
+			 (test1->first->me.x==_new->last->me.x && test1->first->me.y==_new->last->me.y) ||
+			 (test1->last->me.x==_new->last->me.x && test1->last->me.y==_new->last->me.y)) )
 		    break;
 	    }
 	    if ( test1!=NULL ) {
-		if ((test1->first->me.x==new->first->me.x && test1->first->me.y==new->first->me.y) ||
-			(test1->last->me.x==new->last->me.x && test1->last->me.y==new->last->me.y))
-		    SplineSetReverse(new);
-		if ( test1->last->me.x==new->first->me.x && test1->last->me.y==new->first->me.y ) {
-		    test1->last->nextcp = new->first->nextcp;
-		    test1->last->nonextcp = new->first->nonextcp;
-		    test1->last->nextcpdef = new->first->nextcpdef;
-		    test1->last->next = new->first->next;
-		    new->first->next->from = test1->last;
-		    test1->last = new->last;
-		    SplinePointFree(new->first);
-		    new->first = new->last = NULL;
-		    SplinePointListFree(new);
+		if ((test1->first->me.x==_new->first->me.x && test1->first->me.y==_new->first->me.y) ||
+			(test1->last->me.x==_new->last->me.x && test1->last->me.y==_new->last->me.y))
+		    SplineSetReverse(_new);
+		if ( test1->last->me.x==_new->first->me.x && test1->last->me.y==_new->first->me.y ) {
+		    test1->last->nextcp = _new->first->nextcp;
+		    test1->last->nonextcp = _new->first->nonextcp;
+		    test1->last->nextcpdef = _new->first->nextcpdef;
+		    test1->last->next = _new->first->next;
+		    _new->first->next->from = test1->last;
+		    test1->last = _new->last;
+		    SplinePointFree(_new->first);
+		    _new->first = _new->last = NULL;
+		    SplinePointListFree(_new);
 		    if ( test1->last->me.x == test1->first->me.x &&
 			    test1->last->me.y == test1->first->me.y ) {
 			test1->first->prevcp = test1->last->prevcp;
@@ -399,23 +399,23 @@ static SplineSet *SplinePointListMerge(SplineSet *old,SplineSet *new) {
 			test1->last = test1->first;
 		    }
 		} else {
-		    test1->first->prevcp = new->last->prevcp;
-		    test1->first->noprevcp = new->last->noprevcp;
-		    test1->first->prevcpdef = new->last->prevcpdef;
-		    test1->first->prev = new->last->prev;
-		    new->last->prev->to = test1->first;
-		    test1->first = new->first;
-		    SplinePointFree(new->last);
-		    new->first = new->last = NULL;
-		    SplinePointListFree(new);
+		    test1->first->prevcp = _new->last->prevcp;
+		    test1->first->noprevcp = _new->last->noprevcp;
+		    test1->first->prevcpdef = _new->last->prevcpdef;
+		    test1->first->prev = _new->last->prev;
+		    _new->last->prev->to = test1->first;
+		    test1->first = _new->first;
+		    SplinePointFree(_new->last);
+		    _new->first = _new->last = NULL;
+		    SplinePointListFree(_new);
 		}
-		new = next;
+		_new = next;
     continue;
 	    }
 	}
-	new->next = old;
-	old = new;
-	new = next;
+	_new->next = old;
+	old = _new;
+	_new = next;
     }
 return( old );
 }
@@ -425,7 +425,7 @@ static void TileLine(TD *td) {
     int tilecnt=1, i;
     bigreal scale=1, y;
     real trans[6];
-    SplineSet *new;
+    SplineSet *_new;
     int use_first=false, use_last=false, use_isolated=false;
 
     switch ( td->tilescale ) {
@@ -518,12 +518,12 @@ static void TileLine(TD *td) {
 		    (i==0 && use_isolated ) ? 3 :
 		    (i==tilecnt-1 && use_last ) ? 2 :
 			    0;
-	new = SplinePointListCopy((&td->basetile)[which]);
+	_new = SplinePointListCopy((&td->basetile)[which]);
 	trans[5] = y;
-	new = SplinePointListTransform(new,trans,tpt_AllPoints);
+	_new = SplinePointListTransform(_new,trans,tpt_AllPoints);
 	if ( i==tilecnt-1 && td->tilescale==ts_tile )
-	    new = SplinePointListTruncateAtY(new,td->plength);
-	td->tileset = SplinePointListMerge(td->tileset,new);
+	    _new = SplinePointListTruncateAtY(_new,td->plength);
+	td->tileset = SplinePointListMerge(td->tileset,_new);
 	y += (&td->bb)[which].maxy*scale;
     }
     if ( td->pcnt>1 ) {
@@ -609,7 +609,7 @@ static void AdjustPoint(TD *td,Spline *spline,bigreal t, FitPoint *to) {
 
 static SplinePoint *TDMakePoint(TD *td,Spline *old,real t) {
     FitPoint fp;
-    SplinePoint *new;
+    SplinePoint *_new;
 
     AdjustPoint(td,old,t,&fp);
     return SplinePointCreate(fp.p.x, fp.p.y);
@@ -631,7 +631,7 @@ return( ApproximateSplineFromPoints(newfrom,newto,fps,15, order2) );
 }
 
 static void AdjustSplineSet(TD *td,int order2) {
-    SplineSet *spl, *last=NULL, *new;
+    SplineSet *spl, *last=NULL, *_new;
     Spline *spline, *s;
     SplinePoint *lastsp, *nextsp, *sp;
 
@@ -639,41 +639,41 @@ static void AdjustSplineSet(TD *td,int order2) {
 	for ( last=td->result ; last->next!=NULL; last = last->next );
 
     for ( spl=td->tileset; spl!=NULL; spl=spl->next ) {
-	new = chunkalloc(sizeof(SplineSet));
+	_new = chunkalloc(sizeof(SplineSet));
 	if ( last==NULL )
-	    td->result = new;
+	    td->result = _new;
 	else
-	    last->next = new;
-	last = new;
-	new->first = lastsp = TDMakePoint(td,spl->first->next,0);
+	    last->next = _new;
+	last = _new;
+	_new->first = lastsp = TDMakePoint(td,spl->first->next,0);
 	nextsp = NULL;
 	for ( spline=spl->first->next; spline!=NULL; spline=spline->to->next ) {
 	    if ( spline->to==spl->first )
-		nextsp = new->first;
+		nextsp = _new->first;
 	    s = AdjustSpline(td,spline,lastsp,nextsp,order2);
 	    lastsp = s->to;
 	    if ( nextsp!=NULL )
 	break;
 	}
-	if ( lastsp!=new->first &&
-		RealNearish(lastsp->me.x,new->first->me.x) &&
-		RealNearish(lastsp->me.y,new->first->me.y) ) {
-	    new->first->prev = lastsp->prev;
-	    new->first->prevcp = lastsp->prevcp;
-	    new->first->prevcpdef = lastsp->prevcpdef;
-	    lastsp->prev->to = new->first;
-	    new->last = new->first;
-	    SplineRefigure(new->first->prev);
+	if ( lastsp!=_new->first &&
+		RealNearish(lastsp->me.x,_new->first->me.x) &&
+		RealNearish(lastsp->me.y,_new->first->me.y) ) {
+	    _new->first->prev = lastsp->prev;
+	    _new->first->prevcp = lastsp->prevcp;
+	    _new->first->prevcpdef = lastsp->prevcpdef;
+	    lastsp->prev->to = _new->first;
+	    _new->last = _new->first;
+	    SplineRefigure(_new->first->prev);
 	    SplinePointFree(lastsp);
 	} else
-	    new->last = lastsp;
+	    _new->last = lastsp;
 
-	for ( sp = new->first; sp!=NULL; ) {
+	for ( sp = _new->first; sp!=NULL; ) {
 	    SplinePointCategorize(sp);
 	    if ( sp->next==NULL )
 	break;
 	    sp = sp->next->to;
-	    if ( sp==new->first )
+	    if ( sp==_new->first )
 	break;
 	}
     }

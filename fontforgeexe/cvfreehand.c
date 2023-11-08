@@ -129,8 +129,8 @@ return;
     new->wasconstrained = (event->u.mouse.state&ksm_shift)?1:0;
 #ifdef DEBUG_FREEHAND
  printf( "(%d,%d) (%g,%g) %d %d\n", event->u.mouse.x, event->u.mouse.y,
-  new->here.x, new->here.y, new->pressure, new->time );
- if ( new->prev!=NULL && new->time<new->prev->time )
+  _new->here.x, _new->here.y, _new->pressure, _new->time );
+ if ( _new->prev!=NULL && _new->time<_new->prev->time )
    printf( "\tAh ha!\n" );
 #endif
     if ( new->wasconstrained &&

@@ -4022,7 +4022,7 @@ return( false );
 return( ret );
 }
 
-void SFGlyphRenameFixup(SplineFont *sf, const char *old, const char *new, int rename_related_glyphs) {
+void SFGlyphRenameFixup(SplineFont *sf, const char *old, const char *_new, int rename_related_glyphs) {
 /* NOTE: Existing GUI behaviour renames glyphs, rename_related_glyphs turns */
 /* off this behaviour for scripting - see github issue #523 */
     int k, gid, isv;
@@ -4034,7 +4034,7 @@ void SFGlyphRenameFixup(SplineFont *sf, const char *old, const char *new, int re
     KernClass *kc;
     ASM *sm;
 
-    CVGlyphRenameFixup(sf,old,new);
+    CVGlyphRenameFixup(sf, old, _new);
     if ( sf->cidmaster!=NULL )
 	master = sf->cidmaster;
 
@@ -4049,7 +4049,7 @@ void SFGlyphRenameFixup(SplineFont *sf, const char *old, const char *new, int re
 	for ( gid=0; gid<sf->glyphcnt; ++gid ) if ( (sc=sf->glyphs[gid])!=NULL ) {
 	    if ( rename_related_glyphs && glyphnameIsComponent(sc->name,old) ) {
 		char *newer = copy(sc->name);
-		rplglyphname(&newer,old,new);
+		rplglyphname(&newer, old, _new);
 		SFGlyphRenameFixup(master,sc->name,newer,true);
 		free(sc->name);
 		sc->name = newer;
@@ -4059,14 +4059,14 @@ void SFGlyphRenameFixup(SplineFont *sf, const char *old, const char *new, int re
 		if ( pst->type==pst_substitution || pst->type==pst_alternate ||
 			pst->type==pst_multiple || pst->type==pst_pair ||
 			pst->type==pst_ligature ) {
-		    if ( rplstr(&pst->u.mult.components,old,new,pst->type==pst_ligature))
+		    if ( rplstr(&pst->u.mult.components, old, _new, pst->type == pst_ligature))
 			sc->changed = true;
 		}
 	    }
 	    /* For once I don't want a short circuit eval of "or", so I use */
 	    /*  bitwise rather than boolean intentionally */
-	    if ( gvfixup(sc->vert_variants,old,new) |
-		    gvfixup(sc->horiz_variants,old,new))
+	    if (gvfixup(sc->vert_variants, old, _new) |
+           gvfixup(sc->horiz_variants, old, _new))
 		sc->changed = true;
 	}
 	++k;
@@ -4076,34 +4076,34 @@ void SFGlyphRenameFixup(SplineFont *sf, const char *old, const char *new, int re
     for ( fpst=master->possub; fpst!=NULL; fpst=fpst->next ) {
 	if ( fpst->format==pst_class ) {
 	    for ( i=0; i<fpst->nccnt; ++i ) if ( fpst->nclass[i]!=NULL ) {
-		if ( rplstr(&fpst->nclass[i],old,new,false))
+		if ( rplstr(&fpst->nclass[i], old, _new, false))
 	    break;
 	    }
 	    for ( i=0; i<fpst->bccnt; ++i ) if ( fpst->bclass[i]!=NULL ) {
-		if ( rplstr(&fpst->bclass[i],old,new,false))
+		if ( rplstr(&fpst->bclass[i], old, _new, false))
 	    break;
 	    }
 	    for ( i=0; i<fpst->fccnt; ++i ) if ( fpst->fclass[i]!=NULL ) {
-		if ( rplstr(&fpst->fclass[i],old,new,false))
+		if ( rplstr(&fpst->fclass[i], old, _new, false))
 	    break;
 	    }
 	}
 	for ( r=0; r<fpst->rule_cnt; ++r ) {
 	    struct fpst_rule *rule = &fpst->rules[r];
 	    if ( fpst->format==pst_glyphs ) {
-		rplstr(&rule->u.glyph.names,old,new,true);
-		rplstr(&rule->u.glyph.back,old,new,true);
-		rplstr(&rule->u.glyph.fore,old,new,true);
+		rplstr(&rule->u.glyph.names, old, _new, true);
+		rplstr(&rule->u.glyph.back, old, _new, true);
+		rplstr(&rule->u.glyph.fore, old, _new, true);
 	    } else if ( fpst->format==pst_coverage ||
 		    fpst->format==pst_reversecoverage ) {
 		for ( i=0; i<rule->u.coverage.ncnt ; ++i )
-		    rplstr(&rule->u.coverage.ncovers[i],old,new,false);
+		    rplstr(&rule->u.coverage.ncovers[i], old, _new, false);
 		for ( i=0; i<rule->u.coverage.bcnt ; ++i )
-		    rplstr(&rule->u.coverage.bcovers[i],old,new,false);
+		    rplstr(&rule->u.coverage.bcovers[i], old, _new, false);
 		for ( i=0; i<rule->u.coverage.fcnt ; ++i )
-		    rplstr(&rule->u.coverage.fcovers[i],old,new,false);
+		    rplstr(&rule->u.coverage.fcovers[i], old, _new, false);
 		if ( fpst->format==pst_reversecoverage )
-		    rplstr(&rule->u.rcoverage.replacements,old,new,true);
+		    rplstr(&rule->u.rcoverage.replacements, old, _new, true);
 	    }
 	}
     }
@@ -4111,7 +4111,7 @@ void SFGlyphRenameFixup(SplineFont *sf, const char *old, const char *new, int re
     /* Now look for contextual apple state machines which might use the name */
     for ( sm = master->sm; sm!=NULL; sm=sm->next ) {
 	for ( i=0; i<sm->class_cnt; ++i ) if ( sm->classes[i]!=NULL ) {
-	    if ( rplstr(&sm->classes[i],old,new,false))
+	    if ( rplstr(&sm->classes[i], old, _new, false))
 	break;
 	}
     }
@@ -4120,11 +4120,11 @@ void SFGlyphRenameFixup(SplineFont *sf, const char *old, const char *new, int re
     for ( isv=0; isv<2; ++isv ) {
 	for ( kc=isv ? master->vkerns : master->kerns; kc!=NULL; kc=kc->next ) {
 	    for ( i=0; i<kc->first_cnt; ++i ) if ( kc->firsts[i]!=NULL ) {
-		if ( rplstr(&kc->firsts[i],old,new,false))
+		if ( rplstr(&kc->firsts[i], old, _new, false))
 	    break;
 	    }
 	    for ( i=0; i<kc->second_cnt; ++i ) if ( kc->seconds[i]!=NULL ) {
-		if ( rplstr(&kc->seconds[i],old,new,false))
+		if ( rplstr(&kc->seconds[i], old, _new, false))
 	    break;
 	    }
 	}

@@ -90,7 +90,7 @@ extern void NameOTLookup(OTLookup *otl, SplineFont *sf);
 extern void OTLookupsCopyInto(SplineFont *into_sf, SplineFont *from_sf, OTLookup **from_list, OTLookup *before);
 extern void SFFindClearUnusedLookupBits(SplineFont *sf);
 extern void SFFindUnusedLookups(SplineFont *sf);
-extern void SFGlyphRenameFixup(SplineFont *sf, const char *old, const char *new, int rename_related_glyphs);
+extern void SFGlyphRenameFixup(SplineFont *sf, const char *old, const char *_new, int rename_related_glyphs);
 extern void SFRemoveLookup(SplineFont *sf, OTLookup *otl, int remove_acs);
 extern void SFRemoveLookupSubTable(SplineFont *sf, struct lookup_subtable *sub, int remove_acs);
 extern void SFRemoveUnusedLookupSubTables(SplineFont *sf, int remove_incomplete_anchorclasses, int remove_unused_lookups);

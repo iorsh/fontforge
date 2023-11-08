@@ -641,7 +641,7 @@ extern void StrokeCharViewInits(StrokeDlg *sd,int cid);
 struct lksubinfo {
     struct lookup_subtable *subtable;
     unsigned int deleted: 1;
-    unsigned int new: 1;
+    unsigned int _new: 1;
     unsigned int selected: 1;
     unsigned int moved: 1;
 };
@@ -650,7 +650,7 @@ struct lkinfo {
     OTLookup *lookup;
     unsigned int open: 1;
     unsigned int deleted: 1;
-    unsigned int new: 1;
+    unsigned int _new: 1;
     unsigned int selected: 1;
     unsigned int moved: 1;
     int16_t subtable_cnt, subtable_max;

@@ -1577,7 +1577,7 @@ return( ilist );
     }
     if ( !id1.new )
 	id2.inter = id1.inter; // Use the senior intersection if possible.
-    /* else if ( !id2.new ) */		/* We only use id2.inter */
+    /* else if ( !id2._new ) */		/* We only use id2.inter */
 	/* id1.inter = id2.inter;*/
     // ilist = check = _AddIntersection(ilist,id1.m,id1.otherm,id1.t,id1.othert,&id2.inter);
     // ilist = _AddIntersection(ilist,id2.m,id2.otherm,id2.t,id2.othert,&id2.inter);	/* Use id1.inter to avoid rounding errors */

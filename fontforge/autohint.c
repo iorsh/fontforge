@@ -649,7 +649,7 @@ static int EIAddEdge(Spline *spline, real tmin, real tmax, EIList *el) {
     if ( !el->leavetiny && min+1>max ) new->almostvert = true;
     if ( 40*dxdtmin<dydtmin ) new->vertattmin = true;
     if ( 40*dxdtmax<dydtmax ) new->vertattmax = true;
-    /*if ( new->vertattmin && new->vertattmax && s->a==0 && s->b==0 ) new->almostvert = true;*/
+    /*if ( _new->vertattmin && _new->vertattmax && s->a==0 && s->b==0 ) _new->almostvert = true;*/
     new->coordmin[0] = min; new->coordmax[0] = max;
     if ( el->coordmin[0]>min )
 	el->coordmin[0] = min;
@@ -675,7 +675,7 @@ static int EIAddEdge(Spline *spline, real tmin, real tmax, EIList *el) {
     if ( !el->leavetiny && min+1>max ) new->almosthor = true;
     if ( 40*dydtmin<dxdtmin ) new->horattmin = true;
     if ( 40*dydtmax<dxdtmax ) new->horattmax = true;
-    /*if ( new->horattmin && new->horattmax && s->a==0 && s->b==0 ) new->almosthor = true;*/
+    /*if ( _new->horattmin && _new->horattmax && s->a==0 && s->b==0 ) _new->almosthor = true;*/
     new->coordmin[1] = min; new->coordmax[1] = max;
     if ( el->coordmin[1]>min )
 	el->coordmin[1] = min;

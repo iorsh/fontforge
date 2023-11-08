@@ -298,14 +298,14 @@ static void _GXDraw_AllocGreys(GXDisplay *gdisp) {
     }
 }
 
-static int _GXDraw_CopyColors(GXDisplay *gdisp, XColor *x_colors, Colormap new) {
+static int _GXDraw_CopyColors(GXDisplay *gdisp, XColor *x_colors, Colormap _new) {
     int i;
 
     for ( i=0; i<(1<<gdisp->depth); ++i )
 	x_colors[i].pixel = i;
     XQueryColors(gdisp->display,gdisp->cmap,x_colors,1<<gdisp->depth);
-    XStoreColors(gdisp->display,new,x_colors,1<<gdisp->depth);
-    gdisp->cmap = new;
+    XStoreColors(gdisp->display,_new,x_colors,1<<gdisp->depth);
+    gdisp->cmap = _new;
 return( 1<<gdisp->depth );
 }
 

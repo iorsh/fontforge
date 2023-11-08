@@ -249,7 +249,7 @@ static char* add_arg(char* buffer, const char* s)
 }
 void _SCAutoTrace(SplineChar *sc, int layer, char **args) {
     ImageList *images;
-    SplineSet *new, *last;
+    SplineSet *_new, *last;
     struct _GImage *ib;
     Color bgcol;
     int   ispotrace;
@@ -310,24 +310,24 @@ void _SCAutoTrace(SplineChar *sc, int layer, char **args) {
 
 	ps = fopen(tempname_out, "r");
 	if(ps){
-	    new = localSplinesFromEntities(EntityInterpretPS(ps,NULL),bgcol,ispotrace);
+	    _new = localSplinesFromEntities(EntityInterpretPS(ps,NULL),bgcol,ispotrace);
 	    transform[0] = images->xscale; transform[3] = images->yscale;
 	    transform[1] = transform[2] = 0;
 	    transform[4] = images->xoff;
 	    transform[5] = images->yoff - images->yscale*ib->height;
-	    new = SplinePointListTransform(new,transform,tpt_AllPoints);
+	    _new = SplinePointListTransform(_new,transform,tpt_AllPoints);
 	    if ( sc->layers[layer].order2 ) {
-		SplineSet *o2 = SplineSetsTTFApprox(new);
-		SplinePointListsFree(new);
-		new = o2;
+		SplineSet *o2 = SplineSetsTTFApprox(_new);
+		SplinePointListsFree(_new);
+		_new = o2;
 	    }
-	    if ( new!=NULL ) {
+	    if ( _new!=NULL ) {
 		sc->parent->onlybitmaps = false;
 		if ( !changed )
 		    SCPreserveLayer(sc,layer,false);
-		for ( last=new; last->next!=NULL; last=last->next );
+		for ( last=_new; last->next!=NULL; last=last->next );
 		last->next = sc->layers[layer].splines;
-		sc->layers[layer].splines = new;
+		sc->layers[layer].splines = _new;
 		changed = true;
 	    }
 	    fclose(ps);

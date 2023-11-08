@@ -304,7 +304,7 @@ static void hotkeysSaveCallback(Hotkey* hk,FILE* f) {
  * ~/.Fontforge/hotkeys file.
  */
 void hotkeysSave() {
-    char* fn = getHotkeyFilename(".new");
+    char* fn = getHotkeyFilename("._new");
     if( !fn ) {
 	return;
     }

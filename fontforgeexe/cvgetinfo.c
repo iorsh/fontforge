@@ -389,7 +389,7 @@ static void RefGetInfo(CharView *cv, RefChar *ref) {
 	gcd[j].gd.label = &label[j];
 	gcd[j].gd.pos.x = 5; gcd[j].gd.pos.y = gcd[j-1].gd.pos.y+14;
 	gcd[j].gd.flags = gg_enabled|gg_visible;
-	gcd[j].gd.popup_msg = _("The transformation matrix specifies how the points in\nthe source glyph should be transformed before\nthey are drawn in the current glyph.\n x(new) = tm[1,1]*x + tm[2,1]*y + tm[3,1]\n y(new) = tm[1,2]*x + tm[2,2]*y + tm[3,2]");
+	gcd[j].gd.popup_msg = _("The transformation matrix specifies how the points in\nthe source glyph should be transformed before\nthey are drawn in the current glyph.\n x(_new) = tm[1,1]*x + tm[2,1]*y + tm[3,1]\n y(_new) = tm[1,2]*x + tm[2,2]*y + tm[3,2]");
 	gcd[j].creator = GLabelCreate;
 	varray[l++] = &gcd[j];
 	++j;

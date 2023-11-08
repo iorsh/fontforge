@@ -2479,10 +2479,10 @@ static void GFI_CancelClose(struct gfi_data *d) {
     for ( isgpos=0; isgpos<2; ++isgpos ) {
 	struct lkdata *lk = &d->tables[isgpos];
 	for ( i=0; i<lk->cnt; ++i ) {
-	    if ( lk->all[i].new )
+	    if ( lk->all[i]._new )
 		SFRemoveLookup(d->sf,lk->all[i].lookup,0);
 	    else for ( j=0; j<lk->all[i].subtable_cnt; ++j ) {
-		if ( lk->all[i].subtables[j].new )
+		if ( lk->all[i].subtables[j]._new )
 		    SFRemoveLookupSubTable(d->sf,lk->all[i].subtables[j].subtable,0);
 	    }
 	    free(lk->all[i].subtables);
@@ -6027,7 +6027,7 @@ return( true );
 	    lk->all[k] = lk->all[k-1];
 	memset(&lk->all[k],0,sizeof(struct lkinfo));
 	lk->all[k].lookup = otl;
-	lk->all[k].new = true;
+	lk->all[k]._new = true;
 	lk->all[k].selected = true;
 	++lk->cnt;
 	if ( isgpos ) {
@@ -6262,11 +6262,11 @@ static int GFI_LookupRevertLookup(GGadget *g, GEvent *e) {
 
 	/* First remove any new lookups, subtables */
 	for ( i=0; i<lk->cnt; ++i ) {
-	    if ( lk->all[i].new )
+	    if ( lk->all[i]._new )
 		SFRemoveLookup(gfi->sf,lk->all[i].lookup,0);
 	    else {
 		for ( j=0; j<lk->all[i].subtable_cnt; ++j )
-		    if ( lk->all[i].subtables[j].new )
+		    if ( lk->all[i].subtables[j]._new )
 			SFRemoveLookupSubTable(gfi->sf,lk->all[i].subtables[j].subtable,0);
 	    }
 	}
@@ -6738,14 +6738,14 @@ static void AALTCreateNew(SplineFont *sf, struct lkdata *lk) {
 	    lk->all[k] = lk->all[k-1];
 	memset(&lk->all[0],0,sizeof(struct lkinfo));
 	lk->all[0].lookup = otl;
-	lk->all[0].new = true;
+	lk->all[0]._new = true;
 	++lk->cnt;
 
 	/* Now add the new subtable */
 	lk->all[0].subtables = calloc(1,sizeof(struct lksubinfo));
 	lk->all[0].subtable_cnt = lk->all[0].subtable_max = 1;
 	lk->all[0].subtables[0].subtable = otl->subtables;
-	lk->all[0].subtables[0].new = true;
+	lk->all[0].subtables[0]._new = true;
     }
 
     SllkFree(sllk,sllk_cnt);
