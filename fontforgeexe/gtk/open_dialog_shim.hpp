@@ -17,8 +17,12 @@
 #include <gio/gio.h>
 
 #ifdef __cplusplus
-extern "C"
+extern "C" {
 #endif
-const char* select_font_dialog(const char *title);
+const char* select_font_dialog(const char* path, const char* title);
+const char* select_font_dialog_default();
+#ifdef __cplusplus
+}
+#endif
 
 #endif //FONTFORGE_OPEN_DIALOG_SHIM_HPP
