@@ -128,6 +128,12 @@ if(HAVE_PTHREAD_H)
   find_package(Threads)
 endif()
 
+# TODO: integrate better
+find_package(PkgConfig)
+pkg_check_modules(GTKMM gtkmm-3.0)
+include_directories(${GTKMM_INCLUDE_DIRS})
+link_directories(${GTKMM_LIBRARY_DIRS})
+
 # Requirements for options
 if(ENABLE_GUI)
   if(ENABLE_X11)
