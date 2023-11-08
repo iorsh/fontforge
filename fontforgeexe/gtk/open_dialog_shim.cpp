@@ -13,17 +13,26 @@
  */
 #include "open_dialog_shim.hpp"
 
-import FontDialog;
 #include <iostream>
 #include <cstring>
 using namespace std;
 
+#include <gtkmm-3.0/gtkmm.h>
+using namespace Glib;
+using Gio::File;
+
+import FontDialog;
+
 // Get a selected font file as a raw C-string path, for interfacing with
 // the legacy code.
-const char* select_font_dialog(const char *title) {
-   auto p = FontDialog::open_dialog(title)->get_path();
-   auto n = p.size();
-   auto str = new char[n + 1]{};
-   memcpy(str, p.c_str(), n);
-   return str;
+const char* select_font_dialog(const char* path, const char* title) {
+   auto p = path ? File::create_for_path(path) : RefPtr<File>{};
+   auto t = title ?: ustring{};
+   auto f = FontDialog::open_dialog(p, t)->get_path();
+   auto n = f.size();
+   auto s = new char[n + 1]{};
+   memcpy(s, f.c_str(), n);
+   return s;
 }
+
+const char* select_font_dialog_default() { return select_font_dialog(NULL, NULL); }
