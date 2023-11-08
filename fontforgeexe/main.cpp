@@ -25,14 +25,10 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fontforge-config.h>
-
 extern "C" {
    #include "fontforge.h"
 }
 
-#include <gtkmm-3.0/gtkmm.h>
-
 int main( int argc, char **argv ) {
-    return fontforge_main( argc, argv );
+   return fontforge_main( argc, argv );
 }
