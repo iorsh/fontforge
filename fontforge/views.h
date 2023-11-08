@@ -1188,8 +1188,8 @@ extern void FVSelectByPST(FontView *fv);
 
 enum hist_type { hist_hstem, hist_vstem, hist_blues };
 struct psdict;
-extern void SFHistogram(SplineFont *sf,int layer, struct psdict *private,uint8_t *selected,
-	EncMap *map, enum hist_type which);
+extern void SFHistogram(SplineFont *sf, int layer, struct psdict *_private, uint8_t *selected,
+                        EncMap *map, enum hist_type which);
 
 extern void ContextChainEdit(SplineFont *sf,FPST *fpst,
 	struct gfi_data *gfi,unichar_t *newname,int layer);

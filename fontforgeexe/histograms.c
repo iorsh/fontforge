@@ -740,8 +740,8 @@ static void CheckSmallSelection(uint8_t *selected,EncMap *map,SplineFont *sf) {
 	ff_post_notice(_("Tiny Selection"),_("There are so few glyphs selected that it seems unlikely to me that you will get a representative sample of this aspect of your font. If you deselect everything the command will apply to all glyphs in the font"));
 }
 
-void SFHistogram(SplineFont *sf,int layer, struct psdict *private, uint8_t *selected,
-	EncMap *map,enum hist_type which) {
+void SFHistogram(SplineFont *sf, int layer, struct psdict *_private, uint8_t *selected,
+                 EncMap *map, enum hist_type which) {
     struct hist_dlg hist;
     GWindow gw;
     GRect pos;
@@ -756,8 +756,8 @@ void SFHistogram(SplineFont *sf,int layer, struct psdict *private, uint8_t *sele
     memset(&hist,0,sizeof(hist));
     hist.sf = sf;
     hist.layer = layer;
-    hist.private = private;
-    if ( private==NULL ) private = sf->_private;
+    hist.private = _private;
+    if (_private == NULL ) _private = sf->_private;
     hist.selected = selected;
     hist.which = which;
     hist.barwidth = 6;
@@ -918,8 +918,8 @@ void SFHistogram(SplineFont *sf,int layer, struct psdict *private, uint8_t *sele
     gcd[i++].creator = GLabelCreate;
     hvctls[2][0] = &gcd[i-1];
 
-    if ( private!=NULL && (j=PSDictFindEntry(private,primary))!=-1 ) {
-	label[i].text = (unichar_t *) private->values[j];
+    if (_private != NULL && (j=PSDictFindEntry(_private, primary)) != -1 ) {
+	label[i].text = (unichar_t *) _private->values[j];
 	label[i].text_is_1byte = true;
 	gcd[i].gd.label = &label[i];
     }
@@ -940,8 +940,8 @@ void SFHistogram(SplineFont *sf,int layer, struct psdict *private, uint8_t *sele
     gcd[i++].creator = GLabelCreate;
     hvctls[3][0] = &gcd[i-1];
 
-    if ( private!=NULL && (j=PSDictFindEntry(private,secondary))!=-1 ) {
-	label[i].text = (unichar_t *) private->values[j];
+    if (_private != NULL && (j=PSDictFindEntry(_private, secondary)) != -1 ) {
+	label[i].text = (unichar_t *) _private->values[j];
 	label[i].text_is_1byte = true;
 	gcd[i].gd.label = &label[i];
     }
