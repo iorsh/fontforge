@@ -1,9 +1,18 @@
 # Distributed under the original FontForge BSD 3-clause license
 
-add_executable(fontforgeexe main.c)
+add_executable(fontforgeexe
+        gtk/open_dialog_shim.hpp
+        gtk/open_dialog_shim.cpp
+        gtk/open_filters.hpp)
+target_sources(fontforgeexe PUBLIC main.cpp)
 set_target_properties(fontforgeexe PROPERTIES OUTPUT_NAME "fontforge")
 
+# TODO: position better?
+add_subdirectory(gtk)
+target_link_libraries(fontforgeexe PUBLIC ${GTKMM_LIBRARIES})
+
 if(ENABLE_GUI)
+
   target_sources(fontforgeexe PRIVATE
     alignment.c
     anchorsaway.c
