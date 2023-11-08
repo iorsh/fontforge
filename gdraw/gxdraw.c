@@ -3703,7 +3703,7 @@ return;
     XSendEvent(gd->display,e_to_send.xselection.requestor,True,0,&e_to_send);
 }
 
-static void *GXDrawRequestSelection(GWindow w,enum selnames sn, char *typename, int32_t *len) {
+static void *GXDrawRequestSelection(GWindow w,enum selnames sn, char *_typename, int32_t *len) {
     GXDisplay *gd = (GXDisplay *) (w->display);
     GXWindow gw = (GXWindow) w;
     Display *display = gd->display;
@@ -3713,7 +3713,7 @@ static void *GXDrawRequestSelection(GWindow w,enum selnames sn, char *typename, 
     char *prop;
     char *temp;
     int bytelen;
-    Atom typeatom = GXDrawGetAtom(gd,typename);
+    Atom typeatom = GXDrawGetAtom(gd,_typename);
     XEvent xevent;
     struct seldata *sd;
 
@@ -3773,7 +3773,7 @@ return( NULL );
 return(temp);
 }
 
-static int GXDrawSelectionHasType(GWindow w,enum selnames sn, char *typename) {
+static int GXDrawSelectionHasType(GWindow w,enum selnames sn, char *_typename) {
     GXDisplay *gd = (GXDisplay *) (w->display);
     Display *display = gd->display;
     GXWindow gw = (GXWindow) w;
@@ -3781,7 +3781,7 @@ static int GXDrawSelectionHasType(GWindow w,enum selnames sn, char *typename) {
     Atom actual_type;
     int actual_format;
     char *prop;
-    Atom typeatom = GXDrawGetAtom(gd,typename);
+    Atom typeatom = GXDrawGetAtom(gd,_typename);
     int i;
     XEvent xevent;
     struct seldata *sd;

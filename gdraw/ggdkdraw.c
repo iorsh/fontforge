@@ -1826,10 +1826,10 @@ static void GGDKDrawAddSelectionType(GWindow w, enum selnames sel, char *type, v
 #endif
 }
 
-static void *GGDKDrawRequestSelection(GWindow w, enum selnames sn, char *typename, int32_t *len) {
+static void *GGDKDrawRequestSelection(GWindow w, enum selnames sn, char *_typename, int32_t *len) {
     GGDKWindow gw = (GGDKWindow)w;
     GGDKDisplay *gdisp = gw->display;
-    GdkAtom type_atom = gdk_atom_intern(typename, false);
+    GdkAtom type_atom = gdk_atom_intern(_typename, false);
     void *ret = NULL;
 
     if (len != NULL) {
@@ -1925,7 +1925,7 @@ static void *GGDKDrawRequestSelection(GWindow w, enum selnames sn, char *typenam
     return ret;
 }
 
-static int GGDKDrawSelectionHasType(GWindow w, enum selnames sn, char *typename) {
+static int GGDKDrawSelectionHasType(GWindow w, enum selnames sn, char *_typename) {
     Log(LOGDEBUG, " ");
 
     GGDKWindow gw = (GGDKWindow)w;
@@ -1934,7 +1934,7 @@ static int GGDKDrawSelectionHasType(GWindow w, enum selnames sn, char *typename)
     }
 
     GGDKDisplay *gdisp = gw->display;
-    GdkAtom sel_type = gdk_atom_intern(typename, false);
+    GdkAtom sel_type = gdk_atom_intern(_typename, false);
 
     // Check if we own it
     if (gdisp->selinfo[sn].owner != NULL) {
