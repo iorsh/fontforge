@@ -6102,7 +6102,7 @@ return( true );
 	    lk->all[i].subtables[k] = lk->all[i].subtables[k-1];
 	memset(&lk->all[i].subtables[k],0,sizeof(struct lksubinfo));
 	lk->all[i].subtables[k].subtable = sub;
-	lk->all[i].subtables[k].new = true;
+	lk->all[i].subtables[k]._new = true;
 	sub->next = lk->all[i].lookup->subtables;
 	lk->all[i].lookup->subtables = sub;
 	++lk->all[i].subtable_cnt;
