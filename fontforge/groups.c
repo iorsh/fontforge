@@ -74,7 +74,7 @@ return( gp );
 /***************************** File IO for Groups *****************************/
 /******************************************************************************/
 
-/*  Returns the same string on each call, only allocating a new string 
+/*  Returns the same string on each call, only allocating a new string
     when called the first time. 
     May return NULL if user's config dir cannot be determined.
 */
