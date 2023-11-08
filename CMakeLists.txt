@@ -32,6 +32,11 @@ set(CMAKE_C_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_THREAD_PREFER_PTHREAD 1)
+# Clang has issues with extensions + modules c.01-2023
+#    Source: https://www.kitware.com/import-cmake-c20-modules/
+set(CMAKE_CXX_EXTENSIONS OFF)
+# Enable contemporary C++ module support (evidently specifying v.20/23 isn't enough...)
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API aa1f7df0-828a-4fcd-9afc-2dc80491aca7)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
