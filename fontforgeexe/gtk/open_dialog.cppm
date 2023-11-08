@@ -26,6 +26,9 @@ export namespace FontDialog {
 
    // TODO: subclass this, probably?
    // Browse for a font file to open. TODO: return a file handle, or pass in a callback?
+   // TODO: accept a initial/current dir
+   // TODO: accept modal flag
+   // TODO: add multi-file mode option..?
    RefPtr<Gio::File> open_dialog(ustring title = "Select a font") {
       auto d = Gtk::FileChooserDialog(title, Gtk::FILE_CHOOSER_ACTION_OPEN);
 
@@ -66,6 +69,7 @@ export namespace FontDialog {
       d.add_filter(filter_fonts);
 
       // Generate file/extension filters
+      // TODO: ensure this gets caches or processed at compile or somesuch
       for(auto ext : FONT_EXTENSIONS) {
          auto f = Gtk::FileFilter::create();
          f->set_name(get<1>(ext));
