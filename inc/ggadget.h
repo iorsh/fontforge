@@ -487,10 +487,7 @@ void GFileChooserSetShowHidden(int sh);
 int GFileChooserGetShowHidden(void);
 void GFileChooserSetDirectoryPlacement(int dp);
 int GFileChooserGetDirectoryPlacement(void);
-void GFileChooserSetBookmarks(unichar_t **b);
 void GFileChooserSetPaths(GGadget *g, const char* const* path);
-unichar_t **GFileChooserGetBookmarks(void);
-void GFileChooserSetPrefsChangedCallback(void *data, void (*p_c)(void *));
 
 void GHVBoxSetExpandableCol(GGadget *g,int col);
 void GHVBoxSetExpandableRow(GGadget *g,int row);
