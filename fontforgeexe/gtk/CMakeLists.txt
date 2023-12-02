@@ -1,10 +1,11 @@
-# Placeholder for GTK C++ sources
-# TODO: replace "INTERFACE" with "OBJECT"
-add_library(ffgtk INTERFACE
+add_library(ffgtk OBJECT
+  open_dialog.hpp
+  open_dialog.cpp
+  open_dialog_shim.hpp
+  open_dialog_shim.cpp
 )
 
-# TODO: replace "INTERFACE" with "PRIVATE"
-target_link_libraries(ffgtk INTERFACE
+target_link_libraries(ffgtk PRIVATE
   fontforge_common_headers
   PkgConfig::GTKMM
 )

@@ -11,25 +11,21 @@
  * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-module;
+
+#include "open_dialog.hpp"
+#include "open_filters.hpp"
 
 using namespace std;
-
-#include <gtkmm-3.0/gtkmm.h>
 using namespace Glib;
 using Gio::File;
 
-#include "open_filters.hpp"
-
-export module FontDialog;
-
-export namespace FontDialog {
+namespace FontDialog {
 
    // TODO: subclass this, probably?
    // Browse for a font file to open. TODO: return a file handle, or pass in a callback?
    // TODO: accept modal flag
    // TODO: add multi-file mode option..?
-   RefPtr<File> open_dialog(RefPtr<File> path = {}, ustring title = {}) {
+   RefPtr<File> open_dialog(RefPtr<File> path, ustring title) {
       auto t = title != ustring{} ? title : "Open Font";
 
       auto d = Gtk::FileChooserDialog(t, Gtk::FILE_CHOOSER_ACTION_OPEN);
