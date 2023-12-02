@@ -21,6 +21,11 @@ extern "C" {
 #endif
 const char* select_font_dialog(const char* path, const char* title);
 const char* select_font_dialog_default();
+
+void GtkFileChooserSetBookmarks(char *bookmarks);
+const char* GtkFileChooserGetBookmarks(void);
+void GtkFileChooserSetPrefsChangedCallback(void *data, void (*p_c)(void *));
+
 #ifdef __cplusplus
 }
 #endif

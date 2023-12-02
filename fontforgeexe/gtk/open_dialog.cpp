@@ -13,6 +13,7 @@
  */
 
 using namespace std;
+#include <iostream>
 
 #include <gtkmm-3.0/gtkmm.h>
 #include <gtkmm/main.h>
@@ -25,10 +26,16 @@ using Gio::File;
 #include "utils.hpp"
 
 namespace FontDialog {
+   static std::vector<std::string> bookmarks;
+   static std::function<void(void *)> pref_changed_cb;
 
    // Gtk bookmarks are managed uniformly across all Gtk applications.
    // We use FileChooser shortcuts instead, which can be managed internally.
    bool setup_bookmarks(Gtk::FileChooserDialog* dlg) {
+      // Add bookmarks to the side panel
+      for (const auto& b : bookmarks) {
+         dlg->add_shortcut_folder(b);
+      }
 
       // Add "Bookmark" button to the File Chooser UI.
       //
@@ -169,14 +176,35 @@ namespace FontDialog {
       // Fontforge Bookmarks
       setup_bookmarks(&d);
 
+      int response = d.run();
+
+      // Save bookmarks if applicable
+      auto new_bookmarks = d.list_shortcut_folders();
+      if (bookmarks != new_bookmarks) {
+         bookmarks = new_bookmarks;
+         pref_changed_cb(nullptr);
+      }
+
       // Only fires on file selection - folder selection navigates down with the
       // buttons set as they are. TODO: custom behaviour to handle .sfdir format
-      if(d.run() == Gtk::RESPONSE_OK) {
+      if(response == Gtk::RESPONSE_OK) {
          // TODO: actual open logic
          return d.get_file();
       }
 
       // Returning dev null seems _kinda_ semantic for a cancel..? lol TODO: express this better
       return Gio::File::create_for_path("/dev/null");
+   }
+
+   void file_dialog_set_bookmarks(const std::vector<std::string>& bookmarks_in) {
+      bookmarks = bookmarks_in;
+   }
+
+   const std::vector<std::string>& file_dialog_get_bookmarks() {
+      return bookmarks;
+   }
+
+   void file_dialog_set_pref_changed_callback(std::function<void(void *)> p_c) {
+      pref_changed_cb = p_c;
    }
 }
