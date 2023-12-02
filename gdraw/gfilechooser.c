@@ -1772,26 +1772,6 @@ int GFileChooserGetDirectoryPlacement(void) {
 return( dir_placement );
 }
 
-void GFileChooserSetBookmarks(unichar_t **b) {
-    if ( bookmarks!=NULL && bookmarks!=b ) {
-	int i;
-
-	for ( i=0; bookmarks[i]!=NULL; ++i )
-	    free(bookmarks[i]);
-	free(bookmarks);
-    }
-    bookmarks = b;
-}
-
-unichar_t **GFileChooserGetBookmarks(void) {
-return( bookmarks );
-}
-
-void GFileChooserSetPrefsChangedCallback(void *data, void (*p_c)(void *)) {
-    prefs_changed = p_c;
-    prefs_changed_data = data;
-}
-
 void GFileChooserSetPaths(GGadget *g, const char* const* path) {
     unichar_t **dirs = NULL;
     int dcnt;
