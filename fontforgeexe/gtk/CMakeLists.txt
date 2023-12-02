@@ -5,4 +5,6 @@ target_sources(fontforgeexe
    PUBLIC
       open_dialog.hpp
       open_dialog.cpp
+      utils.hpp
+      utils.cpp
 )
