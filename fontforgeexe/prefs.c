@@ -45,6 +45,7 @@
 #include "splineutil.h"
 #include "ttf.h"
 #include "ustring.h"
+#include "gtk/open_dialog_shim.hpp"
 
 #include <assert.h>
 #include <dirent.h>
@@ -568,83 +569,43 @@ static void FileChooserPrefsChanged(void *pointless) {
 }
 
 static void ProcessFileChooserPrefs(void) {
-    unichar_t **b;
-    int i;
-
     GFileChooserSetShowHidden(gfc_showhidden);
     GFileChooserSetDirectoryPlacement(gfc_dirplace);
     if ( gfc_bookmarks==NULL ) {
-	b = malloc(8*sizeof(unichar_t *));
-	i = 0;
+        char *b = NULL;
 #ifdef __Mac
-	b[i++] = uc_copy("~/Library/Fonts/");
-#endif
-	b[i++] = uc_copy("~/fonts");
-#ifdef __Mac
-	b[i++] = uc_copy("/Library/Fonts/");
-	b[i++] = uc_copy("/System/Library/Fonts/");
-#endif
-#if __CygWin
-	b[i++] = uc_copy("/usr/share/fonts/");
-	b[i++] = uc_copy("/usr/share/X11/fonts/");
+        b = "~/Library/Fonts/;"
+            "~/fonts;"
+            "/Library/Fonts/;"
+            "/System/Library/Fonts/;"
+            "/usr/X11R6/lib/X11/fonts/";
+#elif defined(__CygWin)
+        b = "~/fonts;"
+            "/usr/share/fonts/;"
+            "/usr/share/X11/fonts/";
 #else
-	b[i++] = uc_copy("/usr/X11R6/lib/X11/fonts/");
+        b = "~/fonts;~/.fonts;/usr/X11R6/lib/X11/fonts/";
 #endif
-	b[i++] = NULL;
-	GFileChooserSetBookmarks(b);
+        GtkFileChooserSetBookmarks(b);
     } else {
-	char *pt, *start;
-	start = gfc_bookmarks;
-	for ( i=0; ; ++i ) {
-	    pt = strchr(start,';');
-	    if ( pt==NULL )
-	break;
-	    start = pt+1;
-	}
-	start = gfc_bookmarks;
-	b = malloc((i+2)*sizeof(unichar_t *));
-	for ( i=0; ; ++i ) {
-	    pt = strchr(start,';');
-	    if ( pt!=NULL )
-		*pt = '\0';
-	    b[i] = utf82u_copy(start);
-	    if ( pt==NULL )
-	break;
-	    *pt = ';';
-	    start = pt+1;
-	}
-	b[i+1] = NULL;
-	GFileChooserSetBookmarks(b);
+        GtkFileChooserSetBookmarks(gfc_bookmarks);
     }
-    GFileChooserSetPrefsChangedCallback(NULL,FileChooserPrefsChanged);
+    GtkFileChooserSetPrefsChangedCallback(NULL,FileChooserPrefsChanged);
 }
 
 static void GetFileChooserPrefs(void) {
-    unichar_t **foo;
+    const char *foo;
 
     gfc_showhidden = GFileChooserGetShowHidden();
     gfc_dirplace = GFileChooserGetDirectoryPlacement();
-    foo = GFileChooserGetBookmarks();
+    foo = GtkFileChooserGetBookmarks();
+
     free(gfc_bookmarks);
-    if ( foo==NULL || foo[0]==NULL )
-	gfc_bookmarks = NULL;
+    if ( foo==NULL || foo[0]==0 ) {
+        gfc_bookmarks = NULL;
+    }
     else {
-	int i,len=0;
-	for ( i=0; foo[i]!=NULL; ++i )
-	    len += 4*u_strlen(foo[i])+1;
-	gfc_bookmarks = malloc(len+10);
-	len = 0;
-	for ( i=0; foo[i]!=NULL; ++i ) {
-	    u2utf8_strcpy(gfc_bookmarks+len,foo[i]);
-	    len += strlen(gfc_bookmarks+len);
-	    gfc_bookmarks[len++] = ';';
-	}
-	if ( len>0 )
-	    gfc_bookmarks[len-1] = '\0';
-	else {
-	    free(gfc_bookmarks);
-	    gfc_bookmarks = NULL;
-	}
+        gfc_bookmarks = strdup(foo);
     }
 }
 

@@ -25,4 +25,8 @@ namespace FontDialog {
    // TODO: accept modal flag
    // TODO: add multi-file mode option..?
    RefPtr<File> open_dialog(RefPtr<File> path = {}, ustring title = {});
+
+   void file_dialog_set_bookmarks(const std::vector<std::string>& bookmarks);
+   const std::vector<std::string>& file_dialog_get_bookmarks();
+   void file_dialog_set_pref_changed_callback(std::function<void(void *)>);
 }
