@@ -658,8 +658,10 @@ static unichar_t *FVOpenFont(char *title, const char *defaultfile, bool mult, bo
     i=0;
     gcd[i].gd.pos.x = 12; gcd[i].gd.pos.y = 6; gcd[i].gd.pos.width = totwid*100/GIntGetResource(_NUM_ScaleFactor)-24; gcd[i].gd.pos.height = 180;
     gcd[i].gd.flags = gg_visible | gg_enabled;
+    /*
     if ( RecentFiles[0]!=NULL )
 	gcd[i].gd.flags = gg_visible | gg_enabled | gg_file_pulldown;
+    */
     if ( mult )
 	gcd[i].gd.flags |= gg_file_multiple;
     varray[0] = &gcd[i]; varray[1] = NULL;
@@ -812,9 +814,11 @@ static unichar_t *FVOpenFont(char *title, const char *defaultfile, bool mult, bo
     GFileChooserSetFilterText(gcd[0].ret,temp);
     free(temp);
     GFileChooserGetChildren(gcd[0].ret,NULL, NULL, &tf);
+    /*
     if ( RecentFiles[0]!=NULL ) {
 	GGadgetSetList(tf,GTextInfoFromChars(RecentFiles,RECENT_MAX),false);
     }
+    */
     GGadgetSetTitle8(gcd[0].ret,defaultfile);
 
     GDrawSetVisible(gw,true);

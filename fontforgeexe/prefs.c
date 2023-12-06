@@ -822,7 +822,7 @@ static void PrefsUI_LoadPrefs_FromFile( char* filename )
 {
     FILE *p;
     char line[1100];
-    int i, j, ri=0, mn=0, ms=0, fn=0, ff=0, filt_max=0;
+    int i, j, mn=0, ms=0, fn=0, ff=0, filt_max=0;
     int msp=0, msc=0;
     char *pt;
     struct prefs_list *pl;
@@ -850,9 +850,7 @@ static void PrefsUI_LoadPrefs_FromFile( char* filename )
 	    if ( line[strlen(line)-1]=='\r' )
 		line[strlen(line)-1] = '\0';
 	    if ( pl==NULL ) {
-		if ( strncmp(line,"Recent:",strlen("Recent:"))==0 && ri<RECENT_MAX )
-		    RecentFiles[ri++] = copy(pt);
-		else if ( strncmp(line,"MenuScript:",strlen("MenuScript:"))==0 && ms<SCRIPT_MENU_MAX )
+		if ( strncmp(line,"MenuScript:",strlen("MenuScript:"))==0 && ms<SCRIPT_MENU_MAX )
 		    script_filenames[ms++] = copy(pt);
 		else if ( strncmp(line,"MenuName:",strlen("MenuName:"))==0 && mn<SCRIPT_MENU_MAX )
 		    script_menu_names[mn++] = utf82u_copy(pt);
@@ -941,7 +939,7 @@ static void PrefsUI_LoadPrefs(void)
     char *prefs = getPfaEditPrefs();
     FILE *p;
     char line[1100], path[PATH_MAX];
-    int i, j, ri=0, mn=0, ms=0, fn=0, ff=0, filt_max=0;
+    int i, j, mn=0, ms=0, fn=0, ff=0, filt_max=0;
     int msp=0, msc=0;
     char *pt, *real_xdefs_filename = NULL;
     struct prefs_list *pl;
@@ -972,9 +970,7 @@ static void PrefsUI_LoadPrefs(void)
 	    if ( line[strlen(line)-1]=='\r' )
 		line[strlen(line)-1] = '\0';
 	    if ( pl==NULL ) {
-		if ( strncmp(line,"Recent:",strlen("Recent:"))==0 && ri<RECENT_MAX )
-		    RecentFiles[ri++] = copy(pt);
-		else if ( strncmp(line,"MenuScript:",strlen("MenuScript:"))==0 && ms<SCRIPT_MENU_MAX )
+		if ( strncmp(line,"MenuScript:",strlen("MenuScript:"))==0 && ms<SCRIPT_MENU_MAX )
 		    script_filenames[ms++] = copy(pt);
 		else if ( strncmp(line,"MenuName:",strlen("MenuName:"))==0 && mn<SCRIPT_MENU_MAX )
 		    script_menu_names[mn++] = utf82u_copy(pt);
@@ -1128,8 +1124,6 @@ return;
 	}
     }
 
-    for ( i=0; i<RECENT_MAX && RecentFiles[i]!=NULL; ++i )
-	fprintf( p, "Recent:\t%s\n", RecentFiles[i]);
     for ( i=0; i<SCRIPT_MENU_MAX && script_filenames[i]!=NULL; ++i ) {
 	fprintf( p, "MenuScript:\t%s\n", script_filenames[i]);
 	fprintf( p, "MenuName:\t%s\n", temp = u2utf8_copy(script_menu_names[i]));
@@ -2342,31 +2336,6 @@ void DoPrefs(void) {
     while ( !p.done )
 	GDrawProcessOneEvent(NULL);
     GDrawDestroyWindow(gw);
-}
-
-void RecentFilesRemember(char *filename) {
-    int i,j;
-
-    for ( i=0; i<RECENT_MAX && RecentFiles[i]!=NULL; ++i )
-	if ( strcmp(RecentFiles[i],filename)==0 )
-    break;
-
-    if ( i<RECENT_MAX && RecentFiles[i]!=NULL ) {
-	if ( i!=0 ) {
-	    filename = RecentFiles[i];
-	    for ( j=i; j>0; --j )
-		RecentFiles[j] = RecentFiles[j-1];
-	    RecentFiles[0] = filename;
-	}
-    } else {
-	if ( RecentFiles[RECENT_MAX-1]!=NULL )
-	    free( RecentFiles[RECENT_MAX-1]);
-	for ( i=RECENT_MAX-1; i>0; --i )
-	    RecentFiles[i] = RecentFiles[i-1];
-	RecentFiles[0] = copy(filename);
-    }
-
-    PrefsUI_SavePrefs(true);
 }
 
 void LastFonts_Save(void) {

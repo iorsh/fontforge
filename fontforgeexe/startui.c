@@ -965,9 +965,11 @@ exit( 0 );
 	            strcmp(pt,"-skippyplug")==0 ) {
 	    // already handled above.
 	} else if ( strcmp(pt,"-last")==0 ) {
-	    if ( next_recent<RECENT_MAX && RecentFiles[next_recent]!=NULL )
+       char** RecentFiles = read_recent_files();
+	    if ( RecentFiles[next_recent]!=NULL )
 		if ( ViewPostScriptFont(RecentFiles[next_recent++],openflags))
 		    any = 1;
+       free_recent_files(&RecentFiles);
 	} else if ( strcmp(pt,"-sync")==0 || strcmp(pt,"-memory")==0 ||
 		    strcmp(pt,"-nosplash")==0 || strcmp(pt,"-recover=none")==0 ||
 		    strcmp(pt,"-recover=clean")==0 || strcmp(pt,"-recover=auto")==0 ||

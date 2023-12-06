@@ -26,6 +26,13 @@ void GtkFileChooserSetBookmarks(char *bookmarks);
 const char* GtkFileChooserGetBookmarks(void);
 void GtkFileChooserSetPrefsChangedCallback(void *data, void (*p_c)(void *));
 
+/* Must call free_recent_files() to release the output of read_recent_files() */
+char** read_recent_files();
+void free_recent_files(char*** recent_files_ptr);
+
+/* Add a new file or boost existing to the top of the list */
+void add_recent_file(char* file_path);
+
 #ifdef __cplusplus
 }
 #endif

@@ -71,3 +71,43 @@ const char* GtkFileChooserGetBookmarks(void) {
 void GtkFileChooserSetPrefsChangedCallback(void *data, void (*p_c)(void *)) {
    FontDialog::file_dialog_set_pref_changed_callback(std::function<void(void *)>(p_c));
 }
+
+char** read_recent_files() {
+   /* The number of files displayed in the "File->Recent" menu */
+   static const size_t MAX_RECENT = 10;
+
+   auto recent_manager = Gtk::RecentManager::get_default();
+   auto recent_items = recent_manager->get_items();
+
+   char** recent_files = (char**)malloc(sizeof(char*) * (MAX_RECENT + 1));
+   memset(recent_files, 0, sizeof(char*) * (MAX_RECENT + 1));
+
+   for (size_t i = 0; i < MAX_RECENT && i < recent_items.size(); ++i) {
+      recent_files[i] = strdup(recent_items[i]->get_uri_display().c_str());
+   }
+
+   return recent_files;
+}
+
+void free_recent_files(char*** recent_files_ptr) {
+   if (recent_files_ptr == NULL) {
+      return;
+   } else if (*recent_files_ptr == NULL) {
+      *recent_files_ptr = NULL;
+      return;
+   }
+
+   char** recent_files = *recent_files_ptr;
+
+   for (char* s = recent_files[0]; s != NULL; ++s) {
+      free(s);
+   }
+   free(recent_files);
+   *recent_files_ptr = NULL;
+}
+
+/* Add a new file or boost existing to the top of the list */
+void add_recent_file(char* file_path) {
+   auto recent_manager = Gtk::RecentManager::get_default();
+   recent_manager->add_item(file_path);
+}

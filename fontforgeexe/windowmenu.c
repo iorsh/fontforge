@@ -33,6 +33,7 @@
 #include "scripting.h"
 #include "splinefont.h"
 #include "ustring.h"
+#include "gtk/open_dialog_shim.hpp"
 
 static void WindowSelect(GWindow base,struct gmenuitem *mi,GEvent *e) {
     GDrawRaise(mi->ti.userdata);
@@ -128,6 +129,7 @@ void MenuRecentBuild(GWindow base,struct gmenuitem *mi,GEvent *e) {
     int i, cnt, cnt1;
     FontViewBase *fv;
     GMenuItem *sub;
+    char** RecentFiles;
 
     if ( mi->sub!=NULL ) {
 	GMenuItemArrayFree(mi->sub);
@@ -135,7 +137,8 @@ void MenuRecentBuild(GWindow base,struct gmenuitem *mi,GEvent *e) {
     }
 
     cnt = 0;
-    for ( i=0; i<RECENT_MAX && RecentFiles[i]!=NULL; ++i ) {
+    RecentFiles = read_recent_files();
+    for ( i=0; RecentFiles[i]!=NULL; ++i ) {
 	for ( fv=(FontViewBase *) fv_list; fv!=NULL; fv=fv->next )
 	    if ( fv->sf->filename!=NULL && strcmp(fv->sf->filename,RecentFiles[i])==0 )
 	break;
@@ -148,7 +151,7 @@ return;
     }
     sub = calloc(cnt+1,sizeof(GMenuItem));
     cnt1 = 0;
-    for ( i=0; i<RECENT_MAX && RecentFiles[i]!=NULL; ++i ) {
+    for ( i=0; RecentFiles[i]!=NULL; ++i ) {
 	for ( fv=(FontViewBase *) fv_list; fv!=NULL; fv=fv->next )
 	    if ( fv->sf->filename!=NULL && strcmp(fv->sf->filename,RecentFiles[i])==0 )
 	break;
@@ -163,16 +166,21 @@ return;
     if ( cnt!=cnt1 )
 	IError( "Bad counts in MenuRecentBuild");
     mi->sub = sub;
+    free_recent_files(&RecentFiles);
 }
 
+/* Check whether there is any recent file which is not currently open */
 int RecentFilesAny(void) {
     int i;
     FontViewBase *fvl;
+    char** RecentFiles = read_recent_files();
 
-    for ( i=0; i<RECENT_MAX && RecentFiles[i]!=NULL; ++i ) {
+    for ( i=0; RecentFiles[i]!=NULL; ++i ) {
 	for ( fvl=(FontViewBase *) fv_list; fvl!=NULL; fvl=fvl->next )
 	    if ( fvl->sf->filename!=NULL && strcmp(fvl->sf->filename,RecentFiles[i])==0 )
 	break;
+   free_recent_files(&RecentFiles);
+
 	if ( fvl==NULL )
 return( true );
     }

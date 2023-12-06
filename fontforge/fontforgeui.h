@@ -164,10 +164,6 @@ extern int ItalicConstrained;
 extern unichar_t *script_menu_names[SCRIPT_MENU_MAX];
 extern char *script_filenames[SCRIPT_MENU_MAX];
 
-/* The number of files displayed in the "File->Recent" menu */
-#define RECENT_MAX	10
-extern char *RecentFiles[RECENT_MAX];
-
 extern FontView *fv_list;
 
 extern struct openfilefilters { char *name, *filter; } def_font_filters[], *user_font_filters;

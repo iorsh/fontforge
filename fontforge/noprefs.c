@@ -145,9 +145,6 @@ static int  gridfit_x_sameas_y=true;		/* in cvgridfit.c */
 static int default_font_filter_index=0;
 static unichar_t *script_menu_names[SCRIPT_MENU_MAX];
 static char *script_filenames[SCRIPT_MENU_MAX];
-/* defined in fontforgeui.h */
-#define RECENT_MAX 10
-static char *RecentFiles[RECENT_MAX];
 static int ItalicConstrained = true;
 extern int clear_tt_instructions_when_needed;	/* cvundoes.c */
 static int cv_width;			/* in charview.c */
@@ -536,7 +533,7 @@ static void NOUI_LoadPrefs(void) {
     char *prefs = getPfaEditPrefs();
     FILE *p;
     char line[1100];
-    int i, j, ri=0, mn=0, ms=0/*, fn=0, ff=0, filt_max=0*/;
+    int i, j, mn=0, ms=0/*, fn=0, ff=0, filt_max=0*/;
     int msp=0, msc=0;
     char *pt;
     struct prefs_list *pl;
@@ -567,9 +564,7 @@ static void NOUI_LoadPrefs(void) {
 	    if ( line[strlen(line)-1]=='\r' )
 		line[strlen(line)-1] = '\0';
 	    if ( pl==NULL ) {
-		if ( strncmp(line,"Recent:",strlen("Recent:"))==0 && ri<RECENT_MAX )
-		    RecentFiles[ri++] = copy(pt);
-		else if ( strncmp(line,"MenuScript:",strlen("MenuScript:"))==0 && ms<SCRIPT_MENU_MAX )
+		if ( strncmp(line,"MenuScript:",strlen("MenuScript:"))==0 && ms<SCRIPT_MENU_MAX )
 		    script_filenames[ms++] = copy(pt);
 		else if ( strncmp(line,"MenuName:",strlen("MenuName:"))==0 && mn<SCRIPT_MENU_MAX )
 		    script_menu_names[mn++] = utf82u_copy(pt);
@@ -687,8 +682,6 @@ return;
 	}
     }
 
-    for ( i=0; i<RECENT_MAX && RecentFiles[i]!=NULL; ++i )
-	fprintf( p, "Recent:\t%s\n", RecentFiles[i]);
     for ( i=0; i<SCRIPT_MENU_MAX && script_filenames[i]!=NULL; ++i ) {
 	fprintf( p, "MenuScript:\t%s\n", script_filenames[i]);
 	fprintf( p, "MenuName:\t%s\n", temp = u2utf8_copy(script_menu_names[i]));

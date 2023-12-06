@@ -745,7 +745,6 @@ extern void PythonUI_Init(void);
 extern void SCStroke(SplineChar *sc);
 
 extern void PfaEditSetFallback(void);
-extern void RecentFilesRemember(char *filename);
 extern void LastFonts_Save(void);
 
 struct debugger_context;

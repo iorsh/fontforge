@@ -61,6 +61,7 @@
 #include "tottfgpos.h"
 #include "ustring.h"
 #include "utype.h"
+#include "gtk/open_dialog_shim.hpp"
 
 #include <math.h>
 #include <unistd.h>
@@ -70,7 +71,6 @@
 #endif
 
 int OpenCharsInNewWindow = 0;
-char *RecentFiles[RECENT_MAX] = { NULL };
 int save_to_dir = 0;			/* use sfdir rather than sfd */
 unichar_t *script_menu_names[SCRIPT_MENU_MAX];
 char *script_filenames[SCRIPT_MENU_MAX];
@@ -917,9 +917,9 @@ return(false);
     }
     _FVCloseWindows(fv);
     if ( sf->filename!=NULL )
-	RecentFilesRemember(sf->filename);
+	    add_recent_file(sf->filename);
     else if ( sf->origname!=NULL )
-	RecentFilesRemember(sf->origname);
+	    add_recent_file(sf->origname);
     GDrawDestroyWindow(fv->gw);
 return( true );
 }
