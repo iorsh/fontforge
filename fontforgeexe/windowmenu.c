@@ -176,15 +176,18 @@ int RecentFilesAny(void) {
     char** RecentFiles = read_recent_files();
 
     for ( i=0; RecentFiles[i]!=NULL; ++i ) {
-	for ( fvl=(FontViewBase *) fv_list; fvl!=NULL; fvl=fvl->next )
-	    if ( fvl->sf->filename!=NULL && strcmp(fvl->sf->filename,RecentFiles[i])==0 )
-	break;
-   free_recent_files(&RecentFiles);
+        for ( fvl=(FontViewBase *) fv_list; fvl!=NULL; fvl=fvl->next )
+            if ( fvl->sf->filename!=NULL && strcmp(fvl->sf->filename,RecentFiles[i])==0 )
+                break;
 
-	if ( fvl==NULL )
-return( true );
+        if ( fvl==NULL ) {
+            free_recent_files(&RecentFiles);
+            return( true );
+        }
     }
-return( false );
+
+    free_recent_files(&RecentFiles);
+    return( false );
 }
 
 #if !defined(_NO_FFSCRIPT) || !defined(_NO_PYTHON)

@@ -108,6 +108,10 @@ void free_recent_files(char*** recent_files_ptr) {
 
 /* Add a new file or boost existing to the top of the list */
 void add_recent_file(char* file_path) {
+   std::string uri = Glib::filename_to_uri(file_path);
    auto recent_manager = Gtk::RecentManager::get_default();
-   recent_manager->add_item(file_path);
+
+   // Remove (only if already present) and add to force boost to the top
+   recent_manager->remove_item(uri);
+   recent_manager->add_item(uri);
 }
