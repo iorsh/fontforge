@@ -112,6 +112,8 @@ void add_recent_file(char* file_path) {
    auto recent_manager = Gtk::RecentManager::get_default();
 
    // Remove (only if already present) and add to force boost to the top
-   recent_manager->remove_item(uri);
+   if (recent_manager->has_item(uri)) {
+      recent_manager->remove_item(uri);
+   }
    recent_manager->add_item(uri);
 }
