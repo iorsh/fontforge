@@ -23,6 +23,7 @@
 #define FONTFORGE_FFGLIB_H
 
 #define GMenuItem GMenuItem_GIO
+#define GMenu GMenu_GIO
 #define GTimer GTimer_GTK
 
 #ifdef __GNU__

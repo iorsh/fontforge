@@ -35,8 +35,11 @@
 // As gdk #includes glib, we must apply the same name mangling here.
 #define GTimer GTimer_GTK
 #define GMenuItem GMenuItem_GIO
+#define GMenu GMenu_GIO
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
+#include <gtk/gtk.h>
+#undef GMenu
 #undef GMenuItem
 #undef GTimer
 

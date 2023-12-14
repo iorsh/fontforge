@@ -1,6 +1,8 @@
 # Distributed under the original FontForge BSD 3-clause license
 
 add_executable(fontforgeexe
+        gtk/font_view_shim.hpp
+        gtk/font_view_shim.cpp
         gtk/open_dialog_shim.hpp
         gtk/open_dialog_shim.cpp
         gtk/open_filters.hpp)
