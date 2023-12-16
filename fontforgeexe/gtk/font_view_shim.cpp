@@ -24,6 +24,11 @@ void* create_font_view(int width, int height) {
 
     Gtk::DrawingArea* drawing_area = new Gtk::DrawingArea();
     drawing_area->set_name("CharGrid");
+
+    // Fontforge drawing area processes events in the legacy code
+    // expose, keypresses, mouse etc.
+    drawing_area->set_events(Gdk::ALL_EVENTS_MASK);
+
     font_view_window->add(*drawing_area);
 
     font_view_window->show_all();
