@@ -1683,6 +1683,9 @@ static void FVMenuCondense(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNU
 
 #define MID_Warnings	3000
 
+bool IsGTK(FontView *fv){
+   return (fv->gtk_window != NULL);
+}
 
 /* returns -1 if nothing selected, if exactly one char return it, -2 if more than one */
 static int FVAnyCharSelected(FontView *fv) {
@@ -7390,11 +7393,14 @@ static void FVCreateInnards(FontView *fv,GRect *pos) {
     fv->vsb = GScrollBarCreate(gw,&gd,fv);
 
     memset(&wattrs,0,sizeof(wattrs));
-    wattrs.mask = wam_events|wam_cursor|wam_backcol|wam_gtk_wrapper;
+    wattrs.mask = wam_events|wam_cursor|wam_backcol;
     wattrs.event_masks = ~(1<<et_charup);
     wattrs.cursor = ct_pointer;
     wattrs.background_color = view_bgcol;
-    wattrs.gtk_widget = get_drawing_widget_c(fv->gtk_window);
+    if (IsGTK(fv)) {
+      wattrs.mask |= wam_gtk_wrapper;
+      wattrs.gtk_widget = get_drawing_widget_c(fv->gtk_window);
+    }
     fv->v = GWidgetCreateSubWindow(gw,pos,v_e_h,fv,&wattrs);
     GDrawSetVisible(fv->v,true);
     GDrawSetWindowTypeName(fv->v, "FontView");
