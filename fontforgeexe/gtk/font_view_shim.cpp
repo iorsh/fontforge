@@ -17,6 +17,21 @@
 
 #include <gtkmm.h>
 
+bool on_drawing_area_event(GdkEvent* event) {
+    // Normally events automatically get to the main loop and picked from there
+    // by the legacy GDraw handler. The DrawingArea::resize signal doesn't go
+    // there for some reason. My best guess is that this signal is not emitted,
+    // but the framework just invokes the handler directly. Here we catch it and
+    // place into the main loop, so that it can reach the GDraw handler.
+    if (event->type == GDK_CONFIGURE) {
+        gdk_event_put(event);
+        return true;
+    }
+
+    // Return false to allow further propagation of unhandled events
+    return false;
+}
+
 void* create_font_view(int width, int height) {
     static auto app = Gtk::Application::create("org.fontforge");
     Gtk::Window* font_view_window = new Gtk::Window();
@@ -27,6 +42,7 @@ void* create_font_view(int width, int height) {
 
     // Fontforge drawing area processes events in the legacy code
     // expose, keypresses, mouse etc.
+    drawing_area->signal_event().connect(&on_drawing_area_event);
     drawing_area->set_events(Gdk::ALL_EVENTS_MASK);
 
     font_view_window->add(*drawing_area);
