@@ -33,6 +33,7 @@ namespace FontDialog {
    // We use FileChooser shortcuts instead, which can be managed internally.
    bool setup_bookmarks(Gtk::FileChooserDialog* dlg) {
       // Add bookmarks to the side panel
+      // TODO(GTK4) Customize bookmark icon using GFileInfo
       for (const auto& b : bookmarks) {
          dlg->add_shortcut_folder(b);
       }
