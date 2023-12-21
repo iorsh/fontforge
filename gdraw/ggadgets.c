@@ -825,6 +825,9 @@ void GGadgetRedraw(GGadget *g) {
 }
 
 void GGadgetMove(GGadget *g,int32_t x, int32_t y ) {
+    if (g == NULL) {
+      return;
+    }
     (g->funcs->move)(g,x,y);
 }
 
@@ -856,6 +859,9 @@ void  GGadgetSetY(GGadget *g, int32_t y )
 
 
 void GGadgetResize(GGadget *g,int32_t width, int32_t height ) {
+    if (g == NULL) {
+      return;
+    }
     (g->funcs->resize)(g,width,height);
 }
 

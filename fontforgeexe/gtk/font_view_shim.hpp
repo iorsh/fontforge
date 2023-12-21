@@ -29,6 +29,10 @@ void gtk_set_title(void* window, char* window_title, char* taskbar_title);
 
 GtkWidget* get_drawing_widget_c(void* window);
 
+void fv_set_scroller_position(void* window, int32_t position);
+
+void fv_set_scroller_bounds(void* window, int32_t sb_min, int32_t sb_max, int32_t sb_pagesize);
+
 #ifdef __cplusplus
 }
 #endif

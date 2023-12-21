@@ -35,6 +35,11 @@ void* create_font_view(int width, int height) {
    Gtk::Window* font_view_window = new Gtk::Window();
    font_view_window->set_default_size(width, height);
 
+   Gtk::ScrolledWindow* scroller = new Gtk::ScrolledWindow();
+   scroller->set_name("Scroller");
+   scroller->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
+   scroller->set_overlay_scrolling(false);
+
    Gtk::DrawingArea* drawing_area = new Gtk::DrawingArea();
    drawing_area->set_name("CharGrid");
 
@@ -43,7 +48,8 @@ void* create_font_view(int width, int height) {
    drawing_area->signal_event().connect(&on_drawing_area_event);
    drawing_area->set_events(Gdk::ALL_EVENTS_MASK);
 
-   font_view_window->add(*drawing_area);
+   scroller->add(*drawing_area);
+   font_view_window->add(*scroller);
 
    font_view_window->show_all();
 
@@ -63,4 +69,23 @@ GtkWidget* get_drawing_widget_c(void* window) {
    Gtk::Widget* drawing_area = gtk_find_child(font_view_window, "CharGrid");
 
    return (GtkWidget*)drawing_area->gobj();
+}
+
+void fv_set_scroller_position(void* window, int32_t position) {
+   Gtk::Window* font_view_window = static_cast<Gtk::Window*>(window);
+   Gtk::Widget* scroller = gtk_find_child(font_view_window, "Scroller");
+
+   dynamic_cast<Gtk::ScrolledWindow*>(scroller)->get_vadjustment()->set_value(position);
+}
+
+void fv_set_scroller_bounds(void* window,
+   int32_t sb_min, int32_t sb_max, int32_t sb_pagesize) {
+
+   Gtk::Window* font_view_window = static_cast<Gtk::Window*>(window);
+   Gtk::Widget* scroller = gtk_find_child(font_view_window, "Scroller");
+
+   Glib::RefPtr<Gtk::Adjustment> vert_adjustment = dynamic_cast<Gtk::ScrolledWindow*>(scroller)->get_vadjustment();
+   vert_adjustment->set_lower(sb_min);
+   vert_adjustment->set_upper(sb_max);
+   vert_adjustment->set_page_size(sb_pagesize);
 }

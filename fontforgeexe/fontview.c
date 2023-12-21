@@ -3011,6 +3011,22 @@ void FVChangeChar(FontView *fv,int i) {
     }
 }
 
+void FVScrollBarSetPos(FontView *fv, int32_t pos) {
+   if (IsGTK(fv)) {
+      fv_set_scroller_position(fv->gtk_window, pos);
+   } else {
+	   GScrollBarSetPos(fv->vsb, pos);
+   }
+}
+
+void FVScrollBarSetBounds(FontView *fv, int32_t sb_min, int32_t sb_max, int32_t sb_pagesize) {
+   if (IsGTK(fv)) {
+      fv_set_scroller_bounds(fv->gtk_window, sb_min, sb_max, sb_pagesize);
+   } else {
+	   GScrollBarSetBounds(fv->vsb, sb_min, sb_max, sb_pagesize);
+   }
+}
+
 void FVScrollToChar(FontView *fv,int i) {
 
     if ( fv->v==NULL || fv->colcnt==0 )	/* Can happen in scripts */
@@ -3024,7 +3040,7 @@ return;
 	    if ( fv->rowoff+fv->rowcnt>=fv->rowltot )
 		fv->rowoff = fv->rowltot-fv->rowcnt;
 	    if ( fv->rowoff<0 ) fv->rowoff = 0;
-	    GScrollBarSetPos(fv->vsb,fv->rowoff);
+	    FVScrollBarSetPos(fv,fv->rowoff);
 	    GDrawRequestExpose(fv->v,NULL,false);
 	}
     }
@@ -6764,7 +6780,7 @@ static void FVTimer(FontView *fv, GEvent *event) {
 		dy = 0;
 	    fv->rowoff += dy;
 	    if ( dy!=0 ) {
-		GScrollBarSetPos(fv->vsb,fv->rowoff);
+		FVScrollBarSetPos(fv,fv->rowoff);
 		GDrawScroll(fv->v,NULL,0,dy*fv->cbh);
 	    }
 	}
@@ -6815,7 +6831,7 @@ static int FVScroll(GGadget *g, GEvent *e) {
     if ( newpos!=fv->rowoff ) {
 	int diff = newpos-fv->rowoff;
 	fv->rowoff = newpos;
-	GScrollBarSetPos(fv->vsb,fv->rowoff);
+	FVScrollBarSetPos(fv,fv->rowoff);
 	GDrawScroll(fv->v,NULL,0,diff*fv->cbh);
     }
 return( true );
@@ -6874,11 +6890,11 @@ return;
 
     GDrawSetCursor(fv->v,ct_watch);
     fv->rowltot = (fv->b.map->enccount+fv->colcnt-1)/fv->colcnt;
-    GScrollBarSetBounds(fv->vsb,0,fv->rowltot,fv->rowcnt);
+    FVScrollBarSetBounds(fv,0,fv->rowltot,fv->rowcnt);
     if ( fv->rowoff>fv->rowltot-fv->rowcnt ) {
         fv->rowoff = fv->rowltot-fv->rowcnt;
 	if ( fv->rowoff<0 ) fv->rowoff =0;
-	GScrollBarSetPos(fv->vsb,fv->rowoff);
+	FVScrollBarSetPos(fv,fv->rowoff);
     }
     for ( fvs=(FontView *) (fv->b.sf->fv); fvs!=NULL; fvs=(FontView *) (fvs->b.nextsame) )
 	if ( fvs!=fv && fvs->b.sf==fv->b.sf )
@@ -6916,11 +6932,11 @@ return;
 	BDFFontFree(old);
 	if ( ((FontView *) (sf->fv))->colcnt!=0 ) {
 	    fv->rowltot = (fv->b.map->enccount+fv->colcnt-1)/fv->colcnt;
-	    GScrollBarSetBounds(fv->vsb,0,fv->rowltot,fv->rowcnt);
+	    FVScrollBarSetBounds(fv,0,fv->rowltot,fv->rowcnt);
 	    if ( fv->rowoff>fv->rowltot-fv->rowcnt ) {
 		    fv->rowoff = fv->rowltot-fv->rowcnt;
 		    if ( fv->rowoff<0 ) fv->rowoff =0;
-		    GScrollBarSetPos(fv->vsb,fv->rowoff);
+		    FVScrollBarSetPos(fv,fv->rowoff);
 	    }
 	    GDrawRequestExpose(fv->v,NULL,false);
 	}
@@ -7310,14 +7326,16 @@ static void FVCreateInnards(FontView *fv,GRect *pos) {
 
     fv->lab_height = FV_LAB_HEIGHT-13+fv_fontpx;
 
-    memset(&gd,0,sizeof(gd));
-    gd.pos.y = pos->y; gd.pos.height = pos->height;
-    gd.pos.width = GDrawPointsToPixels(gw,_GScrollBar_Width);
-    gd.pos.x = pos->width;
-    gd.u.sbinit = NULL;
-    gd.flags = gg_visible|gg_enabled|gg_pos_in_pixels|gg_sb_vert;
-    gd.handle_controlevent = FVScroll;
-    fv->vsb = GScrollBarCreate(gw,&gd,fv);
+    if (!IsGTK(fv)) {
+      memset(&gd,0,sizeof(gd));
+      gd.pos.y = pos->y; gd.pos.height = pos->height;
+      gd.pos.width = GDrawPointsToPixels(gw,_GScrollBar_Width);
+      gd.pos.x = pos->width;
+      gd.u.sbinit = NULL;
+      gd.flags = gg_visible|gg_enabled|gg_pos_in_pixels|gg_sb_vert;
+      gd.handle_controlevent = FVScroll;
+      fv->vsb = GScrollBarCreate(gw,&gd,fv);
+    }
 
     memset(&wattrs,0,sizeof(wattrs));
     wattrs.mask = wam_events|wam_cursor|wam_backcol;
@@ -7543,7 +7561,7 @@ return( NULL );
 static void FVExtraEncSlots(FontView *fv, int encmax) {
     if ( fv->colcnt!=0 ) {		/* Ie. scripting vs. UI */
 	fv->rowltot = (encmax+1+fv->colcnt-1)/fv->colcnt;
-	GScrollBarSetBounds(fv->vsb,0,fv->rowltot,fv->rowcnt);
+	FVScrollBarSetBounds(fv,0,fv->rowltot,fv->rowcnt);
     }
 }
 
@@ -7839,9 +7857,6 @@ static void gs_sizeSet(FontView *fv, GWindow dw) {
     int cc, rc, topchar;
     GRect subsize;
 
-    if ( fv->vsb==NULL )
-return;
-
     /* TODO(GTK): verify behavior of home_char preference */
     if ( fv->colcnt!=0 )
 	topchar = fv->rowoff*fv->colcnt;
@@ -7860,8 +7875,12 @@ return;
     }
 
     GDrawGetSize(dw,&size);
-    GGadgetGetSize(fv->vsb,&gsize);
-    width = size.width - gsize.width;
+    if (fv->vsb != NULL) {
+      GGadgetGetSize(fv->vsb,&gsize);
+      width = size.width - gsize.width;
+    } else {
+      width = size.width;
+    }
     height = size.height - fv->mbh - fv->infoh;
 
     y = fv->mbh + fv->infoh;
@@ -7877,19 +7896,19 @@ return;
     if (!IsGTK(fv)) {
       GDrawResize(fv->v,subsize.width,subsize.height);
       GDrawMove(fv->v,0,y);
+      GGadgetMove(fv->vsb,subsize.width,y);
+      GGadgetResize(fv->vsb,gsize.width,subsize.height);
     }
-    GGadgetMove(fv->vsb,subsize.width,y);
-    GGadgetResize(fv->vsb,gsize.width,subsize.height);
 
     fv->colcnt = cc; fv->rowcnt = rc;
     fv->width = subsize.width; fv->height = subsize.height;
     fv->rowltot = (fv->b.map->enccount+fv->colcnt-1)/fv->colcnt;
-    GScrollBarSetBounds(fv->vsb,0,fv->rowltot,fv->rowcnt);
+    FVScrollBarSetBounds(fv,0,fv->rowltot,fv->rowcnt);
     fv->rowoff = topchar/fv->colcnt;
     if ( fv->rowoff>=fv->rowltot-fv->rowcnt )
         fv->rowoff = fv->rowltot-fv->rowcnt;
     if ( fv->rowoff<0 ) fv->rowoff =0;
-    GScrollBarSetPos(fv->vsb,fv->rowoff);
+    FVScrollBarSetPos(fv,fv->rowoff);
 
     GDrawRequestExpose(fv->v,NULL,true);
 
