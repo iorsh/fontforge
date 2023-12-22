@@ -773,28 +773,6 @@ return( ret );
     }
 }
 
-GTextInfo **GTextInfoFromChars(char **array, int len) {
-    int i;
-    GTextInfo **ti;
-
-    if ( array==NULL || len==0 )
-return( NULL );
-    if ( len==-1 ) {
-	for ( len=0; array[len]!=NULL; ++len );
-    } else {
-	for ( i=0; i<len && array[i]!=NULL; ++i );
-	len = i;
-    }
-    ti = malloc((len+1)*sizeof(GTextInfo *));
-    for ( i=0; i<len; ++i ) {
-	ti[i] = calloc(1,sizeof(GTextInfo));
-	ti[i]->text = uc_copy(array[i]);
-	ti[i]->fg = ti[i]->bg = COLOR_DEFAULT;
-    }
-    ti[i] = calloc(1,sizeof(GTextInfo));
-return( ti );
-}
-
 void GMenuItemArrayFree(GMenuItem *mi) {
     int i;
 

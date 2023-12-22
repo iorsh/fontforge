@@ -349,7 +349,6 @@ typedef int (*GFileChooserInputFilenameFuncType)( GGadget *g,
 extern void GTextInfoFree(GTextInfo *ti);
 extern void GTextInfoListFree(GTextInfo *ti);
 extern void GTextInfoArrayFree(GTextInfo **ti);
-extern GTextInfo **GTextInfoFromChars(char **array, int len);
 extern int GGadgetScale(int xpos);
 extern int GIntGetResource(int index);
 
