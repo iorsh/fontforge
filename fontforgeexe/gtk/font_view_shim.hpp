@@ -19,10 +19,20 @@
 extern "C" {
 #endif
 
+// C structure and callback for interacting with legacy code
+typedef struct fontview FontView;
+
+typedef struct fontview_context {
+   FontView* fv;
+
+   // Set character grid to the desired position according to the scrollbar
+   void (*scroll_fontview_to_position_cb)(FontView* fv, int32_t position);
+} FVContext;
+
 // Create GTK Font View window.
 // Return value:
 //    pointer to Gtk::Window object, opaque to C code
-void* create_font_view(int width, int height);
+void* create_font_view(FVContext* fv_context, int width, int height);
 
 // Set Gtk::Window title and taskbar title [unsupported]
 void gtk_set_title(void* window, char* window_title, char* taskbar_title);

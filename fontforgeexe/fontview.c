@@ -6837,6 +6837,20 @@ static int FVScroll(GGadget *g, GEvent *e) {
 return( true );
 }
 
+static void FVScrollToPos(FontView* fv, int32_t position) {
+    int newpos = position;
+
+    if ( newpos>fv->rowltot-fv->rowcnt )
+        newpos = fv->rowltot-fv->rowcnt;
+    if ( newpos<0 ) newpos =0;
+    if ( newpos!=fv->rowoff ) {
+        int diff = newpos-fv->rowoff;
+        fv->rowoff = newpos;
+        FVScrollBarSetPos(fv,fv->rowoff);
+        GDrawScroll(fv->v,NULL,0,diff*fv->cbh);
+    }
+}
+
 static int v_e_h(GWindow gw, GEvent *event) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
 
@@ -7389,6 +7403,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     static GWindow icon = NULL;
     static int nexty=0;
     GRect size;
+    FVContext fv_context;
 
     FontViewInit();
     if ( icon==NULL ) {
@@ -7413,7 +7428,11 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     if ( nexty+pos.height > size.height )
 	nexty = 0;
     fv->gw = gw = GDrawCreateTopWindow(NULL,&pos,fv_e_h,fv,&wattrs);
-    fv->gtk_window = create_font_view(pos.width, pos.height);
+
+    fv_context.fv = fv;
+    fv_context.scroll_fontview_to_position_cb = FVScrollToPos;
+    fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
+
     FontViewSetTitle(fv);
     GDrawSetWindowTypeName(fv->gw, "FontView");
 

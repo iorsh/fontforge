@@ -31,7 +31,7 @@ bool on_drawing_area_event(GdkEvent* event) {
    return false;
 }
 
-void* create_font_view(int width, int height) {
+void* create_font_view(FVContext* fv_context, int width, int height) {
    Gtk::Window* font_view_window = new Gtk::Window();
    font_view_window->set_default_size(width, height);
 
@@ -39,6 +39,14 @@ void* create_font_view(int width, int height) {
    scroller->set_name("Scroller");
    scroller->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
    scroller->set_overlay_scrolling(false);
+
+   auto on_scrollbar_value_changed =
+      [fv = fv_context->fv, scroll_cb = fv_context->scroll_fontview_to_position_cb, scroller]() {
+         double new_position = scroller->get_vscrollbar()->get_value();
+         scroll_cb(fv, new_position);
+      };
+
+   scroller->get_vscrollbar()->signal_value_changed().connect(on_scrollbar_value_changed);
 
    Gtk::DrawingArea* drawing_area = new Gtk::DrawingArea();
    drawing_area->set_name("CharGrid");
