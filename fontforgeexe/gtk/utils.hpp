@@ -1,4 +1,4 @@
-/* Copyright 2023 Joey Sabey <github.com/Omnikron13>
+/* Copyright 2023 Maxim Iorsh <iorsh@users.sourceforge.net>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with     •
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -11,23 +11,7 @@
  * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-#ifndef FONTFORGE_OPEN_DIALOG_SHIM_HPP
-#define FONTFORGE_OPEN_DIALOG_SHIM_HPP
 
-#include <gio/gio.h>
+#include <gtkmm-3.0/gtkmm.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-const char* select_font_dialog(const char* path, const char* title);
-const char* select_font_dialog_default();
-
-void GtkFileChooserSetBookmarks(char *bookmarks);
-const char* GtkFileChooserGetBookmarks(void);
-void GtkFileChooserSetPrefsChangedCallback(void *data, void (*p_c)(void *));
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif //FONTFORGE_OPEN_DIALOG_SHIM_HPP
+Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name);

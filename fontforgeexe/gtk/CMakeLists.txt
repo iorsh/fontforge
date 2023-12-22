@@ -3,7 +3,8 @@
 #target_sources(gtk
 target_sources(fontforgeexe
    PUBLIC
-      FILE_SET cxx_modules TYPE CXX_MODULES FILES
-         colour.cppm
-         open_dialog.cppm
+      open_dialog.hpp
+      open_dialog.cpp
+      utils.hpp
+      utils.cpp
 )

@@ -11,23 +11,21 @@
  * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-#ifndef FONTFORGE_OPEN_DIALOG_SHIM_HPP
-#define FONTFORGE_OPEN_DIALOG_SHIM_HPP
+using namespace std;
 
-#include <gio/gio.h>
+#include <gtkmm-3.0/gtkmm.h>
+using namespace Glib;
+using Gio::File;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-const char* select_font_dialog(const char* path, const char* title);
-const char* select_font_dialog_default();
+namespace FontDialog {
 
-void GtkFileChooserSetBookmarks(char *bookmarks);
-const char* GtkFileChooserGetBookmarks(void);
-void GtkFileChooserSetPrefsChangedCallback(void *data, void (*p_c)(void *));
+   // TODO: subclass this, probably?
+   // Browse for a font file to open. TODO: return a file handle, or pass in a callback?
+   // TODO: accept modal flag
+   // TODO: add multi-file mode option..?
+   RefPtr<File> open_dialog(RefPtr<File> path = {}, ustring title = {});
 
-#ifdef __cplusplus
+   void file_dialog_set_bookmarks(const std::vector<std::string>& bookmarks);
+   const std::vector<std::string>& file_dialog_get_bookmarks();
+   void file_dialog_set_pref_changed_callback(std::function<void(void *)>);
 }
-#endif
-
-#endif //FONTFORGE_OPEN_DIALOG_SHIM_HPP

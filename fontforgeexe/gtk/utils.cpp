@@ -1,4 +1,4 @@
-/* Copyright 2023 Joey Sabey <github.com/Omnikron13>
+/* Copyright 2023 Maxim Iorsh <iorsh@users.sourceforge.net>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with     •
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -11,23 +11,25 @@
  * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-#ifndef FONTFORGE_OPEN_DIALOG_SHIM_HPP
-#define FONTFORGE_OPEN_DIALOG_SHIM_HPP
 
-#include <gio/gio.h>
+#include "utils.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-const char* select_font_dialog(const char* path, const char* title);
-const char* select_font_dialog_default();
+#include <string>
+#include <vector>
 
-void GtkFileChooserSetBookmarks(char *bookmarks);
-const char* GtkFileChooserGetBookmarks(void);
-void GtkFileChooserSetPrefsChangedCallback(void *data, void (*p_c)(void *));
+Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name) {
+   if (w->get_name() == name) {
+      return w;
+   }
 
-#ifdef __cplusplus
+   Gtk::Widget* res = nullptr;
+   Gtk::Container* c = dynamic_cast<Gtk::Container*>(w);
+
+   if (c) {
+      std::vector<Gtk::Widget*> children = c->get_children();
+      for (size_t i = 0; res == nullptr && i < children.size(); ++i) {
+         res = gtk_find_child(children[i], name);
+      }
+   }
+   return res;
 }
-#endif
-
-#endif //FONTFORGE_OPEN_DIALOG_SHIM_HPP
