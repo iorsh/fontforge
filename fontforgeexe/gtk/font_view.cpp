@@ -17,6 +17,31 @@
 
 namespace FontViewNS {
 
+// Create info label at the top of the Font View, which shows name and
+// properties of the nost recently selected character 
+Gtk::Label* make_character_info_label() {
+   Gtk::Label* character_info = new Gtk::Label();
+   character_info->set_name("CharInfo");
+   character_info->property_margin().set_value(2);
+   character_info->set_margin_left(10);
+   character_info->set_hexpand(true);
+   character_info->set_xalign(0); // Flush left
+
+   // Long info string will not allow us to shrink the main window, so we
+   // let it be truncated dynamically with ellipsis.
+   character_info->set_ellipsize(Pango::ELLIPSIZE_END);
+
+   // We want the info to stand out, but can't hardcode a color
+   // due to the use of color themes (light, dark or even something custom)
+   // We use link color to make the label sufficiently distinctive.
+   Glib::RefPtr<Gtk::StyleContext> context  = character_info->get_style_context();
+   Gdk::RGBA link_color = context->get_color(Gtk::STATE_FLAG_LINK);
+   character_info->override_color(link_color);
+
+   return character_info;
+}
+
+
 bool on_drawing_area_event(GdkEvent* event) {
    // Normally events automatically get to the main loop and picked from there
    // by the legacy GDraw handler. The DrawingArea::resize signal doesn't go
@@ -61,23 +86,7 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
    drawing_area->signal_event().connect(&on_drawing_area_event);
    drawing_area->set_events(Gdk::ALL_EVENTS_MASK);
 
-   Gtk::Label* character_info = new Gtk::Label();
-   character_info->set_name("CharInfo");
-   character_info->property_margin().set_value(2);
-   character_info->set_margin_left(10);
-   character_info->set_hexpand(true);
-   character_info->set_xalign(0); // Flush left
-
-   // Long info string will not allow us to shrink the main window, so we
-   // let it be truncated dynamically with ellipsis.
-   character_info->set_ellipsize(Pango::ELLIPSIZE_END);
-
-   // We want the info to stand out, but can't hardcode a color
-   // due to the use of color themes (light, dark or even something custom)
-   // We use link color to make the label sufficiently distinctive.
-   Glib::RefPtr<Gtk::StyleContext> context  = character_info->get_style_context();
-   Gdk::RGBA link_color = context->get_color(Gtk::STATE_FLAG_LINK);
-   character_info->override_color(link_color);
+   Gtk::Label* character_info = make_character_info_label();
 
    scroller->add(*drawing_area);
 
