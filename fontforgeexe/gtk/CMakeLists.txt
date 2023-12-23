@@ -3,6 +3,8 @@
 #target_sources(gtk
 target_sources(fontforgeexe
    PUBLIC
+      font_view.hpp
+      font_view.cpp
       open_dialog.hpp
       open_dialog.cpp
       utils.hpp

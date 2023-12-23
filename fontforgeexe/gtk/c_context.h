@@ -13,29 +13,19 @@
  */
 #pragma once
 
-#include <gtk/gtk.h>
-
-#include "c_context.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Create GTK Font View window.
-// Return value:
-//    pointer to Gtk::Window object, opaque to C code
-void* create_font_view(FVContext* fv_context, int width, int height);
+// C structures and callbacks for interacting with legacy code
+typedef struct fontview FontView;
 
-// Set Gtk::Window title and taskbar title [unsupported]
-void gtk_set_title(void* window, char* window_title, char* taskbar_title);
+typedef struct fontview_context {
+   FontView* fv;
 
-GtkWidget* get_drawing_widget_c(void* window);
-
-void fv_set_scroller_position(void* window, int32_t position);
-
-void fv_set_scroller_bounds(void* window, int32_t sb_min, int32_t sb_max, int32_t sb_pagesize);
-
-void fv_set_character_info(void* window, GString* info);
+   // Set character grid to the desired position according to the scrollbar
+   void (*scroll_fontview_to_position_cb)(FontView* fv, int32_t position);
+} FVContext;
 
 #ifdef __cplusplus
 }
