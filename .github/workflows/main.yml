@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ master, releases/** ]
+    branches: [ master, ci_attempts2, releases/** ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
@@ -146,6 +146,7 @@ jobs:
         working-directory: fontforgebuilds
         shell: msys2 {0}
         run: |
+          CTEST_OUTPUT_ON_FAILURE=ON
           ./ffbuild.sh --github-actions
           FFPATH=`cygpath -m "$GITHUB_WORKSPACE/repo"` ./make-portable-package.sh ci
       - name: Run InnoSetup

@@ -1,4 +1,10 @@
 #Needs: fonts/StrokeTests.sfd
+import sys
+import os
+print("TEST1003 ENV", os.environ, flush=True)
+print("TEST1003 ORIG_ARG", sys.orig_argv, flush=True)
+print("TEST1003 VER", sys.version, flush=True)
+print("TEST1003 PATH", sys.path, flush=True)
 
 import sys, fontforge, psMat, math
 from collections import OrderedDict
