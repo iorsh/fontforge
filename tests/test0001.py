@@ -1,5 +1,8 @@
 #Needs: fonts/Ambrosia.sfd
 
+import os
+print(os.system("rm {}".format("D:/a/fontforge/fontforge/repo/build/lib/libfontforge.dll.a")), flush=True)
+
 #Test the fontforge module (but not its types)
 import sys, fontforge
 
