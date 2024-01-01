@@ -318,7 +318,7 @@ static int run_pyhook_systest(ArgData *args, gchar **argv) {
     g_setenv("PYTHONPATH", args->libdir, TRUE);
 
     g_ptr_array_add(test_args, args->binary);
-    g_ptr_array_add(test_args, "-Ss");
+    g_ptr_array_add(test_args, "-Ssv");
     g_ptr_array_add(test_args, args->script);
     while (*argv) {
         g_ptr_array_add(test_args, *argv++);
