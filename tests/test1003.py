@@ -21,8 +21,15 @@ time.sleep(3)
 p="D:/a/fontforge/fontforge/repo/build/lib/libfontforge.dll.a"
 print("LDD", p, os.system("ldd {}".format(p)), flush=True)
 time.sleep(3)
+print("OBJDUMP", p, os.system("objdump -p {}".format(p)), flush=True)
+time.sleep(3)
 p="D:/a/fontforge/fontforge/repo/build/bin/libfontforge.dll"
 print("LDD", p, os.system("ldd {}".format(p)), flush=True)
+time.sleep(3)
+print("OBJDUMP", p, os.system("objdump -p {}".format(p)), flush=True)
+time.sleep(3)
+
+print(os.system("cp {} {}".format("D:/a/fontforge/fontforge/repo/build/bin/libfontforge.dll", "D:/a/fontforge/fontforge/repo/build/lib")), flush=True)
 time.sleep(3)
 
 # for p in sys.path[0:1]:
