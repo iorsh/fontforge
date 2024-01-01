@@ -1,5 +1,15 @@
 #Needs: fonts/StrokeTests.sfd
 
+import sys, time, os
+
+print("TEST1003 ENV PATH", os.environ["PATH"], flush=True)
+print("TEST1003 SYS.PATH", sys.path, flush=True)
+for p in ["D:/a/fontforge/fontforge/repo/build/lib", "D:/a/fontforge/fontforge/repo/build/bin"]:   
+   print("TEST1003 PATH LIST ", p, flush=True)
+   time.sleep(1)
+   print(os.system("ls -l {}".format(p)), flush=True)
+   time.sleep(1)
+
 import sys, fontforge, psMat, math
 from collections import OrderedDict
 
