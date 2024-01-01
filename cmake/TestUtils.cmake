@@ -50,7 +50,7 @@ function(_add_systest test_mode binary test_script)
       --binary "${binary}"
       --script "${CMAKE_CURRENT_SOURCE_DIR}/${test_script}"
       --exedir "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
-      --libdir "D:\\a\\fontforge\\fontforge\\repo\\build\\lib"
+      --libdir "D:\\a\\fontforge\\fontforge\\repo\\build\\lib;D:\\a\\fontforge\\fontforge\\repo\\build\\bin"
       --argdir "${CMAKE_CURRENT_BINARY_DIR}/fonts"
       --argdir "${CMAKE_CURRENT_SOURCE_DIR}/fonts"
       --desc "${_description}"
