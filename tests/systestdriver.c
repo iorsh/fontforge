@@ -309,12 +309,12 @@ static int run_pyhook_systest(ArgData *args, gchar **argv) {
     int retcode;
 
 #ifdef G_OS_WIN32
-    char *path = g_strconcat(args->libdir, G_SEARCHPATH_SEPARATOR_S, g_getenv("PATH"), NULL);
+    char *path = g_strconcat(args->exedir, G_SEARCHPATH_SEPARATOR_S, g_getenv("PATH"), NULL);
     g_setenv("PATH", path, TRUE);
     g_free(path);
 #endif
 
-    /* system("mv D:/a/fontforge/fontforge/repo/build/bin/libfontforge.dll D:/a/fontforge/fontforge/repo/build/lib"); */
+    system("cp D:/a/fontforge/fontforge/repo/build/bin/libfontforge.dll D:/a/fontforge/fontforge/repo/build/lib");
     system("rm D:/a/fontforge/fontforge/repo/build/lib/libfontforge.dll.a");
     g_setenv("PYTHONPATH", args->libdir, TRUE);
 
