@@ -2,6 +2,7 @@
 import sys
 import os
 import time
+import math
 print("TEST1003 ENV", os.environ, flush=True)
 print("TEST1003 ORIG_ARG", sys.orig_argv, flush=True)
 print("TEST1003 VER", sys.version, flush=True)
@@ -16,7 +17,8 @@ for p in sys.path[0:1]:
    # print(os.system("find {} | grep -i 'psmat\.'".format(p)))
    time.sleep(3)
 
-import sys, fontforge, psMat, math
+import psMat
+import fontforge
 from collections import OrderedDict
 
 stroketests = sys.argv[1]
