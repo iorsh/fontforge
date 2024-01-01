@@ -1,45 +1,6 @@
 #Needs: fonts/StrokeTests.sfd
-import sys
-import os
-import time
-import math
-print("TEST1003 ENV", os.environ, flush=True)
-print("TEST1003 ORIG_ARG", sys.orig_argv, flush=True)
-print("TEST1003 VER", sys.version, flush=True)
-print("TEST1003 PATH", sys.path, flush=True)
 
-# del sys.path[0]
-# sys.path.insert(0, 'D:/a/fontforge/fontforge/repo/build/bin')
-# sys.path.insert(0, 'D:/a/fontforge/fontforge/repo/build/lib')
-# print("TEST1003 PATH2", sys.path, flush=True)
-
-# print(os.system("cp {} {}".format("D:/a/fontforge/fontforge/repo/build/bin/libfontforge.dll", "D:/a/fontforge/fontforge/repo/build/lib")), flush=True)
-# time.sleep(3)
-print(os.system("rm {}".format("D:/a/fontforge/fontforge/repo/build/lib/libfontforge.dll.a")), flush=True)
-time.sleep(3)
-
-# p="D:/a/fontforge/fontforge/repo/build/lib/psMat.pyd"
-# print("LDD", p, os.system("ldd {}".format(p)), flush=True)
-# time.sleep(3)
-# print("OBJDUMP", p, os.system("objdump -p {}".format(p)), flush=True)
-# time.sleep(3)
-# p="D:/a/fontforge/fontforge/repo/build/bin/libfontforge.dll"
-# print("LDD", p, os.system("ldd {}".format(p)), flush=True)
-# time.sleep(3)
-# print("OBJDUMP", p, os.system("objdump -p {}".format(p)), flush=True)
-# time.sleep(3)
-
-# for p in sys.path[0:1]:
-# for p in ["D:/a/fontforge/fontforge/repo/build/lib", "D:/a/fontforge/fontforge/repo/build/bin"]:   
-#    print("TEST1003 PATH LIST ", p, flush=True)
-#    time.sleep(3)
-#    print(os.system("ls -l {}".format(p)), flush=True)
-#    # print(os.system("find {} | grep -i 'fontforge\.'".format(p)))
-#    # print(os.system("find {} | grep -i 'psmat\.'".format(p)))
-#    time.sleep(3)
-
-import psMat
-import fontforge
+import sys, fontforge, psMat, math
 from collections import OrderedDict
 
 stroketests = sys.argv[1]
