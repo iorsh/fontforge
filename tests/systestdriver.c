@@ -318,9 +318,9 @@ static int run_pyhook_systest(ArgData *args, gchar **argv) {
     /* system("rm D:/a/fontforge/fontforge/repo/build/lib/libfontforge.dll.a"); */
     g_setenv("PYTHONPATH", args->libdir, TRUE);
 #ifdef G_OS_WIN32
-    char *py_path = g_strconcat(args->exedir, G_SEARCHPATH_SEPARATOR_S, g_getenv("PYTHONPATH"), NULL);
-    g_setenv("PYTHONPATH", py_path, TRUE);
-    g_free(py_path);
+    char *path = g_strconcat(args->exedir, G_SEARCHPATH_SEPARATOR_S, g_getenv("PYTHONPATH"), NULL);
+    g_setenv("PATH", path, TRUE);
+    g_free(path);
 #endif
 
     g_ptr_array_add(test_args, args->binary);
