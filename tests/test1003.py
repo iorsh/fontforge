@@ -8,7 +8,8 @@ print("TEST1003 ORIG_ARG", sys.orig_argv, flush=True)
 print("TEST1003 VER", sys.version, flush=True)
 print("TEST1003 PATH", sys.path, flush=True)
 
-del sys.path[0]
+# del sys.path[0]
+sys.path.insert(0, 'D:/a/fontforge/fontforge/repo/build/bin')
 # for p in sys.path[0:1]:
 for p in ["D:/a/fontforge/fontforge/repo/build/lib", "D:/a/fontforge/fontforge/repo/build/bin"]:   
    print("TEST1003 PATH LIST ", p, flush=True)

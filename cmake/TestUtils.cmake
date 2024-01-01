@@ -61,7 +61,7 @@ function(_add_systest test_mode binary test_script)
   )
   set_tests_properties(${_test_name} PROPERTIES
     SKIP_RETURN_CODE 77
-    ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:D:/a/fontforge/fontforge/repo/build/lib"
+    ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:D:\\a\\fontforge\\fontforge\\repo\\build\\lib"
   )
 endfunction()
 
