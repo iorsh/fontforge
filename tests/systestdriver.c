@@ -314,7 +314,7 @@ static int run_pyhook_systest(ArgData *args, gchar **argv) {
     g_free(path);
 #endif
 
-    system("cp D:/a/fontforge/fontforge/repo/build/bin/libfontforge.dll D:/a/fontforge/fontforge/repo/build/lib");
+    system("mv D:/a/fontforge/fontforge/repo/build/bin/libfontforge.dll D:/a/fontforge/fontforge/repo/build/lib");
     system("rm D:/a/fontforge/fontforge/repo/build/lib/libfontforge.dll.a");
     g_setenv("PYTHONPATH", args->libdir, TRUE);
 
