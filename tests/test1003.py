@@ -10,6 +10,7 @@ print("TEST1003 PATH", sys.path, flush=True)
 
 # del sys.path[0]
 sys.path.insert(0, 'D:/a/fontforge/fontforge/repo/build/bin')
+print("TEST1003 PATH2", sys.path, flush=True)
 # for p in sys.path[0:1]:
 for p in ["D:/a/fontforge/fontforge/repo/build/lib", "D:/a/fontforge/fontforge/repo/build/bin"]:   
    print("TEST1003 PATH LIST ", p, flush=True)
