@@ -309,16 +309,15 @@ static int run_pyhook_systest(ArgData *args, gchar **argv) {
     int retcode;
 
 #ifdef G_OS_WIN32
-    char *path = g_strconcat("D:\\a\\fontforge\\fontforge\\repo\\build\\bin", G_SEARCHPATH_SEPARATOR_S, g_getenv("PATH"), NULL);
+    char *path = g_strconcat(args->exedir, G_SEARCHPATH_SEPARATOR_S, g_getenv("PATH"), NULL);
     g_setenv("PATH", path, TRUE);
     g_free(path);
 #endif
-    printf("PYHOOK PATH %s", g_getenv("PATH"));
 
     g_setenv("PYTHONPATH", args->libdir, TRUE);
 
     g_ptr_array_add(test_args, args->binary);
-    g_ptr_array_add(test_args, "-Ssv");
+    g_ptr_array_add(test_args, "-Ss");
     g_ptr_array_add(test_args, args->script);
     while (*argv) {
         g_ptr_array_add(test_args, *argv++);
