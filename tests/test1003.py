@@ -12,6 +12,14 @@ print("TEST1003 PATH", sys.path, flush=True)
 sys.path.insert(0, 'D:/a/fontforge/fontforge/repo/build/bin')
 sys.path.insert(0, 'D:/a/fontforge/fontforge/repo/build/lib')
 print("TEST1003 PATH2", sys.path, flush=True)
+
+p="D:/a/fontforge/fontforge/repo/build/lib/psMat.pyd"
+print("LDD", p, os.system("ldd {}".format(p)), flush=True)
+p="D:/a/fontforge/fontforge/repo/build/lib/libfontforge.dll.a"
+print("LDD", p, os.system("ldd {}".format(p)), flush=True)
+p="D:/a/fontforge/fontforge/repo/build/bin/libfontforge.dll"
+print("LDD", p, os.system("ldd {}".format(p)), flush=True)
+
 # for p in sys.path[0:1]:
 for p in ["D:/a/fontforge/fontforge/repo/build/lib", "D:/a/fontforge/fontforge/repo/build/bin"]:   
    print("TEST1003 PATH LIST ", p, flush=True)
