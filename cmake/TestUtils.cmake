@@ -50,7 +50,7 @@ function(_add_systest test_mode binary test_script)
       --binary "${binary}"
       --script "${CMAKE_CURRENT_SOURCE_DIR}/${test_script}"
       --exedir "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
-      --libdir "D:\\a\\fontforge\\fontforge\\repo\\build\\lib;D:\\a\\fontforge\\fontforge\\repo\\build\\bin"
+      --libdir "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
       --argdir "${CMAKE_CURRENT_BINARY_DIR}/fonts"
       --argdir "${CMAKE_CURRENT_SOURCE_DIR}/fonts"
       --desc "${_description}"
@@ -61,7 +61,7 @@ function(_add_systest test_mode binary test_script)
   )
   set_tests_properties(${_test_name} PROPERTIES
     SKIP_RETURN_CODE 77
-    # ENVIRONMENT "PATH=D:/a/fontforge/fontforge/repo/build/lib:$ENV{PATH}"
+    ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:D:/a/fontforge/fontforge/repo/build/lib"
   )
 endfunction()
 

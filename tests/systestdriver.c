@@ -313,6 +313,7 @@ static int run_pyhook_systest(ArgData *args, gchar **argv) {
     g_setenv("PATH", path, TRUE);
     g_free(path);
 #endif
+    printf("PYHOOK PATH %s", g_getenv("PATH"));
 
     g_setenv("PYTHONPATH", args->libdir, TRUE);
 
