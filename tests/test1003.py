@@ -46,8 +46,6 @@ stroketests = sys.argv[1]
 shortlist = ['D', 'Q', 'asciicircum']
 convex = fontforge.unitShape(7).transform(psMat.scale(25))
 
-sys.exit(1)
-
 def do_stroke_test(short, *args, **kwargs):
     font=fontforge.open(stroketests)
     if short:
