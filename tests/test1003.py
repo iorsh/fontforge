@@ -1,10 +1,20 @@
 #Needs: fonts/StrokeTests.sfd
 import sys
 import os
+import time
 print("TEST1003 ENV", os.environ, flush=True)
 print("TEST1003 ORIG_ARG", sys.orig_argv, flush=True)
 print("TEST1003 VER", sys.version, flush=True)
 print("TEST1003 PATH", sys.path, flush=True)
+
+del sys.path[0]
+for p in sys.path[0:1]:
+   print("TEST1003 PATH LIST ", p, flush=True)
+   time.sleep(3)
+   print(os.system("ls -l {}".format(p)), flush=True)
+   # print(os.system("find {} | grep -i 'fontforge\.'".format(p)))
+   # print(os.system("find {} | grep -i 'psmat\.'".format(p)))
+   time.sleep(3)
 
 import sys, fontforge, psMat, math
 from collections import OrderedDict
