@@ -222,9 +222,8 @@ set_property(SOURCE splineoverlap.c APPEND PROPERTY COMPILE_OPTIONS ${FONTFORGE_
 set_property(TARGET fontforge PROPERTY VERSION 4)
 if(BUILD_SHARED_LIBS)
   if(WIN32 OR CYGWIN)
-    message(STATUS "MXCOMMAND *$<TARGET_FILE:fontforge>* *${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libfontforge.dll* *${CMAKE_RUNTIME_OUTPUT_DIRECTORY}* *${CMAKE_LIBRARY_OUTPUT_DIRECTORY}*")
     add_custom_command(TARGET fontforge POST_BUILD
-      COMMAND cp ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libfontforge.dll ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+      COMMAND cp $<TARGET_FILE:fontforge> ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
     )
     target_link_options(fontforge PRIVATE -Wl,--export-all-symbols) # FIXME
   endif()
