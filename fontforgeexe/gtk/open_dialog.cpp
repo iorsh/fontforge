@@ -11,16 +11,90 @@
  * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+
 using namespace std;
+#include <iostream>
 
 #include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm/main.h>
+
 using namespace Glib;
 using Gio::File;
 
 #include "open_dialog.hpp"
 #include "open_filters.hpp"
+#include "utils.hpp"
 
 namespace FontDialog {
+   static std::vector<std::string> bookmarks;
+   static std::function<void(void *)> pref_changed_cb;
+
+   // Gtk bookmarks are managed uniformly across all Gtk applications.
+   // We use FileChooser shortcuts instead, which can be managed internally.
+   bool setup_bookmarks(Gtk::FileChooserDialog* dlg) {
+      // Add bookmarks to the side panel
+      // TODO(GTK4) Customize bookmark icon using GFileInfo
+      for (const auto& b : bookmarks) {
+         dlg->add_shortcut_folder(b);
+      }
+
+      // Add "Bookmark" button to the File Chooser UI.
+      //
+      // This is sort of a GTK3-specific hack, which relies on the internal
+      // structure of the FileChooser, and thus can easily break.
+      // We find the path bar and add the button next to it, so that it appears
+      // where the "New Folder" button is normally found.
+      Gtk::Container* c = nullptr;
+      Gtk::Widget* pathbar = gtk_find_child(dlg, "GtkPathBar");
+      if (pathbar) {
+         Gtk::Widget* parent = pathbar->get_ancestor(GTK_TYPE_BOX);
+         if (parent) {
+            c = dynamic_cast<Gtk::Container*>(parent);
+         }
+      }
+
+      if (!c) {
+         // Failed to find a good place for "Bookmark" button
+         return false;
+      }
+
+      // Create and place the "Bookmark" button with a star icon.
+      Gtk::ToggleButton* bookmark_btn = new Gtk::ToggleButton("");
+      bookmark_btn->set_image_from_icon_name("emblem-favorite");
+      c->add(*bookmark_btn);
+      bookmark_btn->show_all();
+
+      // On folder change: check whether the current folder is bookmarked and
+      // toggle "Bookmark" button accordingly.
+      auto current_folder_changed_cb = [dlg, bookmark_btn](){
+         std::string curr_path = dlg->get_current_folder();
+         auto shortcuts = dlg->list_shortcut_folders();
+
+         bool button_on = (ranges::find(shortcuts, curr_path) != shortcuts.end());
+         bookmark_btn->set_active(button_on);
+      };
+      dlg->signal_current_folder_changed().connect(current_folder_changed_cb);
+
+      // On pressing "Bookmark" button: add or remove current folder to bookmarks
+      auto bookmark_button_toggled_cb = [dlg, bookmark_btn](){
+         bool btn_active = bookmark_btn->get_active();
+         std::string curr_path = dlg->get_current_folder();
+         auto shortcuts = dlg->list_shortcut_folders();
+         bool path_is_shortcut = (ranges::find(shortcuts, curr_path) != shortcuts.end());
+
+         // NOTE: this signal is also activated by changing button state from within
+         // current_folder_changed_cb(), so we need to check the shortcut presence
+         // and not just blindly add/remove it.
+         if (btn_active && !path_is_shortcut) {
+            dlg->add_shortcut_folder(curr_path);
+         } else if (!btn_active && path_is_shortcut) {
+            dlg->remove_shortcut_folder(curr_path);
+         }
+      };
+      bookmark_btn->signal_toggled().connect(bookmark_button_toggled_cb);
+
+      return true;
+   }
 
    // TODO: subclass this, probably?
    // Browse for a font file to open. TODO: return a file handle, or pass in a callback?
@@ -28,6 +102,7 @@ namespace FontDialog {
    // TODO: add multi-file mode option..?
    RefPtr<File> open_dialog(RefPtr<File> path, ustring title) {
       static auto app = Gtk::Application::create("org.fontforge");
+
       auto t = title != ustring{} ? title : "Open Font";
 
       auto d = Gtk::FileChooserDialog(t, Gtk::FILE_CHOOSER_ACTION_OPEN);
@@ -99,14 +174,38 @@ namespace FontDialog {
       // TODO: remember shenanigans and such?
       d.set_filter(filter_fonts);
 
+      // Fontforge Bookmarks
+      setup_bookmarks(&d);
+
+      int response = d.run();
+
+      // Save bookmarks if applicable
+      auto new_bookmarks = d.list_shortcut_folders();
+      if (bookmarks != new_bookmarks) {
+         bookmarks = new_bookmarks;
+         pref_changed_cb(nullptr);
+      }
+
       // Only fires on file selection - folder selection navigates down with the
       // buttons set as they are. TODO: custom behaviour to handle .sfdir format
-      if(d.run() == Gtk::RESPONSE_OK) {
+      if(response == Gtk::RESPONSE_OK) {
          // TODO: actual open logic
          return d.get_file();
       }
 
       // Returning dev null seems _kinda_ semantic for a cancel..? lol TODO: express this better
       return Gio::File::create_for_path("/dev/null");
+   }
+
+   void file_dialog_set_bookmarks(const std::vector<std::string>& bookmarks_in) {
+      bookmarks = bookmarks_in;
+   }
+
+   const std::vector<std::string>& file_dialog_get_bookmarks() {
+      return bookmarks;
+   }
+
+   void file_dialog_set_pref_changed_callback(std::function<void(void *)> p_c) {
+      pref_changed_cb = p_c;
    }
 }
