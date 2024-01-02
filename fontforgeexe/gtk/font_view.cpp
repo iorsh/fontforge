@@ -96,7 +96,25 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
 
    font_view_window->show_all();
 
-   return font_view_window;
+   Gtk::Menu* pop_up = new Gtk::Menu();
+   Gtk::MenuItem* menu1 = new Gtk::MenuItem("Menu 1");
+   Gtk::MenuItem* menu2 = new Gtk::MenuItem("Menu 2");
+   pop_up->append(*menu1);
+   pop_up->append(*menu2);
+   // pop_up->attach_to_widget(*drawing_area);
+
+   auto on_my_button_press_event = [pop_up](GdkEventButton* event) {
+      if (event->button == GDK_BUTTON_SECONDARY) {
+          pop_up->show_all();
+          pop_up->popup(event->button, event->time);
+          return true;
+      }
+      return false;
+   };
+
+   drawing_area->signal_button_press_event().connect(on_my_button_press_event);
+
+   return font_view_window;   
 }
 
 }

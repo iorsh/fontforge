@@ -6736,8 +6736,11 @@ return;
 		fv->b.selected[pos] = fv->sel_index;
 		FVToggleCharSelected(fv,pos);
 	    }
-	    if ( event->u.mouse.button==3 )
-		GMenuCreatePopupMenuWithName(fv->v,event, "Popup", fvpopupmenu);
+	    if ( event->u.mouse.button==3 ) {
+        if (!IsGTK(fv)) {
+        	GMenuCreatePopupMenuWithName(fv->v,event, "Popup", fvpopupmenu);
+        }
+       }
 	    else
 		fv->pressed = GDrawRequestTimer(fv->v,200,100,NULL);
 	}
