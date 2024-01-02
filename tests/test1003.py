@@ -1,15 +1,5 @@
 #Needs: fonts/StrokeTests.sfd
 
-import sys, time, os
-
-print("TEST1003 ENV PATH", os.environ["PATH"], flush=True)
-print("TEST1003 SYS.PATH", sys.path, flush=True)
-for p in ["D:/a/fontforge/fontforge/repo/build/lib", "D:/a/fontforge/fontforge/repo/build/bin"]:   
-   print("TEST1003 PATH LIST ", p, flush=True)
-   time.sleep(1)
-   print(os.system("ls -l {}".format(p)), flush=True)
-   time.sleep(1)
-
 import sys, fontforge, psMat, math
 from collections import OrderedDict
 
@@ -76,5 +66,3 @@ do_stroke_test(True, 'calligraphic', 20, 100, join="miterclip", cap="round", ext
 do_stroke_test(True, 'calligraphic', 20, 100, join="miterclip", cap="round", extendcap=100, ecrelative=False)
 do_stroke_test(True, 'elliptical', 20, 20, join="arcs", cap="butt", joinlimit=4)
 do_stroke_test(True, 'elliptical', 20, 100, join="arcs", cap="round", joinlimit=2, arcsclip="ratio")
-
-sys.exit(239)
