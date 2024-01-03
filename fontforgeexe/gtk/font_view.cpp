@@ -13,6 +13,8 @@
  */
 
 #include "font_view.hpp"
+#include "font_view_menu.hpp"
+#include "menu_builder.hpp"
 #include "utils.hpp"
 
 namespace FontViewNS {
@@ -96,12 +98,7 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
 
    font_view_window->show_all();
 
-   Gtk::Menu* pop_up = new Gtk::Menu();
-   Gtk::MenuItem* menu1 = new Gtk::MenuItem("Menu 1");
-   Gtk::MenuItem* menu2 = new Gtk::MenuItem("Menu 2");
-   pop_up->append(*menu1);
-   pop_up->append(*menu2);
-   // pop_up->attach_to_widget(*drawing_area);
+   Gtk::Menu* pop_up = FF::build_menu(popup_menu);
 
    auto on_my_button_press_event = [pop_up](GdkEventButton* event) {
       if (event->button == GDK_BUTTON_SECONDARY) {

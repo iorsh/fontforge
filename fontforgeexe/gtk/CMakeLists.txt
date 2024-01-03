@@ -5,6 +5,9 @@ target_sources(fontforgeexe
    PUBLIC
       font_view.hpp
       font_view.cpp
+      font_view_menu.hpp
+      menu_builder.hpp
+      menu_builder.cpp
       open_dialog.hpp
       open_dialog.cpp
       utils.hpp
