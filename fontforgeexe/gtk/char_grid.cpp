@@ -93,6 +93,11 @@ void CharGrid::set_scroller_bounds(int32_t sb_min, int32_t sb_max,
                           sb_pagesize);
 }
 
+void CharGrid::set_character_info(const std::string& info) {
+    Glib::ustring markup = "<big>" + info + "</big>";
+    character_info.set_markup(markup);
+}
+
 // Create info label at the top of the Font View, which shows name and
 // properties of the most recently selected character
 void CharGrid::make_character_info_label() {
@@ -113,6 +118,13 @@ void CharGrid::make_character_info_label() {
         character_info.get_style_context();
     Gdk::RGBA link_color = context->get_color(Gtk::STATE_FLAG_LINK);
     character_info.override_color(link_color);
+
+    // TODO(iorsh) Review this hack and check setting big label directly.
+    // Set empty label with big font to get the correct label height.
+    // Due to some issue in GTK setting it now doesn't work, so we defer it
+    // until after the realization.
+    character_info.signal_realize().connect(
+        [this]() { character_info.set_markup("<big> </big>"); });
 }
 
 /////////////////  EVENTS  ////////////////////
