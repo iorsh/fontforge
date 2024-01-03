@@ -11,7 +11,30 @@
  * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+#pragma once
 
+#include <libintl.h>
 #include <gtkmm-3.0/gtkmm.h>
+
+namespace FF {
+
+// Seamlessly localize a string using implicit constructor and conversion.
+class L10nText {
+   public:
+    L10nText(const char* text) : text_(text) {}
+
+    operator Glib::ustring() const {
+      if (!text_.empty() && l10n_text_.empty()) {
+         l10n_text_ = gettext(text_.c_str());
+      }
+      return l10n_text_;
+    }
+
+   private:
+    Glib::ustring text_;
+    mutable Glib::ustring l10n_text_;
+};
+
+}
 
 Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name);
