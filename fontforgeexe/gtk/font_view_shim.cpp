@@ -60,5 +60,8 @@ void fv_set_character_info(void* window, GString* info) {
    Gtk::Window* font_view_window = static_cast<Gtk::Window*>(window);
    Gtk::Label* character_info = static_cast<Gtk::Label*>(gtk_find_child(font_view_window, "CharInfo"));
 
-   character_info->set_text(info->str);
+   Glib::ustring markup("<big>");
+   markup += info->str;
+   markup += "</big>";
+   character_info->set_markup(markup);
 }
