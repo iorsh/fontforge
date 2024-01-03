@@ -35,7 +35,7 @@ namespace FF{
 ActivateCB build_handler(int mid, FVContext* fv_context) {
    MenuAction* actions = fv_context->actions;
    FontView* fv = fv_context->fv;
-   void (*action)(FontView *fv) = NULL;
+   void (*action)(FontView*, int) = NULL;
 
    // Find the C handler
    int i = 0;
@@ -48,7 +48,7 @@ ActivateCB build_handler(int mid, FVContext* fv_context) {
    }
 
    if (action != NULL) {
-      return [fv, action](){ action(fv); };
+      return [action, fv, mid](){ action(fv, mid); };
    } else {
       return [](){}; // NOOP callable action
    }

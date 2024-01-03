@@ -1360,7 +1360,7 @@ return( false );
 return( true );
 }
 
-static void FVMenuOpenOutline(FontView *fv) {
+static void FVMenuOpenOutline(FontView *fv, int UNUSED(mid)) {
     int i;
     SplineChar *sc;
 
@@ -1726,8 +1726,7 @@ static void FVMenuCopyFrom(GWindow UNUSED(gw), struct gmenuitem *mi, GEvent *UNU
     SavePrefs(true);
 }
 
-static void FVMenuCopy(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuCopy(FontView *fv, int UNUSED(mid)) {
     if ( FVAnyCharSelected(fv)==-1 )
 return;
     FVCopy((FontViewBase *) fv,ct_fullcopy);
@@ -1740,29 +1739,25 @@ return;
     FVCopy((FontViewBase *) fv,ct_lookups);
 }
 
-static void FVMenuCopyRef(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuCopyRef(FontView *fv, int UNUSED(mid)) {
     if ( FVAnyCharSelected(fv)==-1 )
 return;
     FVCopy((FontViewBase *) fv,ct_reference);
 }
 
-static void FVMenuCopyWidth(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuCopyWidth(FontView *fv, int mid) {
     if ( FVAnyCharSelected(fv)==-1 )
 return;
-    if ( mi->mid==MID_CopyVWidth && !fv->b.sf->hasvmetrics )
+    if ( mid==MID_CopyVWidth && !fv->b.sf->hasvmetrics )
 return;
     FVCopyWidth((FontViewBase *) fv,
-		   mi->mid==MID_CopyWidth?ut_width:
-		   mi->mid==MID_CopyVWidth?ut_vwidth:
-		   mi->mid==MID_CopyLBearing?ut_lbearing:
+		   mid==MID_CopyWidth?ut_width:
+		   mid==MID_CopyVWidth?ut_vwidth:
+		   mid==MID_CopyLBearing?ut_lbearing:
 					 ut_rbearing);
 }
 
-static void FVMenuPaste(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuPaste(FontView *fv, int UNUSED(mid)) {
     if ( FVAnyCharSelected(fv)==-1 )
 return;
     PasteIntoFV((FontViewBase *) fv,false,NULL);
@@ -1789,8 +1784,7 @@ static void FVMenuSameGlyphAs(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuCopyFgBg(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuCopyFgBg(FontView *fv, int UNUSED(mid)) {
     FVCopyFgtoBg( (FontViewBase *) fv );
 }
 
@@ -1804,8 +1798,7 @@ static void FVMenuCompareL2L(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *U
     FVCompareLayerToLayer( fv );
 }
 
-static void FVMenuClear(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuClear(FontView *fv, int UNUSED(mid)) {
     FVClear( (FontViewBase *) fv );
 }
 
@@ -1819,8 +1812,7 @@ static void FVMenuJoin(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(
     FVJoin( (FontViewBase *) fv );
 }
 
-static void FVMenuUnlinkRef(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuUnlinkRef(FontView *fv, int UNUSED(mid)) {
     FVUnlinkRef( (FontViewBase *) fv );
 }
 
@@ -1853,7 +1845,7 @@ static void FVMenuUndoFontLevel(GWindow gw,struct gmenuitem *mi,GEvent *e) {
     SFUndoRemoveAndFree( sf, undo );
 }
 
-static void FVMenuCut(FontView *fv) {
+static void FVMenuCut(FontView *fv, int UNUSED(mid)) {
     FVCopy(&fv->b,ct_fullcopy);
     FVClear(&fv->b);
 }
@@ -2652,8 +2644,7 @@ static void FVMenuCorrectRefs(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *
     FVCorrectReferences(fv);
 }
 
-static void FVMenuCharInfo(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuCharInfo(FontView *fv, int UNUSED(mid)) {
     int pos = FVAnyCharSelected(fv);
     if ( pos<0 )
 return;
@@ -2775,8 +2766,7 @@ return;
     TransformDlgCreate(fv,FVTransFunc,getorigin,flags,cvt_none);
 }
 
-static void FVMenuTransform(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuTransform(FontView *fv, int UNUSED(mid)) {
     FVDoTransform(fv);
 }
 
@@ -2802,8 +2792,7 @@ static void FVMenuBitmaps(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     BitmapDlg(fv,NULL,mi->mid==MID_RemoveBitmaps?-1:(mi->mid==MID_AvailBitmaps) );
 }
 
-static void FVMenuStroke(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuStroke(FontView *fv, int UNUSED(mid)) {
     FVStroke(fv);
 }
 
@@ -2915,13 +2904,12 @@ static void FVMenuHarmonize(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UN
     FVHarmonize( (FontViewBase *) GDrawGetUserData(gw) , false );
 }
 
-static void FVMenuCorrectDir(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuCorrectDir(FontView *fv, int UNUSED(mid)) {
     FVCorrectDir((FontViewBase *) fv);
 }
 
-static void FVMenuRound2Int(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FVRound2Int( (FontViewBase *) GDrawGetUserData(gw), 1.0 );
+static void FVMenuRound2Int(FontView *fv, int UNUSED(mid)) {
+    FVRound2Int( (FontViewBase *) fv, 1.0 );
 }
 
 static void FVMenuRound2Hundredths(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
@@ -3638,22 +3626,19 @@ static void FV_ShowFilled(FontView *fv) {
     fv->b.active_bitmap = NULL;
 }
 
-static void FVMenuCenter(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontViewBase *fv = (FontViewBase *) GDrawGetUserData(gw);
-    FVMetricsCenter(fv,mi->mid==MID_Center);
+static void FVMenuCenter(FontView *fv, int mid) {
+    FVMetricsCenter((FontViewBase *)fv,mid==MID_Center);
 }
 
-static void FVMenuSetWidth(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuSetWidth(FontView *fv, int mid) {
     if ( FVAnyCharSelected(fv)==-1 )
 return;
-    if ( mi->mid == MID_SetVWidth && !fv->b.sf->hasvmetrics )
+    if ( mid == MID_SetVWidth && !fv->b.sf->hasvmetrics )
 return;
-    FVSetWidth(fv,mi->mid==MID_SetWidth   ?wt_width:
-		  mi->mid==MID_SetLBearing?wt_lbearing:
-		  mi->mid==MID_SetRBearing?wt_rbearing:
-		  mi->mid==MID_SetBearings?wt_bearings:
+    FVSetWidth(fv,mid==MID_SetWidth   ?wt_width:
+		  mid==MID_SetLBearing?wt_lbearing:
+		  mid==MID_SetRBearing?wt_rbearing:
+		  mid==MID_SetBearings?wt_bearings:
 		  wt_vwidth);
 }
 
@@ -3706,8 +3691,7 @@ static void FVMenuVKernFromHKern(GWindow gw, struct gmenuitem *UNUSED(mi), GEven
     FVVKernFromHKern(&fv->b);
 }
 
-static void FVMenuAutoHint(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuAutoHint(FontView *fv, int UNUSED(mid)) {
     FVAutoHint( &fv->b );
 }
 
@@ -4715,21 +4699,27 @@ static GMenuItem2 edlist[] = {
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
 /*
     { { (unichar_t *) N_("Cu_t"), (GImage *) "editcut.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 't' }, H_("Cut|No Shortcut"), NULL, NULL, FVMenuCut, MID_Cut },
-*/
     { { (unichar_t *) N_("_Copy"), (GImage *) "editcopy.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, H_("Copy|No Shortcut"), NULL, NULL, FVMenuCopy, MID_Copy },
     { { (unichar_t *) N_("C_opy Reference"), (GImage *) "editcopyref.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'o' }, H_("Copy Reference|No Shortcut"), NULL, NULL, FVMenuCopyRef, MID_CopyRef },
+*/
     { { (unichar_t *) N_("Copy _Lookup Data"), (GImage *) "editcopylookupdata.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'o' }, H_("Copy Lookup Data|No Shortcut"), NULL, NULL, FVMenuCopyLookupData, MID_CopyLookupData },
+/*
     { { (unichar_t *) N_("Copy _Width"), (GImage *) "editcopywidth.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'W' }, H_("Copy Width|No Shortcut"), NULL, NULL, FVMenuCopyWidth, MID_CopyWidth },
     { { (unichar_t *) N_("Copy _VWidth"), (GImage *) "editcopyvwidth.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("Copy VWidth|No Shortcut"), NULL, NULL, FVMenuCopyWidth, MID_CopyVWidth },
     { { (unichar_t *) N_("Co_py LBearing"), (GImage *) "editcopylbearing.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'p' }, H_("Copy LBearing|No Shortcut"), NULL, NULL, FVMenuCopyWidth, MID_CopyLBearing },
     { { (unichar_t *) N_("Copy RBearin_g"), (GImage *) "editcopyrbearing.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'g' }, H_("Copy RBearing|No Shortcut"), NULL, NULL, FVMenuCopyWidth, MID_CopyRBearing },
     { { (unichar_t *) N_("_Paste"), (GImage *) "editpaste.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'P' }, H_("Paste|No Shortcut"), NULL, NULL, FVMenuPaste, MID_Paste },
+*/
     { { (unichar_t *) N_("Paste Into"), (GImage *) "editpasteinto.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Paste Into|No Shortcut"), NULL, NULL, FVMenuPasteInto, MID_PasteInto },
     { { (unichar_t *) N_("Paste After"), (GImage *) "editpasteafter.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Paste After|No Shortcut"), NULL, NULL, FVMenuPasteAfter, MID_PasteAfter },
     { { (unichar_t *) N_("Sa_me Glyph As"), (GImage *) "editsameas.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'm' }, H_("Same Glyph As|No Shortcut"), NULL, NULL, FVMenuSameGlyphAs, MID_SameGlyphAs },
+/*
     { { (unichar_t *) N_("C_lear"), (GImage *) "editclear.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'l' }, H_("Clear|No Shortcut"), NULL, NULL, FVMenuClear, MID_Clear },
+*/
     { { (unichar_t *) N_("Clear _Background"), (GImage *) "editclearback.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'B' }, H_("Clear Background|No Shortcut"), NULL, NULL, FVMenuClearBackground, MID_ClearBackground },
+/*
     { { (unichar_t *) N_("Copy _Fg To Bg"), (GImage *) "editcopyfg2bg.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'F' }, H_("Copy Fg To Bg|No Shortcut"), NULL, NULL, FVMenuCopyFgBg, MID_CopyFgToBg },
+*/
     { { (unichar_t *) N_("Copy Layer To Layer"), (GImage *) "editcopylayer2layer.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'F' }, H_("Copy Layer To Layer|No Shortcut"), NULL, NULL, FVMenuCopyL2L, MID_CopyL2L },
     { { (unichar_t *) N_("_Join"), (GImage *) "editjoin.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'J' }, H_("Join|No Shortcut"), NULL, NULL, FVMenuJoin, MID_Join },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
@@ -4738,7 +4728,9 @@ static GMenuItem2 edlist[] = {
     { { (unichar_t *) N_("Replace with Reference"), (GImage *) "editrplref.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'i' }, H_("Replace with Reference|No Shortcut"), NULL, NULL, FVMenuReplaceWithRef, MID_RplRef },
     { { (unichar_t *) N_("Correct References"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'i' }, H_("Correct References|No Shortcut"), NULL, NULL, FVMenuCorrectRefs, MID_CorrectRefs },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
+/*
     { { (unichar_t *) N_("U_nlink Reference"), (GImage *) "editunlink.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'U' }, H_("Unlink Reference|No Shortcut"), NULL, NULL, FVMenuUnlinkRef, MID_UnlinkRef },
+*/
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("Copy _From"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'F' }, H_("Copy From|No Shortcut"), cflist, cflistcheck, NULL, 0 },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
@@ -4798,14 +4790,18 @@ static GMenuItem2 delist[] = {
 };
 
 static GMenuItem2 trlist[] = {
+/*
     { { (unichar_t *) N_("_Transform..."), (GImage *) "elementtransform.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'T' }, H_("Transform...|No Shortcut"), NULL, NULL, FVMenuTransform, MID_Transform },
+*/
     { { (unichar_t *) N_("_Point of View Projection..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'T' }, H_("Point of View Projection...|No Shortcut"), NULL, NULL, FVMenuPOV, MID_POV },
     { { (unichar_t *) N_("_Non Linear Transform..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'T' }, H_("Non Linear Transform...|No Shortcut"), NULL, NULL, FVMenuNLTransform, MID_NLTransform },
     GMENUITEM2_EMPTY
 };
 
 static GMenuItem2 rndlist[] = {
+/*
     { { (unichar_t *) N_("To _Int"), (GImage *) "elementround.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("To Int|No Shortcut"), NULL, NULL, FVMenuRound2Int, MID_Round },
+*/
     { { (unichar_t *) N_("To _Hundredths"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("To Hundredths|No Shortcut"), NULL, NULL, FVMenuRound2Hundredths, 0 },
     { { (unichar_t *) N_("_Cluster"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("Cluster|No Shortcut"), NULL, NULL, FVMenuCluster, 0 },
     GMENUITEM2_EMPTY
@@ -4846,7 +4842,9 @@ static GMenuItem2 validlist[] = {
 
 static GMenuItem2 ellist[] = {
     { { (unichar_t *) N_("_Font Info..."), (GImage *) "elementfontinfo.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'F' }, H_("Font Info...|No Shortcut"), NULL, NULL, FVMenuFontInfo, MID_FontInfo },
+/*
     { { (unichar_t *) N_("_Glyph Info..."), (GImage *) "elementglyphinfo.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("Glyph Info...|No Shortcut"), NULL, NULL, FVMenuCharInfo, MID_CharInfo },
+*/
     { { (unichar_t *) N_("Other Info"), (GImage *) "elementotherinfo.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("Other Info|No Shortcut"), infolist, infolistcheck, NULL, 0 },
     { { (unichar_t *) N_("_Validation"), (GImage *) "elementvalidate.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("Validation|No Shortcut"), validlist, validlistcheck, NULL, 0 },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
@@ -4856,7 +4854,9 @@ static GMenuItem2 ellist[] = {
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("St_yle"), (GImage *) "elementstyles.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'S' }, H_("Style|No Shortcut"), eflist, NULL, NULL, MID_Styles },
     { { (unichar_t *) N_("_Transformations"), (GImage *) "elementtransform.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'T' }, H_("Transformations|No Shortcut"), trlist, trlistcheck, NULL, MID_Transform },
+/*
     { { (unichar_t *) N_("_Expand Stroke..."), (GImage *) "elementexpandstroke.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'E' }, H_("Expand Stroke...|No Shortcut"), NULL, NULL, FVMenuStroke, MID_Stroke },
+*/
 #ifdef FONTFORGE_CONFIG_TILEPATH
     { { (unichar_t *) N_("Tile _Path..."), (GImage *) "elementtilepath.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'P' }, H_("Tile Path...|No Shortcut"), NULL, NULL, FVMenuTilePath, MID_TilePath },
     { { (unichar_t *) N_("Tile Pattern..."), (GImage *) "elementtilepattern.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Tile Pattern...|No Shortcut"), NULL, NULL, FVMenuPatternTile, 0 },
@@ -4870,7 +4870,9 @@ static GMenuItem2 ellist[] = {
     { { (unichar_t *) N_("Roun_d"), (GImage *) "elementround.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("Round|No Shortcut"), rndlist, NULL, NULL, MID_Round },
     { { (unichar_t *) N_("Autot_race"), (GImage *) "elementautotrace.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'r' }, H_("Autotrace|No Shortcut"), NULL, NULL, FVMenuAutotrace, MID_Autotrace },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
+/*
     { { (unichar_t *) N_("_Correct Direction"), (GImage *) "elementcorrectdir.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'D' }, H_("Correct Direction|No Shortcut"), NULL, NULL, FVMenuCorrectDir, MID_Correct },
+*/
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("B_uild"), (GImage *) "elementbuildaccent.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'B' }, H_("Build|No Shortcut"), balist, balistcheck, NULL, MID_BuildAccent },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
@@ -5506,7 +5508,9 @@ static GMenuItem2 histlist[] = {
 };
 
 static GMenuItem2 htlist[] = {
+/*
     { { (unichar_t *) N_("Auto_Hint"), (GImage *) "hintsautohint.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'H' }, H_("AutoHint|No Shortcut"), NULL, NULL, FVMenuAutoHint, MID_AutoHint },
+*/
     { { (unichar_t *) N_("Hint _Substitution Pts"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'H' }, H_("Hint Substitution Pts|No Shortcut"), NULL, NULL, FVMenuAutoHintSubs, MID_HintSubsPt },
     { { (unichar_t *) N_("Auto _Counter Hint"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'H' }, H_("Auto Counter Hint|No Shortcut"), NULL, NULL, FVMenuAutoCounter, MID_AutoCounter },
     { { (unichar_t *) N_("_Don't AutoHint"), (GImage *) "hintsdontautohint.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'H' }, H_("Don't AutoHint|No Shortcut"), NULL, NULL, FVMenuDontAutoHint, MID_DontAutoHint },
@@ -5530,14 +5534,16 @@ static GMenuItem2 htlist[] = {
 static GMenuItem2 mtlist[] = {
     { { (unichar_t *) N_("New _Metrics Window"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'M' }, H_("New Metrics Window|No Shortcut"), NULL, NULL, FVMenuOpenMetrics, MID_OpenMetrics },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
+/*
     { { (unichar_t *) N_("_Center in Width"), (GImage *) "metricscenter.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, H_("Center in Width|No Shortcut"), NULL, NULL, FVMenuCenter, MID_Center },
     { { (unichar_t *) N_("_Thirds in Width"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'T' }, H_("Thirds in Width|No Shortcut"), NULL, NULL, FVMenuCenter, MID_Thirds },
     { { (unichar_t *) N_("Set _Width..."), (GImage *) "metricssetwidth.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'W' }, H_("Set Width...|No Shortcut"), NULL, NULL, FVMenuSetWidth, MID_SetWidth },
     { { (unichar_t *) N_("Set _LBearing..."), (GImage *) "metricssetlbearing.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'L' }, H_("Set LBearing...|No Shortcut"), NULL, NULL, FVMenuSetWidth, MID_SetLBearing },
     { { (unichar_t *) N_("Set _RBearing..."), (GImage *) "metricssetrbearing.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'R' }, H_("Set RBearing...|No Shortcut"), NULL, NULL, FVMenuSetWidth, MID_SetRBearing },
     { { (unichar_t *) N_("Set Both Bearings..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'R' }, H_("Set Both Bearings...|No Shortcut"), NULL, NULL, FVMenuSetWidth, MID_SetBearings },
-    { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
+    { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 },
     { { (unichar_t *) N_("Set _Vertical Advance..."), (GImage *) "metricssetvwidth.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("Set Vertical Advance...|No Shortcut"), NULL, NULL, FVMenuSetWidth, MID_SetVWidth },
+*/
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("_Auto Width..."), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'A' }, H_("Auto Width...|No Shortcut"), NULL, NULL, FVMenuAutoWidth, 0 },
     { { (unichar_t *) N_("Ker_n By Classes..."), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'K' }, H_("Kern By Classes...|No Shortcut"), NULL, NULL, FVMenuKernByClasses, 0 },
@@ -5759,37 +5765,25 @@ GMenuItem2 helplist[] = {
     GMENUITEM2_EMPTY
 };
 
-GMenuItem fvpopupmenu[] = {
-/*
-    { { (unichar_t *) N_("New O_utline Window"), 0, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'u' }, '\0', ksm_control, NULL, NULL, FVMenuOpenOutline, MID_OpenOutline },
-    GMENUITEM_LINE,
-    { { (unichar_t *) N_("Cu_t"), (GImage *) "editcut.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 't' }, '\0', ksm_control, NULL, NULL, FVMenuCut, MID_Cut },
-*/
-    { { (unichar_t *) N_("_Copy"), (GImage *) "editcopy.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, '\0', ksm_control, NULL, NULL, FVMenuCopy, MID_Copy },
-    { { (unichar_t *) N_("C_opy Reference"), (GImage *) "editcopyref.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'o' }, '\0', ksm_control, NULL, NULL, FVMenuCopyRef, MID_CopyRef },
-    { { (unichar_t *) N_("Copy _Width"), (GImage *) "editcopywidth.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'W' }, '\0', ksm_control, NULL, NULL, FVMenuCopyWidth, MID_CopyWidth },
-    { { (unichar_t *) N_("_Paste"), (GImage *) "editpaste.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'P' }, '\0', ksm_control, NULL, NULL, FVMenuPaste, MID_Paste },
-    { { (unichar_t *) N_("C_lear"), (GImage *) "editclear.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'l' }, 0, 0, NULL, NULL, FVMenuClear, MID_Clear },
-    { { (unichar_t *) N_("Copy _Fg To Bg"), (GImage *) "editcopyfg2bg.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'F' }, '\0', ksm_control|ksm_shift, NULL, NULL, FVMenuCopyFgBg, MID_CopyFgToBg },
-    { { (unichar_t *) N_("U_nlink Reference"), (GImage *) "editunlink.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'U' }, '\0', ksm_control, NULL, NULL, FVMenuUnlinkRef, MID_UnlinkRef },
-    { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, '\0', 0, NULL, NULL, NULL, 0 }, /* line */
-    { { (unichar_t *) N_("Glyph _Info..."), (GImage *) "elementglyphinfo.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, '\0', ksm_control, NULL, NULL, FVMenuCharInfo, MID_CharInfo },
-    { { (unichar_t *) N_("_Transform..."), (GImage *) "elementtransform.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'T' }, '\0', ksm_control, NULL, NULL, FVMenuTransform, MID_Transform },
-    { { (unichar_t *) N_("_Expand Stroke..."), (GImage *) "elementexpandstroke.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'E' }, '\0', ksm_control|ksm_shift, NULL, NULL, FVMenuStroke, MID_Stroke },
-    { { (unichar_t *) N_("To _Int"), (GImage *) "elementround.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, '\0', ksm_control|ksm_shift, NULL, NULL, FVMenuRound2Int, MID_Round },
-    { { (unichar_t *) N_("_Correct Direction"), (GImage *) "elementcorrectdir.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'D' }, '\0', ksm_control|ksm_shift, NULL, NULL, FVMenuCorrectDir, MID_Correct },
-    { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, '\0', 0, NULL, NULL, NULL, 0 }, /* line */
-    { { (unichar_t *) N_("Auto_Hint"), (GImage *) "hintsautohint.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'H' }, '\0', ksm_control|ksm_shift, NULL, NULL, FVMenuAutoHint, MID_AutoHint },
-    { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, '\0', 0, NULL, NULL, NULL, 0 }, /* line */
-    { { (unichar_t *) N_("_Center in Width"), (GImage *) "metricscenter.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, '\0', ksm_control, NULL, NULL, FVMenuCenter, MID_Center },
-    { { (unichar_t *) N_("Set _Width..."), (GImage *) "metricssetwidth.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'W' }, '\0', ksm_control|ksm_shift, NULL, NULL, FVMenuSetWidth, MID_SetWidth },
-    { { (unichar_t *) N_("Set _Vertical Advance..."), (GImage *) "metricssetvwidth.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, '\0', ksm_control|ksm_shift, NULL, NULL, FVMenuSetWidth, MID_SetVWidth },
-    GMENUITEM_EMPTY
-};
-
 MenuAction fvpopupactions[] = {
     { FVMenuOpenOutline, MID_OpenOutline },
     { FVMenuCut, MID_Cut },
+    { FVMenuCopy, MID_Copy },
+    { FVMenuCopyRef, MID_CopyRef },
+    { FVMenuCopyWidth, MID_CopyWidth },
+    { FVMenuPaste, MID_Paste },
+    { FVMenuClear, MID_Clear },
+    { FVMenuCopyFgBg, MID_CopyFgToBg },
+    { FVMenuUnlinkRef, MID_UnlinkRef },
+    { FVMenuCharInfo, MID_CharInfo },
+    { FVMenuTransform, MID_Transform },
+    { FVMenuStroke, MID_Stroke },
+    { FVMenuRound2Int, MID_Round },
+    { FVMenuCorrectDir, MID_Correct },
+    { FVMenuAutoHint, MID_AutoHint },
+    { FVMenuCenter, MID_Center },
+    { FVMenuSetWidth, MID_SetWidth },
+    { FVMenuSetWidth, MID_SetVWidth },
     MENUACTION_LAST
 };
 
@@ -6386,7 +6380,7 @@ void FVChar(FontView *fv, GEvent *event) {
     else if ( event->u.chr.keysym=='I' &&
 	    (event->u.chr.state&ksm_shift) &&
 	    (event->u.chr.state&ksm_meta) )
-	FVMenuCharInfo(fv->gw,NULL,NULL);
+	FVMenuCharInfo(fv,0);
     else if ( (event->u.chr.keysym=='[' || event->u.chr.keysym==']') &&
 	    (event->u.chr.state&ksm_control) ) {
 	_FVMenuChangeChar(fv,event->u.chr.keysym=='['?MID_Prev:MID_Next);
@@ -7186,7 +7180,6 @@ static int fontview_ready = false;
 static void FontViewFinish() {
     if (!fontview_ready) return;
     mb2FreeGetText(mblist);
-    mbFreeGetText(fvpopupmenu);
 }
 
 void FontViewFinishNonStatic() {
@@ -7223,7 +7216,6 @@ return;
 #ifndef _NO_PYTHON
     FVSetToolsSubmenu(t);
 #endif
-    mbDoGetText(fvpopupmenu);
     atexit(&FontViewFinishNonStatic);
 }
 

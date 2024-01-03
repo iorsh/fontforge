@@ -21,7 +21,7 @@ extern "C" {
 typedef struct fontview FontView;
 
 typedef struct menu_action {
-   void (*action)(FontView *fv);	/* called on mouse release */
+   void (*action)(FontView *fv, int mid);	/* called on mouse release */
    int mid;
 } MenuAction;
 

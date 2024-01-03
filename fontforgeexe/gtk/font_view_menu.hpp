@@ -38,12 +38,47 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace FontViewNS {
 
 static const int MID_Cut = 2101;
+static const int MID_Copy = 2102;
+static const int MID_Paste	= 2103;
+static const int MID_Clear	= 2104;
+static const int MID_CopyRef = 2107;
+static const int MID_UnlinkRef = 2108;
+static const int MID_CopyWidth = 2111;
+static const int MID_CopyFgToBg = 2115;
+static const int MID_CharInfo	= 2201;
+static const int MID_Transform = 2202;
+static const int MID_Stroke = 2203;
+static const int MID_Correct = 2206;
+static const int MID_Round = 2213;
+static const int MID_AutoHint = 2501;
+static const int MID_Center = 2600;
+static const int MID_SetWidth = 2602;
+static const int MID_SetVWidth = 2605;
 static const int MID_OpenOutline	= 2701;
 
 std::vector<FF::MenuInfo> popup_menu = {
     { { N_("New O_utline Window"), "", FF::Enabled, FF::NonCheckable, "<control>u" }, nullptr, FF::NoAction, MID_OpenOutline },
     FF::kMenuSeparator,
     { { N_("Cu_t"), "editcut", FF::Enabled, FF::NonCheckable, "<control>t" }, nullptr, FF::NoAction, MID_Cut },
+    { { N_("_Copy"), "editcopy", FF::Enabled, FF::NonCheckable, "<control>c" }, nullptr, FF::NoAction, MID_Copy },
+    { { N_("C_opy Reference"), "editcopyref", FF::Enabled, FF::NonCheckable, "<control>o" }, nullptr, FF::NoAction, MID_CopyRef },
+    { { N_("Copy _Width"), "editcopywidth", FF::Enabled, FF::NonCheckable, "<control>w" }, nullptr, FF::NoAction, MID_CopyWidth },
+    { { N_("_Paste"), "editpaste", FF::Enabled, FF::NonCheckable, "<control>p" }, nullptr, FF::NoAction, MID_Paste },
+    { { N_("C_lear"), "editclear", FF::Enabled, FF::NonCheckable, "" }, nullptr, FF::NoAction, MID_Clear },
+    { { N_("Copy _Fg To Bg"), "editcopyfg2bg", FF::Enabled, FF::NonCheckable, "<control><shift>F" }, nullptr, FF::NoAction, MID_CopyFgToBg },
+    { { N_("U_nlink Reference"), "editunlink", FF::Enabled, FF::NonCheckable, "<control>u" }, nullptr, FF::NoAction, MID_UnlinkRef },
+    FF::kMenuSeparator,
+    { { N_("Glyph _Info..."), "elementglyphinfo", FF::Enabled, FF::NonCheckable, "<control>i" }, nullptr, FF::NoAction, MID_CharInfo },
+    { { N_("_Transform..."), "elementtransform", FF::Enabled, FF::NonCheckable, "<control>t" }, nullptr, FF::NoAction, MID_Transform },
+    { { N_("_Expand Stroke..."), "elementexpandstroke", FF::Enabled, FF::NonCheckable, "<control><shift>E" }, nullptr, FF::NoAction, MID_Stroke },
+    { { N_("To _Int"), "elementround", FF::Enabled, FF::NonCheckable, "<control><shift>I" }, nullptr, FF::NoAction, MID_Round },
+    { { N_("_Correct Direction"), "elementcorrectdir", FF::Enabled, FF::NonCheckable, "<control><shift>D" }, nullptr, FF::NoAction, MID_Correct },
+    FF::kMenuSeparator,
+    { { N_("Auto_Hint"), "hintsautohint", FF::Enabled, FF::NonCheckable, "<control>h" }, nullptr, FF::NoAction, MID_AutoHint },
+    FF::kMenuSeparator,
+    { { N_("_Center in Width"), "metricscenter", FF::Enabled, FF::NonCheckable, "<control>c" }, nullptr, FF::NoAction, MID_Center },
+    { { N_("Set _Width..."), "metricssetwidth", FF::Enabled, FF::NonCheckable, "<control><shift>W" }, nullptr, FF::NoAction, MID_SetWidth },
+    { { N_("Set _Vertical Advance..."), "metricssetvwidth", FF::Enabled, FF::NonCheckable, "<control><shift>V" }, nullptr, FF::NoAction, MID_SetVWidth },
 };
 
 }
