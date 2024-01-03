@@ -38,7 +38,9 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info) {
 
    for (const auto& item : info) {
       Gtk::MenuItem* menu_item = nullptr;
-      if (item.label.image_file.empty()) {
+      if (item.is_separator()) {
+         menu_item = new Gtk::SeparatorMenuItem();
+      } else if (item.label.image_file.empty()) {
          menu_item = new Gtk::MenuItem(item.label.text, true);
       } else {
          Glib::RefPtr<Gdk::Pixbuf> pixbuf = theme->load_icon(item.label.image_file, 16);
