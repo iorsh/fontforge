@@ -41,9 +41,9 @@ static const int MID_Cut = 2101;
 static const int MID_OpenOutline	= 2701;
 
 std::vector<FF::MenuInfo> popup_menu = {
-    { { N_("New O_utline Window"), "", FF::Enabled, FF::NonCheckable, "<control>u" }, nullptr, [](){}, MID_OpenOutline },
+    { { N_("New O_utline Window"), "", FF::Enabled, FF::NonCheckable, "<control>u" }, nullptr, FF::NoAction, MID_OpenOutline },
     FF::kMenuSeparator,
-    { { N_("Cu_t"), "editcut", FF::Enabled, FF::NonCheckable, "<control>t" }, nullptr, [](){}, MID_Cut },
+    { { N_("Cu_t"), "editcut", FF::Enabled, FF::NonCheckable, "<control>t" }, nullptr, FF::NoAction, MID_Cut },
 };
 
 }

@@ -20,11 +20,20 @@ extern "C" {
 // C structures and callbacks for interacting with legacy code
 typedef struct fontview FontView;
 
+typedef struct menu_action {
+   void (*action)(FontView *fv);	/* called on mouse release */
+   int mid;
+} MenuAction;
+
+#define MENUACTION_LAST { NULL, 0 }
 typedef struct fontview_context {
    FontView* fv;
 
    // Set character grid to the desired position according to the scrollbar
    void (*scroll_fontview_to_position_cb)(FontView* fv, int32_t position);
+
+   // Menu actions per menu ID
+   MenuAction* actions;
 } FVContext;
 
 #ifdef __cplusplus

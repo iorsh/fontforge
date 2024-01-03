@@ -98,7 +98,7 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
 
    font_view_window->show_all();
 
-   Gtk::Menu* pop_up = FF::build_menu(popup_menu);
+   Gtk::Menu* pop_up = FF::build_menu(popup_menu, fv_context);
 
    auto on_my_button_press_event = [pop_up](GdkEventButton* event) {
       if (event->button == GDK_BUTTON_SECONDARY) {

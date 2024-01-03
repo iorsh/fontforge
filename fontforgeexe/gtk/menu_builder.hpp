@@ -32,6 +32,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtkmm-3.0/gtkmm.h>
 
+#include "c_context.h"
 #include "utils.hpp"
 
 namespace FF {
@@ -65,8 +66,9 @@ struct MenuInfo {
     bool is_separator() const { return label.text == Glib::ustring(); }
 };
 
+static const ActivateCB NoAction;
 static const MenuInfo kMenuSeparator = {{""}};
 
-Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info);
+Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_context);
 
 }

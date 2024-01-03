@@ -32,7 +32,29 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace FF{
 
-Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info) {
+ActivateCB build_handler(int mid, FVContext* fv_context) {
+   MenuAction* actions = fv_context->actions;
+   FontView* fv = fv_context->fv;
+   void (*action)(FontView *fv) = NULL;
+
+   // Find the C handler
+   int i = 0;
+   while (actions[i].action != NULL) {
+      if (actions[i].mid == mid) {
+         action = actions[i].action;
+         break;
+      }
+      i++;
+   }
+
+   if (action != NULL) {
+      return [fv, action](){ action(fv); };
+   } else {
+      return [](){}; // NOOP callable action
+   }
+}
+
+Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_context) {
    Gtk::Menu* menu = new Gtk::Menu();
    Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
 
@@ -47,6 +69,10 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info) {
          Gtk::Image* img = new Gtk::Image(pixbuf);
          menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
       }
+
+      ActivateCB action = item.handler ? item.handler : build_handler(item.mid, fv_context);
+      menu_item->signal_activate().connect(action);
+
       menu->append(*menu_item);
    }
 
