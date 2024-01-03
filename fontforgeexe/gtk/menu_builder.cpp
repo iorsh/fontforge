@@ -34,9 +34,17 @@ namespace FF{
 
 Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info) {
    Gtk::Menu* menu = new Gtk::Menu();
+   Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
 
    for (const auto& item : info) {
-      Gtk::MenuItem* menu_item = new Gtk::MenuItem(item.label.text);
+      Gtk::MenuItem* menu_item = nullptr;
+      if (item.label.image_file.empty()) {
+         menu_item = new Gtk::MenuItem(item.label.text, true);
+      } else {
+         Glib::RefPtr<Gdk::Pixbuf> pixbuf = theme->load_icon(item.label.image_file, 16);
+         Gtk::Image* img = new Gtk::Image(pixbuf);
+         menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
+      }
       menu->append(*menu_item);
    }
 

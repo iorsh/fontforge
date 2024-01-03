@@ -103,6 +103,10 @@ namespace FontDialog {
    RefPtr<File> open_dialog(RefPtr<File> path, ustring title) {
       static auto app = Gtk::Application::create("org.fontforge");
 
+      // TODO: properly retrieve resource path
+      auto theme = Gtk::IconTheme::get_default();
+      theme->prepend_search_path("/home/iorsh/devel/fontforge/build/appdir/usr/share/fontforge/pixmaps");
+
       auto t = title != ustring{} ? title : "Open Font";
 
       auto d = Gtk::FileChooserDialog(t, Gtk::FILE_CHOOSER_ACTION_OPEN);
