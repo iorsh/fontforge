@@ -63,7 +63,7 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
    Gtk::Window* font_view_window = new Gtk::Window();
    font_view_window->set_default_size(width, height);
 
-   Gtk::Grid* main_grid = new Gtk::Grid();
+   Gtk::Grid* char_grid_box = new Gtk::Grid();
 
    Gtk::ScrolledWindow* scroller = new Gtk::ScrolledWindow();
    scroller->set_name("Scroller");
@@ -92,9 +92,9 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
 
    scroller->add(*drawing_area);
 
-   main_grid->attach(*character_info, 0, 0);
-   main_grid->attach(*scroller, 0, 1);
-   font_view_window->add(*main_grid);
+   char_grid_box->attach(*character_info, 0, 0);
+   char_grid_box->attach(*scroller, 0, 1);
+   font_view_window->add(*char_grid_box);
 
    font_view_window->show_all();
 
