@@ -69,6 +69,14 @@ struct MenuInfo {
 static const ActivateCB NoAction;
 static const MenuInfo kMenuSeparator = {{""}};
 
+struct MenuBarInfo {
+    LabelInfo label;
+    std::vector<FF::MenuInfo> *sub_menu;
+    int mid;
+};
+
 Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_context);
+
+Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, FVContext* fv_context);
 
 }

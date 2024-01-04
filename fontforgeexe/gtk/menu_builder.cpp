@@ -79,4 +79,20 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_conte
    return menu;
 }
 
+Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, FVContext* fv_context) {
+   Gtk::MenuBar* menu_bar = new Gtk::MenuBar();
+
+   for (const auto& item : info) {
+      Gtk::MenuItem* menu_item = new Gtk::MenuItem(item.label.text, true);
+      menu_bar->append(*menu_item);
+
+      if (item.sub_menu) {
+         Gtk::Menu* sub_menu = build_menu(*item.sub_menu, fv_context);
+         menu_item->set_submenu(*sub_menu);
+      }
+   }
+
+   return menu_bar;
+}
+
 }

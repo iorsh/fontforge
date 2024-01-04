@@ -56,6 +56,15 @@ static const int MID_SetWidth = 2602;
 static const int MID_SetVWidth = 2605;
 static const int MID_OpenOutline	= 2701;
 
+std::vector<FF::MenuInfo> file_menu = {
+    { { N_("_New"), "", FF::Enabled, FF::NonCheckable, "<control>u" }, nullptr, FF::NoAction, MID_OpenOutline },
+};
+
+std::vector<FF::MenuBarInfo> top_menu = {
+    { { N_("_File"), "", FF::Enabled, FF::NonCheckable, "<control>u" }, &file_menu, MID_OpenOutline },
+    { { N_("_Edit"), "", FF::Enabled, FF::NonCheckable, "<control>u" }, nullptr, MID_OpenOutline },
+};
+
 std::vector<FF::MenuInfo> popup_menu = {
     { { N_("New O_utline Window"), "", FF::Enabled, FF::NonCheckable, "<control>u" }, nullptr, FF::NoAction, MID_OpenOutline },
     FF::kMenuSeparator,

@@ -65,15 +65,7 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
 
    Gtk::Grid* char_grid_box = new Gtk::Grid();
 
-   Gtk::MenuBar* top_bar = new Gtk::MenuBar();
-   Gtk::MenuItem* item_file = new Gtk::MenuItem("_File", true);
-   top_bar->append(*item_file);
-
-   Gtk::Menu* file_sub_menu = new Gtk::Menu();
-   item_file->set_submenu(*file_sub_menu);
-
-   Gtk::MenuItem* item_new = new Gtk::MenuItem("_New", true);
-   file_sub_menu->append(*item_new);
+   Gtk::MenuBar* top_bar = build_menu_bar(top_menu, fv_context);
 
    Gtk::Grid* font_view_grid = new Gtk::Grid();
 
