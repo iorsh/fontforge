@@ -61,8 +61,21 @@ std::vector<FF::MenuInfo> file_menu = {
 };
 
 std::vector<FF::MenuBarInfo> top_menu = {
-    { { N_("_File"), "", FF::Enabled, FF::NonCheckable, "<control>u" }, &file_menu, MID_OpenOutline },
-    { { N_("_Edit"), "", FF::Enabled, FF::NonCheckable, "<control>u" }, nullptr, MID_OpenOutline },
+    { { N_("_File") }, &file_menu, -1 },
+    { { N_("_Edit") }, nullptr, -1 },
+    { { N_("E_lement") }, nullptr, -1 },
+#ifndef _NO_PYTHON
+    { { N_("_Tools") }, nullptr, -1 },
+#endif
+    { { N_("H_ints") }, nullptr, -1 },
+    { { N_("E_ncoding") }, nullptr, -1 },
+    { { N_("_View") }, nullptr, -1 },
+    { { N_("_Metrics") }, nullptr, -1 },
+    { { N_("_CID") }, nullptr, -1 },
+/* GT: Here (and following) MM means "MultiMaster" */
+    { { N_("MM") }, nullptr, -1 },
+    { { N_("_Window") }, nullptr, -1 },
+    { { N_("_Help") }, nullptr, -1 },
 };
 
 std::vector<FF::MenuInfo> popup_menu = {

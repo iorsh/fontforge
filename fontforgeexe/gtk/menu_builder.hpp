@@ -50,8 +50,8 @@ enum CheckableState : bool {
 struct LabelInfo {
     L10nText text;
     std::string image_file;
-    EnabledState enabled;
-    CheckableState checkable;
+    EnabledState enabled = Enabled;
+    CheckableState checkable = NonCheckable;
     Glib::ustring accelerator; // See the Gtk::AccelKey constructor for the format
 };
 
