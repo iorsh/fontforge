@@ -105,7 +105,7 @@ namespace FontDialog {
 
       // TODO: properly retrieve resource path
       auto theme = Gtk::IconTheme::get_default();
-      theme->prepend_search_path("/home/iorsh/devel/fontforge/build/appdir/usr/share/fontforge/pixmaps");
+      theme->prepend_search_path("/home/iorsh/devel/fontforge/fontforgeexe/pixmaps/tango");
 
       auto t = title != ustring{} ? title : "Open Font";
 
