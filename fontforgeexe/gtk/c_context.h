@@ -21,11 +21,12 @@ extern "C" {
 typedef struct fontview FontView;
 
 typedef struct menu_action {
-   void (*action)(FontView *fv, int mid);	/* called on mouse release */
    int mid;
+   bool (*is_disabled)(FontView *fv, int mid);	/* called before showing */
+   void (*action)(FontView *fv, int mid);	/* called on mouse release */
 } MenuAction;
 
-#define MENUACTION_LAST { NULL, 0 }
+#define MENUACTION_LAST { 0, NULL, NULL }
 typedef struct fontview_context {
    FontView* fv;
 

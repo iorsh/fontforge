@@ -4192,38 +4192,36 @@ static void sllistcheck(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED
     fv = fv;
 }
 
-static void htlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static bool htlistcheck(FontView *fv, int mid) {
     int anychars = FVAnyCharSelected(fv);
     int multilayer = fv->b.sf->multilayer;
 
-    for ( mi = mi->sub; mi->ti.text!=NULL || mi->ti.line ; ++mi ) {
-	switch ( mi->mid ) {
+	switch ( mid ) {
 	  case MID_AutoHint:
-	    mi->ti.disabled = anychars==-1 || multilayer;
+	    return anychars==-1 || multilayer;
 	  break;
 	  case MID_HintSubsPt:
-	    mi->ti.disabled = fv->b.sf->layers[fv->b.active_layer].order2 || anychars==-1 || multilayer;
-	    if ( fv->b.sf->mm!=NULL && fv->b.sf->mm->apple )
-		mi->ti.disabled = true;
+     {
+	    bool disabled = fv->b.sf->layers[fv->b.active_layer].order2 || anychars==-1 || multilayer;
+       return disabled || ( fv->b.sf->mm!=NULL && fv->b.sf->mm->apple );
+     }
 	  break;
 	  case MID_AutoCounter: case MID_DontAutoHint:
-	    mi->ti.disabled = fv->b.sf->layers[fv->b.active_layer].order2 || anychars==-1 || multilayer;
+	    return fv->b.sf->layers[fv->b.active_layer].order2 || anychars==-1 || multilayer;
 	  break;
 	  case MID_AutoInstr: case MID_EditInstructions: case MID_Deltas:
-	    mi->ti.disabled = !fv->b.sf->layers[fv->b.active_layer].order2 || anychars==-1 || multilayer;
+	    return !fv->b.sf->layers[fv->b.active_layer].order2 || anychars==-1 || multilayer;
 	  break;
 	  case MID_RmInstrTables:
-	    mi->ti.disabled = fv->b.sf->ttf_tables==NULL;
+	    return fv->b.sf->ttf_tables==NULL;
 	  break;
 	  case MID_Editfpgm: case MID_Editprep: case MID_Editcvt: case MID_Editmaxp:
-	    mi->ti.disabled = !fv->b.sf->layers[fv->b.active_layer].order2 || multilayer;
+	    return !fv->b.sf->layers[fv->b.active_layer].order2 || multilayer;
 	  break;
 	  case MID_ClearHints: case MID_ClearWidthMD: case MID_ClearInstrs:
-	    mi->ti.disabled = anychars==-1;
+	    return anychars==-1;
 	  break;
 	}
-    }
 }
 
 static void fllistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
@@ -5766,24 +5764,24 @@ GMenuItem2 helplist[] = {
 };
 
 MenuAction fvpopupactions[] = {
-    { FVMenuOpenOutline, MID_OpenOutline },
-    { FVMenuCut, MID_Cut },
-    { FVMenuCopy, MID_Copy },
-    { FVMenuCopyRef, MID_CopyRef },
-    { FVMenuCopyWidth, MID_CopyWidth },
-    { FVMenuPaste, MID_Paste },
-    { FVMenuClear, MID_Clear },
-    { FVMenuCopyFgBg, MID_CopyFgToBg },
-    { FVMenuUnlinkRef, MID_UnlinkRef },
-    { FVMenuCharInfo, MID_CharInfo },
-    { FVMenuTransform, MID_Transform },
-    { FVMenuStroke, MID_Stroke },
-    { FVMenuRound2Int, MID_Round },
-    { FVMenuCorrectDir, MID_Correct },
-    { FVMenuAutoHint, MID_AutoHint },
-    { FVMenuCenter, MID_Center },
-    { FVMenuSetWidth, MID_SetWidth },
-    { FVMenuSetWidth, MID_SetVWidth },
+    { MID_OpenOutline, NULL, FVMenuOpenOutline },
+    { MID_Cut, NULL, FVMenuCut },
+    { MID_Copy, NULL, FVMenuCopy },
+    { MID_CopyRef, NULL, FVMenuCopyRef },
+    { MID_CopyWidth, NULL, FVMenuCopyWidth },
+    { MID_Paste, NULL, FVMenuPaste },
+    { MID_Clear, NULL, FVMenuClear },
+    { MID_CopyFgToBg, NULL, FVMenuCopyFgBg },
+    { MID_UnlinkRef, NULL, FVMenuUnlinkRef },
+    { MID_CharInfo, NULL, FVMenuCharInfo },
+    { MID_Transform, NULL, FVMenuTransform },
+    { MID_Stroke, NULL, FVMenuStroke },
+    { MID_Round, NULL, FVMenuRound2Int },
+    { MID_Correct, NULL, FVMenuCorrectDir },
+    { MID_AutoHint, htlistcheck, FVMenuAutoHint },
+    { MID_Center, NULL, FVMenuCenter },
+    { MID_SetWidth, NULL, FVMenuSetWidth },
+    { MID_SetVWidth, NULL, FVMenuSetWidth },
     MENUACTION_LAST
 };
 
@@ -5794,7 +5792,7 @@ static GMenuItem2 mblist[] = {
 #ifndef _NO_PYTHON
     { { (unichar_t *) N_("_Tools"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 1, 1, 0, 0, 0, 0, 1, 1, 0, 'l' }, H_("Tools|No Shortcut"), NULL, fvpy_tllistcheck, NULL, 0 },
 #endif
-    { { (unichar_t *) N_("H_ints"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'i' }, H_("Hints|No Shortcut"), htlist, htlistcheck, NULL, 0 },
+    { { (unichar_t *) N_("H_ints"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'i' }, H_("Hints|No Shortcut"), htlist, NULL, NULL, 0 },
     { { (unichar_t *) N_("E_ncoding"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("Encoding|No Shortcut"), enlist, enlistcheck, NULL, 0 },
     { { (unichar_t *) N_("_View"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("View|No Shortcut"), vwlist, vwlistcheck, NULL, 0 },
     { { (unichar_t *) N_("_Metrics"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'M' }, H_("Metrics|No Shortcut"), mtlist, mtlistcheck, NULL, 0 },

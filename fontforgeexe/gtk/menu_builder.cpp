@@ -30,33 +30,62 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "menu_builder.hpp"
 
+#include <iostream>
+
 namespace FF{
 
-ActivateCB build_handler(int mid, FVContext* fv_context) {
+MenuAction* find_callback_set(int mid, FVContext* fv_context) {
    MenuAction* actions = fv_context->actions;
-   FontView* fv = fv_context->fv;
-   void (*action)(FontView*, int) = NULL;
+   MenuAction* cb_set = NULL;
 
-   // Find the C handler
+   // Find the C callback set
    int i = 0;
-   while (actions[i].action != NULL) {
+   while (actions[i].mid != 0) {
       if (actions[i].mid == mid) {
-         action = actions[i].action;
-         break;
+         return actions + i;
       }
       i++;
    }
 
-   if (action != NULL) {
+   return NULL;
+}
+
+ActivateCB build_handler(int mid, FVContext* fv_context) {
+   MenuAction* callback_set = find_callback_set(mid, fv_context);
+
+   if (callback_set != NULL) {
+      void (*action)(FontView*, int) = callback_set->action;
+      FontView* fv = fv_context->fv;
       return [action, fv, mid](){ action(fv, mid); };
    } else {
       return [](){}; // NOOP callable action
    }
 }
 
+EnabledCB build_enabler(EnabledCB enabled, int mid, FVContext* fv_context) {
+   if (enabled) {
+      return enabled;
+   }
+   
+   // No enabled callback provided, check available legacy C code callback
+   MenuAction* callback_set = find_callback_set(mid, fv_context);
+   if (callback_set != NULL && callback_set->is_disabled != NULL) {
+      bool (*disabled_cb)(FontView*, int) = callback_set->is_disabled;
+      FontView* fv = fv_context->fv;
+      return [disabled_cb, fv, mid](){ return !disabled_cb(fv, mid); };
+   } else {
+      return AlwaysEnabled;
+   }
+}
+
 Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_context) {
    Gtk::Menu* menu = new Gtk::Menu();
    Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
+
+   // GTK doesn't have any signal that would be fired before the specific
+   // subitem is shown. We collect enabled state checks for all subitems and
+   // call them one by one from menu's show event.
+   std::vector<std::function<void(void)>> enablers;
 
    for (const auto& item : info) {
       Gtk::MenuItem* menu_item = nullptr;
@@ -73,8 +102,19 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_conte
       ActivateCB action = item.handler ? item.handler : build_handler(item.mid, fv_context);
       menu_item->signal_activate().connect(action);
 
+      EnabledCB enabled_check = build_enabler(item.enabled, item.mid, fv_context);
+
+      // Wrap the check into an action which will be called when menuitem becomes visible
+      // as a part of its containing menu.
+      auto enabler = [menu_item, enabled_check](){ menu_item->set_sensitive(enabled_check()); };
+      enablers.push_back(enabler);
+
       menu->append(*menu_item);
    }
+
+   // Just call all the collected menuitem enablers
+   auto on_menu_show = [enablers](){ for (auto e : enablers) { e(); } };
+   menu->signal_show().connect(on_menu_show);
 
    return menu;
 }

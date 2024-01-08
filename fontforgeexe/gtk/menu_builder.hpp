@@ -50,23 +50,32 @@ enum CheckableState : bool {
 struct LabelInfo {
     L10nText text;
     std::string image_file;
-    EnabledState enabled = Enabled;
     CheckableState checkable = NonCheckable;
     Glib::ustring accelerator; // See the Gtk::AccelKey constructor for the format
 };
 
 using ActivateCB = std::function<void(void)>;
+using EnabledCB = std::function<bool(void)>;
 
 struct MenuInfo {
     LabelInfo label;
     MenuInfo *sub_menu;
+
+    // By design menu callbacks don't have any arguments, since it's impossible
+    // to know in advance what input they might need. All input should be passed
+    // by lambda capture.
+    EnabledCB enabled;
     ActivateCB handler;	/* called on mouse release */
+
     int mid;
 
     bool is_separator() const { return label.text == Glib::ustring(); }
 };
 
-static const ActivateCB NoAction;
+static const ActivateCB LegacyAction;
+static const EnabledCB LegacyCheck;
+static const EnabledCB AlwaysEnabled = [](){ return true; };
+
 static const MenuInfo kMenuSeparator = {{""}};
 
 struct MenuBarInfo {
