@@ -3695,36 +3695,29 @@ static void FVMenuAutoHint(FontView *fv, int UNUSED(mid)) {
     FVAutoHint( &fv->b );
 }
 
-static void FVMenuAutoHintSubs(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuAutoHintSubs(FontView *fv, int UNUSED(mid)) {
     FVAutoHintSubs( &fv->b );
 }
 
-static void FVMenuAutoCounter(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuAutoCounter(FontView *fv, int UNUSED(mid)) {
     FVAutoCounter( &fv->b );
 }
 
-static void FVMenuDontAutoHint(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuDontAutoHint(FontView *fv, int UNUSED(mid)) {
     FVDontAutoHint( &fv->b );
 }
 
-static void FVMenuDeltas(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuDeltas(FontView *fv, int UNUSED(mid)) {
     if ( !hasFreeTypeDebugger())
 return;
     DeltaSuggestionDlg(fv,NULL);
 }
 
-static void FVMenuAutoInstr(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuAutoInstr(FontView *fv, int UNUSED(mid)) {
     FVAutoInstr( &fv->b );
 }
 
-static void FVMenuEditInstrs(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuEditInstrs(FontView *fv, int UNUSED(mid)) {
     int index = FVAnyCharSelected(fv);
     SplineChar *sc;
     if ( index<0 )
@@ -3733,17 +3726,15 @@ return;
     SCEditInstructions(sc);
 }
 
-static void FVMenuEditTable(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuEditTable(FontView *fv, int mid) {
     SFEditTable(fv->b.sf,
-	    mi->mid==MID_Editprep?CHR('p','r','e','p'):
-	    mi->mid==MID_Editfpgm?CHR('f','p','g','m'):
-	    mi->mid==MID_Editmaxp?CHR('m','a','x','p'):
+	    mid==MID_Editprep?CHR('p','r','e','p'):
+	    mid==MID_Editfpgm?CHR('f','p','g','m'):
+	    mid==MID_Editmaxp?CHR('m','a','x','p'):
 				  CHR('c','v','t',' '));
 }
 
-static void FVMenuRmInstrTables(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuRmInstrTables(FontView *fv, int UNUSED(mid)) {
     TtfTablesFree(fv->b.sf->ttf_tables);
     fv->b.sf->ttf_tables = NULL;
     if ( !fv->b.sf->changed ) {
@@ -3752,23 +3743,20 @@ static void FVMenuRmInstrTables(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent
     }
 }
 
-static void FVMenuClearInstrs(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuClearInstrs(FontView *fv, int UNUSED(mid)) {
     FVClearInstrs(&fv->b);
 }
 
-static void FVMenuClearHints(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuClearHints(FontView *fv, int UNUSED(mid)) {
     FVClearHints(&fv->b);
 }
 
-static void FVMenuHistograms(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuHistograms(FontView *fv, int mid) {
     SFHistogram(fv->b.sf, fv->b.active_layer, NULL,
 			FVAnyCharSelected(fv)!=-1?fv->b.selected:NULL,
 			fv->b.map,
-			mi->mid==MID_HStemHist ? hist_hstem :
-			mi->mid==MID_VStemHist ? hist_vstem :
+			mid==MID_HStemHist ? hist_hstem :
+			mid==MID_VStemHist ? hist_vstem :
 				hist_blues);
 }
 
@@ -4222,6 +4210,7 @@ static bool htlistcheck(FontView *fv, int mid) {
 	    return anychars==-1;
 	  break;
 	}
+   return false;
 }
 
 static void fllistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
@@ -5498,37 +5487,6 @@ static void vwlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     }
 }
 
-static GMenuItem2 histlist[] = {
-    { { (unichar_t *) N_("_HStem"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'H' }, H_("HStem|No Shortcut"), NULL, NULL, FVMenuHistograms, MID_HStemHist },
-    { { (unichar_t *) N_("_VStem"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("VStem|No Shortcut"), NULL, NULL, FVMenuHistograms, MID_VStemHist },
-    { { (unichar_t *) N_("BlueValues"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'B' }, H_("BlueValues|No Shortcut"), NULL, NULL, FVMenuHistograms, MID_BlueValuesHist },
-    GMENUITEM2_EMPTY
-};
-
-static GMenuItem2 htlist[] = {
-/*
-    { { (unichar_t *) N_("Auto_Hint"), (GImage *) "hintsautohint.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'H' }, H_("AutoHint|No Shortcut"), NULL, NULL, FVMenuAutoHint, MID_AutoHint },
-*/
-    { { (unichar_t *) N_("Hint _Substitution Pts"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'H' }, H_("Hint Substitution Pts|No Shortcut"), NULL, NULL, FVMenuAutoHintSubs, MID_HintSubsPt },
-    { { (unichar_t *) N_("Auto _Counter Hint"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'H' }, H_("Auto Counter Hint|No Shortcut"), NULL, NULL, FVMenuAutoCounter, MID_AutoCounter },
-    { { (unichar_t *) N_("_Don't AutoHint"), (GImage *) "hintsdontautohint.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'H' }, H_("Don't AutoHint|No Shortcut"), NULL, NULL, FVMenuDontAutoHint, MID_DontAutoHint },
-    { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
-    { { (unichar_t *) N_("Auto_Instr"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'T' }, H_("AutoInstr|No Shortcut"), NULL, NULL, FVMenuAutoInstr, MID_AutoInstr },
-    { { (unichar_t *) N_("_Edit Instructions..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'l' }, H_("Edit Instructions...|No Shortcut"), NULL, NULL, FVMenuEditInstrs, MID_EditInstructions },
-    { { (unichar_t *) N_("Edit 'fpgm'..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Edit 'fpgm'...|No Shortcut"), NULL, NULL, FVMenuEditTable, MID_Editfpgm },
-    { { (unichar_t *) N_("Edit 'prep'..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Edit 'prep'...|No Shortcut"), NULL, NULL, FVMenuEditTable, MID_Editprep },
-    { { (unichar_t *) N_("Edit 'maxp'..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Edit 'maxp'...|No Shortcut"), NULL, NULL, FVMenuEditTable, MID_Editmaxp },
-    { { (unichar_t *) N_("Edit 'cvt '..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Edit 'cvt '...|No Shortcut"), NULL, NULL, FVMenuEditTable, MID_Editcvt },
-    { { (unichar_t *) N_("Remove Instr Tables"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Remove Instr Tables|No Shortcut"), NULL, NULL, FVMenuRmInstrTables, MID_RmInstrTables },
-    { { (unichar_t *) N_("S_uggest Deltas..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'l' }, H_("Suggest Deltas...|No Shortcut"), NULL, NULL, FVMenuDeltas, MID_Deltas },
-    { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
-    { { (unichar_t *) N_("_Clear Hints"), (GImage *) "hintsclearvstems.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, H_("Clear Hints|No Shortcut"), NULL, NULL, FVMenuClearHints, MID_ClearHints },
-    { { (unichar_t *) N_("Clear Instructions"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, H_("Clear Instructions|No Shortcut"), NULL, NULL, FVMenuClearInstrs, MID_ClearInstrs },
-    { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
-    { { (unichar_t *) N_("Histograms"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Histograms|No Shortcut"), histlist, NULL, NULL, 0 },
-    GMENUITEM2_EMPTY
-};
-
 static GMenuItem2 mtlist[] = {
     { { (unichar_t *) N_("New _Metrics Window"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'M' }, H_("New Metrics Window|No Shortcut"), NULL, NULL, FVMenuOpenMetrics, MID_OpenMetrics },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
@@ -5778,10 +5736,28 @@ MenuAction fvpopupactions[] = {
     { MID_Stroke, NULL, FVMenuStroke },
     { MID_Round, NULL, FVMenuRound2Int },
     { MID_Correct, NULL, FVMenuCorrectDir },
-    { MID_AutoHint, htlistcheck, FVMenuAutoHint },
     { MID_Center, NULL, FVMenuCenter },
     { MID_SetWidth, NULL, FVMenuSetWidth },
     { MID_SetVWidth, NULL, FVMenuSetWidth },
+
+    /* Hints menu */
+    { MID_AutoHint, htlistcheck, FVMenuAutoHint },
+    { MID_HintSubsPt, htlistcheck, FVMenuAutoHintSubs },
+    { MID_AutoCounter, htlistcheck, FVMenuAutoCounter },
+    { MID_DontAutoHint, htlistcheck, FVMenuDontAutoHint },
+    { MID_AutoInstr, htlistcheck, FVMenuAutoInstr },
+    { MID_EditInstructions, htlistcheck, FVMenuEditInstrs },
+    { MID_Editfpgm, htlistcheck, FVMenuEditTable },
+    { MID_Editprep, htlistcheck, FVMenuEditTable },
+    { MID_Editmaxp, htlistcheck, FVMenuEditTable },
+    { MID_Editcvt, htlistcheck, FVMenuEditTable },
+    { MID_RmInstrTables, htlistcheck, FVMenuRmInstrTables },
+    { MID_Deltas, htlistcheck, FVMenuDeltas },
+    { MID_ClearHints, htlistcheck, FVMenuClearHints },
+    { MID_ClearInstrs, htlistcheck, FVMenuClearInstrs },
+    { MID_HStemHist, htlistcheck, FVMenuHistograms },
+    { MID_VStemHist, htlistcheck, FVMenuHistograms },
+    { MID_BlueValuesHist, htlistcheck, FVMenuHistograms },
     MENUACTION_LAST
 };
 
@@ -5792,7 +5768,9 @@ static GMenuItem2 mblist[] = {
 #ifndef _NO_PYTHON
     { { (unichar_t *) N_("_Tools"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 1, 1, 0, 0, 0, 0, 1, 1, 0, 'l' }, H_("Tools|No Shortcut"), NULL, fvpy_tllistcheck, NULL, 0 },
 #endif
+/*
     { { (unichar_t *) N_("H_ints"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'i' }, H_("Hints|No Shortcut"), htlist, NULL, NULL, 0 },
+*/
     { { (unichar_t *) N_("E_ncoding"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("Encoding|No Shortcut"), enlist, enlistcheck, NULL, 0 },
     { { (unichar_t *) N_("_View"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("View|No Shortcut"), vwlist, vwlistcheck, NULL, 0 },
     { { (unichar_t *) N_("_Metrics"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'M' }, H_("Metrics|No Shortcut"), mtlist, mtlistcheck, NULL, 0 },

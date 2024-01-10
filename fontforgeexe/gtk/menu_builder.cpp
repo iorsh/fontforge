@@ -32,7 +32,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
 
-namespace FF{
+namespace FF {
 
 MenuAction* find_callback_set(int mid, FVContext* fv_context) {
    MenuAction* actions = fv_context->actions;
@@ -58,7 +58,7 @@ ActivateCB build_handler(int mid, FVContext* fv_context) {
       FontView* fv = fv_context->fv;
       return [action, fv, mid](){ action(fv, mid); };
    } else {
-      return [](){}; // NOOP callable action
+      return NoAction;
    }
 }
 
@@ -97,6 +97,11 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_conte
          Glib::RefPtr<Gdk::Pixbuf> pixbuf = theme->load_icon(item.label.image_file, 16);
          Gtk::Image* img = new Gtk::Image(pixbuf);
          menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
+      }
+
+      if (item.sub_menu) {
+         Gtk::Menu* submenu = build_menu(*item.sub_menu, fv_context);
+         menu_item->set_submenu(*submenu);
       }
 
       ActivateCB action = item.handler ? item.handler : build_handler(item.mid, fv_context);

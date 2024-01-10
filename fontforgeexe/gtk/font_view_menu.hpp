@@ -50,7 +50,25 @@ static const int MID_Transform = 2202;
 static const int MID_Stroke = 2203;
 static const int MID_Correct = 2206;
 static const int MID_Round = 2213;
+
 static const int MID_AutoHint = 2501;
+static const int MID_ClearHints = 2502;
+static const int MID_AutoInstr = 2504;
+static const int MID_EditInstructions = 2505;
+static const int MID_Editfpgm = 2506;
+static const int MID_Editprep = 2507;
+static const int MID_ClearInstrs = 2508;
+static const int MID_HStemHist = 2509;
+static const int MID_VStemHist = 2510;
+static const int MID_BlueValuesHist = 2511;
+static const int MID_Editcvt = 2512;
+static const int MID_HintSubsPt = 2513;
+static const int MID_AutoCounter = 2514;
+static const int MID_DontAutoHint = 2515;
+static const int MID_RmInstrTables = 2516;
+static const int MID_Editmaxp = 2517;
+static const int MID_Deltas = 2518;
+
 static const int MID_Center = 2600;
 static const int MID_SetWidth = 2602;
 static const int MID_SetVWidth = 2605;
@@ -60,8 +78,31 @@ std::vector<FF::MenuInfo> file_menu = {
     { { N_("_New"), "", FF::NonCheckable, "<control>u" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_OpenOutline },
 };
 
-std::vector<FF::MenuInfo> hint_menu = {
+std::vector<FF::MenuInfo> histograms_menu = {
+    { { N_("_HStem"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_HStemHist },
+    { { N_("_VStem"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_VStemHist },
+    { { N_("BlueValues"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_BlueValuesHist },
+};
+
+std::vector<FF::MenuInfo> hints_menu = {
     { { N_("Auto_Hint"), "hintsautohint", FF::NonCheckable, "<control><shift>H" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_AutoHint },
+    { { N_("Hint _Substitution Pts"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_HintSubsPt },
+    { { N_("Auto _Counter Hint"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_AutoCounter },
+    { { N_("_Don't AutoHint"), "hintsdontautohint", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_DontAutoHint },
+    FF::kMenuSeparator,
+    { { N_("Auto_Instr"), "", FF::NonCheckable, "<control>T" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_AutoInstr },
+    { { N_("_Edit Instructions..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_EditInstructions },
+    { { N_("Edit 'fpgm'..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editfpgm },
+    { { N_("Edit 'prep'..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editprep },
+    { { N_("Edit 'maxp'..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editmaxp },
+    { { N_("Edit 'cvt '..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editcvt },
+    { { N_("Remove Instr Tables"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_RmInstrTables },
+    { { N_("S_uggest Deltas..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Deltas },
+    FF::kMenuSeparator,
+    { { N_("_Clear Hints"), "hintsclearvstems", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_ClearHints },
+    { { N_("Clear Instructions"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_ClearInstrs },
+    FF::kMenuSeparator,
+    { { N_("Histograms"), "", FF::NonCheckable, "" }, &histograms_menu, FF::AlwaysEnabled, FF::NoAction, 0 },
 };
 
 std::vector<FF::MenuBarInfo> top_menu = {
@@ -71,7 +112,7 @@ std::vector<FF::MenuBarInfo> top_menu = {
 #ifndef _NO_PYTHON
     { { N_("_Tools") }, nullptr, -1 },
 #endif
-    { { N_("H_ints") }, &hint_menu, -1 },
+    { { N_("H_ints") }, &hints_menu, -1 },
     { { N_("E_ncoding") }, nullptr, -1 },
     { { N_("_View") }, nullptr, -1 },
     { { N_("_Metrics") }, nullptr, -1 },

@@ -59,7 +59,7 @@ using EnabledCB = std::function<bool(void)>;
 
 struct MenuInfo {
     LabelInfo label;
-    MenuInfo *sub_menu;
+    std::vector<MenuInfo> *sub_menu;
 
     // By design menu callbacks don't have any arguments, since it's impossible
     // to know in advance what input they might need. All input should be passed
@@ -73,6 +73,7 @@ struct MenuInfo {
 };
 
 static const ActivateCB LegacyAction;
+static const ActivateCB NoAction = [](){}; // NOOP callable action
 static const EnabledCB LegacyCheck;
 static const EnabledCB AlwaysEnabled = [](){ return true; };
 
