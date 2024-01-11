@@ -13,6 +13,8 @@
  */
 
 #include "font_view.hpp"
+
+#include "application.hpp"
 #include "font_view_menu.hpp"
 #include "menu_builder.hpp"
 #include "utils.hpp"
@@ -61,7 +63,14 @@ bool on_drawing_area_event(GdkEvent* event) {
 
 Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
    Gtk::Window* font_view_window = new Gtk::Window();
+   FF::add_top_view(*font_view_window);
    font_view_window->set_default_size(width, height);
+
+   font_view_window->signal_delete_event().connect(
+      [font_view_window](GdkEventAny* event){
+         FF::remove_top_view(*font_view_window);
+         return false;
+      });
 
    Gtk::Grid* char_grid_box = new Gtk::Grid();
 

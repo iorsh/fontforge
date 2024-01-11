@@ -101,12 +101,6 @@ namespace FontDialog {
    // TODO: accept modal flag
    // TODO: add multi-file mode option..?
    RefPtr<File> open_dialog(RefPtr<File> path, ustring title) {
-      static auto app = Gtk::Application::create("org.fontforge");
-
-      // TODO: properly retrieve resource path
-      auto theme = Gtk::IconTheme::get_default();
-      theme->prepend_search_path("/home/iorsh/devel/fontforge/fontforgeexe/pixmaps/tango");
-
       auto t = title != ustring{} ? title : "Open Font";
 
       auto d = Gtk::FileChooserDialog(t, Gtk::FILE_CHOOSER_ACTION_OPEN);
