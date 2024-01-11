@@ -19,6 +19,9 @@
 
 namespace FontViewNS {
 
+// TODO: make it member of future FontView class
+extern double real_sb_max;
+
 Gtk::Window* create_view(FVContext* fv_context, int width, int height);
 
 }

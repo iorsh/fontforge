@@ -21,6 +21,8 @@
 
 namespace FontViewNS {
 
+double real_sb_max = 1;
+
 // Create info label at the top of the Font View, which shows name and
 // properties of the nost recently selected character 
 Gtk::Label* make_character_info_label() {
@@ -86,7 +88,7 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
    auto on_scrollbar_value_changed =
       [fv = fv_context->fv, scroll_cb = fv_context->scroll_fontview_to_position_cb, scroller]() {
          double new_position = scroller->get_vscrollbar()->get_value();
-         scroll_cb(fv, new_position);
+         scroll_cb(fv, new_position * real_sb_max);
       };
 
    scroller->get_vscrollbar()->signal_value_changed().connect(on_scrollbar_value_changed);
