@@ -91,10 +91,10 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_conte
       Gtk::MenuItem* menu_item = nullptr;
       if (item.is_separator()) {
          menu_item = new Gtk::SeparatorMenuItem();
-      } else if (item.label.image_file.empty()) {
+      } else if (item.label.decoration.empty()) {
          menu_item = new Gtk::MenuItem(item.label.text, true);
       } else {
-         Glib::RefPtr<Gdk::Pixbuf> pixbuf = theme->load_icon(item.label.image_file, 16);
+         Glib::RefPtr<Gdk::Pixbuf> pixbuf = theme->load_icon(item.label.decoration.image_file(), 16);
          Gtk::Image* img = new Gtk::Image(pixbuf);
          menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
       }

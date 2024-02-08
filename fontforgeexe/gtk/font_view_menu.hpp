@@ -75,34 +75,34 @@ static const int MID_SetVWidth = 2605;
 static const int MID_OpenOutline	= 2701;
 
 std::vector<FF::MenuInfo> file_menu = {
-    { { N_("_New"), "", FF::NonCheckable, "<control>u" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_OpenOutline },
+    { { N_("_New"), FF::NonCheckable, "<control>u" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_OpenOutline },
 };
 
 std::vector<FF::MenuInfo> histograms_menu = {
-    { { N_("_HStem"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_HStemHist },
-    { { N_("_VStem"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_VStemHist },
-    { { N_("BlueValues"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_BlueValuesHist },
+    { { N_("_HStem"), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_HStemHist },
+    { { N_("_VStem"), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_VStemHist },
+    { { N_("BlueValues"), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_BlueValuesHist },
 };
 
 std::vector<FF::MenuInfo> hints_menu = {
-    { { N_("Auto_Hint"), "hintsautohint", FF::NonCheckable, "<control><shift>H" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_AutoHint },
-    { { N_("Hint _Substitution Pts"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_HintSubsPt },
-    { { N_("Auto _Counter Hint"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_AutoCounter },
-    { { N_("_Don't AutoHint"), "hintsdontautohint", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_DontAutoHint },
+    { { N_("Auto_Hint"), "hintsautohint", "<control><shift>H" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_AutoHint },
+    { { N_("Hint _Substitution Pts"), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_HintSubsPt },
+    { { N_("Auto _Counter Hint"), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_AutoCounter },
+    { { N_("_Don't AutoHint"), "hintsdontautohint", "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_DontAutoHint },
     FF::kMenuSeparator,
-    { { N_("Auto_Instr"), "", FF::NonCheckable, "<control>T" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_AutoInstr },
-    { { N_("_Edit Instructions..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_EditInstructions },
-    { { N_("Edit 'fpgm'..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editfpgm },
-    { { N_("Edit 'prep'..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editprep },
-    { { N_("Edit 'maxp'..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editmaxp },
-    { { N_("Edit 'cvt '..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editcvt },
-    { { N_("Remove Instr Tables"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_RmInstrTables },
-    { { N_("S_uggest Deltas..."), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Deltas },
+    { { N_("Auto_Instr"), FF::NonCheckable, "<control>T" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_AutoInstr },
+    { { N_("_Edit Instructions..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_EditInstructions },
+    { { N_("Edit 'fpgm'..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editfpgm },
+    { { N_("Edit 'prep'..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editprep },
+    { { N_("Edit 'maxp'..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editmaxp },
+    { { N_("Edit 'cvt '..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Editcvt },
+    { { N_("Remove Instr Tables"), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_RmInstrTables },
+    { { N_("S_uggest Deltas..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Deltas },
     FF::kMenuSeparator,
-    { { N_("_Clear Hints"), "hintsclearvstems", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_ClearHints },
-    { { N_("Clear Instructions"), "", FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_ClearInstrs },
+    { { N_("_Clear Hints"), "hintsclearvstems", "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_ClearHints },
+    { { N_("Clear Instructions"), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_ClearInstrs },
     FF::kMenuSeparator,
-    { { N_("Histograms"), "", FF::NonCheckable, "" }, &histograms_menu, FF::AlwaysEnabled, FF::NoAction, 0 },
+    { { N_("Histograms"), FF::NonCheckable, "" }, &histograms_menu, FF::AlwaysEnabled, FF::NoAction, 0 },
 };
 
 std::vector<FF::MenuBarInfo> top_menu = {
@@ -124,28 +124,28 @@ std::vector<FF::MenuBarInfo> top_menu = {
 };
 
 std::vector<FF::MenuInfo> popup_menu = {
-    { { N_("New O_utline Window"), "", FF::NonCheckable, "<control>u" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_OpenOutline },
+    { { N_("New O_utline Window"), FF::NonCheckable, "<control>u" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_OpenOutline },
     FF::kMenuSeparator,
-    { { N_("Cu_t"), "editcut", FF::NonCheckable, "<control>t" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Cut },
-    { { N_("_Copy"), "editcopy", FF::NonCheckable, "<control>c" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Copy },
-    { { N_("C_opy Reference"), "editcopyref", FF::NonCheckable, "<control>o" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_CopyRef },
-    { { N_("Copy _Width"), "editcopywidth", FF::NonCheckable, "<control>w" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_CopyWidth },
-    { { N_("_Paste"), "editpaste", FF::NonCheckable, "<control>p" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Paste },
-    { { N_("C_lear"), "editclear", FF::NonCheckable, "" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Clear },
-    { { N_("Copy _Fg To Bg"), "editcopyfg2bg", FF::NonCheckable, "<control><shift>F" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_CopyFgToBg },
-    { { N_("U_nlink Reference"), "editunlink", FF::NonCheckable, "<control>u" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_UnlinkRef },
+    { { N_("Cu_t"), "editcut", "<control>t" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Cut },
+    { { N_("_Copy"), "editcopy", "<control>c" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Copy },
+    { { N_("C_opy Reference"), "editcopyref", "<control>o" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_CopyRef },
+    { { N_("Copy _Width"), "editcopywidth", "<control>w" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_CopyWidth },
+    { { N_("_Paste"), "editpaste", "<control>p" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Paste },
+    { { N_("C_lear"), "editclear", "" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Clear },
+    { { N_("Copy _Fg To Bg"), "editcopyfg2bg", "<control><shift>F" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_CopyFgToBg },
+    { { N_("U_nlink Reference"), "editunlink", "<control>u" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_UnlinkRef },
     FF::kMenuSeparator,
-    { { N_("Glyph _Info..."), "elementglyphinfo", FF::NonCheckable, "<control>i" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_CharInfo },
-    { { N_("_Transform..."), "elementtransform", FF::NonCheckable, "<control>t" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Transform },
-    { { N_("_Expand Stroke..."), "elementexpandstroke", FF::NonCheckable, "<control><shift>E" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Stroke },
-    { { N_("To _Int"), "elementround", FF::NonCheckable, "<control><shift>I" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Round },
-    { { N_("_Correct Direction"), "elementcorrectdir", FF::NonCheckable, "<control><shift>D" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Correct },
+    { { N_("Glyph _Info..."), "elementglyphinfo", "<control>i" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_CharInfo },
+    { { N_("_Transform..."), "elementtransform", "<control>t" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Transform },
+    { { N_("_Expand Stroke..."), "elementexpandstroke", "<control><shift>E" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Stroke },
+    { { N_("To _Int"), "elementround", "<control><shift>I" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Round },
+    { { N_("_Correct Direction"), "elementcorrectdir", "<control><shift>D" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Correct },
     FF::kMenuSeparator,
-    { { N_("Auto_Hint"), "hintsautohint", FF::NonCheckable, "<control>h" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_AutoHint },
+    { { N_("Auto_Hint"), "hintsautohint", "<control>h" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_AutoHint },
     FF::kMenuSeparator,
-    { { N_("_Center in Width"), "metricscenter", FF::NonCheckable, "<control>c" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Center },
-    { { N_("Set _Width..."), "metricssetwidth", FF::NonCheckable, "<control><shift>W" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_SetWidth },
-    { { N_("Set _Vertical Advance..."), "metricssetvwidth", FF::NonCheckable, "<control><shift>V" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_SetVWidth },
+    { { N_("_Center in Width"), "metricscenter", "<control>c" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_Center },
+    { { N_("Set _Width..."), "metricssetwidth", "<control><shift>W" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_SetWidth },
+    { { N_("Set _Vertical Advance..."), "metricssetvwidth", "<control><shift>V" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_SetVWidth },
 };
 
 }

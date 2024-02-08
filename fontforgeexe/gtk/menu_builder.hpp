@@ -30,6 +30,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <variant>
 #include <gtkmm-3.0/gtkmm.h>
 
 #include "c_context.h"
@@ -47,10 +48,20 @@ enum CheckableState : bool {
     NonCheckable = false
 };
 
+class LabelDecoration {
+public:
+        LabelDecoration(CheckableState s = NonCheckable) : d_(s) {}
+        LabelDecoration(const char* image_file) : d_(image_file) {}
+
+        bool empty() const { return d_.index() == 0 && std::get<0>(d_) == NonCheckable; }
+        std::string image_file() const { return (d_.index() == 1) ? std::get<1>(d_) : "";}
+private:
+        std::variant<CheckableState, std::string> d_;
+};
+
 struct LabelInfo {
     L10nText text;
-    std::string image_file;
-    CheckableState checkable = NonCheckable;
+    LabelDecoration decoration;
     Glib::ustring accelerator; // See the Gtk::AccelKey constructor for the format
 };
 
