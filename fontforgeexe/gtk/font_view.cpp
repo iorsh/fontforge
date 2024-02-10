@@ -24,7 +24,7 @@ namespace FontViewNS {
 double real_sb_max = 1;
 
 // Create info label at the top of the Font View, which shows name and
-// properties of the nost recently selected character 
+// properties of the most recently selected character 
 Gtk::Label* make_character_info_label() {
    Gtk::Label* character_info = new Gtk::Label();
    character_info->set_name("CharInfo");
@@ -43,6 +43,13 @@ Gtk::Label* make_character_info_label() {
    Glib::RefPtr<Gtk::StyleContext> context  = character_info->get_style_context();
    Gdk::RGBA link_color = context->get_color(Gtk::STATE_FLAG_LINK);
    character_info->override_color(link_color);
+
+   // Set empty label with big font to get the correct label height.
+   // Due to some issue in GTK setting it now doesn't work, so we defer it until
+   // after the realization.
+   character_info->signal_realize().connect([character_info](){
+      character_info->set_markup("<big> </big>");
+   });
 
    return character_info;
 }
