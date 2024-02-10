@@ -127,7 +127,6 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
       [fv = fv_context->fv, scroll_cb = fv_context->scroll_fontview_to_position_cb, scroller, drawing_area]() {
          double new_position = scroller->get_value();
          scroll_cb(fv, new_position);
-         drawing_area->queue_draw();
       };
    scroller->signal_value_changed().connect(on_scrollbar_value_changed);
 
