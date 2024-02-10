@@ -21,8 +21,6 @@
 
 namespace FontViewNS {
 
-double real_sb_max = 1;
-
 // Create info label at the top of the Font View, which shows name and
 // properties of the most recently selected character 
 Gtk::Label* make_character_info_label() {
@@ -87,18 +85,8 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
 
    Gtk::Grid* font_view_grid = new Gtk::Grid();
 
-   Gtk::ScrolledWindow* scroller = new Gtk::ScrolledWindow();
+   Gtk::VScrollbar* scroller = new Gtk::VScrollbar();
    scroller->set_name("Scroller");
-   scroller->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
-   scroller->set_overlay_scrolling(false);
-
-   auto on_scrollbar_value_changed =
-      [fv = fv_context->fv, scroll_cb = fv_context->scroll_fontview_to_position_cb, scroller]() {
-         double new_position = scroller->get_vscrollbar()->get_value();
-         scroll_cb(fv, new_position * real_sb_max);
-      };
-
-   scroller->get_vscrollbar()->signal_value_changed().connect(on_scrollbar_value_changed);
 
    Gtk::DrawingArea* drawing_area = new Gtk::DrawingArea();
    drawing_area->set_name("CharGrid");
@@ -109,13 +97,27 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
    // expose, keypresses, mouse etc.
    drawing_area->signal_event().connect(&on_drawing_area_event);
    drawing_area->set_events(Gdk::ALL_EVENTS_MASK);
+   drawing_area->set_can_focus(true);
+
+   // Propagate scrollbar value changes to the legacy FontView code
+   auto on_scrollbar_value_changed =
+      [fv = fv_context->fv, scroll_cb = fv_context->scroll_fontview_to_position_cb, scroller, drawing_area]() {
+         double new_position = scroller->get_value();
+         scroll_cb(fv, new_position);
+         drawing_area->queue_draw();
+      };
+   scroller->signal_value_changed().connect(on_scrollbar_value_changed);
+
+   // Redirect mouse scrolling events from the drawing area to the scrollbar
+   auto on_drawing_area_scroll = 
+      [scroller](GdkEventScroll* event){ scroller->event((GdkEvent*)event); return true; };
+   drawing_area->signal_scroll_event().connect(on_drawing_area_scroll);
 
    Gtk::Label* character_info = make_character_info_label();
 
-   scroller->add(*drawing_area);
-
-   char_grid_box->attach(*character_info, 0, 0);
-   char_grid_box->attach(*scroller, 0, 1);
+   char_grid_box->attach(*character_info, 0, 0, 2, 1);
+   char_grid_box->attach(*drawing_area, 0, 1);
+   char_grid_box->attach(*scroller, 1, 1);
 
    Gtk::HSeparator* h_sep = new Gtk::HSeparator();
    font_view_grid->attach(*top_bar, 0, 0);

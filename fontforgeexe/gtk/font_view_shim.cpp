@@ -18,8 +18,6 @@
 #include "font_view.hpp"
 #include "utils.hpp"
 
-using FontViewNS::real_sb_max;
-
 void* create_font_view(FVContext* fv_context, int width, int height) {
    return FontViewNS::create_view(fv_context, width, height);
 }
@@ -43,21 +41,20 @@ void fv_set_scroller_position(void* window, int32_t position) {
    Gtk::Window* font_view_window = static_cast<Gtk::Window*>(window);
    Gtk::Widget* scroller = gtk_find_child(font_view_window, "Scroller");
 
-   dynamic_cast<Gtk::ScrolledWindow*>(scroller)->get_vadjustment()->set_value(position/real_sb_max);
+   if (!scroller->has_grab()) {
+      // Set the scroller only if its slider is not currently grabbed with the mouse.
+      dynamic_cast<Gtk::VScrollbar*>(scroller)->get_adjustment()->set_value(position);
+   }
 }
 
 void fv_set_scroller_bounds(void* window,
    int32_t sb_min, int32_t sb_max, int32_t sb_pagesize) {
 
-   real_sb_max = sb_max;
-
    Gtk::Window* font_view_window = static_cast<Gtk::Window*>(window);
    Gtk::Widget* scroller = gtk_find_child(font_view_window, "Scroller");
 
-   Glib::RefPtr<Gtk::Adjustment> vert_adjustment = dynamic_cast<Gtk::ScrolledWindow*>(scroller)->get_vadjustment();
-   vert_adjustment->set_lower(sb_min/real_sb_max);
-   vert_adjustment->set_upper(1);
-   vert_adjustment->set_page_size(sb_pagesize/real_sb_max);
+   Glib::RefPtr<Gtk::Adjustment> adjustment = dynamic_cast<Gtk::VScrollbar*>(scroller)->get_adjustment();
+   adjustment->configure(adjustment->get_value(), sb_min, sb_max, 1, sb_pagesize-1, sb_pagesize);
 }
 
 void fv_set_character_info(void* window, GString* info) {
