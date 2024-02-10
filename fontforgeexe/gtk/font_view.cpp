@@ -68,6 +68,29 @@ bool on_drawing_area_event(GdkEvent* event) {
    return false;
 }
 
+bool on_drawing_area_key(GdkEventKey* event, GdkWindow* draw_win) {
+   // All keypress events belong to the top window. Some of them must go to
+   // the main loop to be picked by the legacy GDraw handler. Their window
+   // must be replaced, because legacy GDraw handler picks only events which
+   // belong to the drawing area window.
+
+   // The GDK reference handling is very fragile, so we *slowly* replace the
+   // window...
+   GdkWindow* old_event_window = event->window;
+   event->window = draw_win;
+
+   // Put a copy of the event into the main loop. The event copy handles its
+   // object references by itself.
+   gdk_event_put((GdkEvent*)event);
+
+   // *Slowly* replace the window back, so that the handler caller wraps it
+   // up correctly.
+   event->window = old_event_window;
+
+   // Don't handle this event any further.
+   return true;
+}
+
 Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
    Gtk::Window* font_view_window = new Gtk::Window();
    FF::add_top_view(*font_view_window);
@@ -127,6 +150,12 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
 
    font_view_window->show_all();
 
+   // Drawing area is responsible to dispatch keypress events. Most go to the legacy code.
+   GdkWindow* drawing_win = gtk_widget_get_window((GtkWidget*)(drawing_area->gobj()));
+   drawing_area->signal_key_press_event().connect([drawing_win](GdkEventKey* event){
+      return on_drawing_area_key(event, drawing_win);
+   });
+
    Gtk::Menu* pop_up = FF::build_menu(popup_menu, fv_context);
 
    auto on_my_button_press_event = [pop_up](GdkEventButton* event) {
@@ -137,7 +166,6 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
       }
       return false;
    };
-
    drawing_area->signal_button_press_event().connect(on_my_button_press_event);
 
    return font_view_window;   
