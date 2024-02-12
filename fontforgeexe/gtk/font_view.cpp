@@ -124,7 +124,7 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
 
    // Propagate scrollbar value changes to the legacy FontView code
    auto on_scrollbar_value_changed =
-      [fv = fv_context->fv, scroll_cb = fv_context->scroll_fontview_to_position_cb, scroller, drawing_area]() {
+      [fv = fv_context->fv, scroll_cb = fv_context->scroll_fontview_to_position_cb, scroller]() {
          double new_position = scroller->get_value();
          scroll_cb(fv, new_position);
       };

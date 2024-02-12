@@ -6835,6 +6835,7 @@ static int FVScroll(GGadget *g, GEvent *e) {
 return( true );
 }
 
+/* Update fv->rowoff from GTK scrollbar */
 static void FVScrollToPos(FontView* fv, int32_t position) {
     int newpos = position;
 
@@ -6844,8 +6845,7 @@ static void FVScrollToPos(FontView* fv, int32_t position) {
     if ( newpos!=fv->rowoff ) {
         int diff = newpos-fv->rowoff;
         fv->rowoff = newpos;
-        FVScrollBarSetPos(fv,fv->rowoff);
-        GDrawScroll(fv->v,NULL,0,diff*fv->cbh);
+        GDrawRequestExpose(fv->v, NULL, false);
     }
 }
 

@@ -54,7 +54,10 @@ void fv_set_scroller_bounds(void* window,
    Gtk::Widget* scroller = gtk_find_child(font_view_window, "Scroller");
 
    Glib::RefPtr<Gtk::Adjustment> adjustment = dynamic_cast<Gtk::VScrollbar*>(scroller)->get_adjustment();
-   adjustment->configure(adjustment->get_value(), sb_min, sb_max, 1, sb_pagesize-1, sb_pagesize);
+   // VScrollbar seems to ignore step and page increments and behaves incoherently to the extent that
+   // a single click on a stepper button yields a different delta each time. The values of 3, 3 are
+   // somehow okeyish.
+   adjustment->configure(adjustment->get_value(), sb_min, sb_max, 3, 3, sb_pagesize);
 }
 
 void fv_set_character_info(void* window, GString* info) {
