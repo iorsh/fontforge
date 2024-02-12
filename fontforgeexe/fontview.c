@@ -7354,8 +7354,10 @@ static void FVCreateInnards(FontView *fv,GRect *pos) {
     if (IsGTK(fv)) {
       wattrs.mask |= wam_gtk_wrapper;
       wattrs.gtk_widget = get_drawing_widget_c(fv->gtk_window);
+      fv->v = GWidgetCreateTopWindow(NULL,pos,v_e_h,fv,&wattrs);
+    } else {
+      fv->v = GWidgetCreateSubWindow(gw,pos,v_e_h,fv,&wattrs);
     }
-    fv->v = GWidgetCreateSubWindow(gw,pos,v_e_h,fv,&wattrs);
     GDrawSetVisible(fv->v,true);
     GDrawSetWindowTypeName(fv->v, "FontView");
 
