@@ -14,6 +14,8 @@
 
 #include "font_view.hpp"
 
+#include <atomic>
+
 #include "application.hpp"
 #include "font_view_menu.hpp"
 #include "menu_builder.hpp"
@@ -121,6 +123,33 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
    drawing_area->signal_event().connect(&on_drawing_area_event);
    drawing_area->set_events(Gdk::ALL_EVENTS_MASK);
    drawing_area->set_can_focus(true);
+   drawing_area->set_has_tooltip();
+
+   // A hack to transfer motion event to tooltip query
+   // TODO: move as member to future CharGrid class
+   static std::atomic<bool> mouse_moved(false);
+
+   auto on_query_tooltip = [](int x, int y, bool keyboard_tooltip, const Glib::RefPtr<Gtk::Tooltip>& tooltip){
+        Glib::ustring text = Glib::ustring::compose("<small>x %1, y %2</small>", x, y);
+        tooltip->set_markup(text);
+        if (mouse_moved) {
+           // Mouse motion occured, dismiss the tooltip
+           mouse_moved = false;
+           return false;
+        } else {
+           return true;
+        }
+   };
+   drawing_area->signal_query_tooltip().connect(on_query_tooltip);
+
+   auto on_mouse_move = [drawing_area](GdkEventMotion* event){
+      if (!mouse_moved) {
+         mouse_moved = true;
+         drawing_area->trigger_tooltip_query();
+      }
+      return true;
+   };
+   drawing_area->signal_motion_notify_event().connect(on_mouse_move);
 
    // Propagate scrollbar value changes to the legacy FontView code
    auto on_scrollbar_value_changed =
