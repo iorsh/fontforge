@@ -129,16 +129,24 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
    // TODO: move as member to future CharGrid class
    static std::atomic<bool> mouse_moved(false);
 
-   auto on_query_tooltip = [](int x, int y, bool keyboard_tooltip, const Glib::RefPtr<Gtk::Tooltip>& tooltip){
-        Glib::ustring text = Glib::ustring::compose("<small>x %1, y %2</small>", x, y);
-        tooltip->set_markup(text);
+   auto on_query_tooltip = [fv = fv_context->fv, tooltip_cb = fv_context->tooltip_message_cb](int x, int y, bool keyboard_tooltip, const Glib::RefPtr<Gtk::Tooltip>& tooltip){
         if (mouse_moved) {
            // Mouse motion occured, dismiss the tooltip
            mouse_moved = false;
            return false;
-        } else {
-           return true;
         }
+
+        char* tooltip_msg = tooltip_cb(fv, x, y);
+        if (!tooltip_msg) {
+            return false;
+        }
+
+        Glib::ustring text = Glib::Markup::escape_text(tooltip_msg);
+        text = Glib::ustring::compose("<small>%1</small>", text);
+        free(tooltip_msg);
+        tooltip->set_markup(text);
+
+        return true;
    };
    drawing_area->signal_query_tooltip().connect(on_query_tooltip);
 
