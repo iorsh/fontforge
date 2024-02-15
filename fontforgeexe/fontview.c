@@ -6865,7 +6865,6 @@ static void FVScrollToPos(FontView* fv, int32_t position) {
         newpos = fv->rowltot-fv->rowcnt;
     if ( newpos<0 ) newpos =0;
     if ( newpos!=fv->rowoff ) {
-        int diff = newpos-fv->rowoff;
         fv->rowoff = newpos;
         GDrawRequestExpose(fv->v, NULL, false);
     }
