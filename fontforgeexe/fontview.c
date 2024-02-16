@@ -7053,6 +7053,9 @@ return( GGadgetDispatchEvent(fv->vsb,event));
       case et_destroy:
 	if ( fv->qg!=NULL )
 	    QGRmFontView(fv->qg,fv);
+        if (IsGTK(fv)) {
+            GDrawDestroyWindow(fv->v);
+        }
 	FontViewRemove(fv);
       break;
       default: break;
