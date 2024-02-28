@@ -48,15 +48,28 @@ enum CheckableState : bool {
     NonCheckable = false
 };
 
+enum RadioGroup {
+    NoGroup,
+    CellWindowSize,
+    CellPixelView,
+};
+
+// Lazily initialized collection of GTK groupers for radio buttons
+Gtk::RadioButtonGroup& get_grouper(RadioGroup g);
+
 class LabelDecoration {
 public:
         LabelDecoration(CheckableState s = NonCheckable) : d_(s) {}
         LabelDecoration(const char* image_file) : d_(image_file) {}
+        LabelDecoration(RadioGroup g) : d_(g) {}
 
         bool empty() const { return d_.index() == 0 && std::get<0>(d_) == NonCheckable; }
+        bool checkable() const { return d_.index() == 0 && std::get<0>(d_) == Checkable; }
         std::string image_file() const { return (d_.index() == 1) ? std::get<1>(d_) : "";}
+        bool has_group() const { return std::holds_alternative<RadioGroup>(d_); }
+        RadioGroup group() const { return std::get<RadioGroup>(d_); }
 private:
-        std::variant<CheckableState, std::string> d_;
+        std::variant<CheckableState, std::string, RadioGroup> d_;
 };
 
 struct LabelInfo {

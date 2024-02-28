@@ -34,6 +34,12 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace FF {
 
+Gtk::RadioButtonGroup& get_grouper(RadioGroup g) {
+    static std::map<RadioGroup, Gtk::RadioButtonGroup> grouper_map;
+
+    return grouper_map[g];
+}
+
 MenuAction* find_callback_set(int mid, FVContext* fv_context) {
    MenuAction* actions = fv_context->actions;
    MenuAction* cb_set = NULL;
@@ -93,6 +99,12 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_conte
          menu_item = new Gtk::SeparatorMenuItem();
       } else if (item.label.decoration.empty()) {
          menu_item = new Gtk::MenuItem(item.label.text, true);
+      } else if (item.label.decoration.has_group()) {
+         RadioGroup group = item.label.decoration.group();
+         Gtk::RadioButtonGroup& grouper = get_grouper(group);
+         menu_item = new Gtk::RadioMenuItem(grouper, item.label.text, true);
+      } else if (item.label.decoration.checkable()) {
+         menu_item = new Gtk::CheckMenuItem(item.label.text, true);
       } else {
          Glib::RefPtr<Gdk::Pixbuf> pixbuf = theme->load_icon(item.label.decoration.image_file(), 16);
          Gtk::Image* img = new Gtk::Image(pixbuf);
