@@ -7,7 +7,7 @@ target_sources(fontforgeexe
       application.cpp
       font_view.hpp
       font_view.cpp
-      font_view_menu.hpp
+      font_view_menu.cpp
       menu_builder.hpp
       menu_builder.cpp
       open_dialog.hpp

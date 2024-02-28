@@ -28,8 +28,6 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
-
 #include <glib/gi18n.h>
 #include <gtkmm-3.0/gtkmm.h>
 

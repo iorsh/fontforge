@@ -16,8 +16,12 @@
 #include <gtkmm-3.0/gtkmm.h>
 
 #include "c_context.h"
+#include "menu_builder.hpp"
 
 namespace FontViewNS {
+
+extern std::vector<FF::MenuBarInfo> top_menu;
+extern std::vector<FF::MenuInfo> popup_menu;
 
 Gtk::Window* create_view(FVContext* fv_context, int width, int height);
 

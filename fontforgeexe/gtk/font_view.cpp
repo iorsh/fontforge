@@ -17,7 +17,6 @@
 #include <atomic>
 
 #include "application.hpp"
-#include "font_view_menu.hpp"
 #include "menu_builder.hpp"
 #include "utils.hpp"
 
