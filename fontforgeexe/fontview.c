@@ -1531,6 +1531,8 @@ static void FVMenuCondense(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNU
 #define MID_8x2		2027
 #define MID_BitmapMag	2028
 #define MID_Layers	2029
+#define MID_GotoChar    2030
+#define MID_Show_ATT    2031
 #define MID_FontInfo	2200
 #define MID_CharInfo	2201
 #define MID_Transform	2202
@@ -3149,8 +3151,7 @@ static void FVShowSubFont(FontView *fv,SplineFont *new) {
     GDrawRequestExpose(fv->v,NULL,true);
 }
 
-static void FVMenuGotoChar(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuGotoChar(FontView *fv,int UNUSED(mid)) {
     int merge_with_selection = false;
     int pos = GotoChar(fv->b.sf,fv->b.map,&merge_with_selection);
     if ( fv->b.cidmaster!=NULL && pos!=-1 && !fv->b.map->enc->is_compact ) {
@@ -3200,14 +3201,11 @@ static void FVMenuAnchorPairs(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e
     SFShowKernPairs(fv->b.sf,NULL,mi->ti.userdata,fv->b.active_layer);
 }
 
-static void FVMenuShowAtt(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuShowAtt(FontView *fv,int UNUSED(mid)) {
     ShowAtt(fv->b.sf,fv->b.active_layer);
 }
 
-static void FVMenuDisplaySubs(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuDisplaySubs(FontView *fv,int UNUSED(mid)) {
     if ( fv->cur_subtable!=0 ) {
 	fv->cur_subtable = NULL;
     } else {
@@ -3351,19 +3349,18 @@ return( false );
 return( true );
 }
 
-static void FVMenuShowMetrics(GWindow fvgw,struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(fvgw);
+static void FVMenuShowMetrics(FontView *fv,int mid) {
     GRect pos;
     GWindow gw;
     GWindowAttrs wattrs;
     struct md_data d;
     GGadgetCreateData gcd[7];
     GTextInfo label[6];
-    int metrics = mi->mid==MID_ShowHMetrics ? fv->showhmetrics : fv->showvmetrics;
+    int metrics = mid==MID_ShowHMetrics ? fv->showhmetrics : fv->showvmetrics;
 
     d.fv = fv;
     d.done = 0;
-    d.ish = mi->mid==MID_ShowHMetrics;
+    d.ish = mid==MID_ShowHMetrics;
 
     memset(&wattrs,0,sizeof(wattrs));
     wattrs.mask = wam_events|wam_cursor|wam_utf8_wtitle|wam_undercursor|wam_restrict;
@@ -3453,27 +3450,26 @@ static void FV_ChangeDisplayBitmap(FontView *fv,BDFFont *bdf) {
     }
 }
 
-static void FVMenuSize(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuSize(FontView *fv, int mid) {
     int dspsize = fv->filled->pixelsize;
     int changedmodifier = false;
     extern int use_freetype_to_rasterize_fv;
 
     fv->magnify = 1;
     fv->user_requested_magnify = -1;
-    if ( mi->mid == MID_24 )
+    if ( mid == MID_24 )
 	default_fv_font_size = dspsize = 24;
-    else if ( mi->mid == MID_36 )
+    else if ( mid == MID_36 )
 	default_fv_font_size = dspsize = 36;
-    else if ( mi->mid == MID_48 )
+    else if ( mid == MID_48 )
 	default_fv_font_size = dspsize = 48;
-    else if ( mi->mid == MID_72 )
+    else if ( mid == MID_72 )
 	default_fv_font_size = dspsize = 72;
-    else if ( mi->mid == MID_96 )
+    else if ( mid == MID_96 )
 	default_fv_font_size = dspsize = 96;
-    else if ( mi->mid == MID_128 )
+    else if ( mid == MID_128 )
 	default_fv_font_size = dspsize = 128;
-    else if ( mi->mid == MID_FitToBbox ) {
+    else if ( mid == MID_FitToBbox ) {
 	default_fv_bbsized = fv->bbsized = !fv->bbsized;
 	fv->b.sf->display_bbsized = fv->bbsized;
 	changedmodifier = true;
@@ -3555,8 +3551,7 @@ static void FVMenuChangeLayer(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e
     FV_LayerChanged(fv);
 }
 
-static void FVMenuMagnify(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuMagnify(FontView *fv,int UNUSED(mid)) {
     int magnify = fv->user_requested_magnify!=-1 ? fv->user_requested_magnify : fv->magnify;
     char def[20], *end, *ret;
     int val;
@@ -3578,14 +3573,13 @@ return;
     free(ret);
 }
 
-static void FVMenuWSize(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuWSize(FontView *fv,int mid) {
     int h,v;
     extern int default_fv_col_count, default_fv_row_count;
 
-    if ( mi->mid == MID_32x8 ) {
+    if ( mid == MID_32x8 ) {
 	h = 32; v=8;
-    } else if ( mi->mid == MID_16x4 ) {
+    } else if ( mid == MID_16x4 ) {
 	h = 16; v=4;
     } else {
 	h = 8; v=2;
@@ -5328,6 +5322,7 @@ static GMenuItem2 vwlist[] = {
     { { (unichar_t *) N_("_Prev Glyph"), (GImage *) "viewprev.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'P' }, H_("Prev Glyph|No Shortcut"), NULL, NULL, FVMenuChangeChar, MID_Prev },
     { { (unichar_t *) N_("Next _Defined Glyph"), (GImage *) "viewnextdef.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'D' }, H_("Next Defined Glyph|No Shortcut"), NULL, NULL, FVMenuChangeChar, MID_NextDef },
     { { (unichar_t *) N_("Prev Defined Gl_yph"), (GImage *) "viewprevdef.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'a' }, H_("Prev Defined Glyph|No Shortcut"), NULL, NULL, FVMenuChangeChar, MID_PrevDef },
+#if 0
     { { (unichar_t *) N_("_Goto"), (GImage *) "viewgoto.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'G' }, H_("Goto|No Shortcut"), NULL, NULL, FVMenuGotoChar, 0 },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("_Layers"), (GImage *) "viewlayers.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Layers|No Shortcut"), lylist, lylistcheck, NULL, 0 },
@@ -5355,6 +5350,7 @@ static GMenuItem2 vwlist[] = {
     { { (unichar_t *) N_("_Fit to font bounding box"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 1, 0, 0, 0, 1, 1, 0, 'F' }, H_("Fit to font bounding box|No Shortcut"), NULL, NULL, FVMenuSize, MID_FitToBbox },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("Bitmap _Magnification..."), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 1, 0, 0, 0, 1, 1, 0, 'F' }, H_("Bitmap Magnification...|No Shortcut"), NULL, NULL, FVMenuMagnify, MID_BitmapMag },
+#endif
     GMENUITEM2_EMPTY,			/* Some extra room to show bitmaps */
     GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY,
     GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY,
@@ -5758,6 +5754,30 @@ MenuAction fvpopupactions[] = {
     { MID_HStemHist, htlistcheck, FVMenuHistograms },
     { MID_VStemHist, htlistcheck, FVMenuHistograms },
     { MID_BlueValuesHist, htlistcheck, FVMenuHistograms },
+
+    /* View menu */
+    { MID_24, NULL, FVMenuSize },
+    { MID_36, NULL, FVMenuSize },
+    { MID_48, NULL, FVMenuSize },
+    { MID_72, NULL, FVMenuSize },
+    { MID_96, NULL, FVMenuSize },
+    { MID_128, NULL, FVMenuSize },
+    { MID_AntiAlias, NULL, FVMenuSize },
+    { MID_Next, NULL, _FVMenuChangeChar },
+    { MID_Prev, NULL, _FVMenuChangeChar },
+    { MID_NextDef, NULL, _FVMenuChangeChar },
+    { MID_PrevDef, NULL, _FVMenuChangeChar },
+    { MID_ShowHMetrics, NULL, FVMenuShowMetrics },
+    { MID_ShowVMetrics, NULL, FVMenuShowMetrics },
+    { MID_FitToBbox, NULL, FVMenuSize },
+    { MID_DisplaySubs, NULL, FVMenuDisplaySubs },
+    { MID_32x8, NULL, FVMenuWSize},
+    { MID_16x4, NULL, FVMenuWSize},
+    { MID_8x2, NULL, FVMenuWSize},
+    { MID_BitmapMag, NULL, FVMenuMagnify },
+    { MID_GotoChar, NULL, FVMenuGotoChar },
+    { MID_Show_ATT, NULL, FVMenuShowAtt },
+
     MENUACTION_LAST
 };
 

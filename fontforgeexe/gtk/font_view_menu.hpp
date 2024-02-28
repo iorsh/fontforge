@@ -37,6 +37,28 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace FontViewNS {
 
+static const int MID_24	= 2001;
+static const int MID_36	= 2002;
+static const int MID_48	= 2004;
+static const int MID_72	= 2014;
+static const int MID_96	= 2015;
+static const int MID_128 = 2018;
+static const int MID_AntiAlias = 2005;
+static const int MID_Next = 2006;
+static const int MID_Prev = 2007;
+static const int MID_NextDef = 2012;
+static const int MID_PrevDef = 2013;
+static const int MID_ShowHMetrics = 2016;
+static const int MID_ShowVMetrics = 2017;
+static const int MID_FitToBbox = 2023;
+static const int MID_DisplaySubs = 2024;
+static const int MID_32x8 = 2025;
+static const int MID_16x4 = 2026;
+static const int MID_8x2 = 2027;
+static const int MID_BitmapMag = 2028;
+static const int MID_GotoChar = 2030;
+static const int MID_Show_ATT = 2031;
+
 static const int MID_Cut = 2101;
 static const int MID_Copy = 2102;
 static const int MID_Paste	= 2103;
@@ -105,6 +127,52 @@ std::vector<FF::MenuInfo> hints_menu = {
     { { N_("Histograms"), FF::NonCheckable, "" }, &histograms_menu, FF::AlwaysEnabled, FF::NoAction, 0 },
 };
 
+std::vector<FF::MenuInfo> layers_menu = {
+    { { N_("LAYERS TODO"), FF::NonCheckable, "" }, nullptr, FF::AlwaysEnabled, FF::NoAction, 0 },
+};
+
+std::vector<FF::MenuInfo> combinations_menu = {
+    { { N_("COMBINATIONS TODO"), FF::NonCheckable, "" }, nullptr, FF::AlwaysEnabled, FF::NoAction, 0 },
+};
+
+std::vector<FF::MenuInfo> label_glyph_menu = {
+    { { N_("LABEL GLYPH TODO"), FF::NonCheckable, "" }, nullptr, FF::AlwaysEnabled, FF::NoAction, 0 },
+};
+
+std::vector<FF::MenuInfo> view_menu = {
+    { { N_("_Next Glyph"), "viewnext", "<control>]" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Next },
+    { { N_("_Prev Glyph"), "viewprev", "<control>[" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Prev },
+    { { N_("Next _Defined Glyph"), "viewnextdef", "<alt><control>]" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_NextDef },
+    { { N_("Prev Defined Gl_yph"), "viewprevdef", "<alt><control>[" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_PrevDef },
+    { { N_("_Goto"), "viewgoto", "<control><shift>>" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_GotoChar },
+    FF::kMenuSeparator,
+    { { N_("_Layers"), "viewlayers", "" }, &layers_menu, FF::AlwaysEnabled, FF::NoAction, 0 },
+    FF::kMenuSeparator,
+    { { N_("_Show ATT"), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_Show_ATT },
+    { { N_("Display S_ubstitutions..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_DisplaySubs },
+    { { N_("Com_binations"), FF::NonCheckable, "" }, &combinations_menu, FF::AlwaysEnabled, FF::NoAction, 0 },
+    FF::kMenuSeparator,
+    { { N_("Label Gl_yph By"), FF::NonCheckable, "" }, &label_glyph_menu, FF::AlwaysEnabled, FF::NoAction, 0 },
+    FF::kMenuSeparator,
+    { { N_("S_how H. Metrics..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_ShowHMetrics },
+    { { N_("Show _V. Metrics..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_ShowVMetrics },
+    FF::kMenuSeparator,
+    { { N_("32x8 cell window"), FF::CellWindowSize, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_32x8 },
+    { { N_("_16x4 cell window"), FF::CellWindowSize, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_16x4 },
+    { { N_("_8x2  cell window"), FF::CellWindowSize, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_8x2 },
+    FF::kMenuSeparator,
+    { { N_("_24 pixel outline"), FF::CellPixelView, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_24 },
+    { { N_("_36 pixel outline"), FF::CellPixelView, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_36 },
+    { { N_("_48 pixel outline"), FF::CellPixelView, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_48 },
+    { { N_("_72 pixel outline"), FF::CellPixelView, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_72 },
+    { { N_("_96 pixel outline"), FF::CellPixelView, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_96 },
+    { { N_("_128 pixel outline"), FF::CellPixelView, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_128 },
+    { { N_("_Anti Alias"), FF::Checkable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_AntiAlias },
+    { { N_("_Fit to font bounding box"), FF::Checkable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_FitToBbox },
+    FF::kMenuSeparator,
+    { { N_("Bitmap _Magnification..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_BitmapMag },
+};
+
 std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("_File") }, &file_menu, -1 },
     { { N_("_Edit") }, nullptr, -1 },
@@ -114,7 +182,7 @@ std::vector<FF::MenuBarInfo> top_menu = {
 #endif
     { { N_("H_ints") }, &hints_menu, -1 },
     { { N_("E_ncoding") }, nullptr, -1 },
-    { { N_("_View") }, nullptr, -1 },
+    { { N_("_View") }, &view_menu, -1 },
     { { N_("_Metrics") }, nullptr, -1 },
     { { N_("_CID") }, nullptr, -1 },
 /* GT: Here (and following) MM means "MultiMaster" */
