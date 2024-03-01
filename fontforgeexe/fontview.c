@@ -5742,7 +5742,7 @@ GMenuItem2 helplist[] = {
     GMENUITEM2_EMPTY
 };
 
-MenuAction fvpopupactions[] = {
+FVMenuAction fvpopupactions[] = {
     { MID_OpenOutline, NULL, FVMenuOpenOutline },
     { MID_Cut, NULL, FVMenuCut },
     { MID_Copy, NULL, FVMenuCopy },

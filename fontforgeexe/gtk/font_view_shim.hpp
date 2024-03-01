@@ -37,6 +37,8 @@ void fv_set_scroller_bounds(void* window, int32_t sb_min, int32_t sb_max, int32_
 
 void fv_set_character_info(void* window, GString* info);
 
+FVMenuAction* find_callback_set(int mid, FVContext* fv_context);
+
 #ifdef __cplusplus
 }
 #endif

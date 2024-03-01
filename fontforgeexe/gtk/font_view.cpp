@@ -17,10 +17,35 @@
 #include <atomic>
 
 #include "application.hpp"
+#include "font_view_shim.hpp"
 #include "menu_builder.hpp"
 #include "utils.hpp"
 
 namespace FontViewNS {
+
+FF::ActivateCB FontViewUiContext::get_activate_cb(int mid) const {
+   FVMenuAction* callback_set = find_callback_set(mid, legacy_context);
+
+   if (callback_set != NULL) {
+      void (*action)(FontView*, int) = callback_set->action;
+      FontView* fv = legacy_context->fv;
+      return [action, fv, mid](){ action(fv, mid); };
+   } else {
+      return FF::NoAction;
+   }
+}
+
+FF::EnabledCB FontViewUiContext::get_enabled_cb(int mid) const {
+   FVMenuAction* callback_set = find_callback_set(mid, legacy_context);
+
+   if (callback_set != NULL && callback_set->is_disabled != NULL) {
+      bool (*disabled_cb)(FontView*, int) = callback_set->is_disabled;
+      FontView* fv = legacy_context->fv;
+      return [disabled_cb, fv, mid](){ return !disabled_cb(fv, mid); };
+   } else {
+      return FF::AlwaysEnabled;
+   }
+}
 
 // Create info label at the top of the Font View, which shows name and
 // properties of the most recently selected character 
@@ -93,6 +118,8 @@ bool on_drawing_area_key(GdkEventKey* event, GdkWindow* draw_win) {
 }
 
 Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
+   FontViewUiContext* fv_ui_context = new FontViewUiContext(fv_context);
+
    Gtk::Window* font_view_window = new Gtk::Window();
    FF::add_top_view(*font_view_window);
    font_view_window->set_default_size(width, height);
@@ -105,7 +132,7 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
 
    Gtk::Grid* char_grid_box = new Gtk::Grid();
 
-   Gtk::MenuBar* top_bar = build_menu_bar(top_menu, fv_context);
+   Gtk::MenuBar* top_bar = build_menu_bar(top_menu, *fv_ui_context);
 
    Gtk::Grid* font_view_grid = new Gtk::Grid();
 
@@ -191,7 +218,7 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
       return on_drawing_area_key(event, drawing_win);
    });
 
-   Gtk::Menu* pop_up = FF::build_menu(popup_menu, fv_context);
+   Gtk::Menu* pop_up = FF::build_menu(popup_menu, *fv_ui_context);
 
    auto on_my_button_press_event = [pop_up](GdkEventButton* event) {
       if (event->button == GDK_BUTTON_SECONDARY) {

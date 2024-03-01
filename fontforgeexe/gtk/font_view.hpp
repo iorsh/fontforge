@@ -20,6 +20,18 @@
 
 namespace FontViewNS {
 
+class FontViewUiContext : public FF::UiContext {
+public:
+    FontViewUiContext(FVContext* fv_context) : legacy_context(fv_context) {}
+
+    FF::ActivateCB get_activate_cb(int mid) const override;
+    FF::EnabledCB get_enabled_cb(int mid) const override;
+
+    FVContext* get_legacy_context() const { return legacy_context; }
+private:
+    FVContext* legacy_context = nullptr;
+};
+
 extern std::vector<FF::MenuBarInfo> top_menu;
 extern std::vector<FF::MenuInfo> popup_menu;
 

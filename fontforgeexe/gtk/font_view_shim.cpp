@@ -69,3 +69,18 @@ void fv_set_character_info(void* window, GString* info) {
    markup += "</big>";
    character_info->set_markup(markup);
 }
+
+FVMenuAction* find_callback_set(int mid, FVContext* fv_context) {
+   FVMenuAction* actions = fv_context->actions;
+
+   // Find the C callback set
+   int i = 0;
+   while (actions[i].mid != 0) {
+      if (actions[i].mid == mid) {
+         return actions + i;
+      }
+      i++;
+   }
+
+   return NULL;
+}

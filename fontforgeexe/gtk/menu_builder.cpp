@@ -40,55 +40,11 @@ Gtk::RadioButtonGroup& get_grouper(RadioGroup g) {
     return grouper_map[g];
 }
 
-MenuAction* find_callback_set(int mid, FVContext* fv_context) {
-   MenuAction* actions = fv_context->actions;
-   MenuAction* cb_set = NULL;
-
-   // Find the C callback set
-   int i = 0;
-   while (actions[i].mid != 0) {
-      if (actions[i].mid == mid) {
-         return actions + i;
-      }
-      i++;
-   }
-
-   return NULL;
-}
-
-ActivateCB build_handler(int mid, FVContext* fv_context) {
-   MenuAction* callback_set = find_callback_set(mid, fv_context);
-
-   if (callback_set != NULL) {
-      void (*action)(FontView*, int) = callback_set->action;
-      FontView* fv = fv_context->fv;
-      return [action, fv, mid](){ action(fv, mid); };
-   } else {
-      return NoAction;
-   }
-}
-
-EnabledCB build_enabler(EnabledCB enabled, int mid, FVContext* fv_context) {
-   if (enabled) {
-      return enabled;
-   }
-   
-   // No enabled callback provided, check available legacy C code callback
-   MenuAction* callback_set = find_callback_set(mid, fv_context);
-   if (callback_set != NULL && callback_set->is_disabled != NULL) {
-      bool (*disabled_cb)(FontView*, int) = callback_set->is_disabled;
-      FontView* fv = fv_context->fv;
-      return [disabled_cb, fv, mid](){ return !disabled_cb(fv, mid); };
-   } else {
-      return AlwaysEnabled;
-   }
-}
-
-std::vector<FF::MenuInfo> expand_custom_blocks(const std::vector<FF::MenuInfo>& info, FVContext* fv_context) {
+std::vector<FF::MenuInfo> expand_custom_blocks(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
    std::vector<FF::MenuInfo> expanded_info;
    for (const auto& item : info) {
       if (item.is_custom_block()) {
-         std::vector<FF::MenuInfo> block = item.custom_block(fv_context);
+         std::vector<FF::MenuInfo> block = item.custom_block(ui_context);
          expanded_info.insert(expanded_info.end(), block.begin(), block.end());
       } else {
          expanded_info.push_back(item);
@@ -97,7 +53,7 @@ std::vector<FF::MenuInfo> expand_custom_blocks(const std::vector<FF::MenuInfo>& 
    return expanded_info;
 }
 
-Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_context) {
+Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
    Gtk::Menu* menu = new Gtk::Menu();
    Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
 
@@ -106,7 +62,7 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_conte
    bool has_custom_blocks = std::find_if(info.begin(), info.end(),
        [](const auto& item){ return item.is_custom_block(); }) != info.end();
    if (has_custom_blocks) {
-      expanded_menu = expand_custom_blocks(info, fv_context);
+      expanded_menu = expand_custom_blocks(info, ui_context);
    }
    const std::vector<FF::MenuInfo>& local_info = has_custom_blocks ? expanded_menu : info;
 
@@ -134,14 +90,14 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_conte
       }
 
       if (item.sub_menu) {
-         Gtk::Menu* submenu = build_menu(*item.sub_menu, fv_context);
+         Gtk::Menu* submenu = build_menu(*item.sub_menu, ui_context);
          menu_item->set_submenu(*submenu);
       }
 
-      ActivateCB action = item.handler ? item.handler : build_handler(item.mid, fv_context);
+      ActivateCB action = item.handler ? item.handler : ui_context.get_activate_cb(item.mid);
       menu_item->signal_activate().connect(action);
 
-      EnabledCB enabled_check = build_enabler(item.enabled, item.mid, fv_context);
+      EnabledCB enabled_check = item.enabled ? item.enabled : ui_context.get_enabled_cb(item.mid);
 
       // Wrap the check into an action which will be called when menuitem becomes visible
       // as a part of its containing menu.
@@ -158,7 +114,7 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_conte
    return menu;
 }
 
-Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, FVContext* fv_context) {
+Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context) {
    Gtk::MenuBar* menu_bar = new Gtk::MenuBar();
 
    for (const auto& item : info) {
@@ -166,7 +122,7 @@ Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, FVContext
       menu_bar->append(*menu_item);
 
       if (item.sub_menu) {
-         Gtk::Menu* sub_menu = build_menu(*item.sub_menu, fv_context);
+         Gtk::Menu* sub_menu = build_menu(*item.sub_menu, ui_context);
          menu_item->set_submenu(*sub_menu);
       }
    }

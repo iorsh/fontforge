@@ -31,6 +31,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <glib/gi18n.h>
 #include <gtkmm-3.0/gtkmm.h>
 
+#include "font_view.hpp"
 #include "menu_builder.hpp"
 
 namespace FontViewNS {
@@ -94,10 +95,13 @@ static const int MID_SetWidth = 2602;
 static const int MID_SetVWidth = 2605;
 static const int MID_OpenOutline	= 2701;
 
-std::vector<FF::MenuInfo> view_menu_bitmaps(FVContext* fv_context) {
+std::vector<FF::MenuInfo> view_menu_bitmaps(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+
     BitmapMenuData* bitmap_data_array = nullptr;
     int n_bitmaps = fv_context->collect_bitmap_data(fv_context->fv, &bitmap_data_array);
-   std::vector<FF::MenuInfo> info_arr;
+    std::vector<FF::MenuInfo> info_arr;
 
     for (int i = 0; i < n_bitmaps; ++i) {
         const BitmapMenuData& bitmap_data = bitmap_data_array[i];

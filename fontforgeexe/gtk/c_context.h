@@ -22,11 +22,11 @@ typedef struct fontview FontView;
 typedef struct bdffont BDFFont;
 
 
-typedef struct menu_action {
+typedef struct fv_menu_action {
    int mid;
    bool (*is_disabled)(FontView *fv, int mid);	/* called before showing */
    void (*action)(FontView *fv, int mid);	/* called on mouse release */
-} MenuAction;
+} FVMenuAction;
 
 #define MENUACTION_LAST { 0, NULL, NULL }
 
@@ -53,7 +53,7 @@ typedef struct fontview_context {
    unsigned int (*collect_bitmap_data)(FontView *fv, BitmapMenuData** bitmap_data_array);
 
    // Menu actions per menu ID
-   MenuAction* actions;
+   FVMenuAction* actions;
 } FVContext;
 
 #ifdef __cplusplus

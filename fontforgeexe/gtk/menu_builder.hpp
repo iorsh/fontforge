@@ -33,7 +33,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <variant>
 #include <gtkmm-3.0/gtkmm.h>
 
-#include "c_context.h"
+#include "ui_context.hpp"
 #include "utils.hpp"
 
 namespace FF {
@@ -80,9 +80,7 @@ struct LabelInfo {
 
 struct MenuInfo;
 
-using ActivateCB = std::function<void(void)>;
-using EnabledCB = std::function<bool(void)>;
-using MenuBlockCB = std::function<std::vector<MenuInfo>(FVContext*)>;
+using MenuBlockCB = std::function<std::vector<MenuInfo>(const UiContext&)>;
 
 struct MenuInfo {
     LabelInfo label;
@@ -120,8 +118,8 @@ struct MenuBarInfo {
     int mid;
 };
 
-Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_context);
+Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context);
 
-Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, FVContext* fv_context);
+Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context);
 
 }
