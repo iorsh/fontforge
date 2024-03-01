@@ -78,8 +78,11 @@ struct LabelInfo {
     Glib::ustring accelerator; // See the Gtk::AccelKey constructor for the format
 };
 
+struct MenuInfo;
+
 using ActivateCB = std::function<void(void)>;
 using EnabledCB = std::function<bool(void)>;
+using MenuBlockCB = std::function<std::vector<MenuInfo>(FVContext*)>;
 
 struct MenuInfo {
     LabelInfo label;
@@ -93,7 +96,15 @@ struct MenuInfo {
 
     int mid;
 
+    // Callback for custom block of menu items
+    MenuBlockCB custom_block;
+
     bool is_separator() const { return label.text == Glib::ustring(); }
+    bool is_custom_block() const { return (bool)custom_block; }
+
+    static MenuInfo CustomFVBlock(MenuBlockCB cb) {
+        return MenuInfo{.label = {""}, .custom_block = cb};
+    }
 };
 
 static const ActivateCB LegacyAction;

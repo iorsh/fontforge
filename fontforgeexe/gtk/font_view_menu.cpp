@@ -94,6 +94,30 @@ static const int MID_SetWidth = 2602;
 static const int MID_SetVWidth = 2605;
 static const int MID_OpenOutline	= 2701;
 
+std::vector<FF::MenuInfo> view_menu_bitmaps(FVContext* fv_context) {
+    BitmapMenuData* bitmap_data_array = nullptr;
+    int n_bitmaps = fv_context->collect_bitmap_data(fv_context->fv, &bitmap_data_array);
+   std::vector<FF::MenuInfo> info_arr;
+
+    for (int i = 0; i < n_bitmaps; ++i) {
+        const BitmapMenuData& bitmap_data = bitmap_data_array[i];
+        char buffer[50];
+
+	if (bitmap_data.depth == 1)
+	    sprintf(buffer, _("%d pixel bitmap"), bitmap_data.pixelsize);
+	else
+	    sprintf(buffer, _("%d@%d pixel bitmap"),
+                    bitmap_data.pixelsize, bitmap_data.depth);
+
+        FF::ActivateCB action = [cb=fv_context->change_display_bitmap, fv=fv_context->fv, bdf=bitmap_data.bdf](){
+            cb(fv, bdf);
+        };
+        FF::MenuInfo info{ { buffer, FF::CellPixelView, "" }, nullptr, FF::AlwaysEnabled, action, 0 };
+        info_arr.push_back(info);
+    }
+    return info_arr;
+}
+
 std::vector<FF::MenuInfo> file_menu = {
     { { N_("_New"), FF::NonCheckable, "<control>u" }, nullptr, FF::AlwaysEnabled, FF::LegacyAction, MID_OpenOutline },
 };
@@ -169,6 +193,7 @@ std::vector<FF::MenuInfo> view_menu = {
     { { N_("_Fit to font bounding box"), FF::Checkable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_FitToBbox },
     FF::kMenuSeparator,
     { { N_("Bitmap _Magnification..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCheck, FF::LegacyAction, MID_BitmapMag },
+    FF::MenuInfo::CustomFVBlock(view_menu_bitmaps),
 };
 
 std::vector<FF::MenuBarInfo> top_menu = {

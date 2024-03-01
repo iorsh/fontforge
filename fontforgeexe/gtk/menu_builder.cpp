@@ -84,16 +84,38 @@ EnabledCB build_enabler(EnabledCB enabled, int mid, FVContext* fv_context) {
    }
 }
 
+std::vector<FF::MenuInfo> expand_custom_blocks(const std::vector<FF::MenuInfo>& info, FVContext* fv_context) {
+   std::vector<FF::MenuInfo> expanded_info;
+   for (const auto& item : info) {
+      if (item.is_custom_block()) {
+         std::vector<FF::MenuInfo> block = item.custom_block(fv_context);
+         expanded_info.insert(expanded_info.end(), block.begin(), block.end());
+      } else {
+         expanded_info.push_back(item);
+      }
+   }
+   return expanded_info;
+}
+
 Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, FVContext* fv_context) {
    Gtk::Menu* menu = new Gtk::Menu();
    Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
+
+   // If the menu contains custom block, we expand it before further processing
+   std::vector<FF::MenuInfo> expanded_menu;
+   bool has_custom_blocks = std::find_if(info.begin(), info.end(),
+       [](const auto& item){ return item.is_custom_block(); }) != info.end();
+   if (has_custom_blocks) {
+      expanded_menu = expand_custom_blocks(info, fv_context);
+   }
+   const std::vector<FF::MenuInfo>& local_info = has_custom_blocks ? expanded_menu : info;
 
    // GTK doesn't have any signal that would be fired before the specific
    // subitem is shown. We collect enabled state checks for all subitems and
    // call them one by one from menu's show event.
    std::vector<std::function<void(void)>> enablers;
 
-   for (const auto& item : info) {
+   for (const auto& item : local_info) {
       Gtk::MenuItem* menu_item = nullptr;
       if (item.is_separator()) {
          menu_item = new Gtk::SeparatorMenuItem();
