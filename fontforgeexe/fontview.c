@@ -5358,6 +5358,31 @@ static GMenuItem2 vwlist[] = {
     GMENUITEM2_EMPTY
 };
 
+unsigned int collect_bitmap_data(FontView *fv, BitmapMenuData** bitmap_data_array) {
+    unsigned int i, n_bitmaps = 0;
+    SplineFont *sf = fv->b.sf;
+    SplineFont *master = sf->cidmaster ? sf->cidmaster : sf;
+    BDFFont *bdf;
+
+    if ( master->bitmaps == NULL ) {
+        *bitmap_data_array = NULL;
+        return 0;
+    }
+
+    /* Cound the available bitmaps */
+    for ( bdf = master->bitmaps; bdf!=NULL; ++n_bitmaps, bdf = bdf->next );
+        
+    *bitmap_data_array = calloc(n_bitmaps, sizeof(BitmapMenuData));
+    for ( bdf = master->bitmaps, i = 0; bdf!=NULL; ++i, bdf = bdf->next ) {
+        (*bitmap_data_array)[i].bdf = bdf;
+        (*bitmap_data_array)[i].pixelsize = bdf->pixelsize;
+        (*bitmap_data_array)[i].depth = BDFDepth(bdf);
+        (*bitmap_data_array)[i].current = bdf==fv->show;
+    }
+
+    return n_bitmaps;
+}
+
 static void vwlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
     int anychars = FVAnyCharSelected(fv);
@@ -7465,6 +7490,8 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context.fv = fv;
     fv_context.scroll_fontview_to_position_cb = FVScrollToPos;
     fv_context.tooltip_message_cb = FVTooltipMessage;
+    fv_context.change_display_bitmap = FV_ChangeDisplayBitmap;
+    fv_context.collect_bitmap_data = collect_bitmap_data;
     fv_context.actions = fvpopupactions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
 

@@ -19,6 +19,8 @@ extern "C" {
 
 // C structures and callbacks for interacting with legacy code
 typedef struct fontview FontView;
+typedef struct bdffont BDFFont;
+
 
 typedef struct menu_action {
    int mid;
@@ -27,6 +29,14 @@ typedef struct menu_action {
 } MenuAction;
 
 #define MENUACTION_LAST { 0, NULL, NULL }
+
+typedef struct bitmap_menu_data {
+   BDFFont *bdf;
+   int16_t pixelsize;
+   int depth;
+   bool current;
+} BitmapMenuData;
+
 typedef struct fontview_context {
    FontView* fv;
 
@@ -35,6 +45,12 @@ typedef struct fontview_context {
 
    // Tooltip message to display for particular character
    char* (*tooltip_message_cb)(FontView* fv, int x, int y);
+
+   // Set view to bitmap font
+   void (*change_display_bitmap)(FontView *fv, BDFFont *bdf);
+
+   // Collect bitmap fonts data for menu display
+   unsigned int (*collect_bitmap_data)(FontView *fv, BitmapMenuData** bitmap_data_array);
 
    // Menu actions per menu ID
    MenuAction* actions;
