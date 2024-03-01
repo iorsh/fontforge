@@ -25,6 +25,7 @@ typedef struct bdffont BDFFont;
 typedef struct fv_menu_action {
    int mid;
    bool (*is_disabled)(FontView *fv, int mid);	/* called before showing */
+   bool (*is_checked)(FontView *fv, int mid);	/* called before showing */
    void (*action)(FontView *fv, int mid);	/* called on mouse release */
 } FVMenuAction;
 

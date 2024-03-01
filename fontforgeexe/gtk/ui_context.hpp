@@ -34,6 +34,7 @@ namespace FF {
 
 using ActivateCB = std::function<void(void)>;
 using EnabledCB = std::function<bool(void)>;
+using CheckedCB = std::function<bool(void)>;
 
 class UiContext {
 public:
@@ -41,6 +42,7 @@ public:
 
     virtual ActivateCB get_activate_cb(int mid) const = 0;
     virtual EnabledCB get_enabled_cb(int mid) const = 0;
+    virtual CheckedCB get_checked_cb(int mid) const = 0;
 };
 
 }

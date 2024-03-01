@@ -26,6 +26,7 @@ public:
 
     FF::ActivateCB get_activate_cb(int mid) const override;
     FF::EnabledCB get_enabled_cb(int mid) const override;
+    FF::CheckedCB get_checked_cb(int mid) const override;
 
     FVContext* get_legacy_context() const { return legacy_context; }
 private:

@@ -109,6 +109,7 @@ static const ActivateCB LegacyAction;
 static const ActivateCB NoAction = [](){}; // NOOP callable action
 static const EnabledCB LegacyCheck;
 static const EnabledCB AlwaysEnabled = [](){ return true; };
+static const CheckedCB NotCheckable = [](){ return true; };
 
 static const MenuInfo kMenuSeparator = {{""}};
 

@@ -47,6 +47,18 @@ FF::EnabledCB FontViewUiContext::get_enabled_cb(int mid) const {
    }
 }
 
+FF::CheckedCB FontViewUiContext::get_checked_cb(int mid) const {
+   FVMenuAction* callback_set = find_callback_set(mid, legacy_context);
+
+   if (callback_set != NULL && callback_set->is_checked != NULL) {
+      bool (*checked_cb)(FontView*, int) = callback_set->is_checked;
+      FontView* fv = legacy_context->fv;
+      return [checked_cb, fv, mid](){ return checked_cb(fv, mid); };
+   } else {
+      return FF::NotCheckable;
+   }
+}
+
 // Create info label at the top of the Font View, which shows name and
 // properties of the most recently selected character 
 Gtk::Label* make_character_info_label() {
