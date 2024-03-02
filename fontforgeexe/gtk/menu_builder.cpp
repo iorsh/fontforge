@@ -44,7 +44,7 @@ std::vector<FF::MenuInfo> expand_custom_blocks(const std::vector<FF::MenuInfo>& 
    std::vector<FF::MenuInfo> expanded_info;
    for (const auto& item : info) {
       if (item.is_custom_block()) {
-         std::vector<FF::MenuInfo> block = item.custom_block(ui_context);
+         std::vector<FF::MenuInfo> block = item.callbacks.custom_block(ui_context);
          expanded_info.insert(expanded_info.end(), block.begin(), block.end());
       } else {
          expanded_info.push_back(item);
@@ -94,10 +94,10 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
          menu_item->set_submenu(*submenu);
       }
 
-      ActivateCB action = item.handler ? item.handler : ui_context.get_activate_cb(item.mid);
+      ActivateCB action = item.callbacks.handler ? item.callbacks.handler : ui_context.get_activate_cb(item.mid);
       menu_item->signal_activate().connect(action);
 
-      EnabledCB enabled_check = item.enabled ? item.enabled : ui_context.get_enabled_cb(item.mid);
+      EnabledCB enabled_check = item.callbacks.enabled ? item.callbacks.enabled : ui_context.get_enabled_cb(item.mid);
 
       // Wrap the check into an action which will be called when menuitem becomes visible
       // as a part of its containing menu.

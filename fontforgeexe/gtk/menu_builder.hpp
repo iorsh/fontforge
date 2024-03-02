@@ -82,34 +82,41 @@ struct MenuInfo;
 
 using MenuBlockCB = std::function<std::vector<MenuInfo>(const UiContext&)>;
 
-struct MenuInfo {
-    LabelInfo label;
-    std::vector<MenuInfo> *sub_menu;
+static const ActivateCB LegacyAction;
+static const ActivateCB NoAction = [](){}; // NOOP callable action
+static const EnabledCB LegacyCheck;
+static const EnabledCB AlwaysEnabled = [](){ return true; };
+static const CheckedCB NotCheckable = [](){ return true; };
 
+struct MenuCallbacks {
     // By design menu callbacks don't have any arguments, since it's impossible
     // to know in advance what input they might need. All input should be passed
     // by lambda capture.
     EnabledCB enabled;
     ActivateCB handler;	/* called on mouse release */
 
-    int mid;
-
     // Callback for custom block of menu items
     MenuBlockCB custom_block;
-
-    bool is_separator() const { return label.text == Glib::ustring(); }
-    bool is_custom_block() const { return (bool)custom_block; }
-
-    static MenuInfo CustomFVBlock(MenuBlockCB cb) {
-        return MenuInfo{.label = {""}, .custom_block = cb};
-    }
 };
 
-static const ActivateCB LegacyAction;
-static const ActivateCB NoAction = [](){}; // NOOP callable action
-static const EnabledCB LegacyCheck;
-static const EnabledCB AlwaysEnabled = [](){ return true; };
-static const CheckedCB NotCheckable = [](){ return true; };
+static const MenuCallbacks LegacyCallbacks = { LegacyCheck, LegacyAction, MenuBlockCB() };
+static const MenuCallbacks SubMenuCallbacks = { AlwaysEnabled, NoAction, MenuBlockCB() };
+
+struct MenuInfo {
+    LabelInfo label;
+    std::vector<MenuInfo> *sub_menu;
+
+    MenuCallbacks callbacks;
+
+    int mid;
+
+    bool is_separator() const { return label.text == Glib::ustring(); }
+    bool is_custom_block() const { return (bool)callbacks.custom_block; }
+
+    static MenuInfo CustomFVBlock(MenuBlockCB cb) {
+        return MenuInfo{.label = {""}, .callbacks = { LegacyCheck, NoAction, cb } };
+    }
+};
 
 static const MenuInfo kMenuSeparator = {{""}};
 
