@@ -70,6 +70,7 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
    // subitem is shown. We collect enabled state checks for all subitems and
    // call them one by one from menu's show event.
    std::vector<std::function<void(void)>> enablers;
+   std::vector<std::function<void(void)>> checkers;
 
    for (const auto& item : local_info) {
       Gtk::MenuItem* menu_item = nullptr;
@@ -94,9 +95,6 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
          menu_item->set_submenu(*submenu);
       }
 
-      ActivateCB action = item.callbacks.handler ? item.callbacks.handler : ui_context.get_activate_cb(item.mid);
-      menu_item->signal_activate().connect(action);
-
       EnabledCB enabled_check = item.callbacks.enabled ? item.callbacks.enabled : ui_context.get_enabled_cb(item.mid);
 
       // Wrap the check into an action which will be called when menuitem becomes visible
@@ -104,11 +102,41 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
       auto enabler = [menu_item, enabled_check](){ menu_item->set_sensitive(enabled_check()); };
       enablers.push_back(enabler);
 
+      ActivateCB action = item.callbacks.handler ? item.callbacks.handler : ui_context.get_activate_cb(item.mid);
+
+      Gtk::CheckMenuItem* check_menu_item = dynamic_cast<Gtk::CheckMenuItem*>(menu_item);
+      if (check_menu_item) {
+         CheckedCB checked_cb = item.callbacks.checked ? item.callbacks.checked : ui_context.get_checked_cb(item.mid);
+         // Wrap the check into an action which will be called when menuitem becomes visible
+         // as a part of its containing menu.
+         auto checker = [check_menu_item, checked_cb](){ check_menu_item->set_active(checked_cb()); };
+         checkers.push_back(checker);
+
+         // A check item may change its visible state either as a result of direct
+         // user's action, or when initializing or due to some activity which
+         // indirectly affects it. The activation signal is emitted always, but
+         // we must invoke the actual callback only if the underlying state needs
+         // indeed to be modified.
+         ActivateCB check_action = [check_menu_item, checked_cb, action](){
+            bool visible_state = check_menu_item->get_active();
+            bool underlying_state = checked_cb();
+            if (visible_state != underlying_state) {
+                action();
+            }
+         };
+         menu_item->signal_activate().connect(check_action);
+      } else {
+         menu_item->signal_activate().connect(action);
+      }
+
       menu->append(*menu_item);
    }
 
    // Just call all the collected menuitem enablers
-   auto on_menu_show = [enablers](){ for (auto e : enablers) { e(); } };
+   auto on_menu_show = [enablers, checkers](){
+        for (auto e : enablers) { e(); }
+        for (auto c : checkers) { c(); }
+   };
    menu->signal_show().connect(on_menu_show);
 
    return menu;

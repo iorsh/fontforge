@@ -3109,10 +3109,12 @@ return;
 	FVChangeChar(fv,pos);
 }
 
+#if 0
 static void FVMenuChangeChar(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
     _FVMenuChangeChar(fv,mi->mid);
 }
+#endif
 
 static void FVShowSubFont(FontView *fv,SplineFont *new) {
     MetricsView *mv, *mvnext;
@@ -3450,6 +3452,10 @@ static void FV_ChangeDisplayBitmap(FontView *fv,BDFFont *bdf) {
     }
 }
 
+static bool FV_CurrentDisplayBitmap(FontView *fv,BDFFont *bdf) {
+    return bdf == fv->show;
+}
+
 static void FVMenuSize(FontView *fv, int mid) {
     int dspsize = fv->filled->pixelsize;
     int changedmodifier = false;
@@ -3603,12 +3609,14 @@ static void FVMenuGlyphLabel(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)
     SavePrefs(true);
 }
 
+#if 0
 static void FVMenuShowBitmap(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
     BDFFont *bdf = mi->ti.userdata;
 
     FV_ChangeDisplayBitmap(fv,bdf);		/* Let's not change any of the others */
 }
+#endif
 
 static void FV_ShowFilled(FontView *fv) {
 
@@ -5317,12 +5325,12 @@ static void lylistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     mi->sub = sub;
 }
 
+#if 0
 static GMenuItem2 vwlist[] = {
     { { (unichar_t *) N_("_Next Glyph"), (GImage *) "viewnext.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'N' }, H_("Next Glyph|No Shortcut"), NULL, NULL, FVMenuChangeChar, MID_Next },
     { { (unichar_t *) N_("_Prev Glyph"), (GImage *) "viewprev.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'P' }, H_("Prev Glyph|No Shortcut"), NULL, NULL, FVMenuChangeChar, MID_Prev },
     { { (unichar_t *) N_("Next _Defined Glyph"), (GImage *) "viewnextdef.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'D' }, H_("Next Defined Glyph|No Shortcut"), NULL, NULL, FVMenuChangeChar, MID_NextDef },
     { { (unichar_t *) N_("Prev Defined Gl_yph"), (GImage *) "viewprevdef.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'a' }, H_("Prev Defined Glyph|No Shortcut"), NULL, NULL, FVMenuChangeChar, MID_PrevDef },
-#if 0
     { { (unichar_t *) N_("_Goto"), (GImage *) "viewgoto.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'G' }, H_("Goto|No Shortcut"), NULL, NULL, FVMenuGotoChar, 0 },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("_Layers"), (GImage *) "viewlayers.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Layers|No Shortcut"), lylist, lylistcheck, NULL, 0 },
@@ -5350,13 +5358,13 @@ static GMenuItem2 vwlist[] = {
     { { (unichar_t *) N_("_Fit to font bounding box"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 1, 0, 0, 0, 1, 1, 0, 'F' }, H_("Fit to font bounding box|No Shortcut"), NULL, NULL, FVMenuSize, MID_FitToBbox },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("Bitmap _Magnification..."), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 1, 0, 0, 0, 1, 1, 0, 'F' }, H_("Bitmap Magnification...|No Shortcut"), NULL, NULL, FVMenuMagnify, MID_BitmapMag },
-#endif
     GMENUITEM2_EMPTY,			/* Some extra room to show bitmaps */
     GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY,
     GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY,
     GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY, GMENUITEM2_EMPTY,
     GMENUITEM2_EMPTY
 };
+#endif
 
 unsigned int collect_bitmap_data(FontView *fv, BitmapMenuData** bitmap_data_array) {
     unsigned int i, n_bitmaps = 0;
@@ -5383,25 +5391,15 @@ unsigned int collect_bitmap_data(FontView *fv, BitmapMenuData** bitmap_data_arra
     return n_bitmaps;
 }
 
-static void vwlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static bool vwlistdisabled(FontView *fv, int mid) {
     int anychars = FVAnyCharSelected(fv);
-    int i, base;
-    BDFFont *bdf;
-    char buffer[50];
     int pos;
     SplineFont *sf = fv->b.sf;
-    SplineFont *master = sf->cidmaster ? sf->cidmaster : sf;
     EncMap *map = fv->b.map;
     OTLookup *otl;
+    bool disabled = false;
 
-    for ( i=0; vwlist[i].ti.text==NULL || strcmp((char *) vwlist[i].ti.text, _("Bitmap _Magnification..."))!=0; ++i );
-    base = i+1;
-    for ( i=base; vwlist[i].ti.text!=NULL; ++i ) {
-	free( vwlist[i].ti.text);
-	vwlist[i].ti.text = NULL;
-    }
-
+#if 0
     vwlist[base-1].ti.disabled = true;
     if ( master->bitmaps!=NULL ) {
 	for ( bdf = master->bitmaps, i=base;
@@ -5424,11 +5422,11 @@ static void vwlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     }
     GMenuItemArrayFree(mi->sub);
     mi->sub = GMenuItem2ArrayCopy(vwlist,NULL);
+#endif
 
-    for ( mi = mi->sub; mi->ti.text!=NULL || mi->ti.line ; ++mi ) {
-	switch ( mi->mid ) {
+	switch ( mid ) {
 	  case MID_Next: case MID_Prev:
-	    mi->ti.disabled = anychars<0;
+	    disabled = anychars<0;
 	  break;
 	  case MID_NextDef:
 	    pos = anychars+1;
@@ -5436,76 +5434,121 @@ static void vwlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
 	    for ( ; pos<map->enccount &&
 		    (map->map[pos]==-1 || !SCWorthOutputting(sf->glyphs[map->map[pos]]));
 		    ++pos );
-	    mi->ti.disabled = pos==map->enccount;
+	    disabled = pos==map->enccount;
 	  break;
 	  case MID_PrevDef:
 	    for ( pos = anychars-1; pos>=0 &&
 		    (map->map[pos]==-1 || !SCWorthOutputting(sf->glyphs[map->map[pos]]));
 		    --pos );
-	    mi->ti.disabled = pos<0;
+	    disabled = pos<0;
 	  break;
 	  case MID_DisplaySubs: { SplineFont *_sf = sf;
-	    mi->ti.checked = fv->cur_subtable!=NULL;
+	//     mi->ti.checked = fv->cur_subtable!=NULL;
 	    if ( _sf->cidmaster ) _sf = _sf->cidmaster;
 	    for ( otl=_sf->gsub_lookups; otl!=NULL; otl=otl->next )
 		if ( otl->lookup_type == gsub_single && otl->subtables!=NULL )
 	    break;
-	    mi->ti.disabled = otl==NULL;
+	    disabled = otl==NULL;
 	  } break;
 	  case MID_ShowHMetrics:
 	  break;
 	  case MID_ShowVMetrics:
-	    mi->ti.disabled = !sf->hasvmetrics;
+	    disabled = !sf->hasvmetrics;
 	  break;
 	  case MID_32x8:
-	    mi->ti.checked = (fv->rowcnt==8 && fv->colcnt==32);
-	    mi->ti.disabled = fv->b.container!=NULL;
+	//     mi->ti.checked = (fv->rowcnt==8 && fv->colcnt==32);
+	    disabled = fv->b.container!=NULL;
 	  break;
 	  case MID_16x4:
-	    mi->ti.checked = (fv->rowcnt==4 && fv->colcnt==16);
-	    mi->ti.disabled = fv->b.container!=NULL;
+	//     mi->ti.checked = (fv->rowcnt==4 && fv->colcnt==16);
+	    disabled = fv->b.container!=NULL;
 	  break;
 	  case MID_8x2:
-	    mi->ti.checked = (fv->rowcnt==2 && fv->colcnt==8);
-	    mi->ti.disabled = fv->b.container!=NULL;
+	//     mi->ti.checked = (fv->rowcnt==2 && fv->colcnt==8);
+	    disabled = fv->b.container!=NULL;
 	  break;
 	  case MID_24:
-	    mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==24);
-	    mi->ti.disabled = sf->onlybitmaps && fv->show!=fv->filled;
+	//     mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==24);
+	    disabled = sf->onlybitmaps && fv->show!=fv->filled;
 	  break;
 	  case MID_36:
-	    mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==36);
-	    mi->ti.disabled = sf->onlybitmaps && fv->show!=fv->filled;
+	//     mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==36);
+	    disabled = sf->onlybitmaps && fv->show!=fv->filled;
 	  break;
 	  case MID_48:
-	    mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==48);
-	    mi->ti.disabled = sf->onlybitmaps && fv->show!=fv->filled;
+	//     mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==48);
+	    disabled = sf->onlybitmaps && fv->show!=fv->filled;
 	  break;
 	  case MID_72:
-	    mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==72);
-	    mi->ti.disabled = sf->onlybitmaps && fv->show!=fv->filled;
+	//     mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==72);
+	    disabled = sf->onlybitmaps && fv->show!=fv->filled;
 	  break;
 	  case MID_96:
-	    mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==96);
-	    mi->ti.disabled = sf->onlybitmaps && fv->show!=fv->filled;
+	//     mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==96);
+	    disabled = sf->onlybitmaps && fv->show!=fv->filled;
 	  break;
 	  case MID_128:
-	    mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==128);
-	    mi->ti.disabled = sf->onlybitmaps && fv->show!=fv->filled;
+	//     mi->ti.checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==128);
+	    disabled = sf->onlybitmaps && fv->show!=fv->filled;
 	  break;
 	  case MID_AntiAlias:
-	    mi->ti.checked = (fv->show!=NULL && fv->show->clut!=NULL);
-	    mi->ti.disabled = sf->onlybitmaps && fv->show!=fv->filled;
+	//     mi->ti.checked = (fv->show!=NULL && fv->show->clut!=NULL);
+	    disabled = sf->onlybitmaps && fv->show!=fv->filled;
 	  break;
 	  case MID_FitToBbox:
-	    mi->ti.checked = (fv->show!=NULL && fv->show->bbsized);
-	    mi->ti.disabled = sf->onlybitmaps && fv->show!=fv->filled;
+	//     mi->ti.checked = (fv->show!=NULL && fv->show->bbsized);
+	    disabled = sf->onlybitmaps && fv->show!=fv->filled;
 	  break;
 	  case MID_Layers:
-	    mi->ti.disabled = sf->layer_cnt<=2 || sf->multilayer;
+	    disabled = sf->layer_cnt<=2 || sf->multilayer;
 	  break;
 	}
-    }
+    printf("mid %d, disabled %d\n", mid, disabled);
+    return disabled;
+}
+
+static bool vwlistchecked(FontView *fv, int mid) {
+    bool checked = false;
+
+	switch ( mid ) {
+	  case MID_DisplaySubs:
+	    checked = fv->cur_subtable!=NULL;
+	  case MID_32x8:
+	    checked = (fv->rowcnt==8 && fv->colcnt==32);
+	  break;
+	  case MID_16x4:
+	    checked = (fv->rowcnt==4 && fv->colcnt==16);
+	  break;
+	  case MID_8x2:
+	    checked = (fv->rowcnt==2 && fv->colcnt==8);
+	  break;
+	  case MID_24:
+	    checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==24);
+	  break;
+	  case MID_36:
+	    checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==36);
+	  break;
+	  case MID_48:
+	    checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==48);
+	  break;
+	  case MID_72:
+	    checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==72);
+	  break;
+	  case MID_96:
+	    checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==96);
+	  break;
+	  case MID_128:
+	    checked = (fv->show!=NULL && fv->show==fv->filled && fv->show->pixelsize==128);
+	  break;
+	  case MID_AntiAlias:
+	    checked = (fv->show!=NULL && fv->show->clut!=NULL);
+	  break;
+	  case MID_FitToBbox:
+	    checked = (fv->show!=NULL && fv->show->bbsized);
+	  break;
+	}
+    printf("mid %d, checked %d\n", mid, checked);
+    return checked;
 }
 
 static GMenuItem2 mtlist[] = {
@@ -5781,27 +5824,27 @@ FVMenuAction fvpopupactions[] = {
     { MID_BlueValuesHist, htlistcheck, NULL, FVMenuHistograms },
 
     /* View menu */
-    { MID_24, NULL, NULL, FVMenuSize },
-    { MID_36, NULL, NULL, FVMenuSize },
-    { MID_48, NULL, NULL, FVMenuSize },
-    { MID_72, NULL, NULL, FVMenuSize },
-    { MID_96, NULL, NULL, FVMenuSize },
-    { MID_128, NULL, NULL, FVMenuSize },
-    { MID_AntiAlias, NULL, NULL, FVMenuSize },
-    { MID_Next, NULL, NULL, _FVMenuChangeChar },
-    { MID_Prev, NULL, NULL, _FVMenuChangeChar },
-    { MID_NextDef, NULL, NULL, _FVMenuChangeChar },
-    { MID_PrevDef, NULL, NULL, _FVMenuChangeChar },
-    { MID_ShowHMetrics, NULL, NULL, FVMenuShowMetrics },
-    { MID_ShowVMetrics, NULL, NULL, FVMenuShowMetrics },
-    { MID_FitToBbox, NULL, NULL, FVMenuSize },
-    { MID_DisplaySubs, NULL, NULL, FVMenuDisplaySubs },
-    { MID_32x8, NULL, NULL, FVMenuWSize},
-    { MID_16x4, NULL, NULL, FVMenuWSize},
-    { MID_8x2, NULL, NULL, FVMenuWSize},
-    { MID_BitmapMag, NULL, NULL, FVMenuMagnify },
-    { MID_GotoChar, NULL, NULL, FVMenuGotoChar },
-    { MID_Show_ATT, NULL, NULL, FVMenuShowAtt },
+    { MID_24, vwlistdisabled, vwlistchecked, FVMenuSize },
+    { MID_36, vwlistdisabled, vwlistchecked, FVMenuSize },
+    { MID_48, vwlistdisabled, vwlistchecked, FVMenuSize },
+    { MID_72, vwlistdisabled, vwlistchecked, FVMenuSize },
+    { MID_96, vwlistdisabled, vwlistchecked, FVMenuSize },
+    { MID_128, vwlistdisabled, vwlistchecked, FVMenuSize },
+    { MID_AntiAlias, vwlistdisabled, vwlistchecked, FVMenuSize },
+    { MID_Next, vwlistdisabled, NULL, _FVMenuChangeChar },
+    { MID_Prev, vwlistdisabled, NULL, _FVMenuChangeChar },
+    { MID_NextDef, vwlistdisabled, NULL, _FVMenuChangeChar },
+    { MID_PrevDef, vwlistdisabled, NULL, _FVMenuChangeChar },
+    { MID_ShowHMetrics, vwlistdisabled, NULL, FVMenuShowMetrics },
+    { MID_ShowVMetrics, vwlistdisabled, NULL, FVMenuShowMetrics },
+    { MID_FitToBbox, vwlistdisabled, vwlistchecked, FVMenuSize },
+    { MID_DisplaySubs, vwlistdisabled, vwlistchecked, FVMenuDisplaySubs },
+    { MID_32x8, vwlistdisabled, vwlistchecked, FVMenuWSize},
+    { MID_16x4, vwlistdisabled, vwlistchecked, FVMenuWSize},
+    { MID_8x2, vwlistdisabled, vwlistchecked, FVMenuWSize},
+    { MID_BitmapMag, vwlistdisabled, NULL, FVMenuMagnify },
+    { MID_GotoChar, vwlistdisabled, NULL, FVMenuGotoChar },
+    { MID_Show_ATT, vwlistdisabled, NULL, FVMenuShowAtt },
 
     MENUACTION_LAST
 };
@@ -5817,7 +5860,9 @@ static GMenuItem2 mblist[] = {
     { { (unichar_t *) N_("H_ints"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'i' }, H_("Hints|No Shortcut"), htlist, NULL, NULL, 0 },
 */
     { { (unichar_t *) N_("E_ncoding"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("Encoding|No Shortcut"), enlist, enlistcheck, NULL, 0 },
-    { { (unichar_t *) N_("_View"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("View|No Shortcut"), vwlist, vwlistcheck, NULL, 0 },
+/*
+    { { (unichar_t *) N_("_View"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("View|No Shortcut"), vwlist, vwlistdisabled, NULL, 0 },
+*/
     { { (unichar_t *) N_("_Metrics"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'M' }, H_("Metrics|No Shortcut"), mtlist, mtlistcheck, NULL, 0 },
     { { (unichar_t *) N_("_CID"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, H_("CID|No Shortcut"), cdlist, cdlistcheck, NULL, 0 },
 /* GT: Here (and following) MM means "MultiMaster" */
@@ -7491,6 +7536,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context.scroll_fontview_to_position_cb = FVScrollToPos;
     fv_context.tooltip_message_cb = FVTooltipMessage;
     fv_context.change_display_bitmap = FV_ChangeDisplayBitmap;
+    fv_context.current_display_bitmap = FV_CurrentDisplayBitmap;
     fv_context.collect_bitmap_data = collect_bitmap_data;
     fv_context.actions = fvpopupactions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);

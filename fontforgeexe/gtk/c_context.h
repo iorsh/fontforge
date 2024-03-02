@@ -50,6 +50,9 @@ typedef struct fontview_context {
    // Set view to bitmap font
    void (*change_display_bitmap)(FontView *fv, BDFFont *bdf);
 
+   // Check if the current view is set to the bitmap font
+   bool (*current_display_bitmap)(FontView *fv, BDFFont *bdf);
+
    // Collect bitmap fonts data for menu display
    unsigned int (*collect_bitmap_data)(FontView *fv, BitmapMenuData** bitmap_data_array);
 

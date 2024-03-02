@@ -116,7 +116,10 @@ std::vector<FF::MenuInfo> view_menu_bitmaps(const FF::UiContext& ui_context) {
         FF::ActivateCB action = [cb=fv_context->change_display_bitmap, fv=fv_context->fv, bdf=bitmap_data.bdf](){
             cb(fv, bdf);
         };
-        FF::MenuInfo info{ { buffer, FF::CellPixelView, "" }, nullptr, FF::AlwaysEnabled, action, 0 };
+        FF::CheckedCB checker = [cb=fv_context->current_display_bitmap, fv=fv_context->fv, bdf=bitmap_data.bdf](){
+            return cb(fv, bdf);
+        };
+        FF::MenuInfo info{ { buffer, FF::CellPixelView, "" }, nullptr, { FF::AlwaysEnabled, checker, action }, 0 };
         info_arr.push_back(info);
     }
     return info_arr;
