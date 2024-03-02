@@ -5503,7 +5503,6 @@ static bool vwlistdisabled(FontView *fv, int mid) {
 	    disabled = sf->layer_cnt<=2 || sf->multilayer;
 	  break;
 	}
-    printf("mid %d, disabled %d\n", mid, disabled);
     return disabled;
 }
 
@@ -5547,7 +5546,6 @@ static bool vwlistchecked(FontView *fv, int mid) {
 	    checked = (fv->show!=NULL && fv->show->bbsized);
 	  break;
 	}
-    printf("mid %d, checked %d\n", mid, checked);
     return checked;
 }
 
