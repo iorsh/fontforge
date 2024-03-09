@@ -5520,6 +5520,7 @@ static bool vwlistchecked(FontView *fv, int mid) {
 	switch ( mid ) {
 	  case MID_DisplaySubs:
 	    checked = fv->cur_subtable!=NULL;
+	  break;
 	  case MID_32x8:
 	    checked = (fv->rowcnt==8 && fv->colcnt==32);
 	  break;

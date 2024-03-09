@@ -178,7 +178,7 @@ std::vector<FF::MenuInfo> view_menu = {
     { { N_("_Layers"), "viewlayers", "" }, &layers_menu, FF::SubMenuCallbacks, 0 },
     FF::kMenuSeparator,
     { { N_("_Show ATT"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Show_ATT },
-    { { N_("Display S_ubstitutions..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_DisplaySubs },
+    { { N_("Display S_ubstitutions..."), FF::Checkable, "" }, nullptr, FF::LegacyCallbacks, MID_DisplaySubs },
     { { N_("Com_binations"), FF::NonCheckable, "" }, &combinations_menu, FF::SubMenuCallbacks, 0 },
     FF::kMenuSeparator,
     { { N_("Label Gl_yph By"), FF::NonCheckable, "" }, &label_glyph_menu, FF::SubMenuCallbacks, 0 },
