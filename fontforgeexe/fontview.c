@@ -8006,9 +8006,12 @@ static void gs_sizeSet(FontView *fv, GWindow dw) {
     } else {
       width = size.width;
     }
-    height = size.height - fv->mbh - fv->infoh;
-
-    y = fv->mbh + fv->infoh;
+    height = size.height;
+    y = 0;
+    if (!IsGTK(fv)) {
+      height -= fv->mbh + fv->infoh;
+      y += fv->mbh + fv->infoh;
+    }
 
     topchar = fv->rowoff*fv->colcnt;
     cc = (width-1) / fv->cbw;
