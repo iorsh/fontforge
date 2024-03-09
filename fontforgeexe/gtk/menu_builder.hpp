@@ -55,7 +55,11 @@ enum RadioGroup {
 };
 
 // Lazily initialized collection of GTK groupers for radio buttons
+// TODO: get grouper by group id and window id. Current implementation
+// would break if there is more than one window.
 Gtk::RadioButtonGroup& get_grouper(RadioGroup g);
+
+Gtk::RadioMenuItem& get_dummy_radio_item(RadioGroup g);
 
 class LabelDecoration {
 public:
