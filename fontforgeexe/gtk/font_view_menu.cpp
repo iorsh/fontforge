@@ -125,6 +125,29 @@ std::vector<FF::MenuInfo> view_menu_bitmaps(const FF::UiContext& ui_context) {
     return info_arr;
 }
 
+std::vector<FF::MenuInfo> view_menu_layers(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+
+    LayerMenuData* layer_data_array = nullptr;
+    int n_layers = fv_context->collect_layer_data(fv_context->fv, &layer_data_array);
+    std::vector<FF::MenuInfo> info_arr;
+
+    for (int i = 0; i < n_layers; ++i) {
+        const LayerMenuData& layer_data = layer_data_array[i];
+
+        FF::ActivateCB action = [cb=fv_context->change_display_layer, fv=fv_context->fv, ly=layer_data.index](){
+            cb(fv, ly);
+        };
+        FF::CheckedCB checker = [cb=fv_context->current_display_layer, fv=fv_context->fv, ly=layer_data.index](){
+            return cb(fv, ly);
+        };
+        FF::MenuInfo info{ { layer_data.label, FF::ActiveLayer, "" }, nullptr, { FF::AlwaysEnabled, checker, action }, 0 };
+        info_arr.push_back(info);
+    }
+    return info_arr;
+}
+
 std::vector<FF::MenuInfo> file_menu = {
     { { N_("_New"), FF::NonCheckable, "<control>u" }, nullptr, FF::LegacyCallbacks, MID_OpenOutline },
 };
@@ -157,7 +180,7 @@ std::vector<FF::MenuInfo> hints_menu = {
 };
 
 std::vector<FF::MenuInfo> layers_menu = {
-    { { N_("LAYERS TODO"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+    FF::MenuInfo::CustomFVBlock(view_menu_layers),
 };
 
 std::vector<FF::MenuInfo> combinations_menu = {

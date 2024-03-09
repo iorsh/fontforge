@@ -3553,6 +3553,7 @@ static void FV_LayerChanged( FontView *fv ) {
     BDFFontFree(old);
 }
 
+#if 0
 static void FVMenuChangeLayer(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
 
@@ -3560,6 +3561,7 @@ static void FVMenuChangeLayer(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e
     fv->b.sf->display_layer = mi->mid;
     FV_LayerChanged(fv);
 }
+#endif
 
 static void FVMenuMagnify(FontView *fv,int UNUSED(mid)) {
     int magnify = fv->user_requested_magnify!=-1 ? fv->user_requested_magnify : fv->magnify;
@@ -5309,11 +5311,38 @@ static void enlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     }
 }
 
+#if 0
 static GMenuItem2 lylist[] = {
     { { (unichar_t *) N_("Layer|Foreground"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 1, 0, 1, 1, 0, 0, 1, 1, 0, '\0' }, NULL, NULL, NULL, FVMenuChangeLayer, ly_fore },
     GMENUITEM2_EMPTY
 };
+#endif
 
+void change_display_layer(FontView *fv, int ly) {
+    fv->b.active_layer = ly;
+    fv->b.sf->display_layer = ly;
+    FV_LayerChanged(fv);
+}
+
+bool current_display_layer(FontView *fv, int ly) {
+    return ly == fv->b.active_layer;
+}
+
+unsigned int collect_layer_data(FontView *fv, LayerMenuData** layer_data_array) {
+    unsigned int ly, n_layers = 0;
+    SplineFont *sf = fv->b.sf;
+
+    n_layers = sf->layer_cnt - 1;
+    *layer_data_array = calloc(n_layers, sizeof(LayerMenuData));
+    for ( ly=ly_fore; ly<sf->layer_cnt; ++ly ) {
+        (*layer_data_array)[ly-1].label = sf->layers[ly].name;
+        (*layer_data_array)[ly-1].index = ly;
+    }
+
+    return n_layers;
+}
+
+#if 0
 static void lylistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
     SplineFont *sf = fv->b.sf;
@@ -5333,7 +5362,6 @@ static void lylistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     mi->sub = sub;
 }
 
-#if 0
 static GMenuItem2 vwlist[] = {
     { { (unichar_t *) N_("_Next Glyph"), (GImage *) "viewnext.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'N' }, H_("Next Glyph|No Shortcut"), NULL, NULL, FVMenuChangeChar, MID_Next },
     { { (unichar_t *) N_("_Prev Glyph"), (GImage *) "viewprev.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'P' }, H_("Prev Glyph|No Shortcut"), NULL, NULL, FVMenuChangeChar, MID_Prev },
@@ -7545,6 +7573,9 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context.change_display_bitmap = FV_ChangeDisplayBitmap;
     fv_context.current_display_bitmap = FV_CurrentDisplayBitmap;
     fv_context.collect_bitmap_data = collect_bitmap_data;
+    fv_context.change_display_layer = change_display_layer;
+    fv_context.current_display_layer = current_display_layer;
+    fv_context.collect_layer_data = collect_layer_data;
     fv_context.actions = fvpopupactions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
 
