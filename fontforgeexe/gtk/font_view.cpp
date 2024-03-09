@@ -26,7 +26,7 @@ namespace FontViewNS {
 FF::ActivateCB FontViewUiContext::get_activate_cb(int mid) const {
    FVMenuAction* callback_set = find_callback_set(mid, legacy_context);
 
-   if (callback_set != NULL) {
+   if (callback_set != NULL && callback_set->action != NULL) {
       void (*action)(FontView*, int) = callback_set->action;
       FontView* fv = legacy_context->fv;
       return [action, fv, mid](){ action(fv, mid); };
