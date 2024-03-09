@@ -70,6 +70,19 @@ void fv_set_character_info(void* window, GString* info) {
    character_info->set_markup(markup);
 }
 
+void fv_resize_window(void* window, int width, int height) {
+   Gtk::Window* font_view_window = static_cast<Gtk::Window*>(window);
+   Gtk::Widget* drawing_area = gtk_find_child(font_view_window, "CharGrid");
+
+   // The target size is for DrawingArea, but we can resize only the top window.
+   // Compute size deltas to correctly transform between drawing area size
+   // and top window size.
+   int delta_width = font_view_window->get_allocated_width() - drawing_area->get_allocated_width();
+   int delta_height = font_view_window->get_allocated_height() - drawing_area->get_allocated_height();
+
+   font_view_window->resize(width + delta_width, height + delta_height);
+}
+
 FVMenuAction* find_callback_set(int mid, FVContext* fv_context) {
    FVMenuAction* actions = fv_context->actions;
 
