@@ -53,6 +53,7 @@ enum RadioGroup {
     CellWindowSize,
     CellPixelView,
     ActiveLayer,
+    GlyphLabel,
 };
 
 // Lazily initialized collection of GTK groupers for radio buttons

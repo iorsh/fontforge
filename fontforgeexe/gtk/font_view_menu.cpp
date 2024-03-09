@@ -98,6 +98,8 @@ static const int MID_SetWidth = 2602;
 static const int MID_SetVWidth = 2605;
 static const int MID_OpenOutline	= 2701;
 
+static const int MIDSERIES_LabelGlyph = 10000;
+
 std::vector<FF::MenuInfo> view_menu_bitmaps(const FF::UiContext& ui_context) {
     const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
     FVContext* fv_context = fv_ui_context.get_legacy_context();
@@ -197,7 +199,10 @@ std::vector<FF::MenuInfo> combinations_menu = {
 };
 
 std::vector<FF::MenuInfo> label_glyph_menu = {
-    { { N_("LABEL GLYPH TODO"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+    { { N_("_Glyph Image"), FF::GlyphLabel, "" }, nullptr, FF::LegacyCallbacks, MIDSERIES_LabelGlyph + gl_glyph },
+    { { N_("_Name"), FF::GlyphLabel, "" }, nullptr, FF::LegacyCallbacks, MIDSERIES_LabelGlyph + gl_name },
+    { { N_("_Unicode"), FF::GlyphLabel, "" }, nullptr, FF::LegacyCallbacks, MIDSERIES_LabelGlyph + gl_unicode },
+    { { N_("_Encoding Hex"), FF::GlyphLabel, "" }, nullptr, FF::LegacyCallbacks, MIDSERIES_LabelGlyph + gl_encoding },
 };
 
 std::vector<FF::MenuInfo> view_menu = {

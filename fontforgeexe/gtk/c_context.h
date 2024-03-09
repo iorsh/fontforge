@@ -21,6 +21,7 @@ extern "C" {
 typedef struct fontview FontView;
 typedef struct bdffont BDFFont;
 
+enum glyphlable { gl_glyph, gl_name, gl_unicode, gl_encoding };
 
 typedef struct fv_menu_action {
    int mid;
