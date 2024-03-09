@@ -49,6 +49,9 @@ static const int MID_NextDef = 2012;
 static const int MID_PrevDef = 2013;
 static const int MID_ShowHMetrics = 2016;
 static const int MID_ShowVMetrics = 2017;
+static const int MID_Ligatures = 2020;
+static const int MID_KernPairs = 2021;
+static const int MID_AnchorPairs = 2022;
 static const int MID_FitToBbox = 2023;
 static const int MID_DisplaySubs = 2024;
 static const int MID_32x8 = 2025;
@@ -183,8 +186,14 @@ std::vector<FF::MenuInfo> layers_menu = {
     FF::MenuInfo::CustomFVBlock(view_menu_layers),
 };
 
+std::vector<FF::MenuInfo> anchor_pairs_menu = {
+    { { N_("ANCHOR PAIRS TODO"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+};
+
 std::vector<FF::MenuInfo> combinations_menu = {
-    { { N_("COMBINATIONS TODO"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+    { { N_("_Kern Pairs"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_KernPairs },
+    { { N_("_Anchored Pairs"), FF::NonCheckable, "" }, &anchor_pairs_menu, FF::LegacyCallbacks, MID_AnchorPairs },
+    { { N_("_Ligatures"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Ligatures },
 };
 
 std::vector<FF::MenuInfo> label_glyph_menu = {
