@@ -153,6 +153,34 @@ std::vector<FF::MenuInfo> view_menu_layers(const FF::UiContext& ui_context) {
     return info_arr;
 }
 
+std::vector<FF::MenuInfo> view_menu_anchors(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+
+    AnchorMenuData* anchor_data_array = nullptr;
+    int n_anchors = fv_context->collect_anchor_data(fv_context->fv, &anchor_data_array);
+
+    std::vector<FF::MenuInfo> info_arr;
+
+    // Special item for all anchors
+    FF::ActivateCB action_all = [cb=fv_context->show_anchor_pair, fv=fv_context->fv](){
+        cb(fv, (AnchorClass*)-1);
+    };
+    info_arr.push_back({ { N_("All"), FF::NonCheckable, "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, action_all }, 0 });
+    info_arr.push_back(FF::kMenuSeparator);
+
+    for (int i = 0; i < n_anchors; ++i) {
+        const AnchorMenuData& anchor_data = anchor_data_array[i];
+
+        FF::ActivateCB action = [cb=fv_context->show_anchor_pair, fv=fv_context->fv, ac=anchor_data.ac](){
+            cb(fv, ac);
+        };
+        FF::MenuInfo info{ { anchor_data.label, FF::NonCheckable, "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, action }, 0 };
+        info_arr.push_back(info);
+    }
+    return info_arr;
+}
+
 std::vector<FF::MenuInfo> file_menu = {
     { { N_("_New"), FF::NonCheckable, "<control>u" }, nullptr, FF::LegacyCallbacks, MID_OpenOutline },
 };
@@ -189,7 +217,7 @@ std::vector<FF::MenuInfo> layers_menu = {
 };
 
 std::vector<FF::MenuInfo> anchor_pairs_menu = {
-    { { N_("ANCHOR PAIRS TODO"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+    FF::MenuInfo::CustomFVBlock(view_menu_anchors),
 };
 
 std::vector<FF::MenuInfo> combinations_menu = {

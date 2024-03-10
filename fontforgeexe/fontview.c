@@ -3197,9 +3197,8 @@ static void FVMenuKernPairs(FontView *fv, int UNUSED(mid)) {
     SFKernCleanup(fv->b.sf,false);
 }
 
-static void FVMenuAnchorPairs(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-    SFShowKernPairs(fv->b.sf,NULL,mi->ti.userdata,fv->b.active_layer);
+static void FVMenuAnchorPairs(FontView *fv, AnchorClass *ac) {
+    SFShowKernPairs(fv->b.sf,NULL,ac,fv->b.active_layer);
 }
 
 static void FVMenuShowAtt(FontView *fv,int UNUSED(mid)) {
@@ -4886,6 +4885,7 @@ static GMenuItem2 dummyall[] = {
     GMENUITEM2_EMPTY
 };
 
+#if 0
 /* Builds up a menu containing all the anchor classes */
 static void aplistbuild(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
@@ -4896,7 +4896,6 @@ static void aplistbuild(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     _aplistbuild(mi,fv->b.sf,FVMenuAnchorPairs);
 }
 
-#if 0
 static GMenuItem2 cblist[] = {
     { { (unichar_t *) N_("_Kern Pairs"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'K' }, H_("Kern Pairs|No Shortcut"), NULL, NULL, FVMenuKernPairs, MID_KernPairs },
     { { (unichar_t *) N_("_Anchored Pairs"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'K' }, H_("Anchored Pairs|No Shortcut"), dummyall, aplistbuild, NULL, MID_AnchorPairs },
@@ -7586,6 +7585,8 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context.change_display_layer = change_display_layer;
     fv_context.current_display_layer = current_display_layer;
     fv_context.collect_layer_data = collect_layer_data;
+    fv_context.show_anchor_pair = FVMenuAnchorPairs;
+    fv_context.collect_anchor_data = collect_anchor_data;
     fv_context.actions = fvpopupactions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
 
