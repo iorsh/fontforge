@@ -96,7 +96,25 @@ static const int MID_Deltas = 2518;
 static const int MID_Center = 2600;
 static const int MID_SetWidth = 2602;
 static const int MID_SetVWidth = 2605;
-static const int MID_OpenOutline	= 2701;
+static const int MID_OpenOutline = 2701;
+
+static const int MID_Reencode = 2830;
+static const int MID_ForceReencode = 2831;
+static const int MID_AddUnencoded = 2832;
+static const int MID_RemoveUnused = 2833;
+static const int MID_DetachGlyphs = 2834;
+static const int MID_DetachAndRemoveGlyphs = 2835;
+static const int MID_LoadEncoding = 2836;
+static const int MID_MakeFromFont = 2837;
+static const int MID_RemoveEncoding = 2838;
+static const int MID_DisplayByGroups = 2839;
+static const int MID_Compact = 2840;
+static const int MID_SaveNamelist = 2841;
+static const int MID_RenameGlyphs = 2842;
+static const int MID_NameGlyphs = 2843;
+static const int MID_AddEncoding = 2850;
+static const int MID_DefineGroups = 2851;
+static const int MID_LoadNameList = 2852;
 
 static const int MIDSERIES_LabelGlyph = 10000;
 
@@ -212,6 +230,38 @@ std::vector<FF::MenuInfo> hints_menu = {
     { { N_("Histograms"), FF::NonCheckable, "" }, &histograms_menu, FF::SubMenuCallbacks, 0 },
 };
 
+std::vector<FF::MenuInfo> reencode_menu = {
+    { { N_("TODO REENCODE"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+};
+
+std::vector<FF::MenuInfo> force_encoding_menu = {
+    { { N_("TODO FORCE ENCODING"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+};
+
+std::vector<FF::MenuInfo> encoding_menu = {
+    { { N_("_Reencode"), FF::NonCheckable, "" }, &reencode_menu, FF::LegacyCallbacks, MID_Reencode },
+    { { N_("_Compact (hide unused glyphs)"), FF::Checkable, "" }, nullptr, FF::LegacyCallbacks, MID_Compact },
+    { { N_("_Force Encoding"), FF::NonCheckable, "" }, &force_encoding_menu, FF::LegacyCallbacks, MID_ForceReencode },
+    FF::kMenuSeparator,
+    { { N_("_Add Encoding Slots..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_AddUnencoded },
+    { { N_("Remove _Unused Slots"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_RemoveUnused },
+    { { N_("_Detach Glyphs"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_DetachGlyphs },
+    { { N_("Detach & Remo_ve Glyphs..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_DetachAndRemoveGlyphs },
+    FF::kMenuSeparator,
+    { { N_("Add E_ncoding Name..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_AddEncoding },
+    { { N_("_Load Encoding..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_LoadEncoding },
+    { { N_("Ma_ke From Font..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_MakeFromFont },
+    { { N_("Remove En_coding..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_RemoveEncoding },
+    FF::kMenuSeparator,
+    { { N_("Display By _Groups..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_DisplayByGroups },
+    { { N_("D_efine Groups..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_DefineGroups },
+    FF::kMenuSeparator,
+    { { N_("_Save Namelist of Font..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_SaveNamelist },
+    { { N_("L_oad Namelist..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_LoadNameList },
+    { { N_("Rename Gl_yphs..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_RenameGlyphs },
+    { { N_("Cre_ate Named Glyphs..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_NameGlyphs },
+};
+
 std::vector<FF::MenuInfo> layers_menu = {
     FF::MenuInfo::CustomFVBlock(view_menu_layers),
 };
@@ -276,7 +326,7 @@ std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("_Tools") }, nullptr, -1 },
 #endif
     { { N_("H_ints") }, &hints_menu, -1 },
-    { { N_("E_ncoding") }, nullptr, -1 },
+    { { N_("E_ncoding") }, &encoding_menu, -1 },
     { { N_("_View") }, &view_menu, -1 },
     { { N_("_Metrics") }, nullptr, -1 },
     { { N_("_CID") }, nullptr, -1 },
