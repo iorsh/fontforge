@@ -35,6 +35,8 @@
 #include "ustring.h"
 #include "utype.h"
 
+#include "gtk/c_context.h"
+
 #include <dirent.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -489,6 +491,55 @@ return;
     }
 }
 
+bool IsCurrentEncoding(Encoding *current, const char *enc_name) {
+    return (strmatch(enc_name,current->enc_name)==0 ||
+	    (current->iconv_name!=NULL && strmatch(enc_name,current->iconv_name)==0));
+}
+
+unsigned int collect_encoding_data(FontView *fv, EncodingMenuData** encoding_data_array) {
+    unsigned int n_standard_encodings = sizeof(encodingtypes)/sizeof(encodingtypes[0]);
+    unsigned int i, n_encodings, n_user_encodings = 0;
+    Encoding *item;
+
+    EncodingInit();
+
+    n_user_encodings = 0;
+    for ( item=enclist; item!=NULL ; item=item->next )
+	if ( !item->hidden )
+	    ++n_user_encodings;
+
+    /* Add separator between encoding sources */
+    n_encodings = (n_user_encodings == 0) ? n_standard_encodings
+                                          : n_standard_encodings + n_user_encodings + 1;
+
+    *encoding_data_array = calloc(n_encodings, sizeof(EncodingMenuData));
+    for ( i = 0; i < n_standard_encodings; ++i ) {
+        if (encodingtypes[i].line) {
+            /* separator */
+            (*encoding_data_array)[i].label = NULL;
+            (*encoding_data_array)[i].enc_name = NULL;
+        } else {
+            (*encoding_data_array)[i].label = encodingtypes[i].text;
+            (*encoding_data_array)[i].enc_name = encodingtypes[i].userdata;
+        }
+    }
+
+    if (n_user_encodings > 0) {
+        /* Add separator before user encodings */
+        (*encoding_data_array)[i].label = NULL;
+        (*encoding_data_array)[i].enc_name = NULL;
+        ++i;
+
+	for ( item=enclist; item!=NULL; ++i, item=item->next ) {
+            (*encoding_data_array)[i].label = item->enc_name;
+            (*encoding_data_array)[i].enc_name = item->enc_name;
+        }
+    }
+
+    return n_encodings;
+}
+
+#if 0
 GMenuItem *GetEncodingMenu(void (*func)(GWindow,GMenuItem *,GEvent *),
 	Encoding *current) {
     GMenuItem *mi;
@@ -533,6 +584,7 @@ GMenuItem *GetEncodingMenu(void (*func)(GWindow,GMenuItem *,GEvent *),
     }
 return( mi );
 }
+#endif
 
 GTextInfo *GetEncodingTypes(void) {
     GTextInfo *ti;

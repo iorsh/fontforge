@@ -118,6 +118,47 @@ static const int MID_LoadNameList = 2852;
 
 static const int MIDSERIES_LabelGlyph = 10000;
 
+std::vector<FF::MenuInfo> encodings(FVContext* fv_context,
+                                    void (*encoding_action)(FontView*, const char*),
+                                    FF::RadioGroup group) {
+    EncodingMenuData* encoding_data_array = nullptr;
+    int n_encodings = fv_context->collect_encoding_data(fv_context->fv, &encoding_data_array);
+    std::vector<FF::MenuInfo> info_arr;
+
+    for (int i = 0; i < n_encodings; ++i) {
+        const EncodingMenuData& encoding_data = encoding_data_array[i];
+
+        if (encoding_data.enc_name == nullptr) {
+            info_arr.push_back(FF::kMenuSeparator);
+            continue;
+        }
+
+        FF::ActivateCB action = [encoding_action, fv=fv_context->fv, enc_name=encoding_data.enc_name](){
+            encoding_action(fv, enc_name);
+        };
+        FF::CheckedCB checker = [cb=fv_context->current_encoding, fv=fv_context->fv, enc_name=encoding_data.enc_name](){
+            return cb(fv, enc_name);
+        };
+        FF::MenuInfo info{ { encoding_data.label, group, "" }, nullptr, { FF::AlwaysEnabled, checker, action }, 0 };
+        info_arr.push_back(info);
+    }
+    return info_arr;
+}
+
+std::vector<FF::MenuInfo> encoding_reencode(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+
+    return encodings(fv_context, fv_context->change_encoding, FF::Encoding);
+}
+
+std::vector<FF::MenuInfo> encoding_force_encoding(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+
+    return encodings(fv_context, fv_context->force_encoding, FF::ForcedEncoding);
+}
+
 std::vector<FF::MenuInfo> view_menu_bitmaps(const FF::UiContext& ui_context) {
     const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
     FVContext* fv_context = fv_ui_context.get_legacy_context();
@@ -231,11 +272,11 @@ std::vector<FF::MenuInfo> hints_menu = {
 };
 
 std::vector<FF::MenuInfo> reencode_menu = {
-    { { N_("TODO REENCODE"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+    FF::MenuInfo::CustomFVBlock(encoding_reencode),
 };
 
 std::vector<FF::MenuInfo> force_encoding_menu = {
-    { { N_("TODO FORCE ENCODING"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+    FF::MenuInfo::CustomFVBlock(encoding_force_encoding),
 };
 
 std::vector<FF::MenuInfo> encoding_menu = {

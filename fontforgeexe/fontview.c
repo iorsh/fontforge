@@ -4071,13 +4071,16 @@ return( sc );
 return( NULL );
 }
 
-static void FVMenuReencode(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static bool FVMenuCurrentEncoding(FontView *fv, const char *enc_name) {
+    return IsCurrentEncoding(fv->b.map->enc, enc_name);
+}
+
+static void FVMenuReencode(FontView *fv, const char *enc_name) {
     Encoding *enc = NULL;
     SplineChar *sc;
 
     sc = FVFindACharInDisplay(fv);
-    enc = FindOrMakeEncoding(mi->ti.userdata);
+    enc = FindOrMakeEncoding(enc_name);
     if ( enc==NULL ) {
 	IError("Known encoding could not be found");
 return;
@@ -4090,12 +4093,11 @@ return;
     }
 }
 
-static void FVMenuForceEncode(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuForceEncode(FontView *fv, const char *enc_name) {
     Encoding *enc = NULL;
     int oldcnt = fv->b.map->enccount;
 
-    enc = FindOrMakeEncoding(mi->ti.userdata);
+    enc = FindOrMakeEncoding(enc_name);
     if ( enc==NULL ) {
 	IError("Known encoding could not be found");
 return;
@@ -4879,12 +4881,12 @@ static GMenuItem2 ellist[] = {
     GMENUITEM2_EMPTY
 };
 
+#if 0
 static GMenuItem2 dummyall[] = {
     { { (unichar_t *) N_("All"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 1, 0, 0, 0, 0, 0, 1, 1, 0, 'K' }, H_("All|No Shortcut"), NULL, NULL, NULL, 0 },
     GMENUITEM2_EMPTY
 };
 
-#if 0
 /* Builds up a menu containing all the anchor classes */
 static void aplistbuild(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
@@ -4956,6 +4958,7 @@ static bool gllistcheck(FontView *fv, int mid) {
     return checked;
 }
 
+#if 0
 static GMenuItem2 emptymenu[] = {
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0},
     GMENUITEM2_EMPTY
@@ -4970,6 +4973,7 @@ static void FVEncodingMenuBuild(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED
     }
     mi->sub = GetEncodingMenu(FVMenuReencode,fv->b.map->enc);
 }
+#endif
 
 static void FVMenuAddUnencoded(FontView *fv, int UNUSED(mid)) {
     char *ret, *end;
@@ -5021,6 +5025,7 @@ return;
     FVDetachAndRemoveGlyphs((FontViewBase *) fv);
 }
 
+#if 0
 static void FVForceEncodingMenuBuild(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
 
@@ -5030,6 +5035,7 @@ static void FVForceEncodingMenuBuild(GWindow gw, struct gmenuitem *mi, GEvent *U
     }
     mi->sub = GetEncodingMenu(FVMenuForceEncode,fv->b.map->enc);
 }
+#endif
 
 static void FVMenuAddEncodingName(FontView *fv, int UNUSED(mid)) {
     char *ret;
@@ -7593,6 +7599,10 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context.collect_layer_data = collect_layer_data;
     fv_context.show_anchor_pair = FVMenuAnchorPairs;
     fv_context.collect_anchor_data = collect_anchor_data;
+    fv_context.change_encoding = FVMenuReencode;
+    fv_context.force_encoding = FVMenuForceEncode;
+    fv_context.current_encoding = FVMenuCurrentEncoding;
+    fv_context.collect_encoding_data = collect_encoding_data;
     fv_context.actions = fvpopupactions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
 
