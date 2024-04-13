@@ -146,6 +146,12 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
          menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
       }
 
+      if (!item.label.accelerator.empty()) {
+	 Gtk::AccelKey key(item.label.accelerator);
+	 menu_item->add_accelerator("activate", ui_context.get_accel_group(),
+	                            key.get_key(), key.get_mod(), Gtk::ACCEL_VISIBLE);
+      }
+
       if (item.sub_menu) {
          Gtk::Menu* submenu = build_menu(*item.sub_menu, ui_context);
          menu_item->set_submenu(*submenu);

@@ -23,6 +23,11 @@
 
 namespace FontViewNS {
 
+FontViewUiContext::FontViewUiContext(FVContext* fv_context)
+    : legacy_context(fv_context) {
+    accel_group = Gtk::AccelGroup::create();
+}
+
 FF::ActivateCB FontViewUiContext::get_activate_cb(int mid) const {
    FVMenuAction* callback_set = find_callback_set(mid, legacy_context);
 
@@ -241,6 +246,8 @@ Gtk::Window* create_view(FVContext* fv_context, int width, int height) {
       return false;
    };
    drawing_area->signal_button_press_event().connect(on_my_button_press_event);
+
+   font_view_window->add_accel_group(fv_ui_context->get_accel_group());
 
    return font_view_window;   
 }

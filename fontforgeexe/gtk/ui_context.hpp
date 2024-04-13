@@ -30,6 +30,8 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include <gtkmm/accelgroup.h>
+
 namespace FF {
 
 using ActivateCB = std::function<void(void)>;
@@ -43,6 +45,8 @@ public:
     virtual ActivateCB get_activate_cb(int mid) const = 0;
     virtual EnabledCB get_enabled_cb(int mid) const = 0;
     virtual CheckedCB get_checked_cb(int mid) const = 0;
+
+    virtual Glib::RefPtr<Gtk::AccelGroup> get_accel_group() const = 0;
 };
 
 }

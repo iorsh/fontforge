@@ -22,15 +22,20 @@ namespace FontViewNS {
 
 class FontViewUiContext : public FF::UiContext {
 public:
-    FontViewUiContext(FVContext* fv_context) : legacy_context(fv_context) {}
+    FontViewUiContext(FVContext* fv_context);
 
     FF::ActivateCB get_activate_cb(int mid) const override;
     FF::EnabledCB get_enabled_cb(int mid) const override;
     FF::CheckedCB get_checked_cb(int mid) const override;
 
+    Glib::RefPtr<Gtk::AccelGroup> get_accel_group() const override {
+	return accel_group;
+    }
+
     FVContext* get_legacy_context() const { return legacy_context; }
 private:
     FVContext* legacy_context = nullptr;
+    Glib::RefPtr<Gtk::AccelGroup> accel_group;
 };
 
 extern std::vector<FF::MenuBarInfo> top_menu;
