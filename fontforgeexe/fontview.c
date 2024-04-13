@@ -6503,13 +6503,7 @@ void FVChar(FontView *fv, GEvent *event) {
 	    (event->u.chr.state&ksm_shift) &&
 	    (event->u.chr.state&ksm_meta) )
 	FVMenuCharInfo(fv,0);
-    else if ( (event->u.chr.keysym=='[' || event->u.chr.keysym==']') &&
-	    (event->u.chr.state&ksm_control) ) {
-	_FVMenuChangeChar(fv,event->u.chr.keysym=='['?MID_Prev:MID_Next);
-    } else if ( (event->u.chr.keysym=='{' || event->u.chr.keysym=='}') &&
-	    (event->u.chr.state&ksm_control) ) {
-	_FVMenuChangeChar(fv,event->u.chr.keysym=='{'?MID_PrevDef:MID_NextDef);
-    } else if ( event->u.chr.keysym=='\\' && (event->u.chr.state&ksm_control) ) {
+    else if ( event->u.chr.keysym=='\\' && (event->u.chr.state&ksm_control) ) {
 	/* European keyboards need a funky modifier to get \ */
 	FVDoTransform(fv);
 #if !defined(_NO_FFSCRIPT) || !defined(_NO_PYTHON)
