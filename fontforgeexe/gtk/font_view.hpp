@@ -39,17 +39,21 @@ namespace ff::views {
 
 class FontViewUiContext : public UiContext {
  public:
-    FontViewUiContext(std::shared_ptr<FVContext> fv_context)
-        : legacy_context(fv_context) {}
+    FontViewUiContext(std::shared_ptr<FVContext> fv_context);
 
     ActivateCB get_activate_cb(int mid) const override;
     EnabledCB get_enabled_cb(int mid) const override;
     CheckedCB get_checked_cb(int mid) const override;
 
+    Glib::RefPtr<Gtk::AccelGroup> get_accel_group() const override {
+        return accel_group;
+    }
+
     std::shared_ptr<FVContext> legacy() const { return legacy_context; }
 
  private:
     std::shared_ptr<FVContext> legacy_context;
+    Glib::RefPtr<Gtk::AccelGroup> accel_group;
 };
 
 class FontView : public ICharGridContainter {
