@@ -13,8 +13,16 @@
  */
 #pragma once
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+// forward declare PyObject
+// per http://mail.python.org/pipermail/python-dev/2003-August/037601.html
+#ifndef PyObject_HEAD
+typedef struct _object PyObject;
 #endif
 
 // C structures and callbacks for interacting with legacy code
@@ -54,6 +62,21 @@ typedef struct encoding_menu_data {
    char* label;
    char* enc_name;
 } EncodingMenuData;
+
+enum py_menu_flag { pmf_font=1, pmf_char=2 };
+
+struct py_menu_text {
+    const char *localized;
+    const char *untranslated;
+    const char *identifier;
+};
+
+typedef struct py_menu_spec {
+    int depth, divider;
+    struct py_menu_text *levels;
+    const char *shortcut_str;
+    PyObject *func, *check, *data;
+} PyMenuSpec;
 
 typedef struct fontview_context {
    FontView* fv;

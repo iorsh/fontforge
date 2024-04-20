@@ -15,6 +15,7 @@
 
 #include <gtkmm-3.0/gtkmm.h>
 
+#include "common_menus.hpp"
 #include "font_view.hpp"
 #include "utils.hpp"
 
@@ -96,4 +97,8 @@ FVMenuAction* find_callback_set(int mid, FVContext* fv_context) {
    }
 
    return NULL;
+}
+
+void register_py_menu_item_in_gtk(const PyMenuSpec* spec, int flags) {
+    FF::register_py_menu_item(spec, flags);
 }
