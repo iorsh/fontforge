@@ -10,6 +10,8 @@ add_library(ffgtk OBJECT
   char_grid.cpp
   css_builder.hpp
   css_builder.cpp
+  common_menus.hpp
+  common_menus.cpp
   dialog.hpp
   dialog.cpp
   font_view.hpp

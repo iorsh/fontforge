@@ -28,10 +28,10 @@
 
 #include <stdint.h>
 
+#include "c_context.h"
+
 typedef struct _GtkWidget GtkWidget;
-typedef struct fontview_context FVContext;
 typedef struct gwindow* GWindow;
-typedef struct kerning_format_data KFDlgData;
 typedef void* GTK_Window;
 
 #ifdef __cplusplus
@@ -72,6 +72,8 @@ void* create_kerning_format_dlg(GWindow parent, FVContext** p_fv_context1,
                                 int height);
 
 bool run_kerning_format_dlg(void** kf_opaque, KFDlgData* kf_data);
+
+void register_py_menu_item_in_gtk(const PyMenuSpec* spec, int flags);
 
 #ifdef __cplusplus
 }
