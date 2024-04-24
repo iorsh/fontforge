@@ -35,6 +35,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 
 #include "c_context.h"
+#include "menu_builder.hpp"
 
 namespace FF {
 
@@ -57,5 +58,7 @@ struct PythonMenuItem {
 extern std::vector<PythonMenuItem> python_menu_items;
 
 void register_py_menu_item(const PyMenuSpec* spec, int flags);
+
+std::vector<FF::MenuInfo> python_tools(const FF::UiContext& ui_context);
 
 }

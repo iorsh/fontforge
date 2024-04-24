@@ -31,6 +31,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <glib/gi18n.h>
 #include <gtkmm-3.0/gtkmm.h>
 
+#include "common_menus.hpp"
 #include "font_view.hpp"
 #include "menu_builder.hpp"
 
@@ -244,6 +245,10 @@ std::vector<FF::MenuInfo> file_menu = {
     { { N_("_New"), FF::NonCheckable, "<control>u" }, nullptr, FF::LegacyCallbacks, MID_OpenOutline },
 };
 
+std::vector<FF::MenuInfo> tools_menu = {
+    FF::MenuInfo::CustomFVBlock(FF::python_tools),
+};
+
 std::vector<FF::MenuInfo> histograms_menu = {
     { { N_("_HStem"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_HStemHist },
     { { N_("_VStem"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_VStemHist },
@@ -364,7 +369,7 @@ std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("_Edit") }, nullptr, -1 },
     { { N_("E_lement") }, nullptr, -1 },
 #ifndef _NO_PYTHON
-    { { N_("_Tools") }, nullptr, -1 },
+    { { N_("_Tools") }, &tools_menu, -1 },
 #endif
     { { N_("H_ints") }, &hints_menu, -1 },
     { { N_("E_ncoding") }, &encoding_menu, -1 },

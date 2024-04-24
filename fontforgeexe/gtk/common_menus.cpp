@@ -30,6 +30,12 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common_menus.hpp"
 
+#include <glib/gi18n.h>
+
+#include "font_view.hpp"
+
+using FontViewNS::FontViewUiContext;
+
 namespace FF {
 
 std::vector<PythonMenuItem> python_menu_items;
@@ -53,6 +59,70 @@ void register_py_menu_item(const PyMenuSpec* spec, int flags) {
     }
 
     FF::python_menu_items.push_back(std::move(py_menu_item));
+}
+
+static std::vector<FF::MenuInfo>::iterator
+add_or_update_item(std::vector<FF::MenuInfo>& menu, const std::string& label) {
+    // Try to find an existing menu item by the localized label.
+    auto iter = std::find_if(menu.begin(), menu.end(),
+    	[label](const FF::MenuInfo& mi){ return (Glib::ustring)mi.label.text == label; });
+
+    if (iter == menu.end()) {
+	// Label not found, create an empty item for it
+	FF::MenuInfo new_item{ { label.c_str(), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 };
+	menu.push_back(new_item);
+	iter = std::prev(menu.end());
+    }
+
+    return iter;
+}
+
+// Reproduce menu building logic from InsertSubMenus() with the following omissions:
+//
+// * Mnemonics are ignored - GTK should take care of them.
+// * Custom hotkeys are currently not supported.
+std::vector<FF::MenuInfo> python_tools(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+    std::vector<FF::MenuInfo> tools_menu;
+
+    for (const auto& py_item : python_menu_items) {
+	// Track the target submenu for the current menuitem.
+	auto menu_ptr = &tools_menu;
+
+	size_t submenu_depth = py_item.levels.size() - 1;
+	for (size_t i=0; i<submenu_depth; ++i) {
+	    // Find or create submenu among existing items.
+	    auto menu_iter = add_or_update_item(*menu_ptr, py_item.levels[i].localized);
+
+	    // Create submenu list if necessary and descend to it.
+	    if (!menu_iter->sub_menu) {
+		menu_iter->sub_menu = new std::vector<FF::MenuInfo>();
+	    }
+	    menu_ptr = menu_iter->sub_menu;
+	}
+
+	if (py_item.divider) {
+	    menu_ptr->push_back(kMenuSeparator);
+	} else {
+	    auto menu_iter = add_or_update_item(*menu_ptr, py_item.levels.back().localized);
+
+	    // Define the new menu item. If it was already present, it will be redefined.
+	    if (py_item.check) {
+      	        bool (*disabled_cb)(FontView*, const char*, PyObject*, PyObject*) = fv_context->py_check;
+	    	menu_iter->callbacks.enabled =
+	            [disabled_cb, fv = fv_context->fv, label = py_item.levels.back().localized, check = py_item.check, data = py_item.data]
+		    (){ return disabled_cb(fv, label.c_str(), check, data); };
+	    }
+
+      	    void (*activate_cb)(FontView*, PyObject*, PyObject*) = fv_context->py_activate;
+	    menu_iter->callbacks.handler =
+	        [activate_cb, fv = fv_context->fv, func = py_item.func, data = py_item.data]
+		(){ return activate_cb(fv, func, data); };
+	}
+    }
+
+    return tools_menu;
 }
 
 }

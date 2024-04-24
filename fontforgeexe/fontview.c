@@ -7597,6 +7597,8 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context.force_encoding = FVMenuForceEncode;
     fv_context.current_encoding = FVMenuCurrentEncoding;
     fv_context.collect_encoding_data = collect_encoding_data;
+    fv_context.py_activate = fvpy_activate;
+    fv_context.py_check = fvpy_check;
     fv_context.actions = fvpopupactions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
 
