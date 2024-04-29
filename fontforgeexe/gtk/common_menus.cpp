@@ -110,12 +110,12 @@ std::vector<FF::MenuInfo> python_tools(const FF::UiContext& ui_context) {
 	    // Define the new menu item. If it was already present, it will be redefined.
 	    if (py_item.check) {
 	    	menu_iter->callbacks.enabled =
-	            [fv_context, py_item]()
+	            [fv_context, py_item](const FF::UiContext&)
 		    { return fv_context->py_check(fv_context->fv, py_item.levels.back().localized.c_str(), py_item.check, py_item.data); };
 	    }
 
 	    menu_iter->callbacks.handler =
-	        [fv_context, py_item]()
+	        [fv_context, py_item](const FF::UiContext&)
 		{ return fv_context->py_activate(fv_context->fv, py_item.func, py_item.data); };
 	}
     }

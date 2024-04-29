@@ -134,10 +134,10 @@ std::vector<FF::MenuInfo> encodings(FVContext* fv_context,
             continue;
         }
 
-        FF::ActivateCB action = [encoding_action, fv=fv_context->fv, enc_name=encoding_data.enc_name](){
+        FF::ActivateCB action = [encoding_action, fv=fv_context->fv, enc_name=encoding_data.enc_name](const FF::UiContext&){
             encoding_action(fv, enc_name);
         };
-        FF::CheckedCB checker = [cb=fv_context->current_encoding, fv=fv_context->fv, enc_name=encoding_data.enc_name](){
+        FF::CheckedCB checker = [cb=fv_context->current_encoding, fv=fv_context->fv, enc_name=encoding_data.enc_name](const FF::UiContext&){
             return cb(fv, enc_name);
         };
         FF::MenuInfo info{ { encoding_data.label, group, "" }, nullptr, { FF::AlwaysEnabled, checker, action }, 0 };
@@ -178,10 +178,10 @@ std::vector<FF::MenuInfo> view_menu_bitmaps(const FF::UiContext& ui_context) {
 	    sprintf(buffer, _("%d@%d pixel bitmap"),
                     bitmap_data.pixelsize, bitmap_data.depth);
 
-        FF::ActivateCB action = [cb=fv_context->change_display_bitmap, fv=fv_context->fv, bdf=bitmap_data.bdf](){
+        FF::ActivateCB action = [cb=fv_context->change_display_bitmap, fv=fv_context->fv, bdf=bitmap_data.bdf](const FF::UiContext&){
             cb(fv, bdf);
         };
-        FF::CheckedCB checker = [cb=fv_context->current_display_bitmap, fv=fv_context->fv, bdf=bitmap_data.bdf](){
+        FF::CheckedCB checker = [cb=fv_context->current_display_bitmap, fv=fv_context->fv, bdf=bitmap_data.bdf](const FF::UiContext&){
             return cb(fv, bdf);
         };
         FF::MenuInfo info{ { buffer, FF::CellPixelView, "" }, nullptr, { FF::AlwaysEnabled, checker, action }, 0 };
@@ -201,10 +201,10 @@ std::vector<FF::MenuInfo> view_menu_layers(const FF::UiContext& ui_context) {
     for (int i = 0; i < n_layers; ++i) {
         const LayerMenuData& layer_data = layer_data_array[i];
 
-        FF::ActivateCB action = [cb=fv_context->change_display_layer, fv=fv_context->fv, ly=layer_data.index](){
+        FF::ActivateCB action = [cb=fv_context->change_display_layer, fv=fv_context->fv, ly=layer_data.index](const FF::UiContext&){
             cb(fv, ly);
         };
-        FF::CheckedCB checker = [cb=fv_context->current_display_layer, fv=fv_context->fv, ly=layer_data.index](){
+        FF::CheckedCB checker = [cb=fv_context->current_display_layer, fv=fv_context->fv, ly=layer_data.index](const FF::UiContext&){
             return cb(fv, ly);
         };
         FF::MenuInfo info{ { layer_data.label, FF::ActiveLayer, "" }, nullptr, { FF::AlwaysEnabled, checker, action }, 0 };
@@ -223,7 +223,7 @@ std::vector<FF::MenuInfo> view_menu_anchors(const FF::UiContext& ui_context) {
     std::vector<FF::MenuInfo> info_arr;
 
     // Special item for all anchors
-    FF::ActivateCB action_all = [cb=fv_context->show_anchor_pair, fv=fv_context->fv](){
+    FF::ActivateCB action_all = [cb=fv_context->show_anchor_pair, fv=fv_context->fv](const FF::UiContext&){
         cb(fv, (AnchorClass*)-1);
     };
     info_arr.push_back({ { N_("All"), FF::NonCheckable, "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, action_all }, 0 });
@@ -232,7 +232,7 @@ std::vector<FF::MenuInfo> view_menu_anchors(const FF::UiContext& ui_context) {
     for (int i = 0; i < n_anchors; ++i) {
         const AnchorMenuData& anchor_data = anchor_data_array[i];
 
-        FF::ActivateCB action = [cb=fv_context->show_anchor_pair, fv=fv_context->fv, ac=anchor_data.ac](){
+        FF::ActivateCB action = [cb=fv_context->show_anchor_pair, fv=fv_context->fv, ac=anchor_data.ac](const FF::UiContext&){
             cb(fv, ac);
         };
         FF::MenuInfo info{ { anchor_data.label, FF::NonCheckable, "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, action }, 0 };

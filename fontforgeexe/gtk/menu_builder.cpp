@@ -76,11 +76,11 @@ public:
       }
    }
 
-   void operator()() {
+   void operator()(const UiContext& ui_context) {
       Gtk::RadioMenuItem* checked_item = nullptr;
       for (const auto& [menu_item, checked_cb] : radio_items_) {
          // The true state of the radio item is retrieved using checked_cb()
-         if (checked_cb()) {
+         if (checked_cb(ui_context)) {
             // This should be the only checked item in the group
             checked_item = menu_item;
 
@@ -122,8 +122,9 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
    // GTK doesn't have any signal that would be fired before the specific
    // subitem is shown. We collect enabled state checks for all subitems and
    // call them one by one from menu's show event.
-   std::vector<std::function<void(void)>> enablers;
-   std::vector<std::function<void(void)>> checkers;
+   // These vectors in fact contain not boolean queries, but rather actions which call the queries.
+   std::vector<ActivateCB> enablers;
+   std::vector<ActivateCB> checkers;
    std::map<RadioGroup, std::vector<std::pair<FF::MenuInfo, Gtk::RadioMenuItem*>>> radio_info;
 
    for (const auto& item : local_info) {
@@ -161,10 +162,11 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
 
       // Wrap the check into an action which will be called when menuitem becomes visible
       // as a part of its containing menu.
-      auto enabler = [menu_item, enabled_check](){ menu_item->set_sensitive(enabled_check()); };
+      auto enabler = [menu_item, enabled_check](const UiContext& ui_context){ menu_item->set_sensitive(enabled_check(ui_context)); };
       enablers.push_back(enabler);
 
-      ActivateCB action = item.callbacks.handler ? item.callbacks.handler : ui_context.get_activate_cb(item.mid);
+      ActivateCB handler = item.callbacks.handler ? item.callbacks.handler : ui_context.get_activate_cb(item.mid);
+      std::function<void(void)> action;
 
       Gtk::CheckMenuItem* check_menu_item = dynamic_cast<Gtk::CheckMenuItem*>(menu_item);
       if (check_menu_item) {
@@ -174,7 +176,7 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
          if (!radio_menu_item) {
             // Wrap the check into an action which will be called when menuitem becomes visible
             // as a part of its containing menu.
-            auto checker = [check_menu_item, checked_cb](){ check_menu_item->set_active(checked_cb()); };
+            auto checker = [check_menu_item, checked_cb](const UiContext& ui_context){ check_menu_item->set_active(checked_cb(ui_context)); };
             checkers.push_back(checker);
          }
 
@@ -183,32 +185,32 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
          // indirectly affects it. The activation signal is emitted always, but
          // we must invoke the actual callback only if the underlying state needs
          // indeed to be modified.
-         ActivateCB check_action = [check_menu_item, checked_cb, action](){
+         action = [check_menu_item, checked_cb, handler, &ui_context](){
             bool visible_state = check_menu_item->get_active();
-            bool underlying_state = checked_cb();
+            bool underlying_state = checked_cb(ui_context);
             if (visible_state != underlying_state) {
-                action();
+                handler(ui_context);
             }
          };
-         menu_item->signal_activate().connect(check_action);
       } else {
-         menu_item->signal_activate().connect(action);
+         action = [handler, &ui_context](){ handler(ui_context); };
       }
 
+      menu_item->signal_activate().connect(action);
       menu->append(*menu_item);
    }
 
-   std::vector<std::function<void(void)>> radio_checkers;
+   std::vector<RadioCheckerCB> radio_checkers;
    for (const auto& [group, info_vec] : radio_info) {
       RadioCheckerCB radio_checker(ui_context, group, info_vec);
       radio_checkers.push_back(radio_checker);
    }
 
    // Just call all the collected menuitem enablers
-   auto on_menu_show = [enablers, checkers, radio_checkers](){
-        for (auto e : enablers) { e(); }
-        for (auto c : checkers) { c(); }
-        for (auto r : radio_checkers) { r(); }
+   auto on_menu_show = [enablers, checkers, radio_checkers, &ui_context](){
+        for (auto e : enablers) { e(ui_context); }
+        for (auto c : checkers) { c(ui_context); }
+        for (auto r : radio_checkers) { r(ui_context); }
    };
    menu->signal_show().connect(on_menu_show);
 

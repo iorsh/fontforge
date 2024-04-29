@@ -36,7 +36,7 @@ FF::ActivateCB FontViewUiContext::get_activate_cb(int mid) const {
    if (callback_set != NULL && callback_set->action != NULL) {
       void (*action)(FontView*, int) = callback_set->action;
       FontView* fv = legacy_context->fv;
-      return [action, fv, mid](){ action(fv, mid); };
+      return [action, fv, mid](const UiContext&){ action(fv, mid); };
    } else {
       return FF::NoAction;
    }
@@ -48,7 +48,7 @@ FF::EnabledCB FontViewUiContext::get_enabled_cb(int mid) const {
    if (callback_set != NULL && callback_set->is_disabled != NULL) {
       bool (*disabled_cb)(FontView*, int) = callback_set->is_disabled;
       FontView* fv = legacy_context->fv;
-      return [disabled_cb, fv, mid](){ return !disabled_cb(fv, mid); };
+      return [disabled_cb, fv, mid](const UiContext&){ return !disabled_cb(fv, mid); };
    } else {
       return FF::AlwaysEnabled;
    }
@@ -60,7 +60,7 @@ FF::CheckedCB FontViewUiContext::get_checked_cb(int mid) const {
    if (callback_set != NULL && callback_set->is_checked != NULL) {
       bool (*checked_cb)(FontView*, int) = callback_set->is_checked;
       FontView* fv = legacy_context->fv;
-      return [checked_cb, fv, mid](){ return checked_cb(fv, mid); };
+      return [checked_cb, fv, mid](const UiContext&){ return checked_cb(fv, mid); };
    } else {
       return FF::NotCheckable;
    }

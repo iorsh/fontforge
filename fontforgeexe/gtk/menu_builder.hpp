@@ -91,11 +91,11 @@ struct MenuInfo;
 using MenuBlockCB = std::function<std::vector<MenuInfo>(const UiContext&)>;
 
 static const EnabledCB LegacyEnabled;
-static const EnabledCB AlwaysEnabled = [](){ return true; };
+static const EnabledCB AlwaysEnabled = [](const UiContext&){ return true; };
 static const CheckedCB LegacyChecked;
-static const CheckedCB NotCheckable = [](){ return true; };
+static const CheckedCB NotCheckable = [](const UiContext&){ return true; };
 static const ActivateCB LegacyAction;
-static const ActivateCB NoAction = [](){}; // NOOP callable action
+static const ActivateCB NoAction = [](const UiContext&){}; // NOOP callable action
 
 struct MenuCallbacks {
     // By design menu callbacks don't have any arguments, since it's impossible

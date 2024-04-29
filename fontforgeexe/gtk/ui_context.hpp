@@ -34,9 +34,11 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace FF {
 
-using ActivateCB = std::function<void(void)>;
-using EnabledCB = std::function<bool(void)>;
-using CheckedCB = std::function<bool(void)>;
+class UiContext;
+
+using ActivateCB = std::function<void(const UiContext&)>;
+using EnabledCB = std::function<bool(const UiContext&)>;
+using CheckedCB = std::function<bool(const UiContext&)>;
 
 class UiContext {
 public:
