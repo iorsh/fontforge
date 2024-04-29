@@ -22,7 +22,8 @@ namespace FontViewNS {
 
 class FontViewUiContext : public FF::UiContext {
 public:
-    FontViewUiContext(FVContext* fv_context);
+    FontViewUiContext(FVContext** p_fv_context);
+    ~FontViewUiContext() { delete legacy_context; }
 
     FF::ActivateCB get_activate_cb(int mid) const override;
     FF::EnabledCB get_enabled_cb(int mid) const override;
@@ -41,6 +42,6 @@ private:
 extern std::vector<FF::MenuBarInfo> top_menu;
 extern std::vector<FF::MenuInfo> popup_menu;
 
-Gtk::Window* create_view(FVContext* fv_context, int width, int height);
+Gtk::Window* create_view(FVContext** p_fv_context, int width, int height);
 
 }

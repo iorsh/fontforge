@@ -19,8 +19,8 @@
 #include "font_view.hpp"
 #include "utils.hpp"
 
-void* create_font_view(FVContext* fv_context, int width, int height) {
-   return FontViewNS::create_view(fv_context, width, height);
+void* create_font_view(FVContext** p_fv_context, int width, int height) {
+   return FontViewNS::create_view(p_fv_context, width, height);
 }
 
 void gtk_set_title(void* window, char* window_title, char* taskbar_title) {

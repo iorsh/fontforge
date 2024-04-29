@@ -7556,7 +7556,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     static GWindow icon = NULL;
     static int nexty=0;
     GRect size;
-    FVContext fv_context;
+    FVContext *fv_context = calloc(1, sizeof(FVContext));
 
     FontViewInit();
     if ( icon==NULL ) {
@@ -7582,24 +7582,24 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
 	nexty = 0;
     fv->gw = gw = GDrawCreateTopWindow(NULL,&pos,fv_e_h,fv,&wattrs);
 
-    fv_context.fv = fv;
-    fv_context.scroll_fontview_to_position_cb = FVScrollToPos;
-    fv_context.tooltip_message_cb = FVTooltipMessage;
-    fv_context.change_display_bitmap = FV_ChangeDisplayBitmap;
-    fv_context.current_display_bitmap = FV_CurrentDisplayBitmap;
-    fv_context.collect_bitmap_data = collect_bitmap_data;
-    fv_context.change_display_layer = change_display_layer;
-    fv_context.current_display_layer = current_display_layer;
-    fv_context.collect_layer_data = collect_layer_data;
-    fv_context.show_anchor_pair = FVMenuAnchorPairs;
-    fv_context.collect_anchor_data = collect_anchor_data;
-    fv_context.change_encoding = FVMenuReencode;
-    fv_context.force_encoding = FVMenuForceEncode;
-    fv_context.current_encoding = FVMenuCurrentEncoding;
-    fv_context.collect_encoding_data = collect_encoding_data;
-    fv_context.py_activate = fvpy_activate;
-    fv_context.py_check = fvpy_check;
-    fv_context.actions = fvpopupactions;
+    fv_context->fv = fv;
+    fv_context->scroll_fontview_to_position_cb = FVScrollToPos;
+    fv_context->tooltip_message_cb = FVTooltipMessage;
+    fv_context->change_display_bitmap = FV_ChangeDisplayBitmap;
+    fv_context->current_display_bitmap = FV_CurrentDisplayBitmap;
+    fv_context->collect_bitmap_data = collect_bitmap_data;
+    fv_context->change_display_layer = change_display_layer;
+    fv_context->current_display_layer = current_display_layer;
+    fv_context->collect_layer_data = collect_layer_data;
+    fv_context->show_anchor_pair = FVMenuAnchorPairs;
+    fv_context->collect_anchor_data = collect_anchor_data;
+    fv_context->change_encoding = FVMenuReencode;
+    fv_context->force_encoding = FVMenuForceEncode;
+    fv_context->current_encoding = FVMenuCurrentEncoding;
+    fv_context->collect_encoding_data = collect_encoding_data;
+    fv_context->py_activate = fvpy_activate;
+    fv_context->py_check = fvpy_check;
+    fv_context->actions = fvpopupactions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
 
     FontViewSetTitle(fv);

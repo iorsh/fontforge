@@ -24,7 +24,8 @@ extern "C" {
 // Create GTK Font View window.
 // Return value:
 //    pointer to Gtk::Window object, opaque to C code
-void* create_font_view(FVContext* fv_context, int width, int height);
+// Note: the created window takes ownership of p_fv_context
+void* create_font_view(FVContext** p_fv_context, int width, int height);
 
 // Set Gtk::Window title and taskbar title [unsupported]
 void gtk_set_title(void* window, char* window_title, char* taskbar_title);
