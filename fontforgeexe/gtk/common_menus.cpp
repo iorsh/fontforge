@@ -111,14 +111,14 @@ std::vector<FF::MenuInfo> python_tools(const FF::UiContext& ui_context) {
 	    if (py_item.check) {
       	        bool (*disabled_cb)(FontView*, const char*, PyObject*, PyObject*) = fv_context->py_check;
 	    	menu_iter->callbacks.enabled =
-	            [disabled_cb, fv = fv_context->fv, label = py_item.levels.back().localized, check = py_item.check, data = py_item.data]
-		    (){ return disabled_cb(fv, label.c_str(), check, data); };
+	            [fv_context, py_item]()
+		    { return fv_context->py_check(fv_context->fv, py_item.levels.back().localized.c_str(), py_item.check, py_item.data); };
 	    }
 
       	    void (*activate_cb)(FontView*, PyObject*, PyObject*) = fv_context->py_activate;
 	    menu_iter->callbacks.handler =
-	        [activate_cb, fv = fv_context->fv, func = py_item.func, data = py_item.data]
-		(){ return activate_cb(fv, func, data); };
+	        [fv_context, py_item]()
+		{ return fv_context->py_activate(fv_context->fv, py_item.func, py_item.data); };
 	}
     }
 
