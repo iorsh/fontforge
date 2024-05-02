@@ -82,9 +82,12 @@ static const int MID_Autotrace = 2212;
 static const int MID_Round = 2213;
 static const int MID_MergeFonts = 2214;
 static const int MID_InterpolateFonts = 2215;
+static const int MID_FindProblems = 2216;
 static const int MID_AddExtrema = 2224;
 static const int MID_FontCompare = 2239;
 static const int MID_RemoveBitmaps = 2244;
+static const int MID_Validate = 2245;
+static const int MID_SetExtremumBound = 2253;
 static const int MID_AddInflections = 2256;
 static const int MID_Balance = 2257;
 static const int MID_Harmonize = 2258;
@@ -276,11 +279,18 @@ std::vector<FF::MenuInfo> file_menu = {
 
 //////////////////////////////// ELEMENT MENUS ////////////////////////////////////////
 
+std::vector<FF::MenuInfo> validation_menu = {
+    { { N_("Find Pr_oblems..."), "elementfindprobs", "<control>E" }, nullptr, FF::LegacyCallbacks, MID_FindProblems },
+    { { N_("_Validate..."), "elementvalidate", "" }, nullptr, FF::LegacyCallbacks, MID_Validate },
+    FF::kMenuSeparator,
+    { { N_("Set E_xtremum Bound..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_SetExtremumBound },
+};
+
 std::vector<FF::MenuInfo> element_menu = {
     { { N_("_Font Info..."), "elementfontinfo", "<control><shift>F" }, nullptr, FF::LegacyCallbacks, MID_FontInfo },
     { { N_("Glyph _Info..."), "elementglyphinfo", "<control>i" }, nullptr, FF::LegacyCallbacks, MID_CharInfo },
     { { N_("Other Info"), "elementotherinfo", "" }, nullptr /*&other_info_menu*/, FF::SubMenuCallbacks, 0 },
-    { { N_("_Validation"), "elementvalidate", "" }, nullptr /*&validation_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("_Validation"), "elementvalidate", "" }, &validation_menu, FF::SubMenuCallbacks, 0 },
     FF::kMenuSeparator,
     { { N_("Bitm_ap Strikes Available..."), "elementbitmapsavail", "<control><shift>B" }, nullptr, FF::LegacyCallbacks, MID_AvailBitmaps },
     { { N_("Regenerate _Bitmap Glyphs..."), "elementregenbitmaps", "<control>B" }, nullptr, FF::LegacyCallbacks, MID_RegenBitmaps },

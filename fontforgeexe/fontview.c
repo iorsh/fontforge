@@ -1432,18 +1432,15 @@ static void FVMenuMATHInfo(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNU
     SFMathDlg(fv->b.sf,fv->b.active_layer);
 }
 
-static void FVMenuFindProblems(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuFindProblems(FontView *fv, int UNUSED(mid)) {
     FindProblems(fv,NULL,NULL);
 }
 
-static void FVMenuValidate(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuValidate(FontView *fv, int UNUSED(mid)) {
     SFValidationWindow(fv->b.sf,fv->b.active_layer,ff_none);
 }
 
-static void FVMenuSetExtremumBound(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuSetExtremumBound(FontView *fv, int UNUSED(mid)) {
     char buffer[40], *end, *ret;
     int val;
 
@@ -4364,20 +4361,19 @@ static void trlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     }
 }
 
-static void validlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static bool validlistcheck(FontView *fv, int mid) {
     int anychars = FVAnyCharSelected(fv);
+    bool disabled = false;
 
-    for ( mi = mi->sub; mi->ti.text!=NULL || mi->ti.line ; ++mi ) {
-	switch ( mi->mid ) {
+	switch ( mid ) {
 	  case MID_FindProblems:
-	    mi->ti.disabled = anychars==-1;
+	    disabled = anychars==-1;
 	  break;
 	  case MID_Validate:
-	    mi->ti.disabled = fv->b.sf->strokedfont || fv->b.sf->multilayer;
+	    disabled = fv->b.sf->strokedfont || fv->b.sf->multilayer;
 	  break;
         }
-    }
+    return disabled;
 }
 
 static bool ellistcheck(FontView *fv, int mid) {
@@ -4824,6 +4820,7 @@ static GMenuItem2 infolist[] = {
     GMENUITEM2_EMPTY
 };
 
+#if 0
 static GMenuItem2 validlist[] = {
     { { (unichar_t *) N_("Find Pr_oblems..."), (GImage *) "elementfindprobs.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'o' }, H_("Find Problems...|No Shortcut"), NULL, NULL, FVMenuFindProblems, MID_FindProblems },
     { { (unichar_t *) N_("_Validate..."), (GImage *) "elementvalidate.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'o' }, H_("Validate...|No Shortcut"), NULL, NULL, FVMenuValidate, MID_Validate },
@@ -4832,7 +4829,6 @@ static GMenuItem2 validlist[] = {
     GMENUITEM2_EMPTY
 };
 
-#if 0
 static GMenuItem2 ellist[] = {
     { { (unichar_t *) N_("_Font Info..."), (GImage *) "elementfontinfo.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'F' }, H_("Font Info...|No Shortcut"), NULL, NULL, FVMenuFontInfo, MID_FontInfo },
     { { (unichar_t *) N_("_Glyph Info..."), (GImage *) "elementglyphinfo.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("Glyph Info...|No Shortcut"), NULL, NULL, FVMenuCharInfo, MID_CharInfo },
@@ -5839,6 +5835,11 @@ FVMenuAction fvpopupactions[] = {
     { MID_InterpolateFonts, ellistcheck, NULL, FVMenuInterpFonts },
     { MID_FontCompare, ellistcheck, NULL, FVMenuCompareFonts },
     { MID_LayersCompare, ellistcheck, NULL, FVMenuCompareL2L },
+
+    /* Element->Validation menu */
+    { MID_FindProblems, validlistcheck, NULL, FVMenuFindProblems },
+    { MID_Validate, validlistcheck, NULL, FVMenuValidate },
+    { MID_SetExtremumBound, NULL, NULL, FVMenuSetExtremumBound },
 
     /* Hints menu */
     { MID_AutoHint, htlistcheck, NULL, FVMenuAutoHint },
