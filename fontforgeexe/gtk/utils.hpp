@@ -38,3 +38,9 @@ class L10nText {
 }
 
 Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name);
+
+Gdk::ModifierType gtk_get_keyboard_state();
+
+Glib::RefPtr<Gdk::Cursor> set_cursor(Gtk::Widget* widget, const Glib::ustring& name);
+
+void unset_cursor(Gtk::Widget* widget, Glib::RefPtr<Gdk::Cursor> old_cursor);
