@@ -70,11 +70,25 @@ static const int MID_CopyRef = 2107;
 static const int MID_UnlinkRef = 2108;
 static const int MID_CopyWidth = 2111;
 static const int MID_CopyFgToBg = 2115;
-static const int MID_CharInfo	= 2201;
+
+static const int MID_FontInfo = 2200;
+static const int MID_CharInfo = 2201;
 static const int MID_Transform = 2202;
 static const int MID_Stroke = 2203;
 static const int MID_Correct = 2206;
+static const int MID_AvailBitmaps = 2210;
+static const int MID_RegenBitmaps = 2211;
+static const int MID_Autotrace = 2212;
 static const int MID_Round = 2213;
+static const int MID_MergeFonts = 2214;
+static const int MID_InterpolateFonts = 2215;
+static const int MID_AddExtrema = 2224;
+static const int MID_FontCompare = 2239;
+static const int MID_RemoveBitmaps = 2244;
+static const int MID_AddInflections = 2256;
+static const int MID_Balance = 2257;
+static const int MID_Harmonize = 2258;
+static const int MID_LayersCompare = 2259;
 
 static const int MID_AutoHint = 2501;
 static const int MID_ClearHints = 2502;
@@ -241,9 +255,64 @@ std::vector<FF::MenuInfo> view_menu_anchors(const FF::UiContext& ui_context) {
     return info_arr;
 }
 
+void run_autotrace(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+    Gtk::Widget* drawing_area = gtk_find_child(ui_context.window_, "CharGrid");
+
+    auto old_cursor = set_cursor(ui_context.window_, "wait");
+    auto old_cursor_da = set_cursor(drawing_area, "wait");
+
+    bool shift_pressed = gtk_get_keyboard_state() & Gdk::ModifierType::SHIFT_MASK;
+    fv_context->run_autotrace(fv_context->fv, shift_pressed);
+
+    unset_cursor(ui_context.window_, old_cursor);
+    unset_cursor(drawing_area, old_cursor_da);
+}
+
 std::vector<FF::MenuInfo> file_menu = {
     { { N_("_New"), FF::NonCheckable, "<control>u" }, nullptr, FF::LegacyCallbacks, MID_OpenOutline },
 };
+
+//////////////////////////////// ELEMENT MENUS ////////////////////////////////////////
+
+std::vector<FF::MenuInfo> element_menu = {
+    { { N_("_Font Info..."), "elementfontinfo", "<control><shift>F" }, nullptr, FF::LegacyCallbacks, MID_FontInfo },
+    { { N_("Glyph _Info..."), "elementglyphinfo", "<control>i" }, nullptr, FF::LegacyCallbacks, MID_CharInfo },
+    { { N_("Other Info"), "elementotherinfo", "" }, nullptr /*&other_info_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("_Validation"), "elementvalidate", "" }, nullptr /*&validation_menu*/, FF::SubMenuCallbacks, 0 },
+    FF::kMenuSeparator,
+    { { N_("Bitm_ap Strikes Available..."), "elementbitmapsavail", "<control><shift>B" }, nullptr, FF::LegacyCallbacks, MID_AvailBitmaps },
+    { { N_("Regenerate _Bitmap Glyphs..."), "elementregenbitmaps", "<control>B" }, nullptr, FF::LegacyCallbacks, MID_RegenBitmaps },
+    { { N_("Remove Bitmap Glyphs..."), "elementremovebitmaps", "" }, nullptr, FF::LegacyCallbacks, MID_RemoveBitmaps },
+    FF::kMenuSeparator,
+    { { N_("St_yle"), "elementstyles", "" }, nullptr /*&style_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("_Transformations"), "elementtransform", "" }, nullptr /*&transformations_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("_Expand Stroke..."), "elementexpandstroke", "<control><shift>E" }, nullptr, FF::LegacyCallbacks, MID_Stroke },
+#ifdef FONTFORGE_CONFIG_TILEPATH
+    { { N_("Tile _Path..."), "elementtilepath", "" }, nullptr, FF::LegacyCallbacks, MID_TilePath },
+    { { N_("Tile Pattern..."), "elementtilepattern", "" }, nullptr, FF::LegacyCallbacks, MID_TilePattern },
+#endif
+    { { N_("O_verlap"), "overlaprm", "" }, nullptr /*&overlap_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("_Simplify"), "elementsimplify", "" }, nullptr /*&simplify_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("Add E_xtrema"), "elementaddextrema", "<control><shift>X" }, nullptr, FF::LegacyCallbacks, MID_AddExtrema },
+    { { N_("Add Points Of I_nflection"), "elementaddinflections", "<control><shift>Y" }, nullptr, FF::LegacyCallbacks, MID_AddInflections },
+    { { N_("_Balance"), "elementbalance", "<control><shift>P" }, nullptr, FF::LegacyCallbacks, MID_Balance },
+    { { N_("Harmoni_ze"), "elementharmonize", "<control><shift>Z" }, nullptr, FF::LegacyCallbacks, MID_Harmonize },
+    { { N_("Roun_d"), "elementround", "" }, nullptr /*&round_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("Autot_race"), "elementautotrace", "<control><shift>T" }, nullptr, { FF::LegacyEnabled, FF::NotCheckable, run_autotrace }, MID_Autotrace },
+    FF::kMenuSeparator,
+    { { N_("_Correct Direction"), "elementcorrectdir", "<control><shift>D" }, nullptr, FF::LegacyCallbacks, MID_Correct },
+    FF::kMenuSeparator,
+    { { N_("B_uild"), "elementbuildaccent", "" }, nullptr /*&build_menu*/, FF::SubMenuCallbacks, 0 },
+    FF::kMenuSeparator,
+    { { N_("_Merge Fonts..."), "elementmergefonts", "" }, nullptr, FF::LegacyCallbacks, MID_MergeFonts },
+    { { N_("Interpo_late Fonts..."), "elementinterpolatefonts", "" }, nullptr, FF::LegacyCallbacks, MID_InterpolateFonts },
+    { { N_("Compare Fonts..."), "elementcomparefonts", "" }, nullptr, FF::LegacyCallbacks, MID_FontCompare },
+    { { N_("Compare Layers..."), "elementcomparelayers", "" }, nullptr, FF::LegacyCallbacks, MID_LayersCompare },
+};
+
+/////////////////////////////////// TOOLS MENU ////////////////////////////////////////
 
 std::vector<FF::MenuInfo> tools_menu = {
     FF::MenuInfo::CustomFVBlock(FF::python_tools),
@@ -367,7 +436,7 @@ std::vector<FF::MenuInfo> view_menu = {
 std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("_File") }, &file_menu, -1 },
     { { N_("_Edit") }, nullptr, -1 },
-    { { N_("E_lement") }, nullptr, -1 },
+    { { N_("E_lement") }, &element_menu, -1 },
 #ifndef _NO_PYTHON
     { { N_("_Tools") }, &tools_menu, -1 },
 #endif
