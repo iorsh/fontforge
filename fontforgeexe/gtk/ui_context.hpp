@@ -31,6 +31,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include <gtkmm/accelgroup.h>
+#include <gtkmm-3.0/gtkmm.h>
 
 namespace FF {
 
@@ -42,13 +43,15 @@ using CheckedCB = std::function<bool(const UiContext&)>;
 
 class UiContext {
 public:
-    UiContext() {}
+    UiContext(Gtk::Window* window) : window_(window) {}
 
     virtual ActivateCB get_activate_cb(int mid) const = 0;
     virtual EnabledCB get_enabled_cb(int mid) const = 0;
     virtual CheckedCB get_checked_cb(int mid) const = 0;
 
     virtual Glib::RefPtr<Gtk::AccelGroup> get_accel_group() const = 0;
+
+    Gtk::Window* window_ = nullptr;
 };
 
 }

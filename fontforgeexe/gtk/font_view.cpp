@@ -24,8 +24,8 @@
 namespace FontViewNS {
 
 // Take ownership of *p_fv_context
-FontViewUiContext::FontViewUiContext(FVContext** p_fv_context)
-    : legacy_context(*p_fv_context) {
+FontViewUiContext::FontViewUiContext(Gtk::Window* window, FVContext** p_fv_context)
+    : FF::UiContext(window), legacy_context(*p_fv_context) {
     accel_group = Gtk::AccelGroup::create();
     *p_fv_context = NULL;
 }
@@ -137,10 +137,10 @@ bool on_drawing_area_key(GdkEventKey* event, GdkWindow* draw_win) {
 }
 
 Gtk::Window* create_view(FVContext** p_fv_context, int width, int height) {
-   FontViewUiContext* fv_ui_context = new FontViewUiContext(p_fv_context);
+   Gtk::Window* font_view_window = new Gtk::Window();
+   FontViewUiContext* fv_ui_context = new FontViewUiContext(font_view_window, p_fv_context);
    FVContext* fv_context = fv_ui_context->get_legacy_context();
 
-   Gtk::Window* font_view_window = new Gtk::Window();
    FF::add_top_view(*font_view_window);
    font_view_window->set_default_size(width, height);
 

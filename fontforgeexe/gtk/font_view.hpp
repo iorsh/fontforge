@@ -22,7 +22,7 @@ namespace FontViewNS {
 
 class FontViewUiContext : public FF::UiContext {
 public:
-    FontViewUiContext(FVContext** p_fv_context);
+    FontViewUiContext(Gtk::Window* window, FVContext** p_fv_context);
     ~FontViewUiContext() { delete legacy_context; }
 
     FF::ActivateCB get_activate_cb(int mid) const override;
