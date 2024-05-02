@@ -39,7 +39,8 @@ namespace ff::views {
 
 class FontViewUiContext : public UiContext {
  public:
-    FontViewUiContext(std::shared_ptr<FVContext> fv_context);
+    FontViewUiContext(Gtk::Window& window,
+                      std::shared_ptr<FVContext> fv_context);
 
     ActivateCB get_activate_cb(int mid) const override;
     EnabledCB get_enabled_cb(int mid) const override;

@@ -93,7 +93,9 @@ void load_legacy_style() {
     }
 }
 
-void add_top_view(Gtk::Window& window) { GtkApp()->add_window(window); }
+void add_top_view(views::UiContext& context) {
+    GtkApp()->add_window(context.window_);
+}
 
 void remove_top_view(Gtk::Window& window) {
     GtkApp()->remove_window(window);

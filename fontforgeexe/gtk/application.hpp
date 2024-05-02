@@ -28,13 +28,15 @@
 
 #include <gtkmm.h>
 
+#include "ui_context.hpp"
+
 namespace ff::app {
 
 Glib::RefPtr<Gtk::Application> GtkApp();
 
 void load_legacy_style();
 
-void add_top_view(Gtk::Window& window);
+void add_top_view(views::UiContext& context);
 
 void remove_top_view(Gtk::Window& window);
 

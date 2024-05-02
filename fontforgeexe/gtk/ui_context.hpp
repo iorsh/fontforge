@@ -43,13 +43,15 @@ using MenuBlockCB = std::function<std::vector<MenuInfo>(const UiContext&)>;
 
 class UiContext {
  public:
-    UiContext() {}
+    UiContext(Gtk::Window& window) : window_(window) {}
 
     virtual ActivateCB get_activate_cb(int mid) const = 0;
     virtual EnabledCB get_enabled_cb(int mid) const = 0;
     virtual CheckedCB get_checked_cb(int mid) const = 0;
 
     virtual Glib::RefPtr<Gtk::AccelGroup> get_accel_group() const = 0;
+
+    Gtk::Window& window_;
 };
 
 }  // namespace ff::views
