@@ -2922,6 +2922,7 @@ static void FVMenuCluster(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUS
     FVCluster( (FontViewBase *) GDrawGetUserData(gw));
 }
 
+#if 0
 static void FVMenuAutotrace(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
     GCursor ct=0;
@@ -2936,6 +2937,7 @@ static void FVMenuAutotrace(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e)
     if ( fv->v!=NULL )
 	GDrawSetCursor(fv->v,ct);
 }
+#endif
 
 static void FVMenuBuildAccent(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
     FVBuildAccent( (FontViewBase *) GDrawGetUserData(gw), true );
@@ -7604,7 +7606,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context->collect_encoding_data = collect_encoding_data;
     fv_context->py_activate = fvpy_activate;
     fv_context->py_check = fvpy_check;
-    fv_context->run_autotrace = FVAutoTrace;
+    fv_context->run_autotrace = (void (*)(FontView*, bool))FVAutoTrace;
     fv_context->actions = fvpopupactions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
 
