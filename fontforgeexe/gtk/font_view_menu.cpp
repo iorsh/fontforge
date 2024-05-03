@@ -84,14 +84,21 @@ static const int MID_MergeFonts = 2214;
 static const int MID_InterpolateFonts = 2215;
 static const int MID_FindProblems = 2216;
 static const int MID_AddExtrema = 2224;
+static const int MID_StrikeInfo = 2238;
 static const int MID_FontCompare = 2239;
 static const int MID_RemoveBitmaps = 2244;
 static const int MID_Validate = 2245;
+static const int MID_MassRename = 2246;
+static const int MID_SetColor = 2252;
 static const int MID_SetExtremumBound = 2253;
 static const int MID_AddInflections = 2256;
 static const int MID_Balance = 2257;
 static const int MID_Harmonize = 2258;
 static const int MID_LayersCompare = 2259;
+static const int MID_MathInfo = 2260;
+static const int MID_HorBaselines = 2261;
+static const int MID_VertBaselines = 2262;
+static const int MID_Justification = 2263;
 
 static const int MID_AutoHint = 2501;
 static const int MID_ClearHints = 2502;
@@ -279,6 +286,17 @@ std::vector<FF::MenuInfo> file_menu = {
 
 //////////////////////////////// ELEMENT MENUS ////////////////////////////////////////
 
+std::vector<FF::MenuInfo> other_info_menu = {
+    { { N_("_MATH Info..."), "elementmathinfo", "" }, nullptr, FF::LegacyCallbacks, MID_MathInfo },
+    { { N_("_BDF Info..."), "elementbdfinfo", "" }, nullptr, FF::LegacyCallbacks, MID_StrikeInfo },
+    { { N_("_Horizontal Baselines..."), "elementhbaselines", "" }, nullptr, FF::LegacyCallbacks, MID_HorBaselines },
+    { { N_("_Vertical Baselines..."), "elementvbaselines", "" }, nullptr, FF::LegacyCallbacks, MID_VertBaselines },
+    { { N_("_Justification..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Justification },
+    { { N_("Show _Dependent"), "elementshowdep", "" }, nullptr/*&show_dependent_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("Mass Glyph _Rename..."), "elementrenameglyph", "" }, nullptr, FF::LegacyCallbacks, MID_MassRename },
+    { { N_("Set _Color"), FF::NonCheckable, "" }, nullptr/*&set_color_menu*/, { FF::LegacyEnabled, FF::NotCheckable, FF::NoAction }, MID_SetColor },
+};
+
 std::vector<FF::MenuInfo> validation_menu = {
     { { N_("Find Pr_oblems..."), "elementfindprobs", "<control>E" }, nullptr, FF::LegacyCallbacks, MID_FindProblems },
     { { N_("_Validate..."), "elementvalidate", "" }, nullptr, FF::LegacyCallbacks, MID_Validate },
@@ -289,7 +307,7 @@ std::vector<FF::MenuInfo> validation_menu = {
 std::vector<FF::MenuInfo> element_menu = {
     { { N_("_Font Info..."), "elementfontinfo", "<control><shift>F" }, nullptr, FF::LegacyCallbacks, MID_FontInfo },
     { { N_("Glyph _Info..."), "elementglyphinfo", "<control>i" }, nullptr, FF::LegacyCallbacks, MID_CharInfo },
-    { { N_("Other Info"), "elementotherinfo", "" }, nullptr /*&other_info_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("Other Info"), "elementotherinfo", "" }, &other_info_menu, FF::SubMenuCallbacks, 0 },
     { { N_("_Validation"), "elementvalidate", "" }, &validation_menu, FF::SubMenuCallbacks, 0 },
     FF::kMenuSeparator,
     { { N_("Bitm_ap Strikes Available..."), "elementbitmapsavail", "<control><shift>B" }, nullptr, FF::LegacyCallbacks, MID_AvailBitmaps },
