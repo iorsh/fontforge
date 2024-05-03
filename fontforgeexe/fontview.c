@@ -1505,7 +1505,6 @@ static void FVMenuCondense(FontView *fv, int UNUSED(mid)) {
 }
 
 #define MID_Layers	2029
-#define MID_RmOverlap	2204
 #define MID_Simplify	2205
 #define MID_BuildAccent	2208
 #define MID_FindProblems 2216
@@ -1513,8 +1512,6 @@ static void FVMenuCondense(FontView *fv, int UNUSED(mid)) {
 #define MID_CleanupGlyph	2225
 #define MID_TilePath	2226
 #define MID_BuildComposite	2227
-#define MID_Intersection	2229
-#define MID_FindInter	2230
 #define MID_Styles	2231
 #define MID_SimplifyMore	2233
 #define MID_ShowDependentSubs	2234
@@ -2697,9 +2694,7 @@ static void FVMenuPatternTile(FontView *fv, int UNUSED(mid)) {
 }
 #endif
 
-static void FVMenuOverlap(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuOverlap(FontView *fv, int mid) {
     if ( fv->b.sf->onlybitmaps )
 return;
 
@@ -2707,8 +2702,8 @@ return;
     /*  than anywhere else, so let's save the current state against a crash */
     DoAutoSaves();
 
-    FVOverlap(&fv->b,mi->mid==MID_RmOverlap ? over_remove :
-		 mi->mid==MID_Intersection ? over_intersect :
+    FVOverlap(&fv->b,mid==MID_RmOverlap ? over_remove :
+		 mid==MID_Intersection ? over_intersect :
 		      over_findinter);
 }
 
@@ -4528,13 +4523,6 @@ static GMenuItem2 smlist[] = {
     GMENUITEM2_EMPTY
 };
 
-static GMenuItem2 rmlist[] = {
-    { { (unichar_t *) N_("_Remove Overlap"), (GImage *) "overlaprm.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, 'O' }, H_("Remove Overlap|No Shortcut"), NULL, NULL, FVMenuOverlap, MID_RmOverlap },
-    { { (unichar_t *) N_("_Intersect"), (GImage *) "overlapintersection.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("Intersect|No Shortcut"), NULL, NULL, FVMenuOverlap, MID_Intersection },
-    { { (unichar_t *) N_("_Find Intersections"), (GImage *) "overlapfindinter.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, 'O' }, H_("Find Intersections|No Shortcut"), NULL, NULL, FVMenuOverlap, MID_FindInter },
-    GMENUITEM2_EMPTY
-};
-
 static GMenuItem2 balist[] = {
     { { (unichar_t *) N_("_Build Accented Glyph"), (GImage *) "elementbuildaccent.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'B' }, H_("Build Accented Glyph|No Shortcut"), NULL, NULL, FVMenuBuildAccent, MID_BuildAccent },
     { { (unichar_t *) N_("Build _Composite Glyph"), (GImage *) "elementbuildcomposite.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'B' }, H_("Build Composite Glyph|No Shortcut"), NULL, NULL, FVMenuBuildComposite, MID_BuildComposite },
@@ -5344,6 +5332,11 @@ FVMenuAction fvpopupactions[] = {
     { MID_Transform, trlistcheck, NULL, FVMenuTransform },
     { MID_POV, trlistcheck, NULL, FVMenuPOV },
     { MID_NLTransform, trlistcheck, NULL, FVMenuNLTransform },
+
+    /* Element->Overlap menu */
+    { MID_RmOverlap, NULL, NULL, FVMenuOverlap },
+    { MID_Intersection, NULL, NULL, FVMenuOverlap },
+    { MID_FindInter, NULL, NULL, FVMenuOverlap },
 
     /* Hints menu */
     { MID_AutoHint, htlistcheck, NULL, FVMenuAutoHint },
