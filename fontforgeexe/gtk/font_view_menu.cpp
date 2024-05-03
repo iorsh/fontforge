@@ -121,6 +121,8 @@ static const int MID_Inline = 2265;
 static const int MID_Outline = 2266;
 static const int MID_Shadow = 2267;
 static const int MID_Wireframe = 2268;
+static const int MID_Hundredths = 2269;
+static const int MID_Cluster = 2270;
 
 static const int MID_AutoHint = 2501;
 static const int MID_ClearHints = 2502;
@@ -363,6 +365,12 @@ std::vector<FF::MenuInfo> simplify_menu = {
     { { N_("Canonical _Contours"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_CanonicalContours },
 };
 
+std::vector<FF::MenuInfo> round_menu = {
+    { { N_("To _Int"), "elementround", "<control><shift>underscore" }, nullptr, FF::LegacyCallbacks, MID_Round },
+    { { N_("To _Hundredths"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Hundredths },
+    { { N_("_Cluster"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Cluster },
+};
+
 std::vector<FF::MenuInfo> element_menu = {
     { { N_("_Font Info..."), "elementfontinfo", "<control><shift>F" }, nullptr, FF::LegacyCallbacks, MID_FontInfo },
     { { N_("Glyph _Info..."), "elementglyphinfo", "<control>i" }, nullptr, FF::LegacyCallbacks, MID_CharInfo },
@@ -386,7 +394,7 @@ std::vector<FF::MenuInfo> element_menu = {
     { { N_("Add Points Of I_nflection"), "elementaddinflections", "<control><shift>Y" }, nullptr, FF::LegacyCallbacks, MID_AddInflections },
     { { N_("_Balance"), "elementbalance", "<control><shift>P" }, nullptr, FF::LegacyCallbacks, MID_Balance },
     { { N_("Harmoni_ze"), "elementharmonize", "<control><shift>Z" }, nullptr, FF::LegacyCallbacks, MID_Harmonize },
-    { { N_("Roun_d"), "elementround", "" }, nullptr /*&round_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("Roun_d"), "elementround", "" }, &round_menu, FF::SubMenuCallbacks, 0 },
     { { N_("Autot_race"), "elementautotrace", "<control><shift>T" }, nullptr, { FF::LegacyEnabled, FF::NotCheckable, run_autotrace }, MID_Autotrace },
     FF::kMenuSeparator,
     { { N_("_Correct Direction"), "elementcorrectdir", "<control><shift>D" }, nullptr, FF::LegacyCallbacks, MID_Correct },
