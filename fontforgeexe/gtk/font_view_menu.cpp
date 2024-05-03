@@ -75,6 +75,7 @@ static const int MID_FontInfo = 2200;
 static const int MID_CharInfo = 2201;
 static const int MID_Transform = 2202;
 static const int MID_Stroke = 2203;
+static const int MID_RmOverlap = 2204;
 static const int MID_Correct = 2206;
 static const int MID_AvailBitmaps = 2210;
 static const int MID_RegenBitmaps = 2211;
@@ -87,6 +88,8 @@ static const int MID_Embolden = 2217;
 static const int MID_Condense = 2218;
 static const int MID_AddExtrema = 2224;
 static const int MID_NLTransform = 2228;
+static const int MID_Intersection = 2229;
+static const int MID_FindInter = 2230;
 static const int MID_POV = 2236;
 static const int MID_StrikeInfo = 2238;
 static const int MID_FontCompare = 2239;
@@ -341,6 +344,12 @@ std::vector<FF::MenuInfo> transformations_menu = {
     { { N_("_Non Linear Transform..."), FF::NonCheckable, "<control><shift>colon" }, nullptr, FF::LegacyCallbacks, MID_NLTransform },
 };
 
+std::vector<FF::MenuInfo> overlap_menu = {
+    { { N_("_Remove Overlap"), "overlaprm", "<control><shift>O" }, nullptr, FF::LegacyCallbacks, MID_RmOverlap },
+    { { N_("_Intersect"), "overlapintersection", "" }, nullptr, FF::LegacyCallbacks, MID_Intersection },
+    { { N_("_Find Intersections"), "overlapfindinter", "" }, nullptr, FF::LegacyCallbacks, MID_FindInter },
+};
+
 std::vector<FF::MenuInfo> element_menu = {
     { { N_("_Font Info..."), "elementfontinfo", "<control><shift>F" }, nullptr, FF::LegacyCallbacks, MID_FontInfo },
     { { N_("Glyph _Info..."), "elementglyphinfo", "<control>i" }, nullptr, FF::LegacyCallbacks, MID_CharInfo },
@@ -358,7 +367,7 @@ std::vector<FF::MenuInfo> element_menu = {
     { { N_("Tile _Path..."), "elementtilepath", "" }, nullptr, FF::LegacyCallbacks, MID_TilePath },
     { { N_("Tile Pattern..."), "elementtilepattern", "" }, nullptr, FF::LegacyCallbacks, MID_TilePattern },
 #endif
-    { { N_("O_verlap"), "overlaprm", "" }, nullptr /*&overlap_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("O_verlap"), "overlaprm", "" }, &overlap_menu, FF::SubMenuCallbacks, 0 },
     { { N_("_Simplify"), "elementsimplify", "" }, nullptr /*&simplify_menu*/, FF::SubMenuCallbacks, 0 },
     { { N_("Add E_xtrema"), "elementaddextrema", "<control><shift>X" }, nullptr, FF::LegacyCallbacks, MID_AddExtrema },
     { { N_("Add Points Of I_nflection"), "elementaddinflections", "<control><shift>Y" }, nullptr, FF::LegacyCallbacks, MID_AddInflections },

@@ -2800,9 +2800,7 @@ static void FVMenuPatternTile(FontView *fv, int UNUSED(mid)) {
 }
 #endif
 
-static void FVMenuOverlap(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuOverlap(FontView *fv, int mid) {
     if ( fv->b.sf->onlybitmaps )
 return;
 
@@ -2810,8 +2808,8 @@ return;
     /*  than anywhere else, so let's save the current state against a crash */
     DoAutoSaves();
 
-    FVOverlap(&fv->b,mi->mid==MID_RmOverlap ? over_remove :
-		 mi->mid==MID_Intersection ? over_intersect :
+    FVOverlap(&fv->b,mid==MID_RmOverlap ? over_remove :
+		 mid==MID_Intersection ? over_intersect :
 		      over_findinter);
 }
 
@@ -4718,6 +4716,7 @@ static GMenuItem2 smlist[] = {
     GMENUITEM2_EMPTY
 };
 
+#if 0
 static GMenuItem2 rmlist[] = {
     { { (unichar_t *) N_("_Remove Overlap"), (GImage *) "overlaprm.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, 'O' }, H_("Remove Overlap|No Shortcut"), NULL, NULL, FVMenuOverlap, MID_RmOverlap },
     { { (unichar_t *) N_("_Intersect"), (GImage *) "overlapintersection.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("Intersect|No Shortcut"), NULL, NULL, FVMenuOverlap, MID_Intersection },
@@ -4725,7 +4724,6 @@ static GMenuItem2 rmlist[] = {
     GMENUITEM2_EMPTY
 };
 
-#if 0
 static GMenuItem2 eflist[] = {
     { { (unichar_t *) N_("Change _Weight..."), (GImage *) "styleschangeweight.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Change Weight...|No Shortcut"), NULL, NULL, FVMenuEmbolden, MID_Embolden },
     { { (unichar_t *) N_("_Italic..."), (GImage *) "stylesitalic.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Italic...|No Shortcut"), NULL, NULL, FVMenuItalic, MID_Italic },
@@ -5852,6 +5850,11 @@ FVMenuAction fvpopupactions[] = {
     { MID_Transform, trlistcheck, NULL, FVMenuTransform },
     { MID_POV, trlistcheck, NULL, FVMenuPOV },
     { MID_NLTransform, trlistcheck, NULL, FVMenuNLTransform },
+
+    /* Element->Overlap menu */
+    { MID_RmOverlap, NULL, NULL, FVMenuOverlap },
+    { MID_Intersection, NULL, NULL, FVMenuOverlap },
+    { MID_FindInter, NULL, NULL, FVMenuOverlap },
 
     /* Hints menu */
     { MID_AutoHint, htlistcheck, NULL, FVMenuAutoHint },
