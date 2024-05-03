@@ -76,6 +76,7 @@ static const int MID_CharInfo = 2201;
 static const int MID_Transform = 2202;
 static const int MID_Stroke = 2203;
 static const int MID_RmOverlap = 2204;
+static const int MID_Simplify = 2205;
 static const int MID_Correct = 2206;
 static const int MID_AvailBitmaps = 2210;
 static const int MID_RegenBitmaps = 2211;
@@ -87,12 +88,16 @@ static const int MID_FindProblems = 2216;
 static const int MID_Embolden = 2217;
 static const int MID_Condense = 2218;
 static const int MID_AddExtrema = 2224;
+static const int MID_CleanupGlyph = 2225;
 static const int MID_NLTransform = 2228;
 static const int MID_Intersection = 2229;
 static const int MID_FindInter = 2230;
+static const int MID_SimplifyMore = 2233;
 static const int MID_POV = 2236;
 static const int MID_StrikeInfo = 2238;
 static const int MID_FontCompare = 2239;
+static const int MID_CanonicalStart = 2242;
+static const int MID_CanonicalContours = 2243;
 static const int MID_RemoveBitmaps = 2244;
 static const int MID_Validate = 2245;
 static const int MID_MassRename = 2246;
@@ -350,6 +355,14 @@ std::vector<FF::MenuInfo> overlap_menu = {
     { { N_("_Find Intersections"), "overlapfindinter", "" }, nullptr, FF::LegacyCallbacks, MID_FindInter },
 };
 
+std::vector<FF::MenuInfo> simplify_menu = {
+    { { N_("_Simplify"), "elementsimplify", "<control><shift>M" }, nullptr, FF::LegacyCallbacks, MID_Simplify },
+    { { N_("Simplify More..."), FF::NonCheckable, "<alt><control><shift>M" }, nullptr, FF::LegacyCallbacks, MID_SimplifyMore },
+    { { N_("Clea_nup Glyph"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_CleanupGlyph },
+    { { N_("Canonical Start _Point"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_CanonicalStart },
+    { { N_("Canonical _Contours"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_CanonicalContours },
+};
+
 std::vector<FF::MenuInfo> element_menu = {
     { { N_("_Font Info..."), "elementfontinfo", "<control><shift>F" }, nullptr, FF::LegacyCallbacks, MID_FontInfo },
     { { N_("Glyph _Info..."), "elementglyphinfo", "<control>i" }, nullptr, FF::LegacyCallbacks, MID_CharInfo },
@@ -368,7 +381,7 @@ std::vector<FF::MenuInfo> element_menu = {
     { { N_("Tile Pattern..."), "elementtilepattern", "" }, nullptr, FF::LegacyCallbacks, MID_TilePattern },
 #endif
     { { N_("O_verlap"), "overlaprm", "" }, &overlap_menu, FF::SubMenuCallbacks, 0 },
-    { { N_("_Simplify"), "elementsimplify", "" }, nullptr /*&simplify_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("_Simplify"), "elementsimplify", "" }, &simplify_menu, FF::SubMenuCallbacks, 0 },
     { { N_("Add E_xtrema"), "elementaddextrema", "<control><shift>X" }, nullptr, FF::LegacyCallbacks, MID_AddExtrema },
     { { N_("Add Points Of I_nflection"), "elementaddinflections", "<control><shift>Y" }, nullptr, FF::LegacyCallbacks, MID_AddInflections },
     { { N_("_Balance"), "elementbalance", "<control><shift>P" }, nullptr, FF::LegacyCallbacks, MID_Balance },

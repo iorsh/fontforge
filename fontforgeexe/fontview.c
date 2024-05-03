@@ -2850,24 +2850,24 @@ return;
     _FVSimplify((FontViewBase *) fv,smpl);
 }
 
-static void FVMenuSimplify(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FVSimplify( (FontView *) GDrawGetUserData(gw),false );
+static void FVMenuSimplify(FontView *fv, int UNUSED(mid)) {
+    FVSimplify( fv,false );
 }
 
-static void FVMenuSimplifyMore(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FVSimplify( (FontView *) GDrawGetUserData(gw),true );
+static void FVMenuSimplifyMore(FontView *fv, int UNUSED(mid)) {
+    FVSimplify( fv,true );
 }
 
-static void FVMenuCleanup(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FVSimplify( (FontView *) GDrawGetUserData(gw),-1 );
+static void FVMenuCleanup(FontView *fv, int UNUSED(mid)) {
+    FVSimplify( fv,-1 );
 }
 
-static void FVMenuCanonicalStart(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FVCanonicalStart( (FontViewBase *) GDrawGetUserData(gw) );
+static void FVMenuCanonicalStart(FontView *fv, int UNUSED(mid)) {
+    FVCanonicalStart( (FontViewBase *) fv );
 }
 
-static void FVMenuCanonicalContours(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FVCanonicalContours( (FontViewBase *) GDrawGetUserData(gw) );
+static void FVMenuCanonicalContours(FontView *fv, int UNUSED(mid)) {
+    FVCanonicalContours( (FontViewBase *) fv );
 }
 
 static void FVMenuAddExtrema(FontView *fv, int UNUSED(mid)) {
@@ -4707,6 +4707,7 @@ static GMenuItem2 edlist[] = {
     GMENUITEM2_EMPTY
 };
 
+#if 0
 static GMenuItem2 smlist[] = {
     { { (unichar_t *) N_("_Simplify"), (GImage *) "elementsimplify.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'S' }, H_("Simplify|No Shortcut"), NULL, NULL, FVMenuSimplify, MID_Simplify },
     { { (unichar_t *) N_("Simplify More..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'M' }, H_("Simplify More...|No Shortcut"), NULL, NULL, FVMenuSimplifyMore, MID_SimplifyMore },
@@ -4716,7 +4717,6 @@ static GMenuItem2 smlist[] = {
     GMENUITEM2_EMPTY
 };
 
-#if 0
 static GMenuItem2 rmlist[] = {
     { { (unichar_t *) N_("_Remove Overlap"), (GImage *) "overlaprm.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, 'O' }, H_("Remove Overlap|No Shortcut"), NULL, NULL, FVMenuOverlap, MID_RmOverlap },
     { { (unichar_t *) N_("_Intersect"), (GImage *) "overlapintersection.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("Intersect|No Shortcut"), NULL, NULL, FVMenuOverlap, MID_Intersection },
@@ -5855,6 +5855,13 @@ FVMenuAction fvpopupactions[] = {
     { MID_RmOverlap, NULL, NULL, FVMenuOverlap },
     { MID_Intersection, NULL, NULL, FVMenuOverlap },
     { MID_FindInter, NULL, NULL, FVMenuOverlap },
+
+    /* Element->Simplify menu */
+    { MID_Simplify, NULL, NULL, FVMenuSimplify },
+    { MID_SimplifyMore, NULL, NULL, FVMenuSimplifyMore },
+    { MID_CleanupGlyph, NULL, NULL, FVMenuCleanup },
+    { MID_CanonicalStart, NULL, NULL, FVMenuCanonicalStart },
+    { MID_CanonicalContours, NULL, NULL, FVMenuCanonicalContours },
 
     /* Hints menu */
     { MID_AutoHint, htlistcheck, NULL, FVMenuAutoHint },
