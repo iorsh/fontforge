@@ -83,12 +83,19 @@ static const int MID_Round = 2213;
 static const int MID_MergeFonts = 2214;
 static const int MID_InterpolateFonts = 2215;
 static const int MID_FindProblems = 2216;
+static const int MID_Embolden = 2217;
+static const int MID_Condense = 2218;
 static const int MID_AddExtrema = 2224;
 static const int MID_StrikeInfo = 2238;
 static const int MID_FontCompare = 2239;
 static const int MID_RemoveBitmaps = 2244;
 static const int MID_Validate = 2245;
 static const int MID_MassRename = 2246;
+static const int MID_Italic = 2247;
+static const int MID_SmallCaps = 2248;
+static const int MID_SubSup = 2249;
+static const int MID_ChangeXHeight = 2250;
+static const int MID_ChangeGlyph = 2251;
 static const int MID_SetColor = 2252;
 static const int MID_SetExtremumBound = 2253;
 static const int MID_AddInflections = 2256;
@@ -99,6 +106,11 @@ static const int MID_MathInfo = 2260;
 static const int MID_HorBaselines = 2261;
 static const int MID_VertBaselines = 2262;
 static const int MID_Justification = 2263;
+static const int MID_Oblique = 2264;
+static const int MID_Inline = 2265;
+static const int MID_Outline = 2266;
+static const int MID_Shadow = 2267;
+static const int MID_Wireframe = 2268;
 
 static const int MID_AutoHint = 2501;
 static const int MID_ClearHints = 2502;
@@ -304,6 +316,23 @@ std::vector<FF::MenuInfo> validation_menu = {
     { { N_("Set E_xtremum Bound..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_SetExtremumBound },
 };
 
+std::vector<FF::MenuInfo> style_menu = {
+    { { N_("Change _Weight..."), "styleschangeweight", "<control><shift>!" }, nullptr, FF::LegacyCallbacks, MID_Embolden },
+    { { N_("_Italic..."), "stylesitalic", "" }, nullptr, FF::LegacyCallbacks, MID_Italic },
+    { { N_("Obli_que..."), "stylesoblique", "" }, nullptr, FF::LegacyCallbacks, MID_Oblique },
+    { { N_("_Condense/Extend..."), "stylesextendcondense", "" }, nullptr, FF::LegacyCallbacks, MID_Condense },
+    { { N_("Change _X-Height..."), "styleschangexheight", "" }, nullptr, FF::LegacyCallbacks, MID_ChangeXHeight },
+    { { N_("Change _Glyph..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ChangeGlyph },
+    FF::kMenuSeparator,
+    { { N_("Add _Small Capitals..."), "stylessmallcaps", "" }, nullptr, FF::LegacyCallbacks, MID_SmallCaps },
+    { { N_("Add Subscripts/Superscripts..."), "stylessubsuper", "" }, nullptr, FF::LegacyCallbacks, MID_SubSup },
+    FF::kMenuSeparator,
+    { { N_("In_line..."), "stylesinline", "" }, nullptr, FF::LegacyCallbacks, MID_Inline },
+    { { N_("_Outline..."), "stylesoutline", "" }, nullptr, FF::LegacyCallbacks, MID_Outline },
+    { { N_("S_hadow..."), "stylesshadow", "" }, nullptr, FF::LegacyCallbacks, MID_Shadow },
+    { { N_("_Wireframe..."), "styleswireframe", "" }, nullptr, FF::LegacyCallbacks, MID_Wireframe },
+};
+
 std::vector<FF::MenuInfo> element_menu = {
     { { N_("_Font Info..."), "elementfontinfo", "<control><shift>F" }, nullptr, FF::LegacyCallbacks, MID_FontInfo },
     { { N_("Glyph _Info..."), "elementglyphinfo", "<control>i" }, nullptr, FF::LegacyCallbacks, MID_CharInfo },
@@ -314,7 +343,7 @@ std::vector<FF::MenuInfo> element_menu = {
     { { N_("Regenerate _Bitmap Glyphs..."), "elementregenbitmaps", "<control>B" }, nullptr, FF::LegacyCallbacks, MID_RegenBitmaps },
     { { N_("Remove Bitmap Glyphs..."), "elementremovebitmaps", "" }, nullptr, FF::LegacyCallbacks, MID_RemoveBitmaps },
     FF::kMenuSeparator,
-    { { N_("St_yle"), "elementstyles", "" }, nullptr /*&style_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("St_yle"), "elementstyles", "" }, &style_menu, FF::SubMenuCallbacks, 0 },
     { { N_("_Transformations"), "elementtransform", "" }, nullptr /*&transformations_menu*/, FF::SubMenuCallbacks, 0 },
     { { N_("_Expand Stroke..."), "elementexpandstroke", "<control><shift>E" }, nullptr, FF::LegacyCallbacks, MID_Stroke },
 #ifdef FONTFORGE_CONFIG_TILEPATH

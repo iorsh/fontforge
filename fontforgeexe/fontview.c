@@ -1462,43 +1462,35 @@ return;
     free(ret);
 }
 
-static void FVMenuEmbolden(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuEmbolden(FontView *fv, int UNUSED(mid)) {
     EmboldenDlg(fv,NULL);
 }
 
-static void FVMenuItalic(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuItalic(FontView *fv, int UNUSED(mid)) {
     ItalicDlg(fv,NULL);
 }
 
-static void FVMenuSmallCaps(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuSmallCaps(FontView *fv, int UNUSED(mid)) {
     GlyphChangeDlg(fv,NULL,gc_smallcaps);
 }
 
-static void FVMenuChangeXHeight(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuChangeXHeight(FontView *fv, int UNUSED(mid)) {
     ChangeXHeightDlg(fv,NULL);
 }
 
-static void FVMenuChangeGlyph(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuChangeGlyph(FontView *fv, int UNUSED(mid)) {
     GlyphChangeDlg(fv,NULL,gc_generic);
 }
 
-static void FVMenuSubSup(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuSubSup(FontView *fv, int UNUSED(mid)) {
     GlyphChangeDlg(fv,NULL,gc_subsuper);
 }
 
-static void FVMenuOblique(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuOblique(FontView *fv, int UNUSED(mid)) {
     ObliqueDlg(fv,NULL);
 }
 
-static void FVMenuCondense(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuCondense(FontView *fv, int UNUSED(mid)) {
     CondenseExtendDlg(fv,NULL);
 }
 
@@ -1580,6 +1572,11 @@ static void FVMenuCondense(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNU
 #define MID_HorBaselines	2261
 #define MID_VertBaselines	2262
 #define MID_Justification	2263
+#define MID_Oblique	2264
+#define MID_Inline	2265
+#define MID_Outline	2266
+#define MID_Shadow	2267
+#define MID_Wireframe	2268
 #define MID_Center	2600
 #define MID_Thirds	2601
 #define MID_SetWidth	2602
@@ -2820,27 +2817,19 @@ return;
 		      over_findinter);
 }
 
-static void FVMenuInline(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuInline(FontView *fv, int UNUSED(mid)) {
     OutlineDlg(fv,NULL,NULL,true);
 }
 
-static void FVMenuOutline(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuOutline(FontView *fv, int UNUSED(mid)) {
     OutlineDlg(fv,NULL,NULL,false);
 }
 
-static void FVMenuShadow(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuShadow(FontView *fv, int UNUSED(mid)) {
     ShadowDlg(fv,NULL,NULL,false);
 }
 
-static void FVMenuWireframe(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuWireframe(FontView *fv, int UNUSED(mid)) {
     ShadowDlg(fv,NULL,NULL,true);
 }
 
@@ -4739,6 +4728,7 @@ static GMenuItem2 rmlist[] = {
     GMENUITEM2_EMPTY
 };
 
+#if 0
 static GMenuItem2 eflist[] = {
     { { (unichar_t *) N_("Change _Weight..."), (GImage *) "styleschangeweight.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Change Weight...|No Shortcut"), NULL, NULL, FVMenuEmbolden, MID_Embolden },
     { { (unichar_t *) N_("_Italic..."), (GImage *) "stylesitalic.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Italic...|No Shortcut"), NULL, NULL, FVMenuItalic, MID_Italic },
@@ -4756,6 +4746,7 @@ static GMenuItem2 eflist[] = {
     { { (unichar_t *) N_("_Wireframe..."), (GImage *) "styleswireframe.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Wireframe...|No Shortcut"), NULL, NULL, FVMenuWireframe, 0 },
     GMENUITEM2_EMPTY
 };
+#endif
 
 static GMenuItem2 balist[] = {
     { { (unichar_t *) N_("_Build Accented Glyph"), (GImage *) "elementbuildaccent.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'B' }, H_("Build Accented Glyph|No Shortcut"), NULL, NULL, FVMenuBuildAccent, MID_BuildAccent },
@@ -5846,6 +5837,20 @@ FVMenuAction fvpopupactions[] = {
     { MID_FindProblems, validlistcheck, NULL, FVMenuFindProblems },
     { MID_Validate, validlistcheck, NULL, FVMenuValidate },
     { MID_SetExtremumBound, NULL, NULL, FVMenuSetExtremumBound },
+
+    /* Element->Style menu */
+    { MID_Embolden, NULL, NULL, FVMenuEmbolden },
+    { MID_Italic, NULL, NULL, FVMenuItalic },
+    { MID_Oblique, NULL, NULL, FVMenuOblique },
+    { MID_Condense, NULL, NULL, FVMenuCondense },
+    { MID_ChangeXHeight, NULL, NULL, FVMenuChangeXHeight },
+    { MID_ChangeGlyph, NULL, NULL, FVMenuChangeGlyph },
+    { MID_SmallCaps, NULL, NULL, FVMenuSmallCaps },
+    { MID_SubSup, NULL, NULL, FVMenuSubSup },
+    { MID_Inline, NULL, NULL, FVMenuInline },
+    { MID_Outline, NULL, NULL, FVMenuOutline },
+    { MID_Shadow, NULL, NULL, FVMenuShadow },
+    { MID_Wireframe, NULL, NULL, FVMenuWireframe },
 
     /* Hints menu */
     { MID_AutoHint, htlistcheck, NULL, FVMenuAutoHint },
