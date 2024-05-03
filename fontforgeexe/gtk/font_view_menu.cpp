@@ -86,6 +86,8 @@ static const int MID_FindProblems = 2216;
 static const int MID_Embolden = 2217;
 static const int MID_Condense = 2218;
 static const int MID_AddExtrema = 2224;
+static const int MID_NLTransform = 2228;
+static const int MID_POV = 2236;
 static const int MID_StrikeInfo = 2238;
 static const int MID_FontCompare = 2239;
 static const int MID_RemoveBitmaps = 2244;
@@ -333,6 +335,12 @@ std::vector<FF::MenuInfo> style_menu = {
     { { N_("_Wireframe..."), "styleswireframe", "" }, nullptr, FF::LegacyCallbacks, MID_Wireframe },
 };
 
+std::vector<FF::MenuInfo> transformations_menu = {
+    { { N_("_Transform..."), "elementtransform", "<control>backslash" }, nullptr, FF::LegacyCallbacks, MID_Transform },
+    { { N_("_Point of View Projection..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_POV },
+    { { N_("_Non Linear Transform..."), FF::NonCheckable, "<control><shift>colon" }, nullptr, FF::LegacyCallbacks, MID_NLTransform },
+};
+
 std::vector<FF::MenuInfo> element_menu = {
     { { N_("_Font Info..."), "elementfontinfo", "<control><shift>F" }, nullptr, FF::LegacyCallbacks, MID_FontInfo },
     { { N_("Glyph _Info..."), "elementglyphinfo", "<control>i" }, nullptr, FF::LegacyCallbacks, MID_CharInfo },
@@ -344,7 +352,7 @@ std::vector<FF::MenuInfo> element_menu = {
     { { N_("Remove Bitmap Glyphs..."), "elementremovebitmaps", "" }, nullptr, FF::LegacyCallbacks, MID_RemoveBitmaps },
     FF::kMenuSeparator,
     { { N_("St_yle"), "elementstyles", "" }, &style_menu, FF::SubMenuCallbacks, 0 },
-    { { N_("_Transformations"), "elementtransform", "" }, nullptr /*&transformations_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("_Transformations"), "elementtransform", "" }, &transformations_menu, FF::SubMenuCallbacks, 0 },
     { { N_("_Expand Stroke..."), "elementexpandstroke", "<control><shift>E" }, nullptr, FF::LegacyCallbacks, MID_Stroke },
 #ifdef FONTFORGE_CONFIG_TILEPATH
     { { N_("Tile _Path..."), "elementtilepath", "" }, nullptr, FF::LegacyCallbacks, MID_TilePath },
