@@ -317,7 +317,7 @@ std::vector<FF::MenuInfo> validation_menu = {
 };
 
 std::vector<FF::MenuInfo> style_menu = {
-    { { N_("Change _Weight..."), "styleschangeweight", "<control><shift>!" }, nullptr, FF::LegacyCallbacks, MID_Embolden },
+    { { N_("Change _Weight..."), "styleschangeweight", "<control><shift>exclam" }, nullptr, FF::LegacyCallbacks, MID_Embolden },
     { { N_("_Italic..."), "stylesitalic", "" }, nullptr, FF::LegacyCallbacks, MID_Italic },
     { { N_("Obli_que..."), "stylesoblique", "" }, nullptr, FF::LegacyCallbacks, MID_Oblique },
     { { N_("_Condense/Extend..."), "stylesextendcondense", "" }, nullptr, FF::LegacyCallbacks, MID_Condense },
