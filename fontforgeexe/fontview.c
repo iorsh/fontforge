@@ -2921,16 +2921,16 @@ static void FVMenuAutotrace(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e)
 }
 #endif
 
-static void FVMenuBuildAccent(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FVBuildAccent( (FontViewBase *) GDrawGetUserData(gw), true );
+static void FVMenuBuildAccent(FontView *fv, int mid) {
+    FVBuildAccent( (FontViewBase *) fv, true );
 }
 
-static void FVMenuBuildComposite(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FVBuildAccent( (FontViewBase *) GDrawGetUserData(gw), false );
+static void FVMenuBuildComposite(FontView *fv, int mid) {
+    FVBuildAccent( (FontViewBase *) fv, false );
 }
 
-static void FVMenuBuildDuplicate(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FVBuildDuplicate( (FontViewBase *) GDrawGetUserData(gw));
+static void FVMenuBuildDuplicate(FontView *fv, int mid) {
+    FVBuildDuplicate( (FontViewBase *) fv);
 }
 
 #if HANYANG
@@ -4481,13 +4481,12 @@ static GMenuItem2 hglist[] = {
 };
 #endif
 
-static void balistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static bool balistcheck(FontView *fv, int mid) {
+    bool disabled = false;
 
-    for ( mi = mi->sub; mi->ti.text!=NULL || mi->ti.line ; ++mi ) {
-        if ( mi->mid==MID_BuildAccent || mi->mid==MID_BuildComposite ) {
+        if ( mid==MID_BuildAccent || mid==MID_BuildComposite ) {
 	    int anybuildable = false;
-	    int onlyaccents = mi->mid==MID_BuildAccent;
+	    int onlyaccents = mid==MID_BuildAccent;
 	    int i, gid;
 	    for ( i=0; i<fv->b.map->enccount; ++i ) if ( fv->b.selected[i] ) {
 		SplineChar *sc=NULL, dummy;
@@ -4500,8 +4499,8 @@ static void balistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
 	    break;
 		}
 	    }
-	    mi->ti.disabled = !anybuildable;
-        } else if ( mi->mid==MID_BuildDuplicates ) {
+	    disabled = !anybuildable;
+        } else if ( mid==MID_BuildDuplicates ) {
 	    int anybuildable = false;
 	    int i, gid;
 	    for ( i=0; i<fv->b.map->enccount; ++i ) if ( fv->b.selected[i] ) {
@@ -4515,9 +4514,9 @@ static void balistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
 	    break;
 		}
 	    }
-	    mi->ti.disabled = !anybuildable;
+	    disabled = !anybuildable;
 	}
-    }
+    return disabled;
 }
 
 static void delistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
@@ -4737,7 +4736,6 @@ static GMenuItem2 eflist[] = {
     { { (unichar_t *) N_("_Wireframe..."), (GImage *) "styleswireframe.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, true, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Wireframe...|No Shortcut"), NULL, NULL, FVMenuWireframe, 0 },
     GMENUITEM2_EMPTY
 };
-#endif
 
 static GMenuItem2 balist[] = {
     { { (unichar_t *) N_("_Build Accented Glyph"), (GImage *) "elementbuildaccent.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'B' }, H_("Build Accented Glyph|No Shortcut"), NULL, NULL, FVMenuBuildAccent, MID_BuildAccent },
@@ -4745,6 +4743,7 @@ static GMenuItem2 balist[] = {
     { { (unichar_t *) N_("Buil_d Duplicate Glyph"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'B' }, H_("Build Duplicate Glyph|No Shortcut"), NULL, NULL, FVMenuBuildDuplicate, MID_BuildDuplicates },
     GMENUITEM2_EMPTY
 };
+#endif
 
 static GMenuItem2 delist[] = {
     { { (unichar_t *) N_("_References..."), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'u' }, H_("References...|No Shortcut"), NULL, NULL, FVMenuShowDependentRefs, MID_ShowDependentRefs },
@@ -5856,6 +5855,11 @@ FVMenuAction fvpopupactions[] = {
     { MID_Round, NULL, NULL, FVMenuRound2Int },
     { MID_Hundredths, NULL, NULL, FVMenuRound2Hundredths },
     { MID_Cluster, NULL, NULL, FVMenuCluster },
+
+    /* Element->Build menu */
+    { MID_BuildAccent, balistcheck, NULL, FVMenuBuildAccent },
+    { MID_BuildComposite, balistcheck, NULL, FVMenuBuildComposite },
+    { MID_BuildDuplicates, balistcheck, NULL, FVMenuBuildDuplicate },
 
     /* Hints menu */
     { MID_AutoHint, htlistcheck, NULL, FVMenuAutoHint },

@@ -78,6 +78,7 @@ static const int MID_Stroke = 2203;
 static const int MID_RmOverlap = 2204;
 static const int MID_Simplify = 2205;
 static const int MID_Correct = 2206;
+static const int MID_BuildAccent = 2208;
 static const int MID_AvailBitmaps = 2210;
 static const int MID_RegenBitmaps = 2211;
 static const int MID_Autotrace = 2212;
@@ -89,11 +90,13 @@ static const int MID_Embolden = 2217;
 static const int MID_Condense = 2218;
 static const int MID_AddExtrema = 2224;
 static const int MID_CleanupGlyph = 2225;
+static const int MID_BuildComposite = 2227;
 static const int MID_NLTransform = 2228;
 static const int MID_Intersection = 2229;
 static const int MID_FindInter = 2230;
 static const int MID_SimplifyMore = 2233;
 static const int MID_POV = 2236;
+static const int MID_BuildDuplicates = 2237;
 static const int MID_StrikeInfo = 2238;
 static const int MID_FontCompare = 2239;
 static const int MID_CanonicalStart = 2242;
@@ -371,6 +374,12 @@ std::vector<FF::MenuInfo> round_menu = {
     { { N_("_Cluster"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Cluster },
 };
 
+std::vector<FF::MenuInfo> build_menu = {
+    { { N_("_Build Accented Glyph"), "elementbuildaccent", "<control><shift>A" }, nullptr, FF::LegacyCallbacks, MID_BuildAccent },
+    { { N_("Build _Composite Glyph"), "elementbuildcomposite", "" }, nullptr, FF::LegacyCallbacks, MID_BuildComposite },
+    { { N_("Buil_d Duplicate Glyph"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_BuildDuplicates },
+};
+
 std::vector<FF::MenuInfo> element_menu = {
     { { N_("_Font Info..."), "elementfontinfo", "<control><shift>F" }, nullptr, FF::LegacyCallbacks, MID_FontInfo },
     { { N_("Glyph _Info..."), "elementglyphinfo", "<control>i" }, nullptr, FF::LegacyCallbacks, MID_CharInfo },
@@ -399,7 +408,7 @@ std::vector<FF::MenuInfo> element_menu = {
     FF::kMenuSeparator,
     { { N_("_Correct Direction"), "elementcorrectdir", "<control><shift>D" }, nullptr, FF::LegacyCallbacks, MID_Correct },
     FF::kMenuSeparator,
-    { { N_("B_uild"), "elementbuildaccent", "" }, nullptr /*&build_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("B_uild"), "elementbuildaccent", "" }, &build_menu, FF::SubMenuCallbacks, 0 },
     FF::kMenuSeparator,
     { { N_("_Merge Fonts..."), "elementmergefonts", "" }, nullptr, FF::LegacyCallbacks, MID_MergeFonts },
     { { N_("Interpo_late Fonts..."), "elementinterpolatefonts", "" }, nullptr, FF::LegacyCallbacks, MID_InterpolateFonts },
