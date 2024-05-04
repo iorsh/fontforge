@@ -88,6 +88,7 @@ static const int MID_InterpolateFonts = 2215;
 static const int MID_FindProblems = 2216;
 static const int MID_Embolden = 2217;
 static const int MID_Condense = 2218;
+static const int MID_ShowDependentRefs = 2222;
 static const int MID_AddExtrema = 2224;
 static const int MID_CleanupGlyph = 2225;
 static const int MID_BuildComposite = 2227;
@@ -95,6 +96,7 @@ static const int MID_NLTransform = 2228;
 static const int MID_Intersection = 2229;
 static const int MID_FindInter = 2230;
 static const int MID_SimplifyMore = 2233;
+static const int MID_ShowDependentSubs = 2234;
 static const int MID_POV = 2236;
 static const int MID_BuildDuplicates = 2237;
 static const int MID_StrikeInfo = 2238;
@@ -313,13 +315,18 @@ std::vector<FF::MenuInfo> file_menu = {
 
 //////////////////////////////// ELEMENT MENUS ////////////////////////////////////////
 
+std::vector<FF::MenuInfo> show_dependent_menu = {
+    { { N_("_References..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ShowDependentRefs },
+    { { N_("_Substitutions..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ShowDependentSubs },
+};
+
 std::vector<FF::MenuInfo> other_info_menu = {
     { { N_("_MATH Info..."), "elementmathinfo", "" }, nullptr, FF::LegacyCallbacks, MID_MathInfo },
     { { N_("_BDF Info..."), "elementbdfinfo", "" }, nullptr, FF::LegacyCallbacks, MID_StrikeInfo },
     { { N_("_Horizontal Baselines..."), "elementhbaselines", "" }, nullptr, FF::LegacyCallbacks, MID_HorBaselines },
     { { N_("_Vertical Baselines..."), "elementvbaselines", "" }, nullptr, FF::LegacyCallbacks, MID_VertBaselines },
     { { N_("_Justification..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Justification },
-    { { N_("Show _Dependent"), "elementshowdep", "" }, nullptr/*&show_dependent_menu*/, FF::SubMenuCallbacks, 0 },
+    { { N_("Show _Dependent"), "elementshowdep", "" }, &show_dependent_menu, FF::SubMenuCallbacks, 0 },
     { { N_("Mass Glyph _Rename..."), "elementrenameglyph", "" }, nullptr, FF::LegacyCallbacks, MID_MassRename },
     { { N_("Set _Color"), FF::NonCheckable, "" }, nullptr/*&set_color_menu*/, { FF::LegacyEnabled, FF::NotCheckable, FF::NoAction }, MID_SetColor },
 };

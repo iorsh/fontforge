@@ -2713,8 +2713,7 @@ return;
     FVSetColor(fv,col);
 }
 
-static void FVMenuShowDependentRefs(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuShowDependentRefs(FontView *fv, int UNUSED(mid)) {
     int pos = FVAnyCharSelected(fv);
     SplineChar *sc;
 
@@ -2726,8 +2725,7 @@ return;
     SCRefBy(sc);
 }
 
-static void FVMenuShowDependentSubs(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuShowDependentSubs(FontView *fv, int UNUSED(mid)) {
     int pos = FVAnyCharSelected(fv);
     SplineChar *sc;
 
@@ -4519,23 +4517,22 @@ static bool balistcheck(FontView *fv, int mid) {
     return disabled;
 }
 
-static void delistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static bool delistcheck(FontView *fv, int mid) {
     int i = FVAnyCharSelected(fv);
     int gid = i<0 ? -1 : fv->b.map->map[i];
+    bool disabled = false;
 
-    for ( mi = mi->sub; mi->ti.text!=NULL || mi->ti.line ; ++mi ) {
-	switch ( mi->mid ) {
+	switch ( mid ) {
 	  case MID_ShowDependentRefs:
-	    mi->ti.disabled = gid<0 || fv->b.sf->glyphs[gid]==NULL ||
+	    disabled = gid<0 || fv->b.sf->glyphs[gid]==NULL ||
 		    fv->b.sf->glyphs[gid]->dependents == NULL;
 	  break;
 	  case MID_ShowDependentSubs:
-	    mi->ti.disabled = gid<0 || fv->b.sf->glyphs[gid]==NULL ||
+	    disabled = gid<0 || fv->b.sf->glyphs[gid]==NULL ||
 		    !SCUsedBySubs(fv->b.sf->glyphs[gid]);
 	  break;
 	}
-    }
+    return disabled;
 }
 
 static bool infolistcheck(FontView *fv, int mid) {
@@ -4743,7 +4740,6 @@ static GMenuItem2 balist[] = {
     { { (unichar_t *) N_("Buil_d Duplicate Glyph"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'B' }, H_("Build Duplicate Glyph|No Shortcut"), NULL, NULL, FVMenuBuildDuplicate, MID_BuildDuplicates },
     GMENUITEM2_EMPTY
 };
-#endif
 
 static GMenuItem2 delist[] = {
     { { (unichar_t *) N_("_References..."), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'u' }, H_("References...|No Shortcut"), NULL, NULL, FVMenuShowDependentRefs, MID_ShowDependentRefs },
@@ -4751,7 +4747,6 @@ static GMenuItem2 delist[] = {
     GMENUITEM2_EMPTY
 };
 
-#if 0
 static GMenuItem2 trlist[] = {
     { { (unichar_t *) N_("_Transform..."), (GImage *) "elementtransform.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'T' }, H_("Transform...|No Shortcut"), NULL, NULL, FVMenuTransform, MID_Transform },
     { { (unichar_t *) N_("_Point of View Projection..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'T' }, H_("Point of View Projection...|No Shortcut"), NULL, NULL, FVMenuPOV, MID_POV },
@@ -5814,6 +5809,10 @@ FVMenuAction fvpopupactions[] = {
     { MID_Justification, NULL, NULL, FVMenuJustify },
     { MID_MassRename, infolistcheck, NULL, FVMenuMassRename },
     { MID_SetColor, infolistcheck, NULL, NULL },
+
+    /* Element->Other Info->Show Dependent menu */
+    { MID_ShowDependentRefs, delistcheck, NULL, FVMenuShowDependentRefs },
+    { MID_ShowDependentSubs, delistcheck, NULL, FVMenuShowDependentSubs },
 
     /* Element->Validation menu */
     { MID_FindProblems, validlistcheck, NULL, FVMenuFindProblems },
