@@ -141,8 +141,12 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
          menu_item = radio_menu_item;
       } else if (item.label.decoration.checkable()) {
          menu_item = new Gtk::CheckMenuItem(item.label.text, true);
-      } else {
+      } else if (item.label.decoration.named_icon()) {
          Glib::RefPtr<Gdk::Pixbuf> pixbuf = theme->load_icon(item.label.decoration.image_file(), 16);
+         Gtk::Image* img = new Gtk::Image(pixbuf);
+         menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
+      } else {
+         Glib::RefPtr<Gdk::Pixbuf> pixbuf = build_color_icon(item.label.decoration.color(), 16);
          Gtk::Image* img = new Gtk::Image(pixbuf);
          menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
       }

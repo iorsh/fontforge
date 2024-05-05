@@ -130,6 +130,9 @@ typedef struct fontview_context {
    // Invoke external autotrace / potrace command
    void (*run_autotrace)(FontView *fv, bool ask_user_for_arguments);
 
+   // Set glyph color (legacy format 0xaarrggbb or -10 for color chooser)
+   void (*set_color)(FontView *fv, intptr_t legacy_color);
+
    // Menu actions per menu ID
    FVMenuAction* actions;
 } FVContext;

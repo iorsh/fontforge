@@ -2698,10 +2698,9 @@ static void FVSetColor(FontView *fv, uint32_t col) {
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuSetColor(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-    Color col = (Color) (intptr_t) (mi->ti.userdata);
-    if ( (intptr_t) mi->ti.userdata == (intptr_t) -10 ) {
+static void FVMenuSetColor(FontView *fv, intptr_t extended_col) {
+    Color col = (Color)extended_col;
+    if ( extended_col == (intptr_t) -10 ) {
 	struct hslrgb retcol, font_cols[6];
 	retcol = GWidgetColor(_("Pick a color"),NULL,SFFontCols(fv->b.sf,font_cols));
 	if ( !retcol.rgb )
@@ -4760,7 +4759,6 @@ static GMenuItem2 rndlist[] = {
     { { (unichar_t *) N_("_Cluster"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("Cluster|No Shortcut"), NULL, NULL, FVMenuCluster, 0 },
     GMENUITEM2_EMPTY
 };
-#endif
 
 static GMenuItem2 scollist[] = {
     { { (unichar_t *) N_("Color|Choose..."), (GImage *)"colorwheel.png", COLOR_DEFAULT, COLOR_DEFAULT, (void *) -10, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Choose...|No Shortcut"), NULL, NULL, FVMenuSetColor, 0 },
@@ -4775,7 +4773,6 @@ static GMenuItem2 scollist[] = {
     GMENUITEM2_EMPTY
 };
 
-#if 0
 static GMenuItem2 infolist[] = {
     { { (unichar_t *) N_("_MATH Info..."), (GImage *) "elementmathinfo.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("MATH Info...|No Shortcut"), NULL, NULL, FVMenuMATHInfo, 0 },
     { { (unichar_t *) N_("_BDF Info..."), (GImage *) "elementbdfinfo.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("BDF Info...|No Shortcut"), NULL, NULL, FVMenuBDFInfo, MID_StrikeInfo },
@@ -7627,6 +7624,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context->py_activate = fvpy_activate;
     fv_context->py_check = fvpy_check;
     fv_context->run_autotrace = (void (*)(FontView*, bool))FVAutoTrace;
+    fv_context->set_color = FVMenuSetColor;
     fv_context->actions = fvpopupactions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
 

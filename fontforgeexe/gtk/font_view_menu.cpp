@@ -309,6 +309,16 @@ void run_autotrace(const FF::UiContext& ui_context) {
     unset_cursor(drawing_area, old_cursor_da);
 }
 
+static const uint32_t COLOR_DEFAULT = 0xfffffffe;
+
+template<intptr_t C>
+void set_color(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+
+    fv_context->set_color(fv_context->fv, C);
+}
+
 std::vector<FF::MenuInfo> file_menu = {
     { { N_("_New"), FF::NonCheckable, "<control>u" }, nullptr, FF::LegacyCallbacks, MID_OpenOutline },
 };
@@ -320,6 +330,18 @@ std::vector<FF::MenuInfo> show_dependent_menu = {
     { { N_("_Substitutions..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ShowDependentSubs },
 };
 
+std::vector<FF::MenuInfo> set_color_menu = {
+    { { N_("Color|Choose..."), "colorwheel", "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<-10> }, 0 },
+    { { N_("Color|Default"), Gdk::RGBA("00000000"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<COLOR_DEFAULT> }, 0 },
+    { { "White", Gdk::RGBA("white"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0xffffff> }, 0 },
+    { { "Red", Gdk::RGBA("red"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0xff0000> }, 0 },
+    { { "Green", Gdk::RGBA("green"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0x00ff00> }, 0 },
+    { { "Blue", Gdk::RGBA("blue"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0x0000ff> }, 0 },
+    { { "Yellow", Gdk::RGBA("yellow"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0xffff00> }, 0 },
+    { { "Cyan", Gdk::RGBA("cyan"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0x00ffff> }, 0 },
+    { { "Magenta", Gdk::RGBA("magenta"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0xff00ff> }, 0 },
+};
+
 std::vector<FF::MenuInfo> other_info_menu = {
     { { N_("_MATH Info..."), "elementmathinfo", "" }, nullptr, FF::LegacyCallbacks, MID_MathInfo },
     { { N_("_BDF Info..."), "elementbdfinfo", "" }, nullptr, FF::LegacyCallbacks, MID_StrikeInfo },
@@ -328,7 +350,7 @@ std::vector<FF::MenuInfo> other_info_menu = {
     { { N_("_Justification..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Justification },
     { { N_("Show _Dependent"), "elementshowdep", "" }, &show_dependent_menu, FF::SubMenuCallbacks, 0 },
     { { N_("Mass Glyph _Rename..."), "elementrenameglyph", "" }, nullptr, FF::LegacyCallbacks, MID_MassRename },
-    { { N_("Set _Color"), FF::NonCheckable, "" }, nullptr/*&set_color_menu*/, { FF::LegacyEnabled, FF::NotCheckable, FF::NoAction }, MID_SetColor },
+    { { N_("Set _Color"), FF::NonCheckable, "" }, &set_color_menu, { FF::LegacyEnabled, FF::NotCheckable, FF::NoAction }, MID_SetColor },
 };
 
 std::vector<FF::MenuInfo> validation_menu = {
