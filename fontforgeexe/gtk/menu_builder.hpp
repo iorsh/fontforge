@@ -93,28 +93,25 @@ struct MenuInfo;
 
 using MenuBlockCB = std::function<std::vector<MenuInfo>(const UiContext&)>;
 
+static const ActivateCB LegacyAction;
+static const ActivateCB NoAction = [](const UiContext&){}; // NOOP callable action
 static const EnabledCB LegacyEnabled;
 static const EnabledCB AlwaysEnabled = [](const UiContext&){ return true; };
 static const CheckedCB LegacyChecked;
 static const CheckedCB NotCheckable = [](const UiContext&){ return true; };
-static const ActivateCB LegacyAction;
-static const ActivateCB NoAction = [](const UiContext&){}; // NOOP callable action
 
 struct MenuCallbacks {
-    // By design menu callbacks don't have any arguments, since it's impossible
-    // to know in advance what input they might need. All input should be passed
-    // by lambda capture.
-    EnabledCB enabled;
-    CheckedCB checked;
     ActivateCB handler;	/* called on mouse release */
+    EnabledCB enabled = AlwaysEnabled;
+    CheckedCB checked = NotCheckable;
 
     // Callback for custom block of menu items
     MenuBlockCB custom_block;
 };
 
-static const MenuCallbacks LegacyCallbacks = { LegacyEnabled, LegacyChecked, LegacyAction, MenuBlockCB() };
-static const MenuCallbacks LegacySubMenuCallbacks = { LegacyEnabled, NotCheckable, NoAction, MenuBlockCB() };
-static const MenuCallbacks SubMenuCallbacks = { AlwaysEnabled, NotCheckable, NoAction, MenuBlockCB() };
+static const MenuCallbacks LegacyCallbacks = { LegacyAction, LegacyEnabled, LegacyChecked, MenuBlockCB() };
+static const MenuCallbacks LegacySubMenuCallbacks = { NoAction, LegacyEnabled };
+static const MenuCallbacks SubMenuCallbacks = { NoAction };
 
 struct MenuInfo {
     LabelInfo label;
@@ -128,7 +125,7 @@ struct MenuInfo {
     bool is_custom_block() const { return (bool)callbacks.custom_block; }
 
     static MenuInfo CustomFVBlock(MenuBlockCB cb) {
-        return MenuInfo{.label = {""}, .callbacks = { LegacyEnabled, LegacyChecked, NoAction, cb } };
+        return MenuInfo{.label = {""}, .callbacks = { NoAction, LegacyEnabled, LegacyChecked, cb } };
     }
 };
 

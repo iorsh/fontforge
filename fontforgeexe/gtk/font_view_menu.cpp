@@ -59,7 +59,7 @@ std::vector<FF::MenuInfo> encodings(FVContext* fv_context,
         FF::CheckedCB checker = [cb=fv_context->current_encoding, fv=fv_context->fv, enc_name=encoding_data.enc_name](const FF::UiContext&){
             return cb(fv, enc_name);
         };
-        FF::MenuInfo info{ { encoding_data.label, group, "" }, nullptr, { FF::AlwaysEnabled, checker, action }, 0 };
+        FF::MenuInfo info{ { encoding_data.label, group, "" }, nullptr, { action, FF::AlwaysEnabled, checker }, 0 };
         info_arr.push_back(info);
     }
     return info_arr;
@@ -103,7 +103,7 @@ std::vector<FF::MenuInfo> view_menu_bitmaps(const FF::UiContext& ui_context) {
         FF::CheckedCB checker = [cb=fv_context->current_display_bitmap, fv=fv_context->fv, bdf=bitmap_data.bdf](const FF::UiContext&){
             return cb(fv, bdf);
         };
-        FF::MenuInfo info{ { buffer, FF::CellPixelView, "" }, nullptr, { FF::AlwaysEnabled, checker, action }, 0 };
+        FF::MenuInfo info{ { buffer, FF::CellPixelView, "" }, nullptr, { action, FF::AlwaysEnabled, checker }, 0 };
         info_arr.push_back(info);
     }
     return info_arr;
@@ -126,7 +126,7 @@ std::vector<FF::MenuInfo> view_menu_layers(const FF::UiContext& ui_context) {
         FF::CheckedCB checker = [cb=fv_context->current_display_layer, fv=fv_context->fv, ly=layer_data.index](const FF::UiContext&){
             return cb(fv, ly);
         };
-        FF::MenuInfo info{ { layer_data.label, FF::ActiveLayer, "" }, nullptr, { FF::AlwaysEnabled, checker, action }, 0 };
+        FF::MenuInfo info{ { layer_data.label, FF::ActiveLayer, "" }, nullptr, { action, FF::AlwaysEnabled, checker }, 0 };
         info_arr.push_back(info);
     }
     return info_arr;
@@ -145,7 +145,7 @@ std::vector<FF::MenuInfo> view_menu_anchors(const FF::UiContext& ui_context) {
     FF::ActivateCB action_all = [cb=fv_context->show_anchor_pair, fv=fv_context->fv](const FF::UiContext&){
         cb(fv, (AnchorClass*)-1);
     };
-    info_arr.push_back({ { N_("All"), FF::NonCheckable, "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, action_all }, 0 });
+    info_arr.push_back({ { N_("All"), FF::NonCheckable, "" }, nullptr, { action_all }, 0 });
     info_arr.push_back(FF::kMenuSeparator);
 
     for (int i = 0; i < n_anchors; ++i) {
@@ -154,7 +154,7 @@ std::vector<FF::MenuInfo> view_menu_anchors(const FF::UiContext& ui_context) {
         FF::ActivateCB action = [cb=fv_context->show_anchor_pair, fv=fv_context->fv, ac=anchor_data.ac](const FF::UiContext&){
             cb(fv, ac);
         };
-        FF::MenuInfo info{ { anchor_data.label, FF::NonCheckable, "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, action }, 0 };
+        FF::MenuInfo info{ { anchor_data.label, FF::NonCheckable, "" }, nullptr, { action }, 0 };
         info_arr.push_back(info);
     }
     return info_arr;
@@ -197,15 +197,15 @@ std::vector<FF::MenuInfo> show_dependent_menu = {
 };
 
 std::vector<FF::MenuInfo> set_color_menu = {
-    { { N_("Color|Choose..."), "colorwheel", "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<-10> }, 0 },
-    { { N_("Color|Default"), Gdk::RGBA("00000000"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<COLOR_DEFAULT> }, 0 },
-    { { "White", Gdk::RGBA("white"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0xffffff> }, 0 },
-    { { "Red", Gdk::RGBA("red"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0xff0000> }, 0 },
-    { { "Green", Gdk::RGBA("green"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0x00ff00> }, 0 },
-    { { "Blue", Gdk::RGBA("blue"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0x0000ff> }, 0 },
-    { { "Yellow", Gdk::RGBA("yellow"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0xffff00> }, 0 },
-    { { "Cyan", Gdk::RGBA("cyan"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0x00ffff> }, 0 },
-    { { "Magenta", Gdk::RGBA("magenta"), "" }, nullptr, { FF::AlwaysEnabled, FF::NotCheckable, set_color<0xff00ff> }, 0 },
+    { { N_("Color|Choose..."), "colorwheel", "" }, nullptr, { set_color<-10> }, 0 },
+    { { N_("Color|Default"), Gdk::RGBA("00000000"), "" }, nullptr, { set_color<COLOR_DEFAULT> }, 0 },
+    { { "White", Gdk::RGBA("white"), "" }, nullptr, { set_color<0xffffff> }, 0 },
+    { { "Red", Gdk::RGBA("red"), "" }, nullptr, { set_color<0xff0000> }, 0 },
+    { { "Green", Gdk::RGBA("green"), "" }, nullptr, { set_color<0x00ff00> }, 0 },
+    { { "Blue", Gdk::RGBA("blue"), "" }, nullptr, { set_color<0x0000ff> }, 0 },
+    { { "Yellow", Gdk::RGBA("yellow"), "" }, nullptr, { set_color<0xffff00> }, 0 },
+    { { "Cyan", Gdk::RGBA("cyan"), "" }, nullptr, { set_color<0x00ffff> }, 0 },
+    { { "Magenta", Gdk::RGBA("magenta"), "" }, nullptr, { set_color<0xff00ff> }, 0 },
 };
 
 std::vector<FF::MenuInfo> other_info_menu = {
@@ -299,7 +299,7 @@ std::vector<FF::MenuInfo> element_menu = {
     { { N_("_Balance"), "elementbalance", "<control><shift>P" }, nullptr, FF::LegacyCallbacks, MID_Balance },
     { { N_("Harmoni_ze"), "elementharmonize", "<control><shift>Z" }, nullptr, FF::LegacyCallbacks, MID_Harmonize },
     { { N_("Roun_d"), "elementround", "" }, &round_menu, FF::LegacySubMenuCallbacks, MID_Round },
-    { { N_("Autot_race"), "elementautotrace", "<control><shift>T" }, nullptr, { FF::LegacyEnabled, FF::NotCheckable, run_autotrace }, MID_Autotrace },
+    { { N_("Autot_race"), "elementautotrace", "<control><shift>T" }, nullptr, { run_autotrace, FF::LegacyEnabled }, MID_Autotrace },
     FF::kMenuSeparator,
     { { N_("_Correct Direction"), "elementcorrectdir", "<control><shift>D" }, nullptr, FF::LegacyCallbacks, MID_Correct },
     FF::kMenuSeparator,
