@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ master, releases/** ]
+    branches: [ master, ci_mac, releases/** ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
@@ -74,7 +74,7 @@ jobs:
           CROWDIN_API_KEY: ${{ secrets.CROWDIN_API_KEY }}
         run: java -jar $DEPSPREFIX/crowdin-cli.jar -c .crowdin.yml upload
   mac:
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
         with:
