@@ -35,6 +35,7 @@ if(NOT DEFINED PYHOOK_INSTALL_DIR)
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   message(STATUS "Python3 distutils status: ${_pyhook_install_dir_result}")
   message(STATUS "Python3 get_python_lib output: ${PYHOOK_INSTALL_DIR}")
+  execute_process(
     COMMAND "${Python3_EXECUTABLE}" -c "import sysconfig as sc; print(sc.get_path('platlib'))"
     RESULT_VARIABLE _pyhook_install_dir_result
     OUTPUT_VARIABLE PYHOOK_INSTALL_DIR
