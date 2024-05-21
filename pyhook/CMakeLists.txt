@@ -26,15 +26,21 @@ if(NOT DEFINED PYHOOK_INSTALL_DIR)
     RESULT_VARIABLE py_result
     OUTPUT_VARIABLE PY_VERSION
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  message(STATUS "Python3 status: ${RESULT_VARIABLE}")
-  message(STATUS "Python3 version: ${OUTPUT_VARIABLE}")
+  message(STATUS "Python3 status: ${py_result}")
+  message(STATUS "Python3 version: ${PY_VERSION}")
   execute_process(
     COMMAND "${Python3_EXECUTABLE}" -c "import distutils.sysconfig as sc; print(sc.get_python_lib(prefix='', plat_specific=True,standard_lib=False))"
     RESULT_VARIABLE _pyhook_install_dir_result
     OUTPUT_VARIABLE PYHOOK_INSTALL_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  message(STATUS "Python3 distutils status: ${RESULT_VARIABLE}")
-  message(STATUS "Python3 get_python_lib output: ${OUTPUT_VARIABLE}")
+  message(STATUS "Python3 distutils status: ${_pyhook_install_dir_result}")
+  message(STATUS "Python3 get_python_lib output: ${PYHOOK_INSTALL_DIR}")
+    COMMAND "${Python3_EXECUTABLE}" -c "import sysconfig as sc; print(sc.get_path('platlib'))"
+    RESULT_VARIABLE _pyhook_install_dir_result
+    OUTPUT_VARIABLE PYHOOK_INSTALL_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message(STATUS "Python3 new sysconfig status: ${_pyhook_install_dir_result}")
+  message(STATUS "Python3 get_path output: ${PYHOOK_INSTALL_DIR}")
   if(NOT PYHOOK_INSTALL_DIR OR _pyhook_install_dir_result)
     message(FATAL_ERROR "Could not determine the path to install pyhook binaries to, got '${PYHOOK_INSTALL_DIR}' with return value ${_pyhook_install_dir_result}")
   endif()
