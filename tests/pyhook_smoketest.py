@@ -14,8 +14,8 @@ import fontforge
 import psMat
 import pickle
 
-print("fontforge module path", os.path.abspath(fontforge.__file__)
-print("psMat module path", os.path.abspath(psMat.__file__)
+print("fontforge module path", os.path.abspath(fontforge.__file__))
+print("psMat module path", os.path.abspath(psMat.__file__))
 
 print(fontforge.__version__, fontforge.version())
 
