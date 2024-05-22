@@ -45,6 +45,13 @@ rm site-packages || rm -rf site-packages
 ln -s ../../../../../../Resources/opt/local/lib/$PYTHON/site-packages
 popd
 
+echo "MX pwd"
+pwd
+echo "MX to push"
+echo $APPDIR/Contents/Resources/opt/local/lib/$PYTHON/site-packages
+echo "MX Home"
+echo $HOME
+
 pushd $APPDIR/Contents/Resources/opt/local/lib/$PYTHON/site-packages
 cp -Rn "$pycruft/Python.framework/Versions/$PYVER/lib/$PYTHON/site-packages/" .
 popd
