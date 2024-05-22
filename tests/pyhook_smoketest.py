@@ -2,6 +2,7 @@
 from __future__ import print_function
 
 import sys
+import os
 import sysconfig as sc
 import distutils.sysconfig as d_sc
 
@@ -12,6 +13,9 @@ print("distutils sysconfig paths", d_sc.get_python_lib(prefix='', plat_specific=
 import fontforge
 import psMat
 import pickle
+
+print("fontforge module path", os.path.abspath(fontforge.__file__)
+print("psMat module path", os.path.abspath(psMat.__file__)
 
 print(fontforge.__version__, fontforge.version())
 

@@ -31,21 +31,21 @@ if(NOT DEFINED PYHOOK_INSTALL_DIR)
   execute_process(
     COMMAND "${Python3_EXECUTABLE}" -c "import distutils.sysconfig as sc; print(sc.get_python_lib(prefix='', plat_specific=True,standard_lib=False))"
     RESULT_VARIABLE _pyhook_install_dir_result
-    OUTPUT_VARIABLE PYHOOK_INSTALL_DIR
+    OUTPUT_VARIABLE PYHOOK_INSTALL_DIR_OLD
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   message(WARNING "Python3 distutils status: ${_pyhook_install_dir_result}")
   message(WARNING "Python3 get_python_lib output: ${PYHOOK_INSTALL_DIR}")
   execute_process(
     COMMAND "${Python3_EXECUTABLE}" -c "import sysconfig as sc; print(sc.get_path('platlib', vars={'platbase': '${CMAKE_INSTALL_PREFIX}'}))"
     RESULT_VARIABLE _pyhook_install_dir_result
-    OUTPUT_VARIABLE PYHOOK_INSTALL_DIR
+    OUTPUT_VARIABLE PYHOOK_INSTALL_DIR_NEW
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   message(WARNING "Python3 new sysconfig status: ${_pyhook_install_dir_result}")
   message(WARNING "Python3 get_path output: ${PYHOOK_INSTALL_DIR}")
-  if(NOT PYHOOK_INSTALL_DIR OR _pyhook_install_dir_result)
+  if(NOT PYHOOK_INSTALL_DIR_OLD OR _pyhook_install_dir_result)
     message(FATAL_ERROR "Could not determine the path to install pyhook binaries to, got '${PYHOOK_INSTALL_DIR}' with return value ${_pyhook_install_dir_result}")
   endif()
-  set(PYHOOK_INSTALL_DIR "${PYHOOK_INSTALL_DIR}" CACHE STRING "Path to install pyhook to")
+  set(PYHOOK_INSTALL_DIR "${PYHOOK_INSTALL_DIR_OLD}" CACHE STRING "Path to install pyhook to")
 endif()
 
 message(WARNING "Final Python3 destination: ${PYHOOK_INSTALL_DIR}")
