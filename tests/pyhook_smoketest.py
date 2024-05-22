@@ -11,6 +11,10 @@ print("pysys paths", sys.path)
 schemes = sc.get_scheme_names()
 print("MX SCHEMES: ", schemes)
 
+print("DEFAULT SCHEME:", sc.get_default_scheme())
+for k in ("prefix", "home", "user"):
+	print("PREFERRED SCHEME:", sc.get_preferred_scheme(k))
+
 for s in schemes:
 	print("MX CURRENT SCHEME: ", s)
 	print("sysconfig paths", sc.get_paths(s))
