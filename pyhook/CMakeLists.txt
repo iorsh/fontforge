@@ -20,32 +20,35 @@ target_link_libraries(psMat_pyhook PRIVATE Python3::Module)
 # FindPython3 provides Python3_SITEARCH, but this is an absolute path
 # So do it ourselves, getting the prefix-relative path instead
 if(NOT DEFINED PYHOOK_INSTALL_DIR)
-  message(STATUS "Python3 exec: ${Python3_EXECUTABLE}")
+  message(WARNING "Python3 exec: ${Python3_EXECUTABLE}")
   execute_process(
     COMMAND "${Python3_EXECUTABLE}" --version
     RESULT_VARIABLE py_result
     OUTPUT_VARIABLE PY_VERSION
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  message(STATUS "Python3 status: ${py_result}")
-  message(STATUS "Python3 version: ${PY_VERSION}")
+  message(WARNING "Python3 status: ${py_result}")
+  message(WARNING "Python3 version: ${PY_VERSION}")
   execute_process(
     COMMAND "${Python3_EXECUTABLE}" -c "import distutils.sysconfig as sc; print(sc.get_python_lib(prefix='', plat_specific=True,standard_lib=False))"
     RESULT_VARIABLE _pyhook_install_dir_result
     OUTPUT_VARIABLE PYHOOK_INSTALL_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  message(STATUS "Python3 distutils status: ${_pyhook_install_dir_result}")
-  message(STATUS "Python3 get_python_lib output: ${PYHOOK_INSTALL_DIR}")
+  message(WARNING "Python3 distutils status: ${_pyhook_install_dir_result}")
+  message(WARNING "Python3 get_python_lib output: ${PYHOOK_INSTALL_DIR}")
   execute_process(
     COMMAND "${Python3_EXECUTABLE}" -c "import sysconfig as sc; print(sc.get_path('platlib', vars={'platbase': '${CMAKE_INSTALL_PREFIX}'}))"
     RESULT_VARIABLE _pyhook_install_dir_result
     OUTPUT_VARIABLE PYHOOK_INSTALL_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  message(STATUS "Python3 new sysconfig status: ${_pyhook_install_dir_result}")
-  message(STATUS "Python3 get_path output: ${PYHOOK_INSTALL_DIR}")
+  message(WARNING "Python3 new sysconfig status: ${_pyhook_install_dir_result}")
+  message(WARNING "Python3 get_path output: ${PYHOOK_INSTALL_DIR}")
   if(NOT PYHOOK_INSTALL_DIR OR _pyhook_install_dir_result)
     message(FATAL_ERROR "Could not determine the path to install pyhook binaries to, got '${PYHOOK_INSTALL_DIR}' with return value ${_pyhook_install_dir_result}")
   endif()
   set(PYHOOK_INSTALL_DIR "${PYHOOK_INSTALL_DIR}" CACHE STRING "Path to install pyhook to")
 endif()
+
+message(WARNING "Final Python3 destination: ${PYHOOK_INSTALL_DIR}")
+message(WARNING "Cmake install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 install(TARGETS fontforge_pyhook psMat_pyhook LIBRARY DESTINATION "${PYHOOK_INSTALL_DIR}")
