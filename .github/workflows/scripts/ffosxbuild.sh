@@ -47,6 +47,8 @@ popd
 
 echo "MX pwd"
 pwd
+echo "MX ls"
+ls -lR $APPDIR/Contents/Resources/opt/local/lib
 echo "MX to push"
 echo $APPDIR/Contents/Resources/opt/local/lib/$PYTHON/site-packages
 echo "MX Home"
