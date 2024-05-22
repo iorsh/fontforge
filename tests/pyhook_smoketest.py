@@ -8,6 +8,7 @@ import distutils.sysconfig as d_sc
 
 print("pysys paths", sys.path)
 print("sysconfig paths", sc.get_paths())
+print("sysconfig path templates", sc.get_paths(expand=False))
 print("distutils sysconfig paths", d_sc.get_python_lib(prefix='', plat_specific=True,standard_lib=False))
 
 import fontforge
