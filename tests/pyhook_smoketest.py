@@ -4,7 +4,7 @@ from __future__ import print_function
 import sys
 import os
 import sysconfig as sc
-import distutils.sysconfig as d_sc
+# import distutils.sysconfig as d_sc
 
 print("pysys paths", sys.path)
 
@@ -20,7 +20,7 @@ for s in schemes:
 	print("sysconfig paths", sc.get_paths(s))
 	print("sysconfig path templates", sc.get_paths(s, expand=False))
 
-print("distutils sysconfig paths", d_sc.get_python_lib(prefix='', plat_specific=True,standard_lib=False))
+# print("distutils sysconfig paths", d_sc.get_python_lib(prefix='', plat_specific=True,standard_lib=False))
 
 import fontforge
 import psMat
