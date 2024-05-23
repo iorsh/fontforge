@@ -106,7 +106,7 @@ jobs:
           # MacOS runner has way too much preinstalled Python versions. We must
           # use the exact one discovered by CMake.
           PYTHON=`cat build/CMake_Python3_EXECUTABLE`
-          PYTHONPATH=$PYTHONPATH:$($PYTHON -c "import sysconfig as sc; print(sc.get_path('platlib', vars={'platbase': '$PREFIX'}))")
+          PYTHONPATH=$PYTHONPATH:$($PYTHON -c "import sysconfig as sc; print(sc.get_path('platlib', sc.get_preferred_scheme('user'), vars={'userbase': '$PREFIX'}))")
           $PYTHON tests/pyhook_smoketest.py
       - name: Build App Bundle
         working-directory: repo/build
