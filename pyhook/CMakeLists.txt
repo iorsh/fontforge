@@ -36,7 +36,7 @@ if(NOT DEFINED PYHOOK_INSTALL_DIR)
   message(WARNING "Python3 distutils status: ${_pyhook_install_dir_result}")
   message(WARNING "Python3 get_python_lib output: ${PYHOOK_INSTALL_DIR_OLD}")
   execute_process(
-    COMMAND "${Python3_EXECUTABLE}" -c "import sysconfig as sc; print(sc.get_path('platlib', vars={'platbase': '${CMAKE_INSTALL_PREFIX}'}))"
+    COMMAND "${Python3_EXECUTABLE}" -c "import sysconfig as sc; print(sc.get_path('platlib', sc.get_preferred_scheme('user'), vars={'userbase': '${CMAKE_INSTALL_PREFIX}'}))"
     RESULT_VARIABLE _pyhook_install_dir_result
     OUTPUT_VARIABLE PYHOOK_INSTALL_DIR_NEW
     OUTPUT_STRIP_TRAILING_WHITESPACE)
