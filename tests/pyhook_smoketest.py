@@ -13,7 +13,7 @@ print("MX SCHEMES: ", schemes)
 
 print("DEFAULT SCHEME:", sc.get_default_scheme())
 for k in ("prefix", "home", "user"):
-	print("PREFERRED SCHEME:", sc.get_preferred_scheme(k))
+	print("PREFERRED SCHEME:", k, sc.get_preferred_scheme(k))
 
 for s in schemes:
 	print("MX CURRENT SCHEME: ", s)
