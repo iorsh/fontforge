@@ -50,7 +50,7 @@ mkdir -p $APPDIR/Contents/Frameworks
 cp -a $pycruft/Python.framework $APPDIR/Contents/Frameworks
 pushd $APPDIR/Contents/Frameworks/Python.framework/Versions/$PYVER/lib/$PYTHON/
 rm site-packages || rm -rf site-packages
-ln -s ../../../../../../Resources/opt/local/lib/$PYTHON/site-packages
+ln -s ../../../../../../Resources/opt/local/$PY_DLLS_PATH
 popd
 
 echo "MX pwd"
@@ -65,7 +65,7 @@ echo $HOME
 
 
 pushd $APPDIR/Contents/Resources/opt/local/$PY_DLLS_PATH
-cp -Rn "$pycruft/Python.framework/Versions/$PYVER/$PY_DLLS_PATH" .
+cp -Rn "$pycruft/Python.framework/Versions/$PYVER/lib/$PYTHON/site-packages/" .
 popd
 
 find "$APPDIR/Contents/Frameworks/Python.framework" -type f -name '*.pyc' | xargs rm -rf
