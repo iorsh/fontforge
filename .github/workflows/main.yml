@@ -74,7 +74,7 @@ jobs:
           CROWDIN_API_KEY: ${{ secrets.CROWDIN_API_KEY }}
         run: java -jar $DEPSPREFIX/crowdin-cli.jar -c .crowdin.yml upload
   mac:
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
         with:
@@ -131,6 +131,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: iorsh/fontforgebuilds
+          ref: py_sysconfig
           path: fontforgebuilds
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
