@@ -54,8 +54,16 @@ echo $APPDIR/Contents/Resources/opt/local/lib/$PYTHON/site-packages
 echo "MX Home"
 echo $HOME
 
-pushd $APPDIR/Contents/Resources/opt/local/lib/$PYTHON/site-packages
-cp -Rn "$pycruft/Python.framework/Versions/$PYVER/lib/$PYTHON/site-packages/" .
+# MacOS runner has way too much preinstalled Python versions. We must
+# use the exact one discovered by CMake.
+PYTHON_EXE=`cat CMake_Python3_EXECUTABLE`
+echo "MX Python exe"
+echo $PYTHON_EXE
+
+PY_DLLS_PATH=`$PYTHON_EXE -c "import sysconfig as sc; print(sc.get_path('platlib', sc.get_preferred_scheme('user'), vars={'userbase': '.'}))"`
+
+pushd $APPDIR/Contents/Resources/opt/local/$PY_DLLS_PATH
+cp -Rn "$pycruft/Python.framework/Versions/$PYVER/$PY_DLLS_PATH" .
 popd
 
 find "$APPDIR/Contents/Frameworks/Python.framework" -type f -name '*.pyc' | xargs rm -rf
