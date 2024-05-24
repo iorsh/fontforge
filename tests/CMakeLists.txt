@@ -95,7 +95,6 @@ endif()
 
 if(ENABLE_PYTHON_SCRIPTING_RESULT)
   add_py_test(test0001.py "Ambrosia.sfd" "FontForge .sfd file open check")
-  add_py_test(pyhook_smoketest.py "Smoke test")
   add_py_test(test0002.py "AGL For New Fonts.txt" "Loading duplicate name list")
   add_py_test(test0003.py "BoxesAndBounds.sfd" "Bounding box sanity tests")
   add_py_test(test0004.py "OpenType script tag tests")

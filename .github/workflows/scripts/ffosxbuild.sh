@@ -37,8 +37,6 @@ echo "Bundling Python libraries..."
 # The CMake_Python3_EXECUTABLE file resides in build/CMake_Python3_EXECUTABLE
 PYTHON_EXE=`cat ../CMake_Python3_EXECUTABLE`
 PY_DLLS_PATH=`$PYTHON_EXE -c "import sysconfig as sc; print(sc.get_path('platlib', sc.get_preferred_scheme('user'), vars={'userbase': '.'}))"`
-echo "MX Python exe"
-echo $PYTHON_EXE
 
 PYLIB=$(otool -L $APPDIR/Contents/Resources/opt/local/bin/fontforge | grep -i python | sed -e 's/ \(.*\)//')
 PYVER=$(echo $PYLIB | rev | cut -d/ -f2 | rev)
@@ -52,17 +50,6 @@ pushd $APPDIR/Contents/Frameworks/Python.framework/Versions/$PYVER/lib/$PYTHON/
 rm site-packages || rm -rf site-packages
 ln -s ../../../../../../Resources/opt/local/$PY_DLLS_PATH
 popd
-
-echo "MX pwd"
-pwd
-echo "MX ls"
-ls -lR $APPDIR/Contents/Resources/opt/local
-echo "MX to push"
-echo $APPDIR/Contents/Resources/opt/local/$PY_DLLS_PATH
-echo "MX Home"
-echo $HOME
-
-
 
 pushd $APPDIR/Contents/Resources/opt/local/$PY_DLLS_PATH
 cp -Rn "$pycruft/Python.framework/Versions/$PYVER/lib/$PYTHON/site-packages/" .
