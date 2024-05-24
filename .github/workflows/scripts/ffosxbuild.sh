@@ -48,9 +48,9 @@ pycruft=$(realpath $(dirname $PYLIB)/../../..)
 echo "pycruft: $pycruft"
 mkdir -p $APPDIR/Contents/Frameworks
 cp -a $pycruft/Python.framework $APPDIR/Contents/Frameworks
-pushd $APPDIR/Contents/Frameworks/Python.framework/Versions/$PYVER/$PY_DLLS_PATH/..
+pushd $APPDIR/Contents/Frameworks/Python.framework/Versions/$PYVER/lib/$PYTHON/
 rm site-packages || rm -rf site-packages
-ln -s ../../../../../../Resources/opt/local/$PY_DLLS_PATH
+ln -s ../../../../../../Resources/opt/local/lib/$PYTHON/site-packages
 popd
 
 echo "MX pwd"
