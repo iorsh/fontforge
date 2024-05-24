@@ -56,7 +56,8 @@ echo $HOME
 
 # MacOS runner has way too much preinstalled Python versions. We must
 # use the exact one discovered by CMake.
-PYTHON_EXE=`cat CMake_Python3_EXECUTABLE`
+# The CMake_Python3_EXECUTABLE file resides in build/CMake_Python3_EXECUTABLE
+PYTHON_EXE=`cat ../CMake_Python3_EXECUTABLE`
 echo "MX Python exe"
 echo $PYTHON_EXE
 
