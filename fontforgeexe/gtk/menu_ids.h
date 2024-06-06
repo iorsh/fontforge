@@ -96,6 +96,9 @@
 #define MID_VKernByClass	2608
 #define MID_VKernFromH	2609
 #define MID_SetBearings	2610
+#define MID_AutoWidth	2611
+#define MID_KernByClasses	2612
+#define MID_KernCloseup	2613
 #define MID_AutoHint	2501
 #define MID_ClearHints	2502
 #define MID_ClearWidthMD	2503

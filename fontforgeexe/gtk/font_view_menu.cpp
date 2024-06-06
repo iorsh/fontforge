@@ -432,6 +432,28 @@ std::vector<FF::MenuInfo> view_menu = {
     FF::MenuInfo::CustomFVBlock(view_menu_bitmaps),
 };
 
+std::vector<FF::MenuInfo> metrics_menu = {
+    { { N_("New _Metrics Window"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_OpenMetrics },
+    FF::kMenuSeparator,
+    { { N_("_Center in Width"), "metricscenter", "" }, nullptr, FF::LegacyCallbacks, MID_Center },
+    { { N_("_Thirds in Width"), "menuempty", "" }, nullptr, FF::LegacyCallbacks, MID_Thirds },
+    { { N_("Set _Width..."), "metricssetwidth", "<control><shift>L" }, nullptr, FF::LegacyCallbacks, MID_SetWidth },
+    { { N_("Set _LBearing..."), "metricssetlbearing", "<control>L" }, nullptr, FF::LegacyCallbacks, MID_SetLBearing },
+    { { N_("Set _RBearing..."), "metricssetrbearing", "<control>R" }, nullptr, FF::LegacyCallbacks, MID_SetRBearing },
+    { { N_("Set Both Bearings..."), "menuempty", "" }, nullptr, FF::LegacyCallbacks, MID_SetBearings },
+    FF::kMenuSeparator,
+    { { N_("Set _Vertical Advance..."), "metricssetvwidth", "" }, nullptr, FF::LegacyCallbacks, MID_SetVWidth },
+    FF::kMenuSeparator,
+    { { N_("_Auto Width..."), FF::NonCheckable, "<control><shift>W" }, nullptr, FF::LegacyCallbacks, MID_AutoWidth },
+    { { N_("Ker_n By Classes..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_KernByClasses },
+    { { N_("Remove All Kern _Pairs"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_RmHKern },
+    { { N_("Kern Pair Closeup..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_KernCloseup },
+    FF::kMenuSeparator,
+    { { N_("VKern By Classes..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_VKernByClass },
+    { { N_("VKern From HKern"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_VKernFromH },
+    { { N_("Remove All VKern Pairs"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_RmVKern },
+};
+
 std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("_File") }, &file_menu, -1 },
     { { N_("_Edit") }, nullptr, -1 },
@@ -442,7 +464,7 @@ std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("H_ints") }, &hints_menu, -1 },
     { { N_("E_ncoding") }, &encoding_menu, -1 },
     { { N_("_View") }, &view_menu, -1 },
-    { { N_("_Metrics") }, nullptr, -1 },
+    { { N_("_Metrics") }, &metrics_menu, -1 },
     { { N_("_CID") }, nullptr, -1 },
 /* GT: Here (and following) MM means "MultiMaster" */
     { { N_("MM") }, nullptr, -1 },

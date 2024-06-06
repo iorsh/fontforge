@@ -1399,8 +1399,7 @@ void _MenuWarnings(GWindow UNUSED(gw), struct gmenuitem *UNUSED(mi), GEvent *UNU
     ShowErrorWindow();
 }
 
-static void FVMenuOpenMetrics(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuOpenMetrics(FontView *fv, int UNUSED(mid)) {
     if ( fv->b.container!=NULL && fv->b.container->funcs->is_modal )
 return;
     MetricsViewCreate(fv,NULL,fv->filled==fv->show?NULL:fv->show);
@@ -3430,38 +3429,27 @@ return;
 		  wt_vwidth);
 }
 
-static void FVMenuAutoWidth(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuAutoWidth(FontView *fv, int UNUSED(mid)) {
     FVAutoWidth2(fv);
 }
 
-static void FVMenuKernByClasses(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuKernByClasses(FontView *fv, int UNUSED(mid)) {
     ShowKernClasses(fv->b.sf,NULL,fv->b.active_layer,false);
 }
 
-static void FVMenuVKernByClasses(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuVKernByClasses(FontView *fv, int UNUSED(mid)) {
     ShowKernClasses(fv->b.sf,NULL,fv->b.active_layer,true);
 }
 
-static void FVMenuRemoveKern(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuRemoveKern(FontView *fv, int UNUSED(mid)) {
     FVRemoveKerns(&fv->b);
 }
 
-static void FVMenuRemoveVKern(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuRemoveVKern(FontView *fv, int UNUSED(mid)) {
     FVRemoveVKerns(&fv->b);
 }
 
-static void FVMenuKPCloseup(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuKPCloseup(FontView *fv, int UNUSED(mid)) {
     int i;
 
     for ( i=0; i<fv->b.map->enccount; ++i )
@@ -3473,9 +3461,7 @@ static void FVMenuKPCloseup(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UN
 		    false);
 }
 
-static void FVMenuVKernFromHKern(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuVKernFromHKern(FontView *fv, int UNUSED(mid)) {
     FVVKernFromHKern(&fv->b);
 }
 
@@ -4244,26 +4230,25 @@ static bool ellistcheck(FontView *fv, int mid) {
     return disabled;
 }
 
-static void mtlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static bool mtlistcheck(FontView *fv, int mid) {
     int anychars = FVAnyCharSelected(fv);
+    bool disabled = false;
 
-    for ( mi = mi->sub; mi->ti.text!=NULL || mi->ti.line ; ++mi ) {
-	switch ( mi->mid ) {
+	switch ( mid ) {
 	  case MID_Center: case MID_Thirds: case MID_SetWidth:
 	  case MID_SetLBearing: case MID_SetRBearing: case MID_SetBearings:
-	    mi->ti.disabled = anychars==-1;
+	    disabled = anychars==-1;
 	  break;
 	  case MID_SetVWidth:
-	    mi->ti.disabled = anychars==-1 || !fv->b.sf->hasvmetrics;
+	    disabled = anychars==-1 || !fv->b.sf->hasvmetrics;
 	  break;
 	  case MID_VKernByClass:
 	  case MID_VKernFromH:
 	  case MID_RmVKern:
-	    mi->ti.disabled = !fv->b.sf->hasvmetrics;
+	    disabled = !fv->b.sf->hasvmetrics;
 	  break;
 	}
-    }
+    return disabled;
 }
 
 #if HANYANG
@@ -5335,10 +5320,10 @@ static bool vwlistchecked(FontView *fv, int mid) {
     return checked;
 }
 
+#if 0
 static GMenuItem2 mtlist[] = {
     { { (unichar_t *) N_("New _Metrics Window"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'M' }, H_("New Metrics Window|No Shortcut"), NULL, NULL, FVMenuOpenMetrics, MID_OpenMetrics },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
-/*
     { { (unichar_t *) N_("_Center in Width"), (GImage *) "metricscenter.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, H_("Center in Width|No Shortcut"), NULL, NULL, FVMenuCenter, MID_Center },
     { { (unichar_t *) N_("_Thirds in Width"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'T' }, H_("Thirds in Width|No Shortcut"), NULL, NULL, FVMenuCenter, MID_Thirds },
     { { (unichar_t *) N_("Set _Width..."), (GImage *) "metricssetwidth.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'W' }, H_("Set Width...|No Shortcut"), NULL, NULL, FVMenuSetWidth, MID_SetWidth },
@@ -5347,7 +5332,6 @@ static GMenuItem2 mtlist[] = {
     { { (unichar_t *) N_("Set Both Bearings..."), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'R' }, H_("Set Both Bearings...|No Shortcut"), NULL, NULL, FVMenuSetWidth, MID_SetBearings },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 },
     { { (unichar_t *) N_("Set _Vertical Advance..."), (GImage *) "metricssetvwidth.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("Set Vertical Advance...|No Shortcut"), NULL, NULL, FVMenuSetWidth, MID_SetVWidth },
-*/
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("_Auto Width..."), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'A' }, H_("Auto Width...|No Shortcut"), NULL, NULL, FVMenuAutoWidth, 0 },
     { { (unichar_t *) N_("Ker_n By Classes..."), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'K' }, H_("Kern By Classes...|No Shortcut"), NULL, NULL, FVMenuKernByClasses, 0 },
@@ -5359,6 +5343,7 @@ static GMenuItem2 mtlist[] = {
     { { (unichar_t *) N_("Remove All VKern Pairs"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'P' }, H_("Remove All VKern Pairs|No Shortcut"), NULL, NULL, FVMenuRemoveVKern, MID_RmVKern },
     GMENUITEM2_EMPTY
 };
+#endif
 
 static GMenuItem2 cdlist[] = {
     { { (unichar_t *) N_("_Convert to CID"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, H_("Convert to CID|No Shortcut"), NULL, NULL, FVMenuConvert2CID, MID_Convert2CID },
@@ -5528,7 +5513,9 @@ static GMenuItem2 wnmenu[] = {
     { { (unichar_t *) N_("New O_utline Window"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'u' }, H_("New Outline Window|No Shortcut"), NULL, NULL, FVMenuOpenOutline, MID_OpenOutline },
 */
     { { (unichar_t *) N_("New _Bitmap Window"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'B' }, H_("New Bitmap Window|No Shortcut"), NULL, NULL, FVMenuOpenBitmap, MID_OpenBitmap },
+/*
     { { (unichar_t *) N_("New _Metrics Window"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'M' }, H_("New Metrics Window|No Shortcut"), NULL, NULL, FVMenuOpenMetrics, MID_OpenMetrics },
+*/
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("Warnings"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'M' }, H_("Warnings|No Shortcut"), NULL, NULL, _MenuWarnings, MID_Warnings },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
@@ -5579,9 +5566,6 @@ FVMenuAction fvpopupactions[] = {
     { MID_Clear, NULL, NULL, FVMenuClear },
     { MID_CopyFgToBg, NULL, NULL, FVMenuCopyFgBg },
     { MID_UnlinkRef, NULL, NULL, FVMenuUnlinkRef },
-    { MID_Center, NULL, NULL, FVMenuCenter },
-    { MID_SetWidth, NULL, NULL, FVMenuSetWidth },
-    { MID_SetVWidth, NULL, NULL, FVMenuSetWidth },
 
     /* Element menu */
     { MID_FontInfo, ellistcheck, NULL, FVMenuFontInfo },
@@ -5741,6 +5725,23 @@ FVMenuAction fvpopupactions[] = {
     { MIDSERIES_LabelGlyph + gl_unicode , NULL, gllistcheck, FVMenuGlyphLabel },
     { MIDSERIES_LabelGlyph + gl_encoding , NULL, gllistcheck, FVMenuGlyphLabel },
 
+    /* Metrics menu */
+    { MID_OpenMetrics, NULL, NULL, FVMenuOpenMetrics },
+    { MID_Center, mtlistcheck, NULL, FVMenuCenter },
+    { MID_Thirds, mtlistcheck, NULL, FVMenuCenter },
+    { MID_SetWidth, mtlistcheck, NULL, FVMenuSetWidth },
+    { MID_SetLBearing, mtlistcheck, NULL, FVMenuSetWidth },
+    { MID_SetRBearing, mtlistcheck, NULL, FVMenuSetWidth },
+    { MID_SetBearings, mtlistcheck, NULL, FVMenuSetWidth },
+    { MID_SetVWidth, mtlistcheck, NULL, FVMenuSetWidth },
+    { MID_AutoWidth, NULL, NULL, FVMenuAutoWidth },
+    { MID_KernByClasses, NULL, NULL, FVMenuKernByClasses },
+    { MID_RmHKern, NULL, NULL, FVMenuRemoveKern },
+    { MID_KernCloseup, NULL, NULL, FVMenuKPCloseup },
+    { MID_VKernByClass, mtlistcheck, NULL, FVMenuVKernByClasses },
+    { MID_VKernFromH, mtlistcheck, NULL, FVMenuVKernFromHKern },
+    { MID_RmVKern, mtlistcheck, NULL, FVMenuRemoveVKern },
+
     MENUACTION_LAST
 };
 
@@ -5755,8 +5756,8 @@ static GMenuItem2 mblist[] = {
     { { (unichar_t *) N_("H_ints"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'i' }, H_("Hints|No Shortcut"), htlist, NULL, NULL, 0 },
     { { (unichar_t *) N_("E_ncoding"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("Encoding|No Shortcut"), enlist, enlistcheck, NULL, 0 },
     { { (unichar_t *) N_("_View"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'V' }, H_("View|No Shortcut"), vwlist, vwlistdisabled, NULL, 0 },
-*/
     { { (unichar_t *) N_("_Metrics"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'M' }, H_("Metrics|No Shortcut"), mtlist, mtlistcheck, NULL, 0 },
+*/
     { { (unichar_t *) N_("_CID"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, H_("CID|No Shortcut"), cdlist, cdlistcheck, NULL, 0 },
 /* GT: Here (and following) MM means "MultiMaster" */
     { { (unichar_t *) N_("MM"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("MM|No Shortcut"), mmlist, mmlistcheck, NULL, 0 },
