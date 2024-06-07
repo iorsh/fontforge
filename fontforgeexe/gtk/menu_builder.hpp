@@ -38,11 +38,6 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace FF {
 
-enum EnabledState : bool {
-    Enabled = true,
-    Disabled = false
-};
-
 enum CheckableState : bool {
     Checkable = true,
     NonCheckable = false
