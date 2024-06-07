@@ -1660,25 +1660,18 @@ static void FVMenuCut(FontView *fv, int UNUSED(mid)) {
     FVClear(&fv->b);
 }
 
-static void FVMenuSelectAll(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuSelectAll(FontView *fv, enum merge_type UNUSED(merge)) {
     FVSelectAll(fv);
 }
 
-static void FVMenuInvertSelection(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuInvertSelection(FontView *fv, enum merge_type UNUSED(merge)) {
     FVInvertSelection(fv);
 }
 
-static void FVMenuDeselectAll(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuDeselectAll(FontView *fv, enum merge_type UNUSED(merge)) {
     FVDeselectAll(fv);
 }
 
-enum merge_type { mt_set=0, mt_merge=4, mt_or=mt_merge, mt_restrict=8, mt_and=12 };
     /* Index array by merge_type(*4) + selection*2 + doit */
 const uint8_t mergefunc[] = {
 /* mt_set */
@@ -2074,10 +2067,8 @@ return;
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuSelectByScript(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
-    FVSelectByScript(fv,SelMergeType(e));
+static void FVMenuSelectByScript(FontView *fv, enum merge_type merge) {
+    FVSelectByScript(fv, merge);
 }
 
 static void FVSelectColor(FontView *fv, uint32_t col, int merge) {
@@ -2156,14 +2147,12 @@ return( false );
 return( true );
 }
 
-static void FVMenuSelectByName(GWindow _gw, struct gmenuitem *UNUSED(mi), GEvent *e) {
-    FontView *fv = (FontView *) GDrawGetUserData(_gw);
+static void FVMenuSelectByName(FontView *fv, enum merge_type merge) {
     GRect pos;
     GWindow gw;
     GWindowAttrs wattrs;
     GGadgetCreateData gcd[8], *hvarray[12][2], *barray[8], boxes[3];
     GTextInfo label[8];
-    int merge = SelMergeType(e);
     int done=0,k,i;
 
     memset(&wattrs,0,sizeof(wattrs));
@@ -2298,12 +2287,10 @@ static void FVMenuSelectByName(GWindow _gw, struct gmenuitem *UNUSED(mi), GEvent
     GDrawDestroyWindow(gw);
 }
 
-static void FVMenuSelectWorthOutputting(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuSelectWorthOutputting(FontView *fv, enum merge_type merge) {
     int i, gid, doit;
     EncMap *map = fv->b.map;
     SplineFont *sf = fv->b.sf;
-    int merge = SelMergeType(e);
 
     for ( i=0; i< map->enccount; ++i ) {
 	doit = ( (gid=map->map[i])!=-1 && sf->glyphs[gid]!=NULL &&
@@ -2313,12 +2300,10 @@ static void FVMenuSelectWorthOutputting(GWindow gw, struct gmenuitem *UNUSED(mi)
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuGlyphsRefs(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuGlyphsRefs(FontView *fv, enum merge_type merge) {
     int i, gid, doit;
     EncMap *map = fv->b.map;
     SplineFont *sf = fv->b.sf;
-    int merge = SelMergeType(e);
     int layer = fv->b.active_layer;
 
     for ( i=0; i< map->enccount; ++i ) {
@@ -2330,12 +2315,10 @@ static void FVMenuGlyphsRefs(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuGlyphsSplines(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuGlyphsSplines(FontView *fv, enum merge_type merge) {
     int i, gid, doit;
     EncMap *map = fv->b.map;
     SplineFont *sf = fv->b.sf;
-    int merge = SelMergeType(e);
     int layer = fv->b.active_layer;
 
     for ( i=0; i< map->enccount; ++i ) {
@@ -2347,12 +2330,10 @@ static void FVMenuGlyphsSplines(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuGlyphsBoth(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuGlyphsBoth(FontView *fv, enum merge_type merge) {
     int i, gid, doit;
     EncMap *map = fv->b.map;
     SplineFont *sf = fv->b.sf;
-    int merge = SelMergeType(e);
     int layer = fv->b.active_layer;
 
     for ( i=0; i< map->enccount; ++i ) {
@@ -2364,12 +2345,10 @@ static void FVMenuGlyphsBoth(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuGlyphsWhite(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuGlyphsWhite(FontView *fv, enum merge_type merge) {
     int i, gid, doit;
     EncMap *map = fv->b.map;
     SplineFont *sf = fv->b.sf;
-    int merge = SelMergeType(e);
     int layer = fv->b.active_layer;
 
     for ( i=0; i< map->enccount; ++i ) {
@@ -2381,12 +2360,10 @@ static void FVMenuGlyphsWhite(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuSelectChanged(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuSelectChanged(FontView *fv, enum merge_type merge) {
     int i, gid, doit;
     EncMap *map = fv->b.map;
     SplineFont *sf = fv->b.sf;
-    int merge = SelMergeType(e);
 
     for ( i=0; i< map->enccount; ++i ) {
 	doit = ( (gid=map->map[i])!=-1 && sf->glyphs[gid]!=NULL && sf->glyphs[gid]->changed );
@@ -2396,13 +2373,11 @@ static void FVMenuSelectChanged(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuSelectHintingNeeded(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuSelectHintingNeeded(FontView *fv, enum merge_type merge) {
     int i, gid, doit;
     EncMap *map = fv->b.map;
     SplineFont *sf = fv->b.sf;
     int order2 = sf->layers[fv->b.active_layer].order2;
-    int merge = SelMergeType(e);
 
     for ( i=0; i< map->enccount; ++i ) {
 	doit = ( (gid=map->map[i])!=-1 && sf->glyphs[gid]!=NULL &&
@@ -2415,12 +2390,10 @@ static void FVMenuSelectHintingNeeded(GWindow gw, struct gmenuitem *UNUSED(mi), 
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuSelectAutohintable(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *e) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuSelectAutohintable(FontView *fv, enum merge_type merge) {
     int i, gid, doit;
     EncMap *map = fv->b.map;
     SplineFont *sf = fv->b.sf;
-    int merge = SelMergeType(e);
 
     for ( i=0; i< map->enccount; ++i ) {
 	doit = (gid=map->map[i])!=-1 && sf->glyphs[gid]!=NULL &&
@@ -2430,9 +2403,7 @@ static void FVMenuSelectAutohintable(GWindow gw, struct gmenuitem *UNUSED(mi), G
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuSelectByPST(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuSelectByPST(FontView *fv, enum merge_type UNUSED(merge)) {
     FVSelectByPST(fv);
 }
 
@@ -5745,6 +5716,26 @@ FVMenuAction fvpopupactions[] = {
     MENUACTION_LAST
 };
 
+FVSelectMenuAction fv_selmenu_actions[] = {
+
+    { MID_SelectAll, FVMenuSelectAll },
+    { MID_SelectInvert, FVMenuInvertSelection },
+    { MID_DeselectAll, FVMenuDeselectAll },
+    { MID_SelectByName, FVMenuSelectByName },
+    { MID_SelectByScript, FVMenuSelectByScript },
+    { MID_SelectWorth, FVMenuSelectWorthOutputting },
+    { MID_SelectGlyphsRefs, FVMenuGlyphsRefs },
+    { MID_SelectGlyphsSplines, FVMenuGlyphsSplines },
+    { MID_SelectGlyphsBoth, FVMenuGlyphsBoth },
+    { MID_SelectGlyphsWhite, FVMenuGlyphsWhite },
+    { MID_SelectChanged, FVMenuSelectChanged },
+    { MID_SelectHintingNeeded, FVMenuSelectHintingNeeded },
+    { MID_SelectAutohintable, FVMenuSelectAutohintable },
+    { MID_SelectByPST, FVMenuSelectByPST },
+
+    MENUACTION_LAST
+};
+
 static GMenuItem2 mblist[] = {
     { { (unichar_t *) N_("_File"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'F' }, H_("File|No Shortcut"), fllist, fllistcheck, NULL, 0 },
     { { (unichar_t *) N_("_Edit"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'E' }, H_("Edit|No Shortcut"), edlist, edlistcheck, NULL, 0 },
@@ -7440,6 +7431,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context->run_autotrace = (void (*)(FontView*, bool))FVAutoTrace;
     fv_context->set_color = FVMenuSetColor;
     fv_context->actions = fvpopupactions;
+    fv_context->select_actions = fv_selmenu_actions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
 
     FontViewSetTitle(fv);

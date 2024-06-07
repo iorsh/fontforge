@@ -157,6 +157,22 @@
 #define	MID_CopyLookupData	2135
 #define MID_CopyL2L	2136
 #define MID_CorrectRefs	2137
+
+#define MID_SelectAll		2140
+#define MID_SelectInvert	2141
+#define MID_DeselectAll		2142
+#define MID_SelectByName	2143
+#define MID_SelectByScript	2144
+#define MID_SelectWorth		2145
+#define MID_SelectGlyphsRefs	2146
+#define MID_SelectGlyphsSplines	2147
+#define MID_SelectGlyphsBoth	2148
+#define MID_SelectGlyphsWhite	2149
+#define MID_SelectChanged	2150
+#define MID_SelectHintingNeeded	2151
+#define MID_SelectAutohintable	2152
+#define MID_SelectByPST		2153
+
 #define MID_Convert2CID	2800
 #define MID_Flatten	2801
 #define MID_InsertFont	2802

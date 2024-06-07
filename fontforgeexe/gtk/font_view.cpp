@@ -66,6 +66,32 @@ FF::CheckedCB FontViewUiContext::get_checked_cb(int mid) const {
    }
 }
 
+static enum merge_type SelMergeType(bool shift_pressed, bool ctrl_pressed) {
+    if (!shift_pressed && !ctrl_pressed) {
+	return mt_set;
+    }
+
+    return (enum merge_type)( (shift_pressed ? mt_merge : mt_set) |
+	                      (ctrl_pressed ? mt_restrict : mt_set) );
+}
+
+FF::ActivateCB FontViewUiContext::get_activate_select_cb(int mid) const {
+   FVSelectMenuAction* callback_set = FF::find_legacy_callback_set(mid, legacy_context->select_actions);
+
+   // Decide selection merge type from keyboard state
+   bool shift_pressed = gtk_get_keyboard_state() & Gdk::ModifierType::SHIFT_MASK;
+   bool ctrl_pressed = gtk_get_keyboard_state() & Gdk::ModifierType::CONTROL_MASK;
+   enum merge_type merge = SelMergeType(shift_pressed, ctrl_pressed);
+
+   if (callback_set != NULL && callback_set->action != NULL) {
+      void (*action)(FontView*, enum merge_type) = callback_set->action;
+      FontView* fv = legacy_context->fv;
+      return [action, fv, merge](const UiContext&){ action(fv, merge); };
+   } else {
+      return FF::NoAction;
+   }
+}
+
 // Create info label at the top of the Font View, which shows name and
 // properties of the most recently selected character 
 Gtk::Label* make_character_info_label() {

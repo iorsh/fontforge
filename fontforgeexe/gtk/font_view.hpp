@@ -29,6 +29,8 @@ public:
     FF::EnabledCB get_enabled_cb(int mid) const override;
     FF::CheckedCB get_checked_cb(int mid) const override;
 
+    FF::ActivateCB get_activate_select_cb(int mid) const;
+
     Glib::RefPtr<Gtk::AccelGroup> get_accel_group() const override {
 	return accel_group;
     }

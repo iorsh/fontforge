@@ -32,12 +32,19 @@ typedef struct anchorclass AnchorClass;
 
 enum glyphlable { gl_glyph, gl_name, gl_unicode, gl_encoding };
 
+enum merge_type { mt_set=0, mt_merge=4, mt_or=mt_merge, mt_restrict=8, mt_and=12 };
+
 typedef struct fv_menu_action {
    int mid;
    bool (*is_disabled)(FontView *fv, int mid);	/* called before showing */
    bool (*is_checked)(FontView *fv, int mid);	/* called before showing */
    void (*action)(FontView *fv, int mid);	/* called on mouse release */
 } FVMenuAction;
+
+typedef struct fv_select_menu_action {
+   int mid;
+   void (*action)(FontView *fv, enum merge_type merge);	/* called on mouse release */
+} FVSelectMenuAction;
 
 #define MENUACTION_LAST { 0, NULL, NULL }
 
@@ -135,6 +142,7 @@ typedef struct fontview_context {
 
    // Menu actions per menu ID
    FVMenuAction* actions;
+   FVSelectMenuAction* select_actions;
 } FVContext;
 
 #ifdef __cplusplus

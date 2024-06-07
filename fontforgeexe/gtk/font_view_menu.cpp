@@ -185,8 +185,46 @@ void set_color(const FF::UiContext& ui_context) {
     fv_context->set_color(fv_context->fv, C);
 }
 
+template<int MID>
+void legacy_select_action(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FF::ActivateCB select_action = fv_ui_context.get_activate_select_cb(MID);
+
+    select_action(ui_context);
+}
+
 std::vector<FF::MenuInfo> file_menu = {
     { { N_("_New"), FF::NonCheckable, "<control>u" }, nullptr, FF::LegacyCallbacks, MID_OpenOutline },
+};
+
+////////////////////////////////// EDIT MENUS /////////////////////////////////////////
+
+std::vector<FF::MenuInfo> select_menu = {
+    { { N_("Select _All"), FF::NonCheckable, "<control>A" }, nullptr, { legacy_select_action<MID_SelectAll> }, 0 },
+    { { N_("_Invert Selection"), FF::NonCheckable, "<control>Escape" }, nullptr, { legacy_select_action<MID_SelectInvert> }, 0 },
+    { { N_("_Deselect All"), FF::NonCheckable, "Escape" }, nullptr, { legacy_select_action<MID_DeselectAll> }, 0 },
+    FF::kMenuSeparator,
+    { { N_("Select by _Color"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+    { { N_("Select by _Wildcard..."), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectByName> }, 0 },
+    { { N_("Select by _Script..."), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectByScript> }, 0 },
+    FF::kMenuSeparator,
+    { { N_("_Glyphs Worth Outputting"), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectWorth> }, 0 },
+    { { N_("Glyphs with only _References"), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectGlyphsRefs> }, 0 },
+    { { N_("Glyphs with only S_plines"), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectGlyphsSplines> }, 0 },
+    { { N_("Glyphs with both"), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectGlyphsBoth> }, 0 },
+    { { N_("W_hitespace Glyphs"), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectGlyphsWhite> }, 0 },
+    { { N_("_Changed Glyphs"), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectChanged> }, 0 },
+    { { N_("_Hinting Needed"), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectHintingNeeded> }, 0 },
+    { { N_("Autohinta_ble"), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectAutohintable> }, 0 },
+    FF::kMenuSeparator,
+    { { N_("Hold [Shift] key to merge"), FF::NonCheckable, "" }, nullptr, { FF::NoAction }, 0 },
+    { { N_("Hold [Control] key to restrict"), FF::NonCheckable, "" }, nullptr, { FF::NoAction }, 0 },
+    FF::kMenuSeparator,
+    { { N_("Selec_t By Lookup Subtable..."), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectByPST> }, 0 },
+};
+
+std::vector<FF::MenuInfo> dummy_edit_menu = {
+    { { N_("_Select"), "editselect", "" }, &select_menu, FF::SubMenuCallbacks, 0 },
 };
 
 //////////////////////////////// ELEMENT MENUS ////////////////////////////////////////
@@ -456,7 +494,7 @@ std::vector<FF::MenuInfo> metrics_menu = {
 
 std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("_File") }, &file_menu, -1 },
-    { { N_("_Edit") }, nullptr, -1 },
+    { { N_("_Edit") }, &dummy_edit_menu, -1 },
     { { N_("E_lement") }, &element_menu, -1 },
 #ifndef _NO_PYTHON
     { { N_("_Tools") }, &tools_menu, -1 },
