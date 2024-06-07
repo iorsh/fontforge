@@ -41,8 +41,6 @@ void fv_set_character_info(void* window, GString* info);
 // Resize font view window to accomodate the new drawing area size
 void fv_resize_window(void* window, int width, int height);
 
-FVMenuAction* find_callback_set(int mid, FVContext* fv_context);
-
 void register_py_menu_item_in_gtk(const PyMenuSpec* spec, int flags);
 
 #ifdef __cplusplus

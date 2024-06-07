@@ -141,4 +141,18 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
 
 Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context);
 
+// Find the C callback set
+template<typename ACT>
+ACT* find_legacy_callback_set(int mid, ACT* actions) {
+   int i = 0;
+   while (actions[i].mid != 0) {
+      if (actions[i].mid == mid) {
+         return actions + i;
+      }
+      i++;
+   }
+
+   return NULL;
+}
+
 }

@@ -31,7 +31,7 @@ FontViewUiContext::FontViewUiContext(Gtk::Window* window, FVContext** p_fv_conte
 }
 
 FF::ActivateCB FontViewUiContext::get_activate_cb(int mid) const {
-   FVMenuAction* callback_set = find_callback_set(mid, legacy_context);
+   FVMenuAction* callback_set = FF::find_legacy_callback_set(mid, legacy_context->actions);
 
    if (callback_set != NULL && callback_set->action != NULL) {
       void (*action)(FontView*, int) = callback_set->action;
@@ -43,7 +43,7 @@ FF::ActivateCB FontViewUiContext::get_activate_cb(int mid) const {
 }
 
 FF::EnabledCB FontViewUiContext::get_enabled_cb(int mid) const {
-   FVMenuAction* callback_set = find_callback_set(mid, legacy_context);
+   FVMenuAction* callback_set = FF::find_legacy_callback_set(mid, legacy_context->actions);
 
    if (callback_set != NULL && callback_set->is_disabled != NULL) {
       bool (*disabled_cb)(FontView*, int) = callback_set->is_disabled;
@@ -55,7 +55,7 @@ FF::EnabledCB FontViewUiContext::get_enabled_cb(int mid) const {
 }
 
 FF::CheckedCB FontViewUiContext::get_checked_cb(int mid) const {
-   FVMenuAction* callback_set = find_callback_set(mid, legacy_context);
+   FVMenuAction* callback_set = FF::find_legacy_callback_set(mid, legacy_context->actions);
 
    if (callback_set != NULL && callback_set->is_checked != NULL) {
       bool (*checked_cb)(FontView*, int) = callback_set->is_checked;

@@ -84,21 +84,6 @@ void fv_resize_window(void* window, int width, int height) {
    font_view_window->resize(width + delta_width, height + delta_height);
 }
 
-FVMenuAction* find_callback_set(int mid, FVContext* fv_context) {
-   FVMenuAction* actions = fv_context->actions;
-
-   // Find the C callback set
-   int i = 0;
-   while (actions[i].mid != 0) {
-      if (actions[i].mid == mid) {
-         return actions + i;
-      }
-      i++;
-   }
-
-   return NULL;
-}
-
 void register_py_menu_item_in_gtk(const PyMenuSpec* spec, int flags) {
     FF::register_py_menu_item(spec, flags);
 }
