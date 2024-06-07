@@ -38,9 +38,10 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace FF {
 
-enum CheckableState : bool {
-    Checkable = true,
-    NonCheckable = false
+enum BasicState {
+    NonCheckable,
+    Checkable,
+    Comment,
 };
 
 enum RadioGroup {
@@ -62,20 +63,21 @@ Gtk::RadioMenuItem& get_dummy_radio_item(RadioGroup g);
 
 class LabelDecoration {
 public:
-        LabelDecoration(CheckableState s = NonCheckable) : d_(s) {}
+        LabelDecoration(BasicState s = NonCheckable) : d_(s) {}
         LabelDecoration(const char* image_file) : d_(image_file) {}
         LabelDecoration(RadioGroup g) : d_(g) {}
         LabelDecoration(Gdk::RGBA c) : d_(c) {}
 
         bool empty() const { return d_.index() == 0 && std::get<0>(d_) == NonCheckable; }
         bool checkable() const { return d_.index() == 0 && std::get<0>(d_) == Checkable; }
+        bool comment() const { return d_.index() == 0 && std::get<0>(d_) == Comment; }
 	bool named_icon() const { return std::holds_alternative<std::string>(d_); }
         std::string image_file() const { return (d_.index() == 1) ? std::get<1>(d_) : "";}
         bool has_group() const { return std::holds_alternative<RadioGroup>(d_); }
         RadioGroup group() const { return std::get<RadioGroup>(d_); }
         Gdk::RGBA color() const { return std::get<Gdk::RGBA>(d_); }
 private:
-        std::variant<CheckableState, std::string, RadioGroup, Gdk::RGBA> d_;
+        std::variant<BasicState, std::string, RadioGroup, Gdk::RGBA> d_;
 };
 
 struct LabelInfo {
@@ -92,6 +94,7 @@ static const ActivateCB LegacyAction;
 static const ActivateCB NoAction = [](const UiContext&){}; // NOOP callable action
 static const EnabledCB LegacyEnabled;
 static const EnabledCB AlwaysEnabled = [](const UiContext&){ return true; };
+static const EnabledCB NeverEnabled = [](const UiContext&){ return false; };
 static const CheckedCB LegacyChecked;
 static const CheckedCB NotCheckable = [](const UiContext&){ return true; };
 

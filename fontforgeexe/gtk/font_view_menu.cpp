@@ -217,8 +217,8 @@ std::vector<FF::MenuInfo> select_menu = {
     { { N_("_Hinting Needed"), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectHintingNeeded> }, 0 },
     { { N_("Autohinta_ble"), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectAutohintable> }, 0 },
     FF::kMenuSeparator,
-    { { N_("Hold [Shift] key to merge"), FF::NonCheckable, "" }, nullptr, { FF::NoAction }, 0 },
-    { { N_("Hold [Control] key to restrict"), FF::NonCheckable, "" }, nullptr, { FF::NoAction }, 0 },
+    { { N_("Hold [Shift] key to merge"), FF::Comment, "" }, nullptr, { FF::NoAction }, 0 },
+    { { N_("Hold [Control] key to restrict"), FF::Comment, "" }, nullptr, { FF::NoAction }, 0 },
     FF::kMenuSeparator,
     { { N_("Selec_t By Lookup Subtable..."), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectByPST> }, 0 },
 };
