@@ -223,8 +223,39 @@ std::vector<FF::MenuInfo> select_menu = {
     { { N_("Selec_t By Lookup Subtable..."), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectByPST> }, 0 },
 };
 
-std::vector<FF::MenuInfo> dummy_edit_menu = {
+std::vector<FF::MenuInfo> edit_menu = {
+    { { N_("_Undo"), "editundo", "<control>Z" }, nullptr, FF::LegacyCallbacks, MID_Undo },
+    { { N_("_Redo"), "editredo", "<control>Y" }, nullptr, FF::LegacyCallbacks, MID_Redo},
+    { { N_("Undo Fontlevel"), "editundo", "" }, nullptr, FF::LegacyCallbacks, MID_UndoFontLevel },
+    FF::kMenuSeparator,
+    { { N_("Cu_t"), "editcut", "<control>X" }, nullptr, FF::LegacyCallbacks, MID_Cut },
+    { { N_("_Copy"), "editcopy", "<control>C" }, nullptr, FF::LegacyCallbacks, MID_Copy },
+    { { N_("C_opy Reference"), "editcopyref", "<control>G" }, nullptr, FF::LegacyCallbacks, MID_CopyRef },
+    { { N_("Copy _Lookup Data"), "editcopylookupdata", "<alt><control>C" }, nullptr, FF::LegacyCallbacks, MID_CopyLookupData },
+    { { N_("Copy _Width"), "editcopywidth", "" }, nullptr, FF::LegacyCallbacks, MID_CopyWidth },
+    { { N_("Copy _VWidth"), "editcopyvwidth", "" }, nullptr, FF::LegacyCallbacks, MID_CopyVWidth },
+    { { N_("Co_py LBearing"), "editcopylbearing", "" }, nullptr, FF::LegacyCallbacks, MID_CopyLBearing },
+    { { N_("Copy RBearin_g"), "editcopyrbearing", "" }, nullptr, FF::LegacyCallbacks, MID_CopyRBearing },
+    { { N_("_Paste"), "editpaste", "<control>V" }, nullptr, FF::LegacyCallbacks, MID_Paste },
+    { { N_("Paste Into"), "editpasteinto", "<control><shift>V" }, nullptr, FF::LegacyCallbacks, MID_PasteInto },
+    { { N_("Paste After"), "editpasteafter", "<alt><control><shift>V" }, nullptr, FF::LegacyCallbacks, MID_PasteAfter },
+    { { N_("Sa_me Glyph As"), "editsameas", "" }, nullptr, FF::LegacyCallbacks, MID_SameGlyphAs },
+    { { N_("C_lear"), "editclear", "" }, nullptr, FF::LegacyCallbacks, MID_Clear },
+    { { N_("Clear _Background"), "editclearback", "" }, nullptr, FF::LegacyCallbacks, MID_ClearBackground },
+    { { N_("Copy _Fg To Bg"), "editcopyfg2bg", "<control><shift>C" }, nullptr, FF::LegacyCallbacks, MID_CopyFgToBg },
+    { { N_("Copy Layer To Layer"), "editcopylayer2layer", "" }, nullptr, FF::LegacyCallbacks, MID_CopyL2L },
+    { { N_("_Join"), "editjoin", "<control><shift>J" }, nullptr, FF::LegacyCallbacks, MID_Join },
+    FF::kMenuSeparator,
     { { N_("_Select"), "editselect", "" }, &select_menu, FF::SubMenuCallbacks, 0 },
+    { { N_("F_ind / Replace..."), "editfind", "<alt><control>F" }, nullptr, FF::LegacyCallbacks, MID_FindReplace },
+    { { N_("Replace with Reference"), "editrplref", "<alt><control><shift>F" }, nullptr, FF::LegacyCallbacks, MID_RplRef },
+    { { N_("Correct References"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_CorrectRefs },
+    FF::kMenuSeparator,
+    { { N_("U_nlink Reference"), "editunlink", "<control>U" }, nullptr, FF::LegacyCallbacks, MID_UnlinkRef },
+    FF::kMenuSeparator,
+    { { N_("Copy _From"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+    FF::kMenuSeparator,
+    { { N_("Remo_ve Undoes"), "editrmundoes", "" }, nullptr, FF::LegacyCallbacks, MID_RemoveUndoes },
 };
 
 //////////////////////////////// ELEMENT MENUS ////////////////////////////////////////
@@ -474,11 +505,11 @@ std::vector<FF::MenuInfo> metrics_menu = {
     { { N_("New _Metrics Window"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_OpenMetrics },
     FF::kMenuSeparator,
     { { N_("_Center in Width"), "metricscenter", "" }, nullptr, FF::LegacyCallbacks, MID_Center },
-    { { N_("_Thirds in Width"), "menuempty", "" }, nullptr, FF::LegacyCallbacks, MID_Thirds },
+    { { N_("_Thirds in Width"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Thirds },
     { { N_("Set _Width..."), "metricssetwidth", "<control><shift>L" }, nullptr, FF::LegacyCallbacks, MID_SetWidth },
     { { N_("Set _LBearing..."), "metricssetlbearing", "<control>L" }, nullptr, FF::LegacyCallbacks, MID_SetLBearing },
     { { N_("Set _RBearing..."), "metricssetrbearing", "<control>R" }, nullptr, FF::LegacyCallbacks, MID_SetRBearing },
-    { { N_("Set Both Bearings..."), "menuempty", "" }, nullptr, FF::LegacyCallbacks, MID_SetBearings },
+    { { N_("Set Both Bearings..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_SetBearings },
     FF::kMenuSeparator,
     { { N_("Set _Vertical Advance..."), "metricssetvwidth", "" }, nullptr, FF::LegacyCallbacks, MID_SetVWidth },
     FF::kMenuSeparator,
@@ -494,7 +525,7 @@ std::vector<FF::MenuInfo> metrics_menu = {
 
 std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("_File") }, &file_menu, -1 },
-    { { N_("_Edit") }, &dummy_edit_menu, -1 },
+    { { N_("_Edit") }, &edit_menu, -1 },
     { { N_("E_lement") }, &element_menu, -1 },
 #ifndef _NO_PYTHON
     { { N_("_Tools") }, &tools_menu, -1 },

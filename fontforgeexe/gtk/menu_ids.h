@@ -157,6 +157,7 @@
 #define	MID_CopyLookupData	2135
 #define MID_CopyL2L	2136
 #define MID_CorrectRefs	2137
+#define MID_FindReplace	2138
 
 #define MID_SelectAll		2140
 #define MID_SelectInvert	2141
