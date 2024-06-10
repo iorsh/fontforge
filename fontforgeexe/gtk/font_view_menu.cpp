@@ -223,6 +223,15 @@ std::vector<FF::MenuInfo> select_menu = {
     { { N_("Selec_t By Lookup Subtable..."), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectByPST> }, 0 },
 };
 
+std::vector<FF::MenuInfo> copy_menu = {
+    { { N_("_All Fonts"), FF::CopyFrom, "" }, nullptr, FF::LegacyCallbacks, MID_AllFonts },
+    { { N_("_Displayed Font"), FF::CopyFrom, "" }, nullptr, FF::LegacyCallbacks, MID_DisplayedFont },
+    FF::kMenuSeparator,
+    { { N_("Glyph _Metadata"), FF::Checkable, "" }, nullptr, FF::LegacyCallbacks, MID_CharName },
+    FF::kMenuSeparator,
+    { { N_("_TrueType Instructions"), FF::Checkable, "" }, nullptr, FF::LegacyCallbacks, MID_TTFInstr },
+};
+
 std::vector<FF::MenuInfo> edit_menu = {
     { { N_("_Undo"), "editundo", "<control>Z" }, nullptr, FF::LegacyCallbacks, MID_Undo },
     { { N_("_Redo"), "editredo", "<control>Y" }, nullptr, FF::LegacyCallbacks, MID_Redo},
@@ -253,7 +262,7 @@ std::vector<FF::MenuInfo> edit_menu = {
     FF::kMenuSeparator,
     { { N_("U_nlink Reference"), "editunlink", "<control>U" }, nullptr, FF::LegacyCallbacks, MID_UnlinkRef },
     FF::kMenuSeparator,
-    { { N_("Copy _From"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+    { { N_("Copy _From"), FF::NonCheckable, "" }, &copy_menu, FF::SubMenuCallbacks, 0 },
     FF::kMenuSeparator,
     { { N_("Remo_ve Undoes"), "editrmundoes", "" }, nullptr, FF::LegacyCallbacks, MID_RemoveUndoes },
 };
