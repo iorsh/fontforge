@@ -2072,10 +2072,9 @@ static void FVSelectColor(FontView *fv, uint32_t col, int merge) {
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
-static void FVMenuSelectColor(GWindow gw, struct gmenuitem *mi, GEvent *e) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-    Color col = (Color) (intptr_t) (mi->ti.userdata);
-    if ( (intptr_t) mi->ti.userdata == (intptr_t) -10 ) {
+static void FVMenuSelectColor(FontView *fv, intptr_t extended_col, enum merge_type merge) {
+    Color col = (Color)extended_col;
+    if ( extended_col == (intptr_t) -10 ) {
 	struct hslrgb retcol, font_cols[6];
 	retcol = GWidgetColor(_("Pick a color"),NULL,SFFontCols(fv->b.sf,font_cols));
 	if ( !retcol.rgb )
@@ -2084,7 +2083,7 @@ return;
 		    (((int) rint(255.*retcol.g))<<8 ) |
 		    (((int) rint(255.*retcol.b)) );
     }
-    FVSelectColor(fv,col,SelMergeType(e));
+    FVSelectColor(fv,col,merge);
 }
 
 static int FVSelectByName(FontView *fv, char *ret, int merge) {
@@ -4357,7 +4356,6 @@ static GMenuItem2 cflist[] = {
     { { (unichar_t *) N_("_TrueType Instructions"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 1, 0, 0, 0, 1, 1, 0, 'N' }, H_("TrueType Instructions|No Shortcut"), NULL, NULL, FVMenuCopyFrom, MID_TTFInstr },
     GMENUITEM2_EMPTY
 };
-#endif
 
 static GMenuItem2 sclist[] = {
     { { (unichar_t *) N_("Color|Choose..."), (GImage *)"colorwheel.png", COLOR_DEFAULT, COLOR_DEFAULT, (void *) -10, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("Choose...|No Shortcut"), NULL, NULL, FVMenuSelectColor, 0 },
@@ -4372,7 +4370,6 @@ static GMenuItem2 sclist[] = {
     GMENUITEM2_EMPTY
 };
 
-#if 0
 static GMenuItem2 sllist[] = {
     { { (unichar_t *) N_("Select _All"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'A' }, H_("Select All|No Shortcut"), NULL, NULL, FVMenuSelectAll, 0 },
     { { (unichar_t *) N_("_Invert Selection"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'I' }, H_("Invert Selection|No Shortcut"), NULL, NULL, FVMenuInvertSelection, 0 },
@@ -7427,6 +7424,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context->py_check = fvpy_check;
     fv_context->run_autotrace = (void (*)(FontView*, bool))FVAutoTrace;
     fv_context->set_color = FVMenuSetColor;
+    fv_context->select_color = FVMenuSelectColor;
     fv_context->actions = fvpopupactions;
     fv_context->select_actions = fv_selmenu_actions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);

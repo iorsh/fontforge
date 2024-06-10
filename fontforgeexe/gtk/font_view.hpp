@@ -46,4 +46,6 @@ extern std::vector<FF::MenuInfo> popup_menu;
 
 Gtk::Window* create_view(FVContext** p_fv_context, int width, int height);
 
+enum merge_type SelMergeType(bool shift_pressed, bool ctrl_pressed);
+
 }

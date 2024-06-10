@@ -66,7 +66,7 @@ FF::CheckedCB FontViewUiContext::get_checked_cb(int mid) const {
    }
 }
 
-static enum merge_type SelMergeType(bool shift_pressed, bool ctrl_pressed) {
+enum merge_type SelMergeType(bool shift_pressed, bool ctrl_pressed) {
     if (!shift_pressed && !ctrl_pressed) {
 	return mt_set;
     }

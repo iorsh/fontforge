@@ -185,6 +185,19 @@ void set_color(const FF::UiContext& ui_context) {
     fv_context->set_color(fv_context->fv, C);
 }
 
+template<intptr_t C>
+void select_color(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+
+   // Decide selection merge type from keyboard state
+   bool shift_pressed = gtk_get_keyboard_state() & Gdk::ModifierType::SHIFT_MASK;
+   bool ctrl_pressed = gtk_get_keyboard_state() & Gdk::ModifierType::CONTROL_MASK;
+   enum merge_type merge = SelMergeType(shift_pressed, ctrl_pressed);
+
+   fv_context->select_color(fv_context->fv, C, merge);
+}
+
 template<int MID>
 void legacy_select_action(const FF::UiContext& ui_context) {
     const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
@@ -199,12 +212,24 @@ std::vector<FF::MenuInfo> file_menu = {
 
 ////////////////////////////////// EDIT MENUS /////////////////////////////////////////
 
+std::vector<FF::MenuInfo> select_color_menu = {
+    { { N_("Color|Choose..."), "colorwheel", "" }, nullptr, { select_color<-10> }, 0 },
+    { { N_("Color|Default"), Gdk::RGBA("00000000"), "" }, nullptr, { select_color<COLOR_DEFAULT> }, 0 },
+    { { "White", Gdk::RGBA("white"), "" }, nullptr, { select_color<0xffffff> }, 0 },
+    { { "Red", Gdk::RGBA("red"), "" }, nullptr, { select_color<0xff0000> }, 0 },
+    { { "Green", Gdk::RGBA("green"), "" }, nullptr, { select_color<0x00ff00> }, 0 },
+    { { "Blue", Gdk::RGBA("blue"), "" }, nullptr, { select_color<0x0000ff> }, 0 },
+    { { "Yellow", Gdk::RGBA("yellow"), "" }, nullptr, { select_color<0xffff00> }, 0 },
+    { { "Cyan", Gdk::RGBA("cyan"), "" }, nullptr, { select_color<0x00ffff> }, 0 },
+    { { "Magenta", Gdk::RGBA("magenta"), "" }, nullptr, { select_color<0xff00ff> }, 0 },
+};
+
 std::vector<FF::MenuInfo> select_menu = {
     { { N_("Select _All"), FF::NonCheckable, "<control>A" }, nullptr, { legacy_select_action<MID_SelectAll> }, 0 },
     { { N_("_Invert Selection"), FF::NonCheckable, "<control>Escape" }, nullptr, { legacy_select_action<MID_SelectInvert> }, 0 },
     { { N_("_Deselect All"), FF::NonCheckable, "Escape" }, nullptr, { legacy_select_action<MID_DeselectAll> }, 0 },
     FF::kMenuSeparator,
-    { { N_("Select by _Color"), FF::NonCheckable, "" }, nullptr, FF::SubMenuCallbacks, 0 },
+    { { N_("Select by _Color"), FF::NonCheckable, "" }, &select_color_menu, FF::SubMenuCallbacks, 0 },
     { { N_("Select by _Wildcard..."), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectByName> }, 0 },
     { { N_("Select by _Script..."), FF::NonCheckable, "" }, nullptr, { legacy_select_action<MID_SelectByScript> }, 0 },
     FF::kMenuSeparator,
