@@ -128,6 +128,22 @@
 #define MID_GenerateTTC 2709
 #define MID_OpenMetrics	2710
 #define MID_ClearSpecialData 2711
+#define MID_New		2720
+#define MID_Open	2721
+#define MID_Close	2722
+#define MID_Save	2723
+#define MID_SaveAs	2724
+#define MID_SaveAll	2725
+#define MID_Generate	2726
+#define MID_GenerateMac	2727
+#define MID_Import	2728
+#define MID_MergeFeature	2729
+#define MID_Execute	2730
+#define MID_Preferences	2731
+#define MID_Appearance	2732
+#define MID_ConfigPlugins	2733
+#define MID_Quit	2734
+
 #define MID_Cut		2101
 #define MID_Copy	2102
 #define MID_Paste	2103

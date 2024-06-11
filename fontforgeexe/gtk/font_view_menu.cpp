@@ -203,8 +203,51 @@ void legacy_select_action(const FF::UiContext& ui_context) {
     select_action(ui_context);
 }
 
+////////////////////////////////// FILE MENUS /////////////////////////////////////////
+
 std::vector<FF::MenuInfo> file_menu = {
-    { { N_("_New"), FF::NonCheckable, "<control>u" }, nullptr, FF::LegacyCallbacks, MID_OpenOutline },
+    { { N_("Font|_New"), "filenew", "" }, nullptr, FF::LegacyCallbacks, MID_New },
+#if HANYANG
+    { { N_("_Hangul"), FF::NonCheckable, "" }, NULL, FF::SubMenuCallbacks, 0 },
+#endif
+    { { N_("_Open"), "fileopen", "" }, nullptr, FF::LegacyCallbacks, MID_Open },
+    { { N_("Recen_t"), "filerecent", "" }, NULL, FF::LegacyCallbacks, MID_Recent },
+    { { N_("_Close"), "fileclose", "" }, nullptr, FF::LegacyCallbacks, MID_Close },
+    FF::kMenuSeparator,
+    { { N_("_Save"), "filesave", "" }, nullptr, FF::LegacyCallbacks, MID_Save },
+    { { N_("S_ave as..."), "filesaveas", "" }, nullptr, FF::LegacyCallbacks, MID_SaveAs },
+    { { N_("Save A_ll"), "filesaveall", "" }, nullptr, FF::LegacyCallbacks, MID_SaveAll },
+    { { N_("_Generate Fonts..."), "filegenerate", "" }, nullptr, FF::LegacyCallbacks, MID_Generate },
+    { { N_("Generate Mac _Family..."), "filegeneratefamily", "" }, nullptr, FF::LegacyCallbacks, MID_GenerateMac },
+    { { N_("Generate TTC..."), "filegeneratefamily", "" }, nullptr, FF::LegacyCallbacks, MID_GenerateTTC },
+    FF::kMenuSeparator,
+    { { N_("_Import..."), "fileimport", "" }, nullptr, FF::LegacyCallbacks, MID_Import },
+    { { N_("_Merge Feature Info..."), "filemergefeature", "" }, nullptr, FF::LegacyCallbacks, MID_MergeFeature },
+    { { N_("_Revert File"), "filerevert", "" }, nullptr, FF::LegacyCallbacks, MID_Revert },
+    { { N_("Revert To _Backup"), "filerevertbackup", "" }, nullptr, FF::LegacyCallbacks, MID_RevertToBackup },
+    { { N_("Revert Gl_yph"), "filerevertglyph", "" }, nullptr, FF::LegacyCallbacks, MID_RevertGlyph },
+    { { N_("Clear Special Data"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ClearSpecialData },
+    FF::kMenuSeparator,
+    { { N_("_Print..."), "fileprint", "" }, nullptr, FF::LegacyCallbacks, MID_Print },
+    FF::kMenuSeparator,
+#if !defined(_NO_PYTHON)
+    { { N_("E_xecute Script..."), "python", "" }, nullptr, FF::LegacyCallbacks, MID_Execute },
+#elif !defined(_NO_FFSCRIPT)
+    { { N_("E_xecute Script..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Execute },
+#endif
+#if !defined(_NO_FFSCRIPT)
+    { { N_("Script Menu"), "fileexecute", "" }, NULL, FF::LegacyCallbacks, MID_ScriptMenu },
+#endif
+#if !defined(_NO_FFSCRIPT) || !defined(_NO_PYTHON)
+    FF::kMenuSeparator,
+#endif
+    { { N_("Pr_eferences..."), "fileprefs", "" }, nullptr, FF::LegacyCallbacks, MID_Preferences },
+    { { N_("Appea_rance Editor..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Appearance },
+#ifndef _NO_PYTHON
+    { { N_("Config_ure Plugins..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ConfigPlugins },
+#endif
+    FF::kMenuSeparator,
+    { { N_("_Quit"), "filequit", "" }, nullptr, FF::LegacyCallbacks, MID_Quit },
 };
 
 ////////////////////////////////// EDIT MENUS /////////////////////////////////////////

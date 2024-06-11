@@ -588,21 +588,15 @@ int _FVMenuGenerate(FontView *fv,int family) {
 return( SFGenerateFont(fv->b.sf,fv->b.active_layer,family,fv->b.normal==NULL?fv->b.map:fv->b.normal) );
 }
 
-static void FVMenuGenerate(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuGenerate(FontView *fv, int UNUSED(mid)) {
     _FVMenuGenerate(fv,gf_none);
 }
 
-static void FVMenuGenerateFamily(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuGenerateFamily(FontView *fv, int UNUSED(mid)) {
     _FVMenuGenerate(fv,gf_macfamily);
 }
 
-static void FVMenuGenerateTTC(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuGenerateTTC(FontView *fv, int UNUSED(mid)) {
     _FVMenuGenerate(fv,gf_ttc);
 }
 
@@ -763,9 +757,7 @@ return( 0 );
 return( ok );
 }
 
-static void FVMenuSaveAs(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuSaveAs(FontView *fv, int UNUSED(mid)) {
     _FVMenuSaveAs(fv);
 }
 
@@ -796,8 +788,7 @@ int _FVMenuSave(FontView *fv) {
 return( ret );
 }
 
-static void FVMenuSave(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuSave(FontView *fv, int UNUSED(mid)) {
     _FVMenuSave(fv);
 }
 
@@ -930,9 +921,11 @@ void MenuNew(GWindow UNUSED(gw), struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)
     FontNew();
 }
 
-static void FVMenuClose(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+void FVMenuNew(FontView *UNUSED(fv), int UNUSED(mid)) {
+    FontNew();
+}
 
+static void FVMenuClose(FontView *fv, int UNUSED(mid)) {
     if ( fv->b.container )
 	(fv->b.container->funcs->doClose)(fv->b.container);
     else
@@ -973,23 +966,19 @@ static void FV_ReattachCVs(SplineFont *old,SplineFont *new) {
     }
 }
 
-static void FVMenuRevert(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontViewBase *fv = (FontViewBase *) GDrawGetUserData(gw);
-    FVRevert(fv);
+static void FVMenuRevert(FontView *fv, int UNUSED(mid)) {
+    FVRevert((FontViewBase *) fv);
 }
 
-static void FVMenuRevertBackup(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontViewBase *fv = (FontViewBase *) GDrawGetUserData(gw);
-    FVRevertBackup(fv);
+static void FVMenuRevertBackup(FontView *fv, int UNUSED(mid)) {
+    FVRevertBackup((FontViewBase *) fv);
 }
 
-static void FVMenuRevertGlyph(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuRevertGlyph(FontView *fv, int UNUSED(mid)) {
     FVRevertGlyph((FontViewBase *) fv);
 }
 
-static void FVMenuClearSpecialData(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuClearSpecialData(FontView *fv, int UNUSED(mid)) {
     FVClearSpecialData((FontViewBase *) fv);
 }
 
@@ -997,8 +986,20 @@ void MenuPrefs(GWindow UNUSED(base), struct gmenuitem *UNUSED(mi), GEvent *UNUSE
     DoPrefs();
 }
 
+void FVMenuPrefs(FontView *UNUSED(fv), int UNUSED(mid)) {
+    DoPrefs();
+}
+
 void MenuXRes(GWindow UNUSED(base), struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
     DoXRes();
+}
+
+void FVMenuXRes(FontView *UNUSED(fv), int UNUSED(mid)) {
+    DoXRes();
+}
+
+static void FVMenuPlug(FontView *UNUSED(fv), int UNUSED(mid)) {
+    MenuPlug(NULL, NULL, NULL);
 }
 
 void MenuSaveAll(GWindow UNUSED(base), struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
@@ -1008,6 +1009,10 @@ void MenuSaveAll(GWindow UNUSED(base), struct gmenuitem *UNUSED(mi), GEvent *UNU
 	if ( SFAnyChanged(fv->b.sf) && !_FVMenuSave(fv))
 return;
     }
+}
+
+void FVMenuSaveAll(FontView *UNUSED(fv), int UNUSED(mid)) {
+    MenuSaveAll(NULL, NULL, NULL);
 }
 
 static void _MenuExit(void *UNUSED(junk)) {
@@ -1035,7 +1040,7 @@ static void _MenuExit(void *UNUSED(junk)) {
     exit(0);
 }
 
-static void FVMenuExit(GWindow UNUSED(base), struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
+static void FVMenuExit(FontView *UNUSED(fv), int UNUSED(mid)) {
     _MenuExit(NULL);
 }
 
@@ -1236,8 +1241,7 @@ void MergeKernInfo(SplineFont *sf,EncMap *map) {
 
 }
 
-static void FVMenuMergeKern(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuMergeKern(FontView *fv, int UNUSED(mid)) {
     MergeKernInfo(fv->b.sf,fv->b.map);
 }
 
@@ -1308,8 +1312,7 @@ void _FVMenuOpen(FontView *fv) {
     }
 }
 
-static void FVMenuOpen(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView*) GDrawGetUserData(gw);
+static void FVMenuOpen(FontView *fv, int UNUSED(mid)) {
     _FVMenuOpen(fv);
 }
 
@@ -1333,8 +1336,7 @@ void MenuAbout(GWindow UNUSED(base), struct gmenuitem *UNUSED(mi), GEvent *UNUSE
     ShowAboutScreen();
 }
 
-static void FVMenuImport(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static void FVMenuImport(FontView *fv, int UNUSED(mid)) {
     int empty = fv->b.sf->onlybitmaps && fv->b.sf->bitmaps==NULL;
     BDFFont *bdf;
     FVImport(fv);
@@ -1405,18 +1407,14 @@ return;
     MetricsViewCreate(fv,NULL,fv->filled==fv->show?NULL:fv->show);
 }
 
-static void FVMenuPrint(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuPrint(FontView *fv, int UNUSED(mid)) {
     if ( fv->b.container!=NULL && fv->b.container->funcs->is_modal )
 return;
     PrintFFDlg(fv,NULL,NULL);
 }
 
 #if !defined(_NO_FFSCRIPT) || !defined(_NO_PYTHON)
-static void FVMenuExecute(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
-
+static void FVMenuExecute(FontView *fv, int UNUSED(mid)) {
     ScriptDlg(fv,NULL);
 }
 #endif
@@ -3939,27 +3937,26 @@ static bool htlistcheck(FontView *fv, int mid) {
    return false;
 }
 
-static void fllistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
-    FontView *fv = (FontView *) GDrawGetUserData(gw);
+static bool fllistcheck(FontView *fv, int mid) {
     int anychars = FVAnyCharSelected(fv);
     FontView *fvs;
     int in_modal = (fv->b.container!=NULL && fv->b.container->funcs->is_modal);
+    bool disabled = false;
 
-    for ( mi = mi->sub; mi->ti.text!=NULL || mi->ti.line ; ++mi ) {
-	switch ( mi->mid ) {
+	switch ( mid ) {
 	  case MID_GenerateTTC:
 	    for ( fvs=fv_list; fvs!=NULL; fvs=(FontView *) (fvs->b.next) ) {
 		if ( fvs!=fv )
 	    break;
 	    }
-	    mi->ti.disabled = fvs==NULL;
+	    disabled = fvs==NULL;
 	  break;
 	  case MID_Revert:
-	    mi->ti.disabled = fv->b.sf->origname==NULL || fv->b.sf->_new;
+	    disabled = fv->b.sf->origname==NULL || fv->b.sf->_new;
 	  break;
 	  case MID_RevertToBackup:
 	    /* We really do want to use filename here and origname above */
-	    mi->ti.disabled = true;
+	    disabled = true;
 	    if ( fv->b.sf->filename!=NULL ) {
 		if ( fv->b.sf->backedup == bs_dontknow ) {
 		    char *buf = malloc(strlen(fv->b.sf->filename)+20);
@@ -3974,23 +3971,23 @@ static void fllistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
 		    free(buf);
 		}
 		if ( fv->b.sf->backedup == bs_backedup )
-		    mi->ti.disabled = false;
+		    disabled = false;
 	    }
 	  break;
 	  case MID_RevertGlyph:
-	    mi->ti.disabled = fv->b.sf->origname==NULL || fv->b.sf->sfd_version<2 || anychars==-1 || fv->b.sf->compression!=0;
+	    disabled = fv->b.sf->origname==NULL || fv->b.sf->sfd_version<2 || anychars==-1 || fv->b.sf->compression!=0;
 	  break;
 	  case MID_Recent:
-	    mi->ti.disabled = !RecentFilesAny();
+	    disabled = !RecentFilesAny();
 	  break;
 	  case MID_ScriptMenu:
-	    mi->ti.disabled = script_menu_names[0]==NULL;
+	    disabled = script_menu_names[0]==NULL;
 	  break;
 	  case MID_Print:
-	    mi->ti.disabled = fv->b.sf->onlybitmaps || in_modal;
+	    disabled = fv->b.sf->onlybitmaps || in_modal;
 	  break;
 	}
-    }
+    return disabled;
 }
 
 static bool edlistcheck(FontView *fv, int mid) {
@@ -4296,6 +4293,7 @@ static bool infolistcheck(FontView *fv, int mid) {
     return disabled;
 }
 
+#if 0
 static GMenuItem2 dummyitem[] = {
     { { (unichar_t *) N_("Font|_New"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'N' }, NULL, NULL, NULL, NULL, 0 },
     GMENUITEM2_EMPTY
@@ -4348,7 +4346,6 @@ static GMenuItem2 fllist[] = {
     GMENUITEM2_EMPTY
 };
 
-#if 0
 static GMenuItem2 cflist[] = {
     { { (unichar_t *) N_("_All Fonts"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 1, 0, 0, 0, 1, 1, 0, 'A' }, H_("All Fonts|No Shortcut"), NULL, NULL, FVMenuCopyFrom, MID_AllFonts },
     { { (unichar_t *) N_("_Displayed Font"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 1, 0, 0, 0, 1, 1, 0, 'D' }, H_("Displayed Font|No Shortcut"), NULL, NULL, FVMenuCopyFrom, MID_DisplayedFont },
@@ -5709,6 +5706,41 @@ FVMenuAction fvpopupactions[] = {
     { MID_CharName, NULL, cflistcheck, FVMenuCopyFrom },
     { MID_TTFInstr, NULL, cflistcheck, FVMenuCopyFrom },
 
+    /* File menu */
+    { MID_New, NULL, NULL, FVMenuNew },
+    { MID_Open, NULL, NULL, FVMenuOpen },
+    { MID_Recent, fllistcheck, NULL, NULL },
+    { MID_Close, NULL, NULL, FVMenuClose },
+    { MID_Save, NULL, NULL, FVMenuSave },
+    { MID_SaveAs, NULL, NULL, FVMenuSaveAs },
+    { MID_SaveAll, NULL, NULL, FVMenuSaveAll },
+    { MID_Generate, NULL, NULL, FVMenuGenerate },
+    { MID_GenerateMac, NULL, NULL, FVMenuGenerateFamily },
+    { MID_GenerateTTC, fllistcheck, NULL, FVMenuGenerateTTC },
+    { MID_Import, NULL, NULL, FVMenuImport },
+    { MID_MergeFeature, NULL, NULL, FVMenuMergeKern },
+    { MID_Revert, fllistcheck, NULL, FVMenuRevert },
+    { MID_RevertToBackup, fllistcheck, NULL, FVMenuRevertBackup },
+    { MID_RevertGlyph, fllistcheck, NULL, FVMenuRevertGlyph },
+    { MID_ClearSpecialData, NULL, NULL, FVMenuClearSpecialData },
+    { MID_Print, fllistcheck, NULL, FVMenuPrint },
+#if !defined(_NO_PYTHON)
+    { MID_Execute, NULL, NULL, FVMenuExecute },
+#elif !defined(_NO_FFSCRIPT)
+    { MID_Execute, NULL, NULL, FVMenuExecute },
+#endif
+#if !defined(_NO_FFSCRIPT)
+    { MID_ScriptMenu, fllistcheck, NULL, NULL },
+#endif
+#if !defined(_NO_FFSCRIPT) || !defined(_NO_PYTHON)
+#endif
+    { MID_Preferences, NULL, NULL, FVMenuPrefs },
+    { MID_Appearance, NULL, NULL, FVMenuXRes },
+#ifndef _NO_PYTHON
+    { MID_ConfigPlugins, NULL, NULL, FVMenuPlug },
+#endif
+    { MID_Quit, NULL, NULL, FVMenuExit },
+
     MENUACTION_LAST
 };
 
@@ -5733,8 +5765,8 @@ FVSelectMenuAction fv_selmenu_actions[] = {
 };
 
 static GMenuItem2 mblist[] = {
-    { { (unichar_t *) N_("_File"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'F' }, H_("File|No Shortcut"), fllist, fllistcheck, NULL, 0 },
 /*
+    { { (unichar_t *) N_("_File"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'F' }, H_("File|No Shortcut"), fllist, fllistcheck, NULL, 0 },
     { { (unichar_t *) N_("_Edit"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'E' }, H_("Edit|No Shortcut"), edlist, edlistcheck, NULL, 0 },
     { { (unichar_t *) N_("E_lement"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'l' }, H_("Element|No Shortcut"), ellist, ellistcheck, NULL, 0 },
 #ifndef _NO_PYTHON
@@ -7009,7 +7041,7 @@ return( GGadgetDispatchEvent(fv->vsb,event));
 	    (fv->b.container->funcs->activateMe)(fv->b.container,&fv->b);
       break;
       case et_close:
-	FVMenuClose(gw,NULL,NULL);
+	FVMenuClose(fv,0);
       break;
       case et_create:
 	fv->b.next = (FontViewBase *) fv_list;
