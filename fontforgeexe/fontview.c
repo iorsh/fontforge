@@ -1675,6 +1675,7 @@ const uint8_t mergefunc[] = {
 	0, 1,
 };
 
+#if 0
 static enum merge_type SelMergeType(GEvent *e) {
     if ( e==NULL || e->type!=et_mouseup )
 return( mt_set );
@@ -1682,6 +1683,7 @@ return( mt_set );
 return( ((e->u.mouse.state&ksm_shift)?mt_merge:0) |
 	((e->u.mouse.state&ksm_control)?mt_restrict:0) );
 }
+#endif
 
 static char *SubMatch(char *pattern, char *eop, char *name,int ignorecase) {
     char ch, *ppt, *npt, *ept, *eon;
