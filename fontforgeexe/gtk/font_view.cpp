@@ -66,7 +66,11 @@ FF::CheckedCB FontViewUiContext::get_checked_cb(int mid) const {
    }
 }
 
-enum merge_type SelMergeType(bool shift_pressed, bool ctrl_pressed) {
+// Decide selection merge type from keyboard state
+enum merge_type SelMergeType() {
+    bool shift_pressed = gtk_get_keyboard_state() & Gdk::ModifierType::SHIFT_MASK;
+    bool ctrl_pressed = gtk_get_keyboard_state() & Gdk::ModifierType::CONTROL_MASK;
+
     if (!shift_pressed && !ctrl_pressed) {
 	return mt_set;
     }
@@ -78,10 +82,7 @@ enum merge_type SelMergeType(bool shift_pressed, bool ctrl_pressed) {
 FF::ActivateCB FontViewUiContext::get_activate_select_cb(int mid) const {
    FVSelectMenuAction* callback_set = FF::find_legacy_callback_set(mid, legacy_context->select_actions);
 
-   // Decide selection merge type from keyboard state
-   bool shift_pressed = gtk_get_keyboard_state() & Gdk::ModifierType::SHIFT_MASK;
-   bool ctrl_pressed = gtk_get_keyboard_state() & Gdk::ModifierType::CONTROL_MASK;
-   enum merge_type merge = SelMergeType(shift_pressed, ctrl_pressed);
+   enum merge_type merge = SelMergeType();
 
    if (callback_set != NULL && callback_set->action != NULL) {
       void (*action)(FontView*, enum merge_type) = callback_set->action;

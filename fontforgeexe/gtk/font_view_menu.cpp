@@ -190,10 +190,7 @@ void select_color(const FF::UiContext& ui_context) {
     const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
     FVContext* fv_context = fv_ui_context.get_legacy_context();
 
-   // Decide selection merge type from keyboard state
-   bool shift_pressed = gtk_get_keyboard_state() & Gdk::ModifierType::SHIFT_MASK;
-   bool ctrl_pressed = gtk_get_keyboard_state() & Gdk::ModifierType::CONTROL_MASK;
-   enum merge_type merge = SelMergeType(shift_pressed, ctrl_pressed);
+   enum merge_type merge = SelMergeType();
 
    fv_context->select_color(fv_context->fv, C, merge);
 }
