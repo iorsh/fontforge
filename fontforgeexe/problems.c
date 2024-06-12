@@ -45,6 +45,7 @@
 #include "tottfgpos.h"
 #include "ttf.h"
 #include "ustring.h"
+#include "gtk/font_view_shim.hpp"
 
 #include <math.h>
 
@@ -4793,8 +4794,7 @@ static void VWMenuSelect(GWindow gw,struct gmenuitem *mi,GEvent *e) {
 		(SCValidate(sc,vw->layer,true) & mask) )
 	    fv->b.selected[i] = true;
     }
-    GDrawSetVisible(fv->gw,true);
-    GDrawRaise(fv->gw);
+    gtk_raise_window(fv->gtk_window);
     GDrawRequestExpose(fv->v,NULL,false);
 }
 
