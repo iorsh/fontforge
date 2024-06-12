@@ -2713,8 +2713,6 @@ static void FVMenuInterpFonts(FontView *fv, int UNUSED(mid)) {
     FVInterpolateFonts(fv);
 }
 
-static void FVShowInfo(FontView *fv);
-
 void FVChangeChar(FontView *fv,int i) {
 
     if ( i!=-1 ) {
@@ -6317,7 +6315,7 @@ void FVDrawInfo(FontView *fv,GWindow pixmap, GEvent *event) {
     return;
 }
 
-static void FVShowInfo(FontView *fv) {
+void FVShowInfo(FontView *fv) {
     if (IsGTK(fv)) {
         GString* info = FVGetInfo(fv);
         fv_set_character_info(fv->gtk_window, info);

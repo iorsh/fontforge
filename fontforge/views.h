@@ -738,6 +738,7 @@ extern void FVDeselectAll(FontView *fv);
 extern void FVAutoWidth2(FontView *fv);
 /*extern void FVAutoKern(FontView *fv);*/
 /*extern void FVAutoWidth(FontView *fv);*/
+extern void FVShowInfo(FontView *fv);
 
 extern void SC_MarkInstrDlgAsChanged(SplineChar *sc);
 
