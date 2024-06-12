@@ -31,6 +31,11 @@ void gtk_set_title(void* window, char* window_title, char* taskbar_title) {
    }
 }
 
+void gtk_raise_window(void* window) {
+   Gtk::Window* gtk_window = static_cast<Gtk::Window*>(window);
+   gtk_window->present();
+}
+
 GtkWidget* get_drawing_widget_c(void* window) {
    Gtk::Window* font_view_window = static_cast<Gtk::Window*>(window);
    Gtk::Widget* drawing_area = gtk_find_child(font_view_window, "CharGrid");

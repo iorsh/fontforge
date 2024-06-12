@@ -59,6 +59,7 @@
 #include "ustring.h"
 #include "utype.h"
 #include "wordlistparser.h"
+#include "gtk/font_view_shim.hpp"
 
 #include <locale.h>
 #include <math.h>
@@ -3851,8 +3852,7 @@ static void CVFakeMove(CharView *cv, GEvent *event) {
 
 static void CVDoFindInFontView(CharView *cv) {
     FVChangeChar((FontView *) (cv->b.fv),CVCurEnc(cv));
-    GDrawSetVisible(((FontView *) (cv->b.fv))->gw,true);
-    GDrawRaise(((FontView *) (cv->b.fv))->gw);
+    gtk_raise_window(((FontView *) (cv->b.fv))->gtk_window);
 }
 
 static uint16_t HaveModifiers = 0;
