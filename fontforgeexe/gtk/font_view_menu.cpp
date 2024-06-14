@@ -203,6 +203,10 @@ void legacy_select_action(const FF::UiContext& ui_context) {
     select_action(ui_context);
 }
 
+void close_window(const FF::UiContext& ui_context) {
+    ui_context.window_->close();
+}
+
 ////////////////////////////////// FILE MENUS /////////////////////////////////////////
 
 std::vector<FF::MenuInfo> file_menu = {
@@ -212,7 +216,7 @@ std::vector<FF::MenuInfo> file_menu = {
 #endif
     { { N_("_Open"), "fileopen", "" }, nullptr, FF::LegacyCallbacks, MID_Open },
     { { N_("Recen_t"), "filerecent", "" }, NULL, FF::LegacyCallbacks, MID_Recent },
-    { { N_("_Close"), "fileclose", "" }, nullptr, FF::LegacyCallbacks, MID_Close },
+    { { N_("_Close"), "fileclose", "" }, nullptr, { close_window }, MID_Close },
     FF::kMenuSeparator,
     { { N_("_Save"), "filesave", "" }, nullptr, FF::LegacyCallbacks, MID_Save },
     { { N_("S_ave as..."), "filesaveas", "" }, nullptr, FF::LegacyCallbacks, MID_SaveAs },

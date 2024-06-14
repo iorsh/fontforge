@@ -19,6 +19,7 @@
 #include "application.hpp"
 #include "font_view_shim.hpp"
 #include "menu_builder.hpp"
+#include "menu_ids.h"
 #include "utils.hpp"
 
 namespace FontViewNS {
@@ -172,7 +173,9 @@ Gtk::Window* create_view(FVContext** p_fv_context, int width, int height) {
    font_view_window->set_default_size(width, height);
 
    font_view_window->signal_delete_event().connect(
-      [font_view_window](GdkEventAny* event){
+      [font_view_window, fv_ui_context](GdkEventAny* event){
+	 auto legacy_close_cb = fv_ui_context->get_activate_cb(MID_Close);
+	 legacy_close_cb(*fv_ui_context);
          FF::remove_top_view(*font_view_window);
          return false;
       });

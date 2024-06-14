@@ -141,6 +141,9 @@ int default_fv_showhmetrics=false, default_fv_showvmetrics=false,
 	default_fv_glyphlabel = gl_glyph;
 FontView *fv_list=NULL;
 
+bool IsGTK(FontView *fv){
+   return (fv->gtk_window != NULL);
+}
 
 static void FV_ToggleCharChanged(SplineChar *sc) {
     int i, j;
@@ -913,7 +916,18 @@ return(false);
 	RecentFilesRemember(sf->filename);
     else if ( sf->origname!=NULL )
 	RecentFilesRemember(sf->origname);
-    GDrawDestroyWindow(fv->gw);
+
+    if ( fv->qg!=NULL )
+	QGRmFontView(fv->qg,fv);
+
+    if (fv->gw) {
+    	GDrawDestroyWindow(fv->gw);
+    } else if (IsGTK(fv)) {
+    	GDrawDestroyWindow(fv->v);
+    }
+
+    FontViewRemove(fv);
+
 return( true );
 }
 
@@ -1490,10 +1504,6 @@ static void FVMenuOblique(FontView *fv, int UNUSED(mid)) {
 
 static void FVMenuCondense(FontView *fv, int UNUSED(mid)) {
     CondenseExtendDlg(fv,NULL);
-}
-
-bool IsGTK(FontView *fv){
-   return (fv->gtk_window != NULL);
 }
 
 /* returns -1 if nothing selected, if exactly one char return it, -2 if more than one */
@@ -3490,7 +3500,7 @@ static void FontViewSetTitle(FontView *fv) {
     char *enc;
     int len;
 
-    if ( fv->gw==NULL )		/* In scripting */
+    if ( fv->gtk_window==NULL )		/* In scripting */
 return;
 
     enc = SFEncodingName(fv->b.sf,fv->b.normal?fv->b.normal:fv->b.map);
@@ -3519,7 +3529,6 @@ return;
     strcat(title, ")" );
     free(enc);
 
-    GDrawSetWindowTitles8(fv->gw,title,fv->b.sf->fontname);
     gtk_set_title(fv->gtk_window, title, fv->b.sf->fontname);
     free(title);
 }
@@ -3638,8 +3647,8 @@ return;
     if ( new->fv == &fv->b )		/* Already part of us */
 return;
     if ( new->fv != NULL ) {
-	if ( ((FontView *) (new->fv))->gw!=NULL )
-	    GDrawRaise( ((FontView *) (new->fv))->gw);
+	if ( ((FontView *) (new->fv))->gtk_window!=NULL )
+	    gtk_raise_window( ((FontView *) (new->fv))->gtk_window);
 	ff_post_error(_("Please close font"),_("Please close %s before inserting it into a CID font"),new->origname);
 return;
     }
@@ -6893,6 +6902,11 @@ return( GGadgetDispatchEvent(fv->vsb,event));
 	if ( event->u.focus.gained_focus )
 	    GDrawSetGIC(gw,fv->gic,0,20);
       break;
+      case et_create:
+        // This is called upon creation of Gtk::DrawingArea object for character grid
+	fv->b.next = (FontViewBase *) fv_list;
+	fv_list = fv;
+      break;
       default: break;
     }
 return( true );
@@ -6986,6 +7000,7 @@ void FontViewRemove(FontView *fv) {
 extern int osx_fontview_copy_cut_counter;
 #endif
 
+#if 0
 static FontView* ActiveFontView = 0;
 
 static int fv_e_h(GWindow gw, GEvent *event) {
@@ -7053,6 +7068,7 @@ return( GGadgetDispatchEvent(fv->vsb,event));
     }
 return( true );
 }
+#endif
 
 static void FontViewOpenKids(FontView *fv) {
     int k, i;
@@ -7369,9 +7385,11 @@ static void FVCreateInnards(FontView *fv,GRect *pos) {
     GDrawSetWindowTypeName(fv->v, "FontView");
 
     fv->gic   = GDrawCreateInputContext(fv->v,gic_root|gic_orlesser);
-    fv->gwgic = GDrawCreateInputContext(fv->gw,gic_root|gic_orlesser);
     GDrawSetGIC(fv->v,fv->gic,0,20);
-    GDrawSetGIC(fv->gw,fv->gic,0,20);
+    if (!IsGTK(fv)) {
+        GDrawSetGIC(fv->gw,fv->gic,0,20);
+        fv->gwgic = GDrawCreateInputContext(fv->gw,gic_root|gic_orlesser);
+    }
 
     fv->fontset = calloc(_uni_fontmax,sizeof(GFont *));
     fv->fontset[0] = fv_font.fi;
@@ -7400,10 +7418,10 @@ static void FVCreateInnards(FontView *fv,GRect *pos) {
 static FontView *FontView_Create(SplineFont *sf, int hide) {
     FontView *fv = (FontView *) __FontViewCreate(sf);
     GRect pos;
-    GWindow gw;
+    // GWindow gw;
     GWindowAttrs wattrs;
-    GGadgetData gd;
-    GRect gsize;
+    // GGadgetData gd;
+    // GRect gsize;
     static GWindow icon = NULL;
     static int nexty=0;
     GRect size;
@@ -7431,7 +7449,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     nexty += 2*fv->cbh+50;
     if ( nexty+pos.height > size.height )
 	nexty = 0;
-    fv->gw = gw = GDrawCreateTopWindow(NULL,&pos,fv_e_h,fv,&wattrs);
+//     fv->gw = gw = GDrawCreateTopWindow(NULL,&pos,fv_e_h,fv,&wattrs);
 
     fv_context->fv = fv;
     fv_context->scroll_fontview_to_position_cb = FVScrollToPos;
@@ -7458,7 +7476,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
 
     FontViewSetTitle(fv);
-    GDrawSetWindowTypeName(fv->gw, "FontView");
+//     GDrawSetWindowTypeName(fv->gw, "FontView");
 
     if ( !fv_fs_init ) {
 	GResEditDoInit(&fontview_ri);
@@ -7466,6 +7484,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
 	fv_fs_init = true;
     }
 
+#if 0
     memset(&gd,0,sizeof(gd));
     gd.flags = gg_visible | gg_enabled;
     helplist[0].invoke = FVMenuContextualHelp;
@@ -7473,6 +7492,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv->mb = GMenu2BarCreate( gw, &gd, NULL);
     GGadgetGetSize(fv->mb,&gsize);
     fv->mbh = gsize.height;
+#endif
 
     // Reset this static here in case fv_font has changed
     FontRequest rq;
@@ -7486,7 +7506,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     FVCreateInnards(fv,&pos);
 
     if ( !hide ) {
-	GDrawSetVisible(gw,true);
+	// GDrawSetVisible(gw,true);
 	FontViewOpenKids(fv);
     }
 return( fv );
