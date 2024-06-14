@@ -174,10 +174,13 @@ Gtk::Window* create_view(FVContext** p_fv_context, int width, int height) {
 
    font_view_window->signal_delete_event().connect(
       [font_view_window, fv_ui_context](GdkEventAny* event){
-	 auto legacy_close_cb = fv_ui_context->get_activate_cb(MID_Close);
-	 legacy_close_cb(*fv_ui_context);
-         FF::remove_top_view(*font_view_window);
-         return false;
+	 auto legacy_close_cb = fv_ui_context->get_checked_cb(MID_Close);
+	 bool do_close = legacy_close_cb(*fv_ui_context);
+	 if (do_close) {
+             FF::remove_top_view(*font_view_window);
+	 }
+	 // Abort or continue closing action according to do_close value
+         return !do_close;
       });
 
    Gtk::Grid* char_grid_box = new Gtk::Grid();
