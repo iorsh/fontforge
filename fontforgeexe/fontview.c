@@ -6904,8 +6904,10 @@ return( GGadgetDispatchEvent(fv->vsb,event));
       break;
       case et_create:
         // This is called upon creation of Gtk::DrawingArea object for character grid
-	fv->b.next = (FontViewBase *) fv_list;
-	fv_list = fv;
+        if (IsGTK(fv)) {
+	  fv->b.next = (FontViewBase *) fv_list;
+	  fv_list = fv;
+	}
       break;
       default: break;
     }
