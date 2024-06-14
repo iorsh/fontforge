@@ -940,11 +940,13 @@ void FVMenuNew(FontView *UNUSED(fv), int UNUSED(mid)) {
     FontNew();
 }
 
-static void FVMenuClose(FontView *fv, int UNUSED(mid)) {
-    if ( fv->b.container )
+static bool FVMenuClose(FontView *fv, int UNUSED(mid)) {
+    if ( fv->b.container ) {
 	(fv->b.container->funcs->doClose)(fv->b.container);
+	return true;
+    }
     else
-	_FVMenuClose(fv);
+	return _FVMenuClose(fv);
 }
 
 static void FV_ReattachCVs(SplineFont *old,SplineFont *new) {
@@ -5115,7 +5117,8 @@ FVMenuAction fvpopupactions[] = {
     { MID_New, NULL, NULL, FVMenuNew },
     { MID_Open, NULL, NULL, FVMenuOpen },
     { MID_Recent, fllistcheck, NULL, NULL },
-    { MID_Close, NULL, NULL, FVMenuClose },
+    /* An abuse of API, as MID_Close callback is called explicitly and needs to return status */
+    { MID_Close, NULL, FVMenuClose, NULL },
     { MID_Save, NULL, NULL, FVMenuSave },
     { MID_SaveAs, NULL, NULL, FVMenuSaveAs },
     { MID_SaveAll, NULL, NULL, FVMenuSaveAll },
