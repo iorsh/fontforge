@@ -209,13 +209,17 @@ void close_window(const FF::UiContext& ui_context) {
 
 ////////////////////////////////// FILE MENUS /////////////////////////////////////////
 
+std::vector<FF::MenuInfo> recent_files_menu = {
+    FF::MenuInfo::CustomFVBlock(FF::recent_files),
+};
+
 std::vector<FF::MenuInfo> file_menu = {
     { { N_("Font|_New"), "filenew", "" }, nullptr, FF::LegacyCallbacks, MID_New },
 #if HANYANG
     { { N_("_Hangul"), FF::NonCheckable, "" }, NULL, FF::SubMenuCallbacks, 0 },
 #endif
     { { N_("_Open"), "fileopen", "" }, nullptr, FF::LegacyCallbacks, MID_Open },
-    { { N_("Recen_t"), "filerecent", "" }, NULL, FF::LegacyCallbacks, MID_Recent },
+    { { N_("Recen_t"), "filerecent", "" }, &recent_files_menu, FF::LegacyCallbacks, MID_Recent },
     { { N_("_Close"), "fileclose", "" }, nullptr, { close_window }, MID_Close },
     FF::kMenuSeparator,
     { { N_("_Save"), "filesave", "" }, nullptr, FF::LegacyCallbacks, MID_Save },

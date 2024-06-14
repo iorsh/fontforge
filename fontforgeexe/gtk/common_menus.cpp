@@ -30,6 +30,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common_menus.hpp"
 
+#include <filesystem>
 #include <glib/gi18n.h>
 
 #include "font_view.hpp"
@@ -121,6 +122,28 @@ std::vector<FF::MenuInfo> python_tools(const FF::UiContext& ui_context) {
     }
 
     return tools_menu;
+}
+
+std::vector<FF::MenuInfo> recent_files(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+    char** recent_files_array = nullptr;
+    int n_recent = fv_context->collect_recent_files(&recent_files_array);
+    std::vector<FF::MenuInfo> info_arr;
+
+    for (int i = 0; i < n_recent; ++i) {
+	// Pointer to persistent memory
+        const char* file_path = recent_files_array[i];
+
+        FF::ActivateCB action = [show_font = fv_context->show_font, file_path](const FF::UiContext&){
+            show_font(file_path, 0);
+        };
+	std::string label = std::filesystem::path(file_path).filename().string();
+
+        FF::MenuInfo info{ { label.c_str(), FF::NonCheckable, "" }, nullptr, { action, FF::AlwaysEnabled, FF::NotCheckable }, 0 };
+        info_arr.push_back(info);
+    }
+    return info_arr;
 }
 
 }

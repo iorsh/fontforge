@@ -27,6 +27,7 @@ typedef struct _object PyObject;
 
 // C structures and callbacks for interacting with legacy code
 typedef struct fontview FontView;
+typedef struct fontviewbase FontViewBase;
 typedef struct bdffont BDFFont;
 typedef struct anchorclass AnchorClass;
 
@@ -142,6 +143,12 @@ typedef struct fontview_context {
 
    // Select glyph by color (legacy format 0xaarrggbb or -10 for color chooser)
    void (*select_color)(FontView *fv, intptr_t legacy_color, enum merge_type merge);
+
+   // Collect recent files
+   unsigned int (*collect_recent_files)(char*** recent_files_array);
+
+   // Show font
+   FontViewBase* (*show_font)(const char *filename, int openflags);
 
    // Menu actions per menu ID
    FVMenuAction* actions;
