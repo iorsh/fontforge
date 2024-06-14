@@ -76,6 +76,7 @@ enum selnames { sn_primary, sn_clipboard, sn_drag_and_drop, sn_user1, sn_user2, 
 typedef struct gwindow *GWindow;
 typedef struct gdisplay GDisplay;
 typedef struct gtimer GTimer;
+typedef struct _GtkWidget GtkWidget;
 
 enum keystate_mask { ksm_shift=1, ksm_capslock=2, ksm_control=4, ksm_meta=8,
 	ksm_cmdsuse=0x8,
