@@ -213,13 +213,17 @@ std::vector<FF::MenuInfo> recent_files_menu = {
     FF::MenuInfo::CustomFVBlock(FF::recent_files),
 };
 
+std::vector<FF::MenuInfo> legacy_scripts_menu = {
+    FF::MenuInfo::CustomFVBlock(FF::legacy_scripts),
+};
+
 std::vector<FF::MenuInfo> file_menu = {
     { { N_("Font|_New"), "filenew", "" }, nullptr, FF::LegacyCallbacks, MID_New },
 #if HANYANG
     { { N_("_Hangul"), FF::NonCheckable, "" }, NULL, FF::SubMenuCallbacks, 0 },
 #endif
     { { N_("_Open"), "fileopen", "" }, nullptr, FF::LegacyCallbacks, MID_Open },
-    { { N_("Recen_t"), "filerecent", "" }, &recent_files_menu, FF::LegacyCallbacks, MID_Recent },
+    { { N_("Recen_t"), "filerecent", "" }, &recent_files_menu, FF::LegacySubMenuCallbacks, MID_Recent },
     { { N_("_Close"), "fileclose", "" }, nullptr, { close_window }, MID_Close },
     FF::kMenuSeparator,
     { { N_("_Save"), "filesave", "" }, nullptr, FF::LegacyCallbacks, MID_Save },
@@ -244,7 +248,7 @@ std::vector<FF::MenuInfo> file_menu = {
     { { N_("E_xecute Script..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Execute },
 #endif
 #if !defined(_NO_FFSCRIPT)
-    { { N_("Script Menu"), "fileexecute", "" }, NULL, FF::LegacyCallbacks, MID_ScriptMenu },
+    { { N_("Script Menu"), "fileexecute", "" }, &legacy_scripts_menu, FF::LegacySubMenuCallbacks, MID_ScriptMenu },
 #endif
 #if !defined(_NO_FFSCRIPT) || !defined(_NO_PYTHON)
     FF::kMenuSeparator,

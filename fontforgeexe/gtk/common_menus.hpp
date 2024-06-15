@@ -63,4 +63,6 @@ std::vector<FF::MenuInfo> python_tools(const FF::UiContext& ui_context);
 
 std::vector<FF::MenuInfo> recent_files(const FF::UiContext& ui_context);
 
+std::vector<FF::MenuInfo> legacy_scripts(const FF::UiContext& ui_context);
+
 }
