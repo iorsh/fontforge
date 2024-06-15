@@ -217,10 +217,19 @@ std::vector<FF::MenuInfo> legacy_scripts_menu = {
     FF::MenuInfo::CustomFVBlock(FF::legacy_scripts),
 };
 
+#if HANYANG
+std::vector<FF::MenuInfo> hangul_menu = {
+    { { N_("_New Composition..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_NewComposition },
+    { { N_("_Modify Composition..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ModifyComposition },
+    FF::kMenuSeparator,
+    { { N_("_Build Syllables"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_BuildSyllables },
+};
+#endif
+
 std::vector<FF::MenuInfo> file_menu = {
     { { N_("Font|_New"), "filenew", "" }, nullptr, FF::LegacyCallbacks, MID_New },
 #if HANYANG
-    { { N_("_Hangul"), FF::NonCheckable, "" }, NULL, FF::SubMenuCallbacks, 0 },
+    { { N_("_Hangul"), FF::NonCheckable, "" }, &hangul_menu, FF::SubMenuCallbacks, 0 },
 #endif
     { { N_("_Open"), "fileopen", "" }, nullptr, FF::LegacyCallbacks, MID_Open },
     { { N_("Recen_t"), "filerecent", "" }, &recent_files_menu, FF::LegacySubMenuCallbacks, MID_Recent },

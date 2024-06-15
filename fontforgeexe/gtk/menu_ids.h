@@ -222,6 +222,7 @@
 #define MID_MMValid	2902
 #define MID_ChangeMMBlend	2903
 #define MID_BlendToNew	2904
+#define MID_NewComposition	20901
 #define MID_ModifyComposition	20902
 #define MID_BuildSyllables	20903
 
