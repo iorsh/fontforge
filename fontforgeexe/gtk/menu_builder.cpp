@@ -36,19 +36,18 @@ namespace FF {
 
 Gtk::RadioButtonGroup& get_grouper(RadioGroup g) {
     static std::map<RadioGroup, Gtk::RadioButtonGroup> grouper_map;
-
-    return grouper_map[g];
-}
-
-Gtk::RadioMenuItem& get_dummy_radio_item(RadioGroup g) {
     static std::map<RadioGroup, Gtk::RadioMenuItem> dummy_item_map;
 
+    auto& grouper = grouper_map[g];
+
+    // Sometimes none of the radio group items should be checked. GTK doesn't have this capability,
+    // so we create a predefined dummy item which absorbs the checked state when no other real
+    // item wants to be checked.
     if (!dummy_item_map.count(g)) {
-        Gtk::RadioButtonGroup& grouper = get_grouper(g);
         dummy_item_map[g] = Gtk::RadioMenuItem(grouper, "dummy", false);
     }
 
-    return dummy_item_map[g];
+    return grouper;
 }
 
 std::vector<FF::MenuInfo> expand_custom_blocks(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
@@ -64,50 +63,7 @@ std::vector<FF::MenuInfo> expand_custom_blocks(const std::vector<FF::MenuInfo>& 
    return expanded_info;
 }
 
-// Callable class which checks the correct item in a group of radio menu items
-class RadioCheckerCB {
-public:
-   RadioCheckerCB(const UiContext& ui_context, RadioGroup group,
-                  std::vector<std::pair<FF::MenuInfo, Gtk::RadioMenuItem*>> radio_info)
-   : group_(group) {
-      for (const auto& [menu_info, menu_item] : radio_info) {
-         CheckedCB checked_cb = menu_info.callbacks.checked ? menu_info.callbacks.checked : ui_context.get_checked_cb(menu_info.mid);
-         radio_items_.emplace_back(menu_item, checked_cb);
-      }
-   }
-
-   void operator()(const UiContext& ui_context) {
-      Gtk::RadioMenuItem* checked_item = nullptr;
-      for (const auto& [menu_item, checked_cb] : radio_items_) {
-         // The true state of the radio item is retrieved using checked_cb()
-         if (checked_cb(ui_context)) {
-            // This should be the only checked item in the group
-            checked_item = menu_item;
-
-            // Check if the true state is correctly reflected in the visible state.
-            bool visible_state = menu_item->get_active();
-            if (!visible_state) {
-                menu_item->set_active();
-            }
-
-            // No more checked items
-            break;
-         }
-      }
-
-      // Sometimes none of the radio group items should be checked. GTK doesn't have this capability,
-      // so we check the predefined dummy item which was added to this group in advance.
-      if (!checked_item) {
-         get_dummy_radio_item(group_).set_active();
-      }
-   }
-private:
-   RadioGroup group_;
-   std::vector<std::tuple<Gtk::RadioMenuItem*, CheckedCB>> radio_items_;
-};
-
-Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
-   Gtk::Menu* menu = new Gtk::Menu();
+void build_sub_menu(Gtk::Menu* menu, const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
    Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
 
    // If the menu contains custom block, we expand it before further processing
@@ -119,13 +75,8 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
    }
    const std::vector<FF::MenuInfo>& local_info = has_custom_blocks ? expanded_menu : info;
 
-   // GTK doesn't have any signal that would be fired before the specific
-   // subitem is shown. We collect enabled state checks for all subitems and
-   // call them one by one from menu's show event.
-   // These vectors in fact contain not boolean queries, but rather actions which call the queries.
-   std::vector<ActivateCB> enablers;
-   std::vector<ActivateCB> checkers;
-   std::map<RadioGroup, std::vector<std::pair<FF::MenuInfo, Gtk::RadioMenuItem*>>> radio_info;
+   // Clear existing menu items
+   menu->foreach([menu](Gtk::Widget& w){ menu->remove(w); });
 
    for (const auto& item : local_info) {
       Gtk::MenuItem* menu_item = nullptr;
@@ -143,9 +94,7 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
       } else if (item.label.decoration.has_group()) {
          RadioGroup group = item.label.decoration.group();
          Gtk::RadioButtonGroup& grouper = get_grouper(group);
-         Gtk::RadioMenuItem* radio_menu_item = new Gtk::RadioMenuItem(grouper, item.label.text, true);
-         radio_info[group].emplace_back(item, radio_menu_item);
-         menu_item = radio_menu_item;
+         menu_item = new Gtk::RadioMenuItem(grouper, item.label.text, true);
       } else if (item.label.decoration.checkable()) {
          menu_item = new Gtk::CheckMenuItem(item.label.text, true);
       } else if (item.label.decoration.named_icon()) {
@@ -165,20 +114,16 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
       }
 
       if (item.sub_menu) {
-         Gtk::Menu* submenu = build_menu(*item.sub_menu, ui_context);
+         Gtk::Menu* submenu = place_dynamic_menu(*item.sub_menu, ui_context);
          menu_item->set_submenu(*submenu);
       }
 
+      // Set enabled / disabled state from callback result
       EnabledCB enabled_check =
           item.label.decoration.comment() ? NeverEnabled
                                           : item.callbacks.enabled ? item.callbacks.enabled
 					                           : ui_context.get_enabled_cb(item.mid);
-
-      // Wrap the check into an action which will be called when menuitem becomes visible
-      // as a part of its containing menu.
-      auto enabler = [menu_item, enabled_check](const UiContext& ui_context){ menu_item->set_sensitive(enabled_check(ui_context)); };
-      enablers.push_back(enabler);
-
+      menu_item->set_sensitive(enabled_check(ui_context));
       ActivateCB handler = item.callbacks.handler ? item.callbacks.handler : ui_context.get_activate_cb(item.mid);
       std::function<void(void)> action;
 
@@ -186,23 +131,14 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
       if (check_menu_item) {
          CheckedCB checked_cb = item.callbacks.checked ? item.callbacks.checked : ui_context.get_checked_cb(item.mid);
 
-         Gtk::RadioMenuItem* radio_menu_item = dynamic_cast<Gtk::RadioMenuItem*>(menu_item);
-         if (!radio_menu_item) {
-            // Wrap the check into an action which will be called when menuitem becomes visible
-            // as a part of its containing menu.
-            auto checker = [check_menu_item, checked_cb](const UiContext& ui_context){ check_menu_item->set_active(checked_cb(ui_context)); };
-            checkers.push_back(checker);
-         }
+	 // Gtk::Widget::set_state_flags() allows us to set visual item state without triggering its action.
+	 check_menu_item->set_state_flags(checked_cb(ui_context) ? Gtk::STATE_FLAG_CHECKED
+	 							 : Gtk::STATE_FLAG_NORMAL);
 
-         // A check item may change its visible state either as a result of direct
-         // user's action, or when initializing or due to some activity which
-         // indirectly affects it. The activation signal is emitted always, but
-         // we must invoke the actual callback only if the underlying state needs
-         // indeed to be modified.
+	 // For radio items the action is triggered both when the item gains and loses selection.
+	 // The radio item which just lost its selection doesn't need to activate its callback.
          action = [check_menu_item, checked_cb, handler, &ui_context](){
-            bool visible_state = check_menu_item->get_active();
-            bool underlying_state = checked_cb(ui_context);
-            if (visible_state != underlying_state) {
+            if (check_menu_item->get_active()) {
                 handler(ui_context);
             }
          };
@@ -212,21 +148,35 @@ Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui
 
       menu_item->signal_activate().connect(action);
       menu->append(*menu_item);
+      menu_item->show();
    }
+}
 
-   std::vector<RadioCheckerCB> radio_checkers;
-   for (const auto& [group, info_vec] : radio_info) {
-      RadioCheckerCB radio_checker(ui_context, group, info_vec);
-      radio_checkers.push_back(radio_checker);
+// Callable class which dynamically builds sub-menu
+class SubmenuBuilderCB {
+public:
+   SubmenuBuilderCB(Gtk::Menu* sub_menu, const std::vector<FF::MenuInfo>& info, const UiContext& ui_context)
+   : sub_menu_(sub_menu), info_(info), ui_context_(ui_context) {}
+
+   void operator()() {
+        build_sub_menu(sub_menu_, info_, ui_context_);
    }
+private:
+   Gtk::Menu* sub_menu_;
+   std::vector<FF::MenuInfo> info_;
+   const UiContext& ui_context_;
+};
 
-   // Just call all the collected menuitem enablers
-   auto on_menu_show = [enablers, checkers, radio_checkers, &ui_context](){
-        for (auto e : enablers) { e(ui_context); }
-        for (auto c : checkers) { c(ui_context); }
-        for (auto r : radio_checkers) { r(ui_context); }
-   };
-   menu->signal_show().connect(on_menu_show);
+// Top window menus and submenus are dynamic (the number of items and their properties can change on-fly).
+// With the creation of a menu item which invokes a submenu, its submenu is not actually created.
+// We only create a placeholder with a callback which would be invoked just before the required menu is
+// actually shown. When invoked, the callback fills the entire contents of the placeholder according
+// to the current state.
+Gtk::Menu* place_dynamic_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
+   Gtk::Menu* menu = new Gtk::Menu();
+
+   SubmenuBuilderCB submenu_builder(menu, info, ui_context);
+   menu->signal_show().connect(submenu_builder);
 
    return menu;
 }
@@ -239,7 +189,7 @@ Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, const UiC
       menu_bar->append(*menu_item);
 
       if (item.sub_menu) {
-         Gtk::Menu* sub_menu = build_menu(*item.sub_menu, ui_context);
+         Gtk::Menu* sub_menu = place_dynamic_menu(*item.sub_menu, ui_context);
          menu_item->set_submenu(*sub_menu);
       }
    }

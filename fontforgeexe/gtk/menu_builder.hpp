@@ -60,8 +60,6 @@ enum RadioGroup {
 // would break if there is more than one window.
 Gtk::RadioButtonGroup& get_grouper(RadioGroup g);
 
-Gtk::RadioMenuItem& get_dummy_radio_item(RadioGroup g);
-
 class LabelDecoration {
 public:
         LabelDecoration(BasicState s = NonCheckable) : d_(s) {}
@@ -136,7 +134,7 @@ struct MenuBarInfo {
     int mid;
 };
 
-Gtk::Menu* build_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context);
+Gtk::Menu* place_dynamic_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context);
 
 Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context);
 

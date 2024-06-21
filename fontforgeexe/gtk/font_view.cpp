@@ -271,7 +271,7 @@ Gtk::Window* create_view(FVContext** p_fv_context, int width, int height) {
       return on_drawing_area_key(event, drawing_win);
    });
 
-   Gtk::Menu* pop_up = FF::build_menu(popup_menu, *fv_ui_context);
+   Gtk::Menu* pop_up = FF::place_dynamic_menu(popup_menu, *fv_ui_context);
 
    auto on_my_button_press_event = [pop_up](GdkEventButton* event) {
       if (event->button == GDK_BUTTON_SECONDARY) {
