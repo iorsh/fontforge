@@ -618,6 +618,15 @@ std::vector<FF::MenuInfo> metrics_menu = {
     { { N_("Remove All VKern Pairs"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_RmVKern },
 };
 
+std::vector<FF::MenuInfo> window_menu = {
+    { { N_("New O_utline Window"), FF::NonCheckable, "<control>H" }, nullptr, FF::LegacyCallbacks, MID_OpenOutline },
+    { { N_("New _Bitmap Window"), FF::NonCheckable, "<control>J" }, nullptr, FF::LegacyCallbacks, MID_OpenBitmap },
+    { { N_("New _Metrics Window"), FF::NonCheckable, "<control>K" }, nullptr, FF::LegacyCallbacks, MID_OpenMetrics },
+    FF::kMenuSeparator,
+    { { N_("Warnings"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Warnings },
+    FF::kMenuSeparator,
+};
+
 std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("_File") }, &file_menu, -1 },
     { { N_("_Edit") }, &edit_menu, -1 },
@@ -632,7 +641,7 @@ std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("_CID") }, nullptr, -1 },
 /* GT: Here (and following) MM means "MultiMaster" */
     { { N_("MM") }, nullptr, -1 },
-    { { N_("_Window") }, nullptr, -1 },
+    { { N_("_Window") }, &window_menu, -1 },
     { { N_("_Help") }, nullptr, -1 },
 };
 
