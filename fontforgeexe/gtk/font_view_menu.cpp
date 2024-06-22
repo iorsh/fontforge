@@ -625,6 +625,7 @@ std::vector<FF::MenuInfo> window_menu = {
     FF::kMenuSeparator,
     { { N_("Warnings"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Warnings },
     FF::kMenuSeparator,
+    FF::MenuInfo::CustomFVBlock(FF::top_windows_list),
 };
 
 std::vector<FF::MenuBarInfo> top_menu = {

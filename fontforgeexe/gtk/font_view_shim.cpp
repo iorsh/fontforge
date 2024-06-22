@@ -31,6 +31,11 @@ void gtk_set_title(void* window, char* window_title, char* taskbar_title) {
    }
 }
 
+char* gtk_get_title(void* window) {
+   Gtk::Window* gtk_window = static_cast<Gtk::Window*>(window);
+   return strdup(gtk_window->get_title().c_str());
+}
+
 void gtk_raise_window(void* window) {
    Gtk::Window* gtk_window = static_cast<Gtk::Window*>(window);
    gtk_window->present();

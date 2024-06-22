@@ -26,6 +26,7 @@ typedef struct _object PyObject;
 #endif
 
 // C structures and callbacks for interacting with legacy code
+typedef struct gwindow *GWindow;
 typedef struct fontview FontView;
 typedef struct fontviewbase FontViewBase;
 typedef struct bdffont BDFFont;
@@ -85,6 +86,11 @@ typedef struct py_menu_spec {
     const char *shortcut_str;
     PyObject *func, *check, *data;
 } PyMenuSpec;
+
+typedef struct top_level_window {
+    void *window;
+    bool is_gtk;
+} TopLevelWindow;
 
 typedef struct fontview_context {
    FontView* fv;
@@ -152,6 +158,15 @@ typedef struct fontview_context {
 
    // Collect legacy PE script names
    unsigned int (*collect_script_names)(char*** collect_script_names);
+
+   // Collect top-level windows
+   unsigned int (*collect_windows)(TopLevelWindow** windows_array);
+
+   // Get legacy window title
+   char* (*get_window_title)(GWindow window);
+
+   // Raise legacy window to front
+   void (*raise_window)(GWindow window);
 
    // Menu actions per menu ID
    FVMenuAction* actions;

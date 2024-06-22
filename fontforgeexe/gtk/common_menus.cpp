@@ -31,6 +31,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common_menus.hpp"
 
 #include <filesystem>
+#include <iostream>
 #include <glib/gi18n.h>
 
 #include "font_view.hpp"
@@ -163,6 +164,30 @@ std::vector<FF::MenuInfo> legacy_scripts(const FF::UiContext& ui_context) {
 	Glib::ustring accel = "<alt><control>" + std::to_string((i + 1) % 10);
 
         FF::MenuInfo info{ { script_names_array[i], FF::NonCheckable, accel }, nullptr, { action, FF::AlwaysEnabled, FF::NotCheckable }, i };
+        info_arr.push_back(info);
+    }
+    return info_arr;
+}
+
+static Glib::ustring get_window_title(FVContext* context, const TopLevelWindow* top_win) {
+    return top_win->is_gtk ? ((Gtk::Window*)top_win->window)->get_title() : context->get_window_title((GWindow)(top_win->window));
+}
+static void raise_window(FVContext* context, const TopLevelWindow* top_win) {
+    top_win->is_gtk ? ((Gtk::Window*)top_win->window)->raise() : context->raise_window((GWindow)(top_win->window));
+}
+
+std::vector<FF::MenuInfo> top_windows_list(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+    TopLevelWindow* top_level_windows = nullptr;
+    int n_windows = fv_context->collect_windows(&top_level_windows);
+    std::vector<FF::MenuInfo> info_arr;
+
+    for (int i = 0; i < n_windows; ++i) {
+	FF::ActivateCB action = [fv_context, win_ptr = top_level_windows + i](const UiContext&){ raise_window(fv_context, win_ptr); };
+	Glib::ustring title = get_window_title(fv_context, top_level_windows + i);
+
+        FF::MenuInfo info{ { title.c_str(), FF::NonCheckable, "" }, nullptr, { action, FF::AlwaysEnabled, FF::NotCheckable }, 0 };
         info_arr.push_back(info);
     }
     return info_arr;

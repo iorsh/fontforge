@@ -30,6 +30,9 @@ void* create_font_view(FVContext** p_fv_context, int width, int height);
 // Set Gtk::Window title and taskbar title [unsupported]
 void gtk_set_title(void* window, char* window_title, char* taskbar_title);
 
+// Get copy of Gtk::Window title
+char* gtk_get_title(void* window);
+
 // Raise Gtk::Window to the top and unminimize it if necessary
 void gtk_raise_window(void* window);
 

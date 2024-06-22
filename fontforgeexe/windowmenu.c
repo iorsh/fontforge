@@ -59,7 +59,7 @@ static void AddMI(GMenuItem *mi,GWindow gw,int changed, int top) {
 }
 
 static void AddMI_GTK(GMenuItem *mi,void *gtk_window,int changed, int top) {
-    char* title = NULL;
+    char* title = gtk_get_title(gtk_window);
     mi->ti.userdata = gtk_window;
     mi->ti.bg = COLOR_DEFAULT;
     mi->invoke = WindowSelectGTK;
@@ -137,6 +137,73 @@ return;
 	for ( mv=fv->sf->metrics; mv!=NULL; mv=mv->next )
 	    AddMI(&sub[cnt++],mv->gw,false,false);
     }
+}
+
+/* Builds up a menu containing the titles of all the major windows */
+unsigned int collect_windows(TopLevelWindow** windows_array) {
+    int i, n_windows = 0;
+    FontViewBase *fv;
+    CharViewBase *cv;
+    MetricsView *mv;
+    BitmapView *bv;
+    BDFFont *bdf;
+
+    for ( fv = (FontViewBase *) fv_list; fv!=NULL; fv = fv->next ) {
+	++n_windows;		/* for the font */
+	for ( i=0; i<fv->sf->glyphcnt; ++i ) if ( fv->sf->glyphs[i]!=NULL ) {
+	    for ( cv = fv->sf->glyphs[i]->views; cv!=NULL; cv=cv->next )
+		++n_windows;		/* for each char view in the font */
+	}
+	for ( bdf= fv->sf->bitmaps; bdf!=NULL; bdf = bdf->next ) {
+	    for ( i=0; i<bdf->glyphcnt; ++i ) if ( bdf->glyphs[i]!=NULL ) {
+		for ( bv = bdf->glyphs[i]->views; bv!=NULL; bv=bv->next )
+		    ++n_windows;
+	    }
+	}
+	for ( mv=fv->sf->metrics; mv!=NULL; mv=mv->next )
+	    ++n_windows;
+    }
+    if ( n_windows==0 ) {
+	/* This can't happen */
+return 0;
+    }
+
+    *windows_array = calloc(n_windows,sizeof(TopLevelWindow));
+    n_windows = 0;
+
+    for ( fv = (FontViewBase *) fv_list; fv!=NULL; fv = fv->next ) {
+	if( !((FontView *) fv)->gtk_window ) {
+	    continue;
+	}
+
+	// Add GTK window for font view
+	(*windows_array)[n_windows].is_gtk = true;
+	(*windows_array)[n_windows++].window = ((FontView *) fv)->gtk_window;
+
+	for ( i=0; i<fv->sf->glyphcnt; ++i ) if ( fv->sf->glyphs[i]!=NULL ) {
+	    for ( cv = fv->sf->glyphs[i]->views; cv!=NULL; cv=cv->next ) {
+		// Add legacy GDraw window for Outline view
+		(*windows_array)[n_windows].is_gtk = false;
+		(*windows_array)[n_windows++].window = ((CharView *) cv)->gw;
+	    }
+	}
+	for ( bdf= fv->sf->bitmaps; bdf!=NULL; bdf = bdf->next ) {
+	    for ( i=0; i<bdf->glyphcnt; ++i ) if ( bdf->glyphs[i]!=NULL ) {
+		for ( bv = bdf->glyphs[i]->views; bv!=NULL; bv=bv->next ) {
+		    // Add legacy GDraw window for Bitmap view
+		    (*windows_array)[n_windows].is_gtk = false;
+		    (*windows_array)[n_windows++].window = bv->gw;
+		}
+	    }
+	}
+	for ( mv=fv->sf->metrics; mv!=NULL; mv=mv->next ) {
+	    // Add legacy GDraw window for Metrics view
+	    (*windows_array)[n_windows].is_gtk = false;
+	    (*windows_array)[n_windows++].window = mv->gw;
+        }
+    }
+
+    return n_windows;
 }
 
 static void RecentSelect(GWindow base,struct gmenuitem *mi,GEvent *e) {
