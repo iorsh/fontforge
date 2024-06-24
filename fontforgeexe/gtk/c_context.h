@@ -31,6 +31,7 @@ typedef struct fontview FontView;
 typedef struct fontviewbase FontViewBase;
 typedef struct bdffont BDFFont;
 typedef struct anchorclass AnchorClass;
+typedef struct splinefont SplineFont;
 
 enum glyphlable { gl_glyph, gl_name, gl_unicode, gl_encoding };
 
@@ -91,6 +92,11 @@ typedef struct top_level_window {
     void *window;
     bool is_gtk;
 } TopLevelWindow;
+
+typedef struct mm_instance {
+    SplineFont *sub;
+    char *fontname;
+} MMInstance;
 
 typedef struct fontview_context {
    FontView* fv;
@@ -167,6 +173,15 @@ typedef struct fontview_context {
 
    // Raise legacy window to front
    void (*raise_window)(GWindow window);
+
+   // Collect Multiple Master instances
+   unsigned int (*collect_mm_instances)(FontView *fv, MMInstance** instance_array);
+
+   // Show Multiple Master instance
+   void (*show_mm_instance)(FontView *fv, SplineFont *sub);
+
+   // Check if the Multiple Master instance is currently selected
+   bool (*mm_selected)(FontView *fv, SplineFont *sub);
 
    // Menu actions per menu ID
    FVMenuAction* actions;

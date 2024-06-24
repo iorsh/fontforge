@@ -160,6 +160,29 @@ std::vector<FF::MenuInfo> view_menu_anchors(const FF::UiContext& ui_context) {
     return info_arr;
 }
 
+std::vector<FF::MenuInfo> mm_instances(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+
+    MMInstance* instance_array = nullptr;
+    int n_instances = fv_context->collect_mm_instances(fv_context->fv, &instance_array);
+    std::vector<FF::MenuInfo> info_arr;
+
+    for (int i = 0; i < n_instances; ++i) {
+        const MMInstance& instance_data = instance_array[i];
+
+        FF::ActivateCB action = [fv_context, sub=instance_data.sub](const FF::UiContext&){
+            fv_context->show_mm_instance(fv_context->fv, sub);
+        };
+        FF::CheckedCB checker = [fv_context, sub=instance_data.sub](const FF::UiContext&){
+            return fv_context->mm_selected(fv_context->fv, sub);
+        };
+        FF::MenuInfo info{ { instance_data.fontname, FF::MultipleMaster, "" }, nullptr, { action, FF::AlwaysEnabled, checker }, 0 };
+        info_arr.push_back(info);
+    }
+    return info_arr;
+}
+
 void run_autotrace(const FF::UiContext& ui_context) {
     const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
     FVContext* fv_context = fv_ui_context.get_legacy_context();
@@ -618,6 +641,17 @@ std::vector<FF::MenuInfo> metrics_menu = {
     { { N_("Remove All VKern Pairs"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_RmVKern },
 };
 
+std::vector<FF::MenuInfo> mm_menu = {
+/* GT: Here (and following) MM means "MultiMaster" */
+    { { N_("_Create MM..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_CreateMM },
+    { { N_("MM _Validity Check"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_MMValid },
+    { { N_("MM _Info..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_MMInfo },
+    { { N_("_Blend to New Font..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_BlendToNew },
+    { { N_("MM Change Default _Weights..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ChangeMMBlend },
+    FF::kMenuSeparator,
+    FF::MenuInfo::CustomFVBlock(mm_instances),
+};
+
 std::vector<FF::MenuInfo> window_menu = {
     { { N_("New O_utline Window"), FF::NonCheckable, "<control>H" }, nullptr, FF::LegacyCallbacks, MID_OpenOutline },
     { { N_("New _Bitmap Window"), FF::NonCheckable, "<control>J" }, nullptr, FF::LegacyCallbacks, MID_OpenBitmap },
@@ -641,7 +675,7 @@ std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("_Metrics") }, &metrics_menu, -1 },
     { { N_("_CID") }, nullptr, -1 },
 /* GT: Here (and following) MM means "MultiMaster" */
-    { { N_("MM") }, nullptr, -1 },
+    { { N_("MM") }, &mm_menu, -1 },
     { { N_("_Window") }, &window_menu, -1 },
     { { N_("_Help") }, nullptr, -1 },
 };
