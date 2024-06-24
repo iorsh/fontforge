@@ -183,6 +183,29 @@ std::vector<FF::MenuInfo> mm_instances(const FF::UiContext& ui_context) {
     return info_arr;
 }
 
+std::vector<FF::MenuInfo> cid_instances(const FF::UiContext& ui_context) {
+    const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+    FVContext* fv_context = fv_ui_context.get_legacy_context();
+
+    SubInstance* instance_array = nullptr;
+    int n_instances = fv_context->collect_cid_instances(fv_context->fv, &instance_array);
+    std::vector<FF::MenuInfo> info_arr;
+
+    for (int i = 0; i < n_instances; ++i) {
+        const SubInstance& instance_data = instance_array[i];
+
+        FF::ActivateCB action = [fv_context, sub=instance_data.sub](const FF::UiContext&){
+            fv_context->show_cid_instance(fv_context->fv, sub);
+        };
+        FF::CheckedCB checker = [fv_context, sub=instance_data.sub](const FF::UiContext&){
+            return fv_context->cid_selected(fv_context->fv, sub);
+        };
+        FF::MenuInfo info{ { instance_data.fontname, FF::CIDInstance, "" }, nullptr, { action, FF::AlwaysEnabled, checker }, 0 };
+        info_arr.push_back(info);
+    }
+    return info_arr;
+}
+
 void run_autotrace(const FF::UiContext& ui_context) {
     const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
     FVContext* fv_context = fv_ui_context.get_legacy_context();
@@ -641,6 +664,23 @@ std::vector<FF::MenuInfo> metrics_menu = {
     { { N_("Remove All VKern Pairs"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_RmVKern },
 };
 
+std::vector<FF::MenuInfo> cid_menu = {
+    { { N_("_Convert to CID"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Convert2CID },
+    { { N_("Convert By C_Map"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ConvertByCMap },
+    FF::kMenuSeparator,
+    { { N_("_Flatten"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Flatten },
+    { { N_("Fl_attenByCMap"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_FlattenByCMap },
+    FF::kMenuSeparator,
+    { { N_("Insert F_ont..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_InsertFont },
+    { { N_("Insert _Blank"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_InsertBlank },
+    { { N_("_Remove Font"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_RemoveFromCID },
+    FF::kMenuSeparator,
+    { { N_("_Change Supplement..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ChangeSupplement },
+    { { N_("C_ID Font Info..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_CIDFontInfo },
+    FF::kMenuSeparator,
+    FF::MenuInfo::CustomFVBlock(cid_instances),
+};
+
 std::vector<FF::MenuInfo> mm_menu = {
 /* GT: Here (and following) MM means "MultiMaster" */
     { { N_("_Create MM..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_CreateMM },
@@ -673,7 +713,7 @@ std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("E_ncoding") }, &encoding_menu, -1 },
     { { N_("_View") }, &view_menu, -1 },
     { { N_("_Metrics") }, &metrics_menu, -1 },
-    { { N_("_CID") }, nullptr, -1 },
+    { { N_("_CID") }, &cid_menu, -1 },
 /* GT: Here (and following) MM means "MultiMaster" */
     { { N_("MM") }, &mm_menu, -1 },
     { { N_("_Window") }, &window_menu, -1 },
