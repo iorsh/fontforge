@@ -93,10 +93,10 @@ typedef struct top_level_window {
     bool is_gtk;
 } TopLevelWindow;
 
-typedef struct mm_instance {
+typedef struct sub_instance {
     SplineFont *sub;
     char *fontname;
-} MMInstance;
+} SubInstance;
 
 typedef struct fontview_context {
    FontView* fv;
@@ -175,7 +175,7 @@ typedef struct fontview_context {
    void (*raise_window)(GWindow window);
 
    // Collect Multiple Master instances
-   unsigned int (*collect_mm_instances)(FontView *fv, MMInstance** instance_array);
+   unsigned int (*collect_mm_instances)(FontView *fv, SubInstance** instance_array);
 
    // Show Multiple Master instance
    void (*show_mm_instance)(FontView *fv, SplineFont *sub);

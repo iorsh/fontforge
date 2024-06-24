@@ -5405,7 +5405,7 @@ static GMenuItem2 mmlist[] = {
 };
 #endif
 
-static unsigned int collect_mm_instances(FontView *fv, MMInstance** instance_array) {
+static unsigned int collect_mm_instances(FontView *fv, SubInstance** instance_array) {
     unsigned int i, n_instances = 0;
     MMSet *mm = fv->b.sf->mm;
     SplineFont *sub;
@@ -5415,7 +5415,7 @@ static unsigned int collect_mm_instances(FontView *fv, MMInstance** instance_arr
     }
 
     n_instances = mm->instance_count + 1;
-    *instance_array = calloc(n_instances, sizeof(MMInstance));
+    *instance_array = calloc(n_instances, sizeof(SubInstance));
 
     for ( i = 0; i < n_instances; ++i ) {
 	sub = (i == 0) ? mm->normal : mm->instances[i-1];

@@ -164,12 +164,12 @@ std::vector<FF::MenuInfo> mm_instances(const FF::UiContext& ui_context) {
     const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
     FVContext* fv_context = fv_ui_context.get_legacy_context();
 
-    MMInstance* instance_array = nullptr;
+    SubInstance* instance_array = nullptr;
     int n_instances = fv_context->collect_mm_instances(fv_context->fv, &instance_array);
     std::vector<FF::MenuInfo> info_arr;
 
     for (int i = 0; i < n_instances; ++i) {
-        const MMInstance& instance_data = instance_array[i];
+        const SubInstance& instance_data = instance_array[i];
 
         FF::ActivateCB action = [fv_context, sub=instance_data.sub](const FF::UiContext&){
             fv_context->show_mm_instance(fv_context->fv, sub);
