@@ -186,6 +186,7 @@ Gtk::Window* create_view(FVContext** p_fv_context, int width, int height) {
    Gtk::Grid* char_grid_box = new Gtk::Grid();
 
    Gtk::MenuBar* top_bar = build_menu_bar(top_menu, *fv_ui_context);
+   top_bar->set_name("TopBar");
 
    Gtk::Grid* font_view_grid = new Gtk::Grid();
 

@@ -94,7 +94,7 @@ Glib::RefPtr<Gdk::Pixbuf> load_icon(const Glib::ustring &icon_name, int size) {
     // Load icon by name from the theme
     Glib::RefPtr<Gdk::Pixbuf> pixbuf;
     if (theme->lookup_icon(icon_name, size)) {
-	return theme->load_icon(icon_name, size);
+	return theme->load_icon(icon_name, size, Gtk::ICON_LOOKUP_FORCE_SIZE);
     }
 
     // Use generic sad face for missing icons

@@ -64,6 +64,9 @@ std::vector<FF::MenuInfo> expand_custom_blocks(const std::vector<FF::MenuInfo>& 
 }
 
 void build_sub_menu(Gtk::Menu* menu, const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
+   Gtk::Widget* bar = gtk_find_child(ui_context.window_, "TopBar");
+   int icon_height = std::max(16, bar->get_allocated_height() / 2);
+
    // If the menu contains custom block, we expand it before further processing
    std::vector<FF::MenuInfo> expanded_menu;
    bool has_custom_blocks = std::find_if(info.begin(), info.end(),
@@ -96,11 +99,11 @@ void build_sub_menu(Gtk::Menu* menu, const std::vector<FF::MenuInfo>& info, cons
       } else if (item.label.decoration.checkable()) {
          menu_item = new Gtk::CheckMenuItem(item.label.text, true);
       } else if (item.label.decoration.named_icon()) {
-         Glib::RefPtr<Gdk::Pixbuf> pixbuf = load_icon(item.label.decoration.image_file(), 16);
+         Glib::RefPtr<Gdk::Pixbuf> pixbuf = load_icon(item.label.decoration.image_file(), icon_height);
          Gtk::Image* img = new Gtk::Image(pixbuf);
          menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
       } else {
-         Glib::RefPtr<Gdk::Pixbuf> pixbuf = build_color_icon(item.label.decoration.color(), 16);
+         Glib::RefPtr<Gdk::Pixbuf> pixbuf = build_color_icon(item.label.decoration.color(), icon_height);
          Gtk::Image* img = new Gtk::Image(pixbuf);
          menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
       }
