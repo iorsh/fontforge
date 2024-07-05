@@ -16,6 +16,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name) {
    if (w->get_name() == name) {
@@ -85,4 +86,26 @@ Glib::RefPtr<Gdk::Pixbuf> build_color_icon(const Gdk::RGBA& rgba, gint size) {
     Gdk::Pixbuf::create_subpixbuf(pixbuf, 1, 1, size-2, size-2)->fill(g_color);
 
     return pixbuf;
+}
+
+Glib::RefPtr<Gdk::Pixbuf> load_icon(const Glib::ustring &icon_name, int size) {
+    Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
+
+    // Load icon by name from the theme
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf;
+    if (theme->lookup_icon(icon_name, size)) {
+	return theme->load_icon(icon_name, size);
+    }
+
+    // Use generic sad face for missing icons
+    if (theme->lookup_icon("computer-fail-symbolic", size)) {
+	return theme->load_icon("computer-fail-symbolic", size);
+    }
+
+    // Fallback to black square
+    static const std::vector<guint8> sq(size*size, 0);
+    static Glib::RefPtr<Gdk::Pixbuf> fallback_icon =
+        Gdk::Pixbuf::create_from_data(sq.data(), Gdk::COLORSPACE_RGB, false, 8, size, size, 0);
+
+    return fallback_icon;
 }
