@@ -48,6 +48,7 @@
 #endif
 
 static char *program_root = NULL;
+static bool devel_env = false;
 
 /**
  * \brief Removes the extension from a file path, if it exists.
@@ -743,6 +744,11 @@ void FindProgRoot(const char *prog) {
     }
 #endif
 
+    /* If the fontforge binary path includes "build", we are in the developer's mode. */
+    if (strstr(program_root, "build")) {
+	devel_env = true;
+    }
+
     g_free(rprog);
     TRACE("Program root: %s\n", program_root);
 }
@@ -766,7 +772,14 @@ const char *getLocaleDir(void) {
 const char *getPixmapDir(void) {
     static char *pixmapdir=NULL;
     if (!pixmapdir) {
-        pixmapdir = smprintf("%s/pixmaps", getShareDir());
+	if (devel_env) {
+	    /* THEME macro is imported from the CMake ${THEME} variable */
+            char *theme_src = smprintf("%s/../fontforgeexe/pixmaps/%s", program_root, THEME);
+            pixmapdir = GFileGetAbsoluteName(theme_src);
+            free(theme_src);
+	} else {
+            pixmapdir = smprintf("%s/pixmaps", getShareDir());
+	}
     }
     return pixmapdir;
 }
