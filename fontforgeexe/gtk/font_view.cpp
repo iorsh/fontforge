@@ -169,7 +169,7 @@ Gtk::Window* create_view(FVContext** p_fv_context, int width, int height) {
    FontViewUiContext* fv_ui_context = new FontViewUiContext(font_view_window, p_fv_context);
    FVContext* fv_context = fv_ui_context->get_legacy_context();
 
-   FF::add_top_view(*font_view_window);
+   FF::add_top_view(*fv_ui_context);
    font_view_window->set_default_size(width, height);
 
    font_view_window->signal_delete_event().connect(

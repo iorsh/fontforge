@@ -32,9 +32,11 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtkmm-3.0/gtkmm.h>
 
+#include "ui_context.hpp"
+
 namespace FF {
 
-void add_top_view(Gtk::Window& window);
+void add_top_view(const UiContext& ui_context);
 
 void remove_top_view(Gtk::Window& window);
 

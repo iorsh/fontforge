@@ -29,24 +29,29 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include "application.hpp"
+#include "c_context.h"
+#include "font_view.hpp"
 
 namespace FF {
 
 static auto app = Gtk::Application::create("org.fontforge");
 
-void add_top_view(Gtk::Window& window) {
+void add_top_view(const UiContext& ui_context) {
    static bool initialized = false;
 
    if (!initialized) {
-      // TODO: properly retrieve resource path
+      const auto& fv_ui_context = static_cast<const FontViewNS::FontViewUiContext&>(ui_context);
+      FVContext* fv_context = fv_ui_context.get_legacy_context();
+
       auto theme = Gtk::IconTheme::get_default();
-      theme->prepend_search_path("/home/iorsh/devel/fontforge/fontforgeexe/pixmaps/tango");
+      const char* pixmap_dir = fv_context->get_pixmap_dir();
+      theme->prepend_search_path(pixmap_dir);
       app->register_application();
 
       initialized = true;
    }
 
-   app->add_window(window);
+   app->add_window(*ui_context.window_);
 }
 
 void remove_top_view(Gtk::Window& window) {

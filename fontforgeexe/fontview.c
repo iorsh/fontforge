@@ -7484,6 +7484,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context->collect_cid_instances = collect_cid_instances;
     fv_context->show_cid_instance = FVShowSubFont;
     fv_context->cid_selected = sub_instance_selected;
+    fv_context->get_pixmap_dir = getPixmapDir;
     fv_context->actions = fvpopupactions;
     fv_context->select_actions = fv_selmenu_actions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
