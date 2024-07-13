@@ -195,6 +195,9 @@ typedef struct fontview_context {
    // Get pixmap resource directory
    const char* (*get_pixmap_dir)();
 
+   // Launch documentation
+   void (*help)(const char *file, const char *section);
+
    // Menu actions per menu ID
    FVMenuAction* actions;
    FVSelectMenuAction* select_actions;

@@ -1352,6 +1352,10 @@ void MenuAbout(GWindow UNUSED(base), struct gmenuitem *UNUSED(mi), GEvent *UNUSE
     ShowAboutScreen();
 }
 
+static void FVMenuAbout(FontView *UNUSED(fv), int UNUSED(mid)) {
+    ShowAboutScreen();
+}
+
 static void FVMenuImport(FontView *fv, int UNUSED(mid)) {
     int empty = fv->b.sf->onlybitmaps && fv->b.sf->bitmaps==NULL;
     BDFFont *bdf;
@@ -5741,6 +5745,9 @@ FVMenuAction fvpopupactions[] = {
     { MID_ChangeSupplement, cdlistcheck, NULL, FVMenuChangeSupplement },
     { MID_CIDFontInfo, cdlistcheck, NULL, FVMenuCIDFontInfo },
 
+    /* Help Menu */
+    { MID_About, NULL, NULL, FVMenuAbout },
+
     MENUACTION_LAST
 };
 
@@ -5782,8 +5789,8 @@ static GMenuItem2 mblist[] = {
 /*
     { { (unichar_t *) N_("MM"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, '\0' }, H_("MM|No Shortcut"), mmlist, mmlistcheck, NULL, 0 },
     { { (unichar_t *) N_("_Window"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'W' }, H_("Window|No Shortcut"), wnmenu, FVWindowMenuBuild, NULL, 0 },
-*/
     { { (unichar_t *) N_("_Help"), NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'H' }, H_("Help|No Shortcut"), helplist, NULL, NULL, 0 },
+*/
     GMENUITEM2_EMPTY
 };
 
@@ -7485,6 +7492,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     fv_context->show_cid_instance = FVShowSubFont;
     fv_context->cid_selected = sub_instance_selected;
     fv_context->get_pixmap_dir = getPixmapDir;
+    fv_context->help = help;
     fv_context->actions = fvpopupactions;
     fv_context->select_actions = fv_selmenu_actions;
     fv->gtk_window = create_font_view(&fv_context, pos.width, pos.height);
@@ -7822,7 +7830,7 @@ void KFFontViewInits(struct kf_dlg *kf,GGadget *drawable) {
 
     memset(&gd,0,sizeof(gd));
     gd.flags = gg_visible | gg_enabled;
-    helplist[0].invoke = FVMenuContextualHelp;
+//     helplist[0].invoke = FVMenuContextualHelp;
     gd.u.menu2 = mblist;
     kf->mb = GMenu2BarCreate( dw, &gd, NULL);
     GGadgetGetSize(kf->mb,&gsize);
@@ -8151,7 +8159,7 @@ char *GlyphSetFromSelection(SplineFont *sf,int def_layer,char *current) {
 
     memset(&gd,0,sizeof(gd));
     gd.flags = gg_visible | gg_enabled;
-    helplist[0].invoke = FVMenuContextualHelp;
+//     helplist[0].invoke = FVMenuContextualHelp;
     gd.u.menu2 = mblist;
     mb = GMenu2BarCreate( dw, &gd, NULL);
     GGadgetGetSize(mb,&gsize);

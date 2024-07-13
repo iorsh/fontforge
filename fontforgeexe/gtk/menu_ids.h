@@ -228,5 +228,6 @@
 
 
 #define MID_Warnings	3000
+#define MID_About	3100
 
 #define MIDSERIES_LabelGlyph 10000

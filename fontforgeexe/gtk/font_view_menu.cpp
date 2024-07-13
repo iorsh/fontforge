@@ -253,6 +253,17 @@ void close_window(const FF::UiContext& ui_context) {
     ui_context.window_->close();
 }
 
+class LaunchHelp {
+ public:
+    LaunchHelp(const char* url) : url_(url) {}
+    void operator()(const FF::UiContext& ui_context) {
+        const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
+        fv_ui_context.get_legacy_context()->help(url_, nullptr);
+    }
+ private:
+    const char* url_;
+};
+
 ////////////////////////////////// FILE MENUS /////////////////////////////////////////
 
 std::vector<FF::MenuInfo> recent_files_menu = {
@@ -702,6 +713,14 @@ std::vector<FF::MenuInfo> window_menu = {
     FF::MenuInfo::CustomFVBlock(FF::top_windows_list),
 };
 
+std::vector<FF::MenuInfo> help_menu = {
+    { { N_("_Help"), "helphelp", "F1" }, nullptr, { LaunchHelp("ui/mainviews/fontview.html") }, 0 },
+    { { N_("_Overview"), FF::NonCheckable, "<shift>F1" }, nullptr, { LaunchHelp("index.html") }, 0 },
+    { { N_("_Index"), "helpindex", "<control>F1" }, nullptr, { LaunchHelp("index.html") }, 0 },
+    { { N_("_About..."), "helpabout", "" }, nullptr, FF::LegacyCallbacks, MID_About },
+    { { N_("_License..."), FF::NonCheckable, "" }, nullptr, { LaunchHelp("https://github.com/fontforge/fontforge/blob/master/LICENSE") }, 0 },
+};
+
 std::vector<FF::MenuBarInfo> top_menu = {
     { { N_("_File") }, &file_menu, -1 },
     { { N_("_Edit") }, &edit_menu, -1 },
@@ -717,7 +736,7 @@ std::vector<FF::MenuBarInfo> top_menu = {
 /* GT: Here (and following) MM means "MultiMaster" */
     { { N_("MM") }, &mm_menu, -1 },
     { { N_("_Window") }, &window_menu, -1 },
-    { { N_("_Help") }, nullptr, -1 },
+    { { N_("_Help") }, &help_menu, -1 },
 };
 
 std::vector<FF::MenuInfo> popup_menu = {
