@@ -284,34 +284,34 @@ std::vector<FF::MenuInfo> hangul_menu = {
 #endif
 
 std::vector<FF::MenuInfo> file_menu = {
-    { { N_("Font|_New"), "filenew", "" }, nullptr, FF::LegacyCallbacks, MID_New },
+    { { N_("Font|_New"), "filenew", "<control>N" }, nullptr, FF::LegacyCallbacks, MID_New },
 #if HANYANG
     { { N_("_Hangul"), FF::NonCheckable, "" }, &hangul_menu, FF::SubMenuCallbacks, 0 },
 #endif
-    { { N_("_Open"), "fileopen", "" }, nullptr, FF::LegacyCallbacks, MID_Open },
+    { { N_("_Open"), "fileopen", "<control>O" }, nullptr, FF::LegacyCallbacks, MID_Open },
     { { N_("Recen_t"), "filerecent", "" }, &recent_files_menu, FF::LegacySubMenuCallbacks, MID_Recent },
-    { { N_("_Close"), "fileclose", "" }, nullptr, { close_window }, MID_Close },
+    { { N_("_Close"), "fileclose", "<control>W" }, nullptr, { close_window }, MID_Close },
     FF::kMenuSeparator,
-    { { N_("_Save"), "filesave", "" }, nullptr, FF::LegacyCallbacks, MID_Save },
-    { { N_("S_ave as..."), "filesaveas", "" }, nullptr, FF::LegacyCallbacks, MID_SaveAs },
-    { { N_("Save A_ll"), "filesaveall", "" }, nullptr, FF::LegacyCallbacks, MID_SaveAll },
-    { { N_("_Generate Fonts..."), "filegenerate", "" }, nullptr, FF::LegacyCallbacks, MID_Generate },
-    { { N_("Generate Mac _Family..."), "filegeneratefamily", "" }, nullptr, FF::LegacyCallbacks, MID_GenerateMac },
+    { { N_("_Save"), "filesave", "<control>S" }, nullptr, FF::LegacyCallbacks, MID_Save },
+    { { N_("S_ave as..."), "filesaveas", "<control><shift>S" }, nullptr, FF::LegacyCallbacks, MID_SaveAs },
+    { { N_("Save A_ll"), "filesaveall", "<control><alt>S" }, nullptr, FF::LegacyCallbacks, MID_SaveAll },
+    { { N_("_Generate Fonts..."), "filegenerate", "<control><shift>G" }, nullptr, FF::LegacyCallbacks, MID_Generate },
+    { { N_("Generate Mac _Family..."), "filegeneratefamily", "<control><alt>G" }, nullptr, FF::LegacyCallbacks, MID_GenerateMac },
     { { N_("Generate TTC..."), "filegeneratefamily", "" }, nullptr, FF::LegacyCallbacks, MID_GenerateTTC },
     FF::kMenuSeparator,
-    { { N_("_Import..."), "fileimport", "" }, nullptr, FF::LegacyCallbacks, MID_Import },
+    { { N_("_Import..."), "fileimport", "<control><shift>I" }, nullptr, FF::LegacyCallbacks, MID_Import },
     { { N_("_Merge Feature Info..."), "filemergefeature", "" }, nullptr, FF::LegacyCallbacks, MID_MergeFeature },
-    { { N_("_Revert File"), "filerevert", "" }, nullptr, FF::LegacyCallbacks, MID_Revert },
+    { { N_("_Revert File"), "filerevert", "<control><shift>R" }, nullptr, FF::LegacyCallbacks, MID_Revert },
     { { N_("Revert To _Backup"), "filerevertbackup", "" }, nullptr, FF::LegacyCallbacks, MID_RevertToBackup },
-    { { N_("Revert Gl_yph"), "filerevertglyph", "" }, nullptr, FF::LegacyCallbacks, MID_RevertGlyph },
+    { { N_("Revert Gl_yph"), "filerevertglyph", "<control><alt>R" }, nullptr, FF::LegacyCallbacks, MID_RevertGlyph },
     { { N_("Clear Special Data"), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ClearSpecialData },
     FF::kMenuSeparator,
-    { { N_("_Print..."), "fileprint", "" }, nullptr, FF::LegacyCallbacks, MID_Print },
+    { { N_("_Print..."), "fileprint", "<control>P" }, nullptr, FF::LegacyCallbacks, MID_Print },
     FF::kMenuSeparator,
 #if !defined(_NO_PYTHON)
-    { { N_("E_xecute Script..."), "python", "" }, nullptr, FF::LegacyCallbacks, MID_Execute },
+    { { N_("E_xecute Script..."), "python", "<control>period" }, nullptr, FF::LegacyCallbacks, MID_Execute },
 #elif !defined(_NO_FFSCRIPT)
-    { { N_("E_xecute Script..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_Execute },
+    { { N_("E_xecute Script..."), FF::NonCheckable, "<control>period" }, nullptr, FF::LegacyCallbacks, MID_Execute },
 #endif
 #if !defined(_NO_FFSCRIPT)
     { { N_("Script Menu"), "fileexecute", "" }, &legacy_scripts_menu, FF::LegacySubMenuCallbacks, MID_ScriptMenu },
@@ -325,7 +325,7 @@ std::vector<FF::MenuInfo> file_menu = {
     { { N_("Config_ure Plugins..."), FF::NonCheckable, "" }, nullptr, FF::LegacyCallbacks, MID_ConfigPlugins },
 #endif
     FF::kMenuSeparator,
-    { { N_("_Quit"), "filequit", "" }, nullptr, FF::LegacyCallbacks, MID_Quit },
+    { { N_("_Quit"), "filequit", "<control>Q" }, nullptr, FF::LegacyCallbacks, MID_Quit },
 };
 
 ////////////////////////////////// EDIT MENUS /////////////////////////////////////////
