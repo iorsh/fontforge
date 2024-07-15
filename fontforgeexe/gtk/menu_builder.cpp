@@ -125,6 +125,24 @@ Gtk::MenuItem* menu_item_factory(const FF::MenuInfo& item,
     return menu_item;
 }
 
+Gtk::MenuItem* get_menu_item(const FF::MenuInfo& item,
+			     const UiContext& ui_context,
+			     int icon_height) {
+    const std::string& cache_key = item.label.accelerator;
+
+    // Reuse menu items which have keyboard shortcuts
+    if (!cache_key.empty() && ui_context.menu_cache.count(cache_key)) {
+	return ui_context.menu_cache.at(cache_key);
+    }
+
+    Gtk::MenuItem* menu_item = menu_item_factory(item, ui_context, icon_height);
+
+    if (!cache_key.empty()) {
+	ui_context.menu_cache[cache_key] = menu_item;
+    }
+    return menu_item;
+}
+
 void build_sub_menu(Gtk::Menu* menu, const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
    Gtk::Widget* bar = gtk_find_child(ui_context.window_, "TopBar");
    int icon_height = std::max(16, bar->get_allocated_height() / 2);
@@ -142,7 +160,7 @@ void build_sub_menu(Gtk::Menu* menu, const std::vector<FF::MenuInfo>& info, cons
    menu->foreach([menu](Gtk::Widget& w){ menu->remove(w); });
 
    for (const auto& item : local_info) {
-      Gtk::MenuItem* menu_item = menu_item_factory(item, ui_context, icon_height);
+      Gtk::MenuItem* menu_item = get_menu_item(item, ui_context, icon_height);
 
       // Set enabled / disabled state from callback result
       EnabledCB enabled_check =
