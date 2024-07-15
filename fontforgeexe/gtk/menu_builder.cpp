@@ -63,6 +63,68 @@ std::vector<FF::MenuInfo> expand_custom_blocks(const std::vector<FF::MenuInfo>& 
    return expanded_info;
 }
 
+Gtk::MenuItem* menu_item_factory(const FF::MenuInfo& item,
+				 const UiContext& ui_context,
+				 int icon_height) {
+    Gtk::MenuItem* menu_item = nullptr;
+    if (item.is_separator()) {
+        menu_item = new Gtk::SeparatorMenuItem();
+    } else if (item.label.decoration.empty()) {
+        menu_item = new Gtk::MenuItem(item.label.text, true);
+    } else if (item.label.decoration.comment()) {
+        menu_item = new Gtk::MenuItem(item.label.text);
+
+	// Italic text
+	Gtk::Label* menu_label = (Gtk::Label*)menu_item->get_child();
+        Glib::ustring text = Glib::ustring::compose("<i>%1</i>", item.label.text);
+	menu_label->set_markup(text);
+    } else if (item.label.decoration.has_group()) {
+        RadioGroup group = item.label.decoration.group();
+        Gtk::RadioButtonGroup& grouper = get_grouper(group);
+        menu_item = new Gtk::RadioMenuItem(grouper, item.label.text, true);
+    } else if (item.label.decoration.checkable()) {
+        menu_item = new Gtk::CheckMenuItem(item.label.text, true);
+    } else if (item.label.decoration.named_icon()) {
+        Glib::RefPtr<Gdk::Pixbuf> pixbuf = load_icon(item.label.decoration.image_file(), icon_height);
+        Gtk::Image* img = new Gtk::Image(pixbuf);
+        menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
+    } else {
+        Glib::RefPtr<Gdk::Pixbuf> pixbuf = build_color_icon(item.label.decoration.color(), icon_height);
+        Gtk::Image* img = new Gtk::Image(pixbuf);
+        menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
+    }
+
+    if (!item.label.accelerator.empty()) {
+	Gtk::AccelKey key(item.label.accelerator);
+	menu_item->add_accelerator("activate", ui_context.get_accel_group(),
+	                           key.get_key(), key.get_mod(), Gtk::ACCEL_VISIBLE);
+    }
+
+    if (item.sub_menu) {
+        Gtk::Menu* submenu = place_dynamic_menu(*item.sub_menu, ui_context);
+        menu_item->set_submenu(*submenu);
+    }
+
+    ActivateCB handler = item.callbacks.handler ? item.callbacks.handler : ui_context.get_activate_cb(item.mid);
+    std::function<void(void)> action;
+
+    Gtk::CheckMenuItem* check_menu_item = dynamic_cast<Gtk::CheckMenuItem*>(menu_item);
+    if (check_menu_item) {
+	// For radio items the action is triggered both when the item gains and loses selection.
+	// The radio item which just lost its selection doesn't need to activate its callback.
+        action = [check_menu_item, handler, &ui_context](){
+            if (check_menu_item->get_active()) {
+                handler(ui_context);
+            }
+        };
+    } else {
+        action = [handler, &ui_context](){ handler(ui_context); };
+    }
+    menu_item->signal_activate().connect(action);
+
+    return menu_item;
+}
+
 void build_sub_menu(Gtk::Menu* menu, const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
    Gtk::Widget* bar = gtk_find_child(ui_context.window_, "TopBar");
    int icon_height = std::max(16, bar->get_allocated_height() / 2);
@@ -80,44 +142,7 @@ void build_sub_menu(Gtk::Menu* menu, const std::vector<FF::MenuInfo>& info, cons
    menu->foreach([menu](Gtk::Widget& w){ menu->remove(w); });
 
    for (const auto& item : local_info) {
-      Gtk::MenuItem* menu_item = nullptr;
-      if (item.is_separator()) {
-         menu_item = new Gtk::SeparatorMenuItem();
-      } else if (item.label.decoration.empty()) {
-         menu_item = new Gtk::MenuItem(item.label.text, true);
-      } else if (item.label.decoration.comment()) {
-         menu_item = new Gtk::MenuItem(item.label.text);
-
-	 // Italic text
-	 Gtk::Label* menu_label = (Gtk::Label*)menu_item->get_child();
-         Glib::ustring text = Glib::ustring::compose("<i>%1</i>", item.label.text);
-	 menu_label->set_markup(text);
-      } else if (item.label.decoration.has_group()) {
-         RadioGroup group = item.label.decoration.group();
-         Gtk::RadioButtonGroup& grouper = get_grouper(group);
-         menu_item = new Gtk::RadioMenuItem(grouper, item.label.text, true);
-      } else if (item.label.decoration.checkable()) {
-         menu_item = new Gtk::CheckMenuItem(item.label.text, true);
-      } else if (item.label.decoration.named_icon()) {
-         Glib::RefPtr<Gdk::Pixbuf> pixbuf = load_icon(item.label.decoration.image_file(), icon_height);
-         Gtk::Image* img = new Gtk::Image(pixbuf);
-         menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
-      } else {
-         Glib::RefPtr<Gdk::Pixbuf> pixbuf = build_color_icon(item.label.decoration.color(), icon_height);
-         Gtk::Image* img = new Gtk::Image(pixbuf);
-         menu_item = new Gtk::ImageMenuItem(*img, item.label.text, true);
-      }
-
-      if (!item.label.accelerator.empty()) {
-	 Gtk::AccelKey key(item.label.accelerator);
-	 menu_item->add_accelerator("activate", ui_context.get_accel_group(),
-	                            key.get_key(), key.get_mod(), Gtk::ACCEL_VISIBLE);
-      }
-
-      if (item.sub_menu) {
-         Gtk::Menu* submenu = place_dynamic_menu(*item.sub_menu, ui_context);
-         menu_item->set_submenu(*submenu);
-      }
+      Gtk::MenuItem* menu_item = menu_item_factory(item, ui_context, icon_height);
 
       // Set enabled / disabled state from callback result
       EnabledCB enabled_check =
@@ -125,8 +150,6 @@ void build_sub_menu(Gtk::Menu* menu, const std::vector<FF::MenuInfo>& info, cons
                                           : item.callbacks.enabled ? item.callbacks.enabled
 					                           : ui_context.get_enabled_cb(item.mid);
       menu_item->set_sensitive(enabled_check(ui_context));
-      ActivateCB handler = item.callbacks.handler ? item.callbacks.handler : ui_context.get_activate_cb(item.mid);
-      std::function<void(void)> action;
 
       Gtk::CheckMenuItem* check_menu_item = dynamic_cast<Gtk::CheckMenuItem*>(menu_item);
       if (check_menu_item) {
@@ -135,19 +158,8 @@ void build_sub_menu(Gtk::Menu* menu, const std::vector<FF::MenuInfo>& info, cons
 	 // Gtk::Widget::set_state_flags() allows us to set visual item state without triggering its action.
 	 check_menu_item->set_state_flags(checked_cb(ui_context) ? Gtk::STATE_FLAG_CHECKED
 	 							 : Gtk::STATE_FLAG_NORMAL);
-
-	 // For radio items the action is triggered both when the item gains and loses selection.
-	 // The radio item which just lost its selection doesn't need to activate its callback.
-         action = [check_menu_item, checked_cb, handler, &ui_context](){
-            if (check_menu_item->get_active()) {
-                handler(ui_context);
-            }
-         };
-      } else {
-         action = [handler, &ui_context](){ handler(ui_context); };
       }
 
-      menu_item->signal_activate().connect(action);
       menu->append(*menu_item);
       menu_item->show();
    }
