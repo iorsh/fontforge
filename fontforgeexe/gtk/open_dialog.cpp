@@ -71,7 +71,7 @@ namespace FontDialog {
          std::string curr_path = dlg->get_current_folder();
          auto shortcuts = dlg->list_shortcut_folders();
 
-         bool button_on = (ranges::find(shortcuts, curr_path) != shortcuts.end());
+         bool button_on = (std::find(shortcuts.begin(), shortcuts.end(), curr_path) != shortcuts.end());
          bookmark_btn->set_active(button_on);
       };
       dlg->signal_current_folder_changed().connect(current_folder_changed_cb);
@@ -81,7 +81,7 @@ namespace FontDialog {
          bool btn_active = bookmark_btn->get_active();
          std::string curr_path = dlg->get_current_folder();
          auto shortcuts = dlg->list_shortcut_folders();
-         bool path_is_shortcut = (ranges::find(shortcuts, curr_path) != shortcuts.end());
+         bool path_is_shortcut = (std::find(shortcuts.begin(), shortcuts.end(), curr_path) != shortcuts.end());
 
          // NOTE: this signal is also activated by changing button state from within
          // current_folder_changed_cb(), so we need to check the shortcut presence
