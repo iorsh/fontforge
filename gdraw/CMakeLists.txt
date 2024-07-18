@@ -61,6 +61,7 @@ add_library(gdraw STATIC
 )
 
 target_link_libraries(gdraw PRIVATE fontforge)
+target_link_libraries(gdraw PUBLIC ${GTK3_LIBRARIES})
 
 if(ENABLE_X11)
   target_link_libraries(gdraw PUBLIC
