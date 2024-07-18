@@ -519,7 +519,7 @@ unsigned int collect_encoding_data(FontView *fv, EncodingMenuData** encoding_dat
             (*encoding_data_array)[i].label = NULL;
             (*encoding_data_array)[i].enc_name = NULL;
         } else {
-            (*encoding_data_array)[i].label = encodingtypes[i].text;
+            (*encoding_data_array)[i].label = (char*)encodingtypes[i].text;
             (*encoding_data_array)[i].enc_name = encodingtypes[i].userdata;
         }
     }
