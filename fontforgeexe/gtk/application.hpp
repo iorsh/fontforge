@@ -36,6 +36,8 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace FF {
 
+Glib::RefPtr<Gtk::Application> GtkApp();
+
 void add_top_view(const UiContext& ui_context);
 
 void remove_top_view(Gtk::Window& window);

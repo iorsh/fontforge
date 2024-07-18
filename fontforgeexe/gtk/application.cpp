@@ -34,7 +34,10 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace FF {
 
-static auto app = Gtk::Application::create("org.fontforge");
+Glib::RefPtr<Gtk::Application> GtkApp() {
+    static auto app = Gtk::Application::create("org.fontforge");
+    return app;
+}
 
 void add_top_view(const UiContext& ui_context) {
    static bool initialized = false;
@@ -46,17 +49,17 @@ void add_top_view(const UiContext& ui_context) {
       auto theme = Gtk::IconTheme::get_default();
       const char* pixmap_dir = fv_context->get_pixmap_dir();
       theme->prepend_search_path(pixmap_dir);
-      app->register_application();
+      GtkApp()->register_application();
 
       initialized = true;
    }
 
-   app->add_window(*ui_context.window_);
+   GtkApp()->add_window(*ui_context.window_);
 }
 
 void remove_top_view(Gtk::Window& window) {
-   app->remove_window(window);
-   app->quit();
+   GtkApp()->remove_window(window);
+   GtkApp()->quit();
 }
 
 }

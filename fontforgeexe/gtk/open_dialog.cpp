@@ -21,6 +21,7 @@ using namespace std;
 using namespace Glib;
 using Gio::File;
 
+#include "application.hpp"
 #include "open_dialog.hpp"
 #include "open_filters.hpp"
 #include "utils.hpp"
@@ -101,6 +102,8 @@ namespace FontDialog {
    // TODO: accept modal flag
    // TODO: add multi-file mode option..?
    RefPtr<File> open_dialog(RefPtr<File> path, ustring title) {
+      FF::GtkApp();
+      
       auto t = title != ustring{} ? title : "Open Font";
 
       auto d = Gtk::FileChooserDialog(t, Gtk::FILE_CHOOSER_ACTION_OPEN);
