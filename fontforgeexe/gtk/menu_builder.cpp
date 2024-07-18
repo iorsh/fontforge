@@ -178,6 +178,7 @@ void build_sub_menu(Gtk::Menu* menu, const std::vector<FF::MenuInfo>& info, cons
 	 							 : Gtk::STATE_FLAG_NORMAL);
       }
 
+      menu_item->unparent();
       menu->append(*menu_item);
       menu_item->show();
    }
