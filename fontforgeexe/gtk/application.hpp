@@ -30,7 +30,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm.h>
 
 #include "ui_context.hpp"
 

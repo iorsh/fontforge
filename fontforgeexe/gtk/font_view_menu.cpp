@@ -29,7 +29,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include <glib/gi18n.h>
-#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm.h>
 
 #include "common_menus.hpp"
 #include "font_view.hpp"

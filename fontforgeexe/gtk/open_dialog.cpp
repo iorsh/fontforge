@@ -15,7 +15,7 @@
 using namespace std;
 #include <iostream>
 
-#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm.h>
 #include <gtkmm/main.h>
 
 using namespace Glib;

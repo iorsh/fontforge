@@ -51,7 +51,6 @@
 #include <time.h>
 #include <unistd.h>
 
-//#include <gtkmm-3.0/gtkmm.h>
 #include <gtk/gtk.h>
 
 #if defined(__MINGW32__)

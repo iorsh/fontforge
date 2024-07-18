@@ -13,7 +13,7 @@
  */
 using namespace std;
 
-#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm.h>
 using namespace Glib;
 using Gio::File;
 

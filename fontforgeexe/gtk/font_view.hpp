@@ -13,7 +13,7 @@
  */
 #pragma once
 
-#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm.h>
 
 #include "c_context.h"
 #include "menu_builder.hpp"

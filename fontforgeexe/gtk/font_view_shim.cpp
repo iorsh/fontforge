@@ -13,7 +13,7 @@
  */
 #include "font_view_shim.hpp"
 
-#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm.h>
 
 #include "common_menus.hpp"
 #include "font_view.hpp"

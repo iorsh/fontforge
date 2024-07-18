@@ -32,7 +32,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <unordered_map>
 #include <gtkmm/accelgroup.h>
-#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm.h>
 
 namespace FF {
 

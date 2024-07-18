@@ -14,7 +14,7 @@
 #pragma once
 
 #include <libintl.h>
-#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm.h>
 
 namespace FF {
 
