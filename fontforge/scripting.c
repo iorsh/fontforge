@@ -51,6 +51,7 @@
 #include "fvfonts.h"
 #include "fvimportbdf.h"
 #include "fvmetrics.h"
+#include "getline.h"
 #include "gfile.h"
 #include "gutils.h"
 #include "lookups.h"
@@ -461,7 +462,7 @@ static void PrintVal(Val *val) {
 
     if ( val->type==v_str ) {
 	char *t1 = script2utf8_copy(val->u.sval);
-	char *loc = utf82def_copy(t1);
+	char *loc = utf82def_copy_safe(t1);
 	printf( "%s", loc );
 	free(loc);
     free(t1);
@@ -520,7 +521,7 @@ static void bPostNotice(Context *c) {
     } else
     {
 	t1 = script2utf8_copy(loc);
-	loc = utf82def_copy(t1);
+	loc = utf82def_copy_safe(t1);
 	fprintf(stderr,"%s\n", loc );
 	free(loc); free(t1);
     }
@@ -543,7 +544,7 @@ static void bAskUser(Context *c) {
     if ( no_windowing_ui ) {
 	char buffer[300];
 	char *t1 = script2utf8_copy(quest);
-	char *loc = utf82def_copy(t1);
+	char *loc = utf82def_copy_safe(t1);
 	printf( "%s", loc );
 	free(t1); free(loc);
 	buffer[0] = '\0';
@@ -8718,22 +8719,6 @@ static int AddScriptLine(FILE *script, const char *line)
     return getc(script);
 }
 
-#if defined(__MINGW32__) && defined(_NO_LIBREADLINE)
-
-static ssize_t getline(char **lineptr, size_t *n, FILE *stream)
-{
-	if (!*lineptr || !*n) {
-		*n = 1024;
-		*lineptr = calloc(*n+1, sizeof(char));
-	}
-	if (!fgets(*lineptr, *n, stream)) {
-		return -1;
-	}
-    return 1; // good enough
-}
-
-#endif
-
 static int _buffered_cgetc(Context *c) {
     if (c->interactive) {
 	int ch;
@@ -8742,7 +8727,7 @@ static int _buffered_cgetc(Context *c) {
 #ifdef _NO_LIBREADLINE
 	    static char *linebuf = NULL;
 	    static size_t lbsize = 0;
-	    if (getline(&linebuf, &lbsize, stdin) > 0) {
+	    if (getline_(&linebuf, &lbsize, stdin) > 0) {
 		ch = AddScriptLine(c->script, linebuf);
 	    } else {
 		if (linebuf) {

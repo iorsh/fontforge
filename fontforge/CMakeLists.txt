@@ -85,6 +85,7 @@ set(FONTFORGE_INST_HEADERS
   fontforge.h
   fontforgevw.h
   fvmetrics.h
+  getline.h
   glif_name_hash.h
   glyphcomp.h
   groups.h
@@ -145,6 +146,7 @@ add_library(fontforge
   fvfonts.c
   fvimportbdf.c
   fvmetrics.c
+  getline.c
   glif_name_hash.c
   glyphcomp.c
   groups.c
@@ -222,6 +224,11 @@ set_property(SOURCE splineoverlap.c APPEND PROPERTY COMPILE_OPTIONS ${FONTFORGE_
 set_property(TARGET fontforge PROPERTY VERSION 4)
 if(BUILD_SHARED_LIBS)
   if(WIN32 OR CYGWIN)
+    # Both fontforge.exe and *.pyd Python modules look for libfontforge.dll in
+    # their directory, so we need to produce a second copy.
+    add_custom_command(TARGET fontforge POST_BUILD
+      COMMAND cp $<TARGET_FILE:fontforge> ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+    )
     target_link_options(fontforge PRIVATE -Wl,--export-all-symbols) # FIXME
   endif()
 endif()

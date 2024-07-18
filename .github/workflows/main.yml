@@ -16,12 +16,16 @@ jobs:
         os: ["ubuntu-latest"]
         target: ["NoUI", "Debug"]
         include:
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             target: Release
     steps:
       - uses: actions/checkout@v3
         with:
           path: repo
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
       - name: Restore cached custom dependencies
         id: cache-dependencies
         uses: actions/cache@v3
@@ -55,12 +59,6 @@ jobs:
         run: |
           DESTDIR=appdir cmake -DCMAKE_INSTALL_PREFIX=/usr -P cmake_install.cmake
           ../.github/workflows/scripts/ffappimagebuild.sh appdir $GITHUB_SHA
-      - name: Update Potfile for Crowdin
-        if: matrix.target == 'Release' && github.ref == 'refs/heads/master' && github.repository == 'fontforge/fontforge' && github.event_name == 'push'
-        working-directory: repo
-        env:
-          CROWDIN_API_KEY: ${{ secrets.CROWDIN_API_KEY }}
-        run: java -jar $DEPSPREFIX/crowdin-cli.jar -c .crowdin.yml upload
       - name: Dist archive artifact
         uses: actions/upload-artifact@v3
         if: matrix.target == 'NoUI'
@@ -73,10 +71,14 @@ jobs:
         with:
           name: appimage
           path: repo/build/FontForge-*-x86_64.AppImage
+      - name: Update Potfile for Crowdin
+        if: matrix.target == 'Release' && github.ref == 'refs/heads/master' && github.repository == 'fontforge/fontforge' && github.event_name == 'push'
+        working-directory: repo
+        env:
+          CROWDIN_API_KEY: ${{ secrets.CROWDIN_API_KEY }}
+        run: java -jar $DEPSPREFIX/crowdin-cli.jar upload -c .crowdin.yml
   mac:
-    runs-on: macos-10.15
-    env:
-      PYTHON: python3
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
         with:
@@ -84,14 +86,15 @@ jobs:
       - name: Install dependencies
         run: |
           # Disable fc-cache on fontconfig install. Because it's slow.
-          sed -i.bak '/fc-cache/d' "$(brew --prefix)/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/fontconfig.rb"
+          sed -i.bak '/fc-cache/d' "$(brew --prefix)/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/f/fontconfig.rb"
           brew install pkg-config ruby cmake ninja
           brew install cairo coreutils fontconfig gettext giflib gtk+3 jpeg libpng libspiro libtiff libtool libuninameslist python@3 wget woff2
           PREFIX=$GITHUB_WORKSPACE/target
           echo "PREFIX=$PREFIX" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig" >> $GITHUB_ENV
           echo "PATH=/usr/local/opt/ruby/bin:/usr/local/opt/gettext/bin:$PATH" >> $GITHUB_ENV
-          echo "PYTHONPATH=$PYTHONPATH:$PREFIX/$($PYTHON -c "import distutils.sysconfig as sc; print(sc.get_python_lib(prefix='', plat_specific=True,standard_lib=False))")" >> $GITHUB_ENV
+          # System Python libraries will be discovered by CMake
+          echo "PYTHONPATH=$PREFIX" >> $GITHUB_ENV
       - name: Build FontForge
         working-directory: repo
         run: |
@@ -103,7 +106,12 @@ jobs:
         run: CTEST_PARALLEL_LEVEL=100 ninja -C build check
       - name: Run pyhook smoke test
         working-directory: repo
-        run: $PYTHON tests/pyhook_smoketest.py
+        run: |
+          # MacOS runner has way too much preinstalled Python versions. We must
+          # use the exact one discovered by CMake.
+          PYTHON=`cat build/CMake_Python3_EXECUTABLE`
+          PYTHONPATH=$PYTHONPATH:$PREFIX/$($PYTHON -c "import sysconfig as sc; print(sc.get_path('platlib', sc.get_preferred_scheme('user'), vars={'userbase': '.'}))")
+          $PYTHON tests/pyhook_smoketest.py
       - name: Build App Bundle
         working-directory: repo/build
         run: ninja macbundle
