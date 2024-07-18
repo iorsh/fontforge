@@ -183,6 +183,32 @@ void build_sub_menu(Gtk::Menu* menu, const std::vector<FF::MenuInfo>& info, cons
    }
 }
 
+void fill_menu_cache(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
+    Gtk::Widget* bar = gtk_find_child(ui_context.window_, "TopBar");
+    int icon_height = std::max(16, bar->get_allocated_height() / 2);
+
+    for (const auto& item : info) {
+
+	// Ignore custom blocks for now, as they don't have keyboard shortcuts
+        if (item.is_custom_block()) {
+	    continue;
+        }
+        Gtk::MenuItem* menu_item = get_menu_item(item, ui_context, icon_height);
+
+        if (item.sub_menu) {
+            fill_menu_cache(*item.sub_menu, ui_context);
+        }
+    }
+}
+
+void fill_menu_cache(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context) {
+    for (const auto& item : info) {
+        if (item.sub_menu) {
+	    fill_menu_cache(*item.sub_menu, ui_context);
+	}
+    }
+}
+
 // Callable class which dynamically builds sub-menu
 class SubmenuBuilderCB {
 public:
