@@ -332,7 +332,7 @@ std::vector<FF::MenuInfo> file_menu = {
 
 std::vector<FF::MenuInfo> select_color_menu = {
     { { N_("Color|Choose..."), "colorwheel", "" }, nullptr, { select_color<-10> }, 0 },
-    { { N_("Color|Default"), Gdk::RGBA("00000000"), "" }, nullptr, { select_color<COLOR_DEFAULT> }, 0 },
+    { { N_("Color|Default"), Gdk::RGBA("00000000"), "" }, nullptr, { select_color<(intptr_t)COLOR_DEFAULT> }, 0 },
     { { "White", Gdk::RGBA("white"), "" }, nullptr, { select_color<0xffffff> }, 0 },
     { { "Red", Gdk::RGBA("red"), "" }, nullptr, { select_color<0xff0000> }, 0 },
     { { "Green", Gdk::RGBA("green"), "" }, nullptr, { select_color<0x00ff00> }, 0 },
@@ -419,7 +419,7 @@ std::vector<FF::MenuInfo> show_dependent_menu = {
 
 std::vector<FF::MenuInfo> set_color_menu = {
     { { N_("Color|Choose..."), "colorwheel", "" }, nullptr, { set_color<-10> }, 0 },
-    { { N_("Color|Default"), Gdk::RGBA("00000000"), "" }, nullptr, { set_color<COLOR_DEFAULT> }, 0 },
+    { { N_("Color|Default"), Gdk::RGBA("00000000"), "" }, nullptr, { set_color<(intptr_t)COLOR_DEFAULT> }, 0 },
     { { "White", Gdk::RGBA("white"), "" }, nullptr, { set_color<0xffffff> }, 0 },
     { { "Red", Gdk::RGBA("red"), "" }, nullptr, { set_color<0xff0000> }, 0 },
     { { "Green", Gdk::RGBA("green"), "" }, nullptr, { set_color<0x00ff00> }, 0 },
