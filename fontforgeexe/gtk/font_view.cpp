@@ -125,6 +125,21 @@ Gtk::Label* make_character_info_label() {
    return character_info;
 }
 
+bool on_font_view_event(GdkEvent* event) {
+    // For some strange reason GTK fires two events after the window started
+    // destroying, and they cause unsightly critical warnings. Let's just
+    // block them.
+    //
+    // This could be due to some GDraw/GTK interaction, so this hack should
+    // go another day. The signals don't seem to be in use. This hack can also
+    // be removed without visible consequences except for the warnings themselves.
+
+    if (event->type == GDK_FOCUS_CHANGE || event->type == GDK_WINDOW_STATE) {
+	return true;
+    }
+
+    return false;
+}
 
 bool on_drawing_area_event(GdkEvent* event) {
    // Normally events automatically get to the main loop and picked from there
@@ -171,6 +186,7 @@ Gtk::Window* create_view(FVContext** p_fv_context, int width, int height) {
 
    FF::add_top_view(*fv_ui_context);
    font_view_window->set_default_size(width, height);
+   font_view_window->signal_event().connect(&on_font_view_event);
 
    font_view_window->signal_delete_event().connect(
       [font_view_window, fv_ui_context](GdkEventAny* event){
