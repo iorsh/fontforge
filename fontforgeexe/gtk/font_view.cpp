@@ -302,6 +302,11 @@ Gtk::Window* create_view(FVContext** p_fv_context, int width, int height) {
 
    font_view_window->add_accel_group(fv_ui_context->get_accel_group());
 
+   // Register all keyboard shortcuts separately to make them available immediately.
+   // The menus are built on demand, and shortcuts are not yet registered with menu items
+   // when the window is created.
+   register_accelerators(top_menu, *fv_ui_context);
+
    return font_view_window;   
 }
 

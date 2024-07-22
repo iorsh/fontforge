@@ -95,8 +95,11 @@ Gtk::MenuItem* menu_item_factory(const FF::MenuInfo& item,
     }
 
     if (!item.label.accelerator.empty()) {
+	Glib::RefPtr<Gtk::AccelGroup> accel_group = ui_context.get_accel_group();
 	Gtk::AccelKey key(item.label.accelerator);
-	menu_item->add_accelerator("activate", ui_context.get_accel_group(),
+
+	accel_group->disconnect_key(key.get_key(), key.get_mod());
+	menu_item->add_accelerator("activate", accel_group,
 	                           key.get_key(), key.get_mod(), Gtk::ACCEL_VISIBLE);
     }
 
@@ -215,6 +218,39 @@ Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, const UiC
    }
 
    return menu_bar;
+}
+
+static void register_accelerators(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
+    Glib::RefPtr<Gtk::AccelGroup> accel_group = ui_context.get_accel_group();
+
+    for (const auto& item : info) {
+
+	// Ignore custom blocks for now, as they don't have keyboard shortcuts
+        if (item.is_custom_block()) {
+	    continue;
+        }
+
+	if (!item.label.accelerator.empty()) {
+	    Gtk::AccelKey key(item.label.accelerator);
+
+	    ActivateCB handler = item.callbacks.handler ? item.callbacks.handler : ui_context.get_activate_cb(item.mid);
+	    std::function<void(void)> action = [handler, &ui_context](){ handler(ui_context); };
+
+	    accel_group_connect(accel_group, key, action);
+	}
+
+        if (item.sub_menu) {
+            register_accelerators(*item.sub_menu, ui_context);
+        }
+    }
+}
+
+void register_accelerators(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context) {
+    for (const auto& item : info) {
+        if (item.sub_menu) {
+	    register_accelerators(*item.sub_menu, ui_context);
+	}
+    }
 }
 
 }
