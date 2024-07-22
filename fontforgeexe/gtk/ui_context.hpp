@@ -30,7 +30,6 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <unordered_map>
 #include <gtkmm/accelgroup.h>
 #include <gtkmm.h>
 
@@ -53,8 +52,6 @@ public:
     virtual Glib::RefPtr<Gtk::AccelGroup> get_accel_group() const = 0;
 
     Gtk::Window* window_ = nullptr;
-
-    mutable std::unordered_map<std::string, Gtk::MenuItem*> menu_cache;
 };
 
 }
