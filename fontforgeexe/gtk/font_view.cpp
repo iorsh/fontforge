@@ -199,12 +199,6 @@ Gtk::Window* create_view(FVContext** p_fv_context, int width, int height) {
          return !do_close;
       });
 
-   // We need realized window to measure the height of the menu bar and derive
-   // the icon size from it.
-   font_view_window->signal_realize().connect([fv_ui_context](){
-      fill_menu_cache(top_menu, *fv_ui_context);
-   });
-
    Gtk::Grid* char_grid_box = new Gtk::Grid();
 
    Gtk::MenuBar* top_bar = build_menu_bar(top_menu, *fv_ui_context);

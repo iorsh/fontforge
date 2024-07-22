@@ -140,8 +140,6 @@ Gtk::Menu* place_dynamic_menu(const std::vector<FF::MenuInfo>& info, const UiCon
 
 Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context);
 
-void fill_menu_cache(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context);
-
 // Find the C callback set
 template<typename ACT>
 ACT* find_legacy_callback_set(int mid, ACT* actions) {
