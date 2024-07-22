@@ -236,6 +236,13 @@ Gtk::Menu* place_dynamic_menu(const std::vector<FF::MenuInfo>& info, const UiCon
    SubmenuBuilderCB submenu_builder(menu, info, ui_context);
    menu->signal_show().connect(submenu_builder);
 
+   // Enable all menu items when the menu is hidden, to ensure that keyboard shortcuts can be
+   // always activated.
+   auto on_menu_hide = [menu](){
+        menu->foreach([](Gtk::Widget& w){ w.set_sensitive(true); });
+   };
+   menu->signal_hide().connect(on_menu_hide);
+
    return menu;
 }
 
