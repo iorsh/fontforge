@@ -50,3 +50,6 @@ guint32 color_from_gdk_rgba(const Gdk::RGBA& rgba);
 Glib::RefPtr<Gdk::Pixbuf> build_color_icon(const Gdk::RGBA& color, gint size);
 
 Glib::RefPtr<Gdk::Pixbuf> load_icon(const Glib::ustring &icon_name, int size);
+
+void accel_group_connect (Glib::RefPtr<Gtk::AccelGroup> accel_group, const Gtk::AccelKey& key,
+			  const std::function<void(void)>& action);

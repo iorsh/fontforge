@@ -109,3 +109,19 @@ Glib::RefPtr<Gdk::Pixbuf> load_icon(const Glib::ustring &icon_name, int size) {
 
     return fallback_icon;
 }
+
+static void accel_action_cb (GtkAccelGroup* accel_group, GObject* obj,
+        guint keyval, GdkModifierType mods, std::function<void(void)>* action) {
+    (*action)();
+}
+
+void accel_group_connect (Glib::RefPtr<Gtk::AccelGroup> accel_group, const Gtk::AccelKey& key,
+			  const std::function<void(void)>& action) {
+    guint keyval = key.get_key();
+    GdkModifierType mod = (GdkModifierType)key.get_mod();
+
+    gpointer user_data = new std::function<void(void)>(action);
+    GClosure* closure = g_cclosure_new (G_CALLBACK (accel_action_cb), user_data, NULL);
+
+    gtk_accel_group_connect (accel_group->gobj(), keyval, mod, GTK_ACCEL_VISIBLE, closure);
+}
