@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ master, font_view, releases/** ]
+    branches: [ master, font_view, win_icons, releases/** ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
