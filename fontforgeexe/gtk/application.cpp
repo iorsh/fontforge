@@ -35,7 +35,11 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace FF {
 
 Glib::RefPtr<Gtk::Application> GtkApp() {
-    static auto app = Gtk::Application::create("org.fontforge");
+    // Unique instance mode doesn't work well as long as the startup sequence is handled in the legacy code.
+    // It would be possible to enable it once the application main loop is started with Gtk::Application::run().
+    Gio::ApplicationFlags app_flags = Gio::APPLICATION_NON_UNIQUE;
+
+    static auto app = Gtk::Application::create("org.fontforge", app_flags);
     return app;
 }
 
