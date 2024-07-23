@@ -50,10 +50,11 @@ void add_top_view(const UiContext& ui_context) {
       const auto& fv_ui_context = static_cast<const FontViewNS::FontViewUiContext&>(ui_context);
       FVContext* fv_context = fv_ui_context.get_legacy_context();
 
+      GtkApp()->register_application();
+
       auto theme = Gtk::IconTheme::get_default();
       const char* pixmap_dir = fv_context->get_pixmap_dir();
       theme->prepend_search_path(pixmap_dir);
-      GtkApp()->register_application();
 
       initialized = true;
    }
