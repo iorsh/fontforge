@@ -125,7 +125,28 @@ Gtk::Label* make_character_info_label() {
    return character_info;
 }
 
+void dismiss_menus(GdkEvent* event) {
+    Gtk::Widget* grabber = Gtk::Widget::get_current_modal_grab();
+    while (grabber) {
+	Gtk::Menu* menu = dynamic_cast<Gtk::Menu*>(grabber);
+	if (menu) {
+	    grabber = menu->get_parent_shell();
+	    menu->get_parent()->hide();
+	} else {
+	    grabber = nullptr;
+	}
+    }
+}
+
 bool on_font_view_event(GdkEvent* event) {
+
+    // Wayland fails to dismiss open menus when the user moves the window or changes
+    // the focus to another application. This hack dismisses the menus manually,
+    // but it would be nice if someday Wayland does it itself.
+    if (event->type == GDK_FOCUS_CHANGE || event->type == GDK_WINDOW_STATE || event->type == GDK_CONFIGURE) {
+	dismiss_menus(event);
+    }
+
     // For some strange reason GTK fires two events after the window started
     // destroying, and they cause unsightly critical warnings. Let's just
     // block them.
@@ -133,7 +154,6 @@ bool on_font_view_event(GdkEvent* event) {
     // This could be due to some GDraw/GTK interaction, so this hack should
     // go another day. The signals don't seem to be in use. This hack can also
     // be removed without visible consequences except for the warnings themselves.
-
     if (event->type == GDK_FOCUS_CHANGE || event->type == GDK_WINDOW_STATE) {
 	return true;
     }
