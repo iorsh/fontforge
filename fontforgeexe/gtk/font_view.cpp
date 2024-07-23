@@ -15,6 +15,7 @@
 #include "font_view.hpp"
 
 #include <atomic>
+#include <iostream>
 
 #include "application.hpp"
 #include "font_view_shim.hpp"
@@ -301,6 +302,9 @@ Gtk::Window* create_view(FVContext** p_fv_context, int width, int height) {
    font_view_window->add(*font_view_grid);
 
    font_view_window->show_all();
+
+   // Hack to raise the window in Wayland when called from terminal
+   font_view_window->present();
 
    // Drawing area is responsible to dispatch keypress events. Most go to the legacy code.
    GdkWindow* drawing_win = gtk_widget_get_window((GtkWidget*)(drawing_area->gobj()));
