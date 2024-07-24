@@ -28,6 +28,7 @@ echo "FontForge built against Python $PYVER"
 if [ ! -f linuxdeploy.AppImage ]; then
     curl -Lo linuxdeploy.AppImage "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
     chmod +x linuxdeploy.AppImage
+fi
 
 if [ ! -f linuxdeploy-plugin-gtk.sh ]; then
     curl -Lo linuxdeploy-plugin-gtk.sh "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh"
