@@ -836,7 +836,8 @@ return(d.ret);
 char *GetPostScriptFontName(char *dir, bool mult, bool modal) {
    // TODO: handle passed 'mult' and modal settings
    // TODO: potentially restructure the whole call stack to get here?
-   const char* path = select_font_dialog(dir, "Open Font");
+   char* path = select_font_dialog(dir, "Open Font");
+   GFileNormalizePath(path);
    // TODO: check into possible locale issues etc!
    return strcmp(path, "/dev/null") ? path : NULL;
 }
