@@ -744,8 +744,13 @@ void FindProgRoot(const char *prog) {
     }
 #endif
 
+#if defined(__MINGW32__)
+    char* dev_dir_test = "target";
+#else
     /* If the fontforge binary path includes "build", we are in the developer's mode. */
-    if (strstr(program_root, "build")) {
+    char* dev_dir_test = "build";
+#endif
+    if (strstr(program_root, dev_dir_test)) {
 	devel_env = true;
     }
 
@@ -774,7 +779,11 @@ const char *getPixmapDir(void) {
     if (!pixmapdir) {
 	if (devel_env) {
 	    /* THEME macro is imported from the CMake ${THEME} variable */
+#if defined(__MINGW32__)
+            char *theme_src = smprintf("%s/../../work/mingw64/fontforge/fontforgeexe/pixmaps/%s", program_root, THEME);
+#else
             char *theme_src = smprintf("%s/../fontforgeexe/pixmaps/%s", program_root, THEME);
+#endif
             pixmapdir = GFileGetAbsoluteName(theme_src);
             free(theme_src);
 	} else {
