@@ -41,7 +41,7 @@ private:
     Glib::RefPtr<Gtk::AccelGroup> accel_group;
 };
 
-extern std::vector<FF::MenuBarInfo> top_menu;
+extern std::vector<FF::MenuInfo> top_menu;
 extern std::vector<FF::MenuInfo> popup_menu;
 
 Gtk::Window* create_view(FVContext** p_fv_context, int width, int height);

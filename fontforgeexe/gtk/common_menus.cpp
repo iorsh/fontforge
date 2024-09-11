@@ -126,6 +126,10 @@ std::vector<FF::MenuInfo> python_tools(const FF::UiContext& ui_context) {
     return tools_menu;
 }
 
+bool python_tools_enabled(const FF::UiContext& ui_context) {
+    return !python_menu_items.empty();
+}
+
 std::vector<FF::MenuInfo> recent_files(const FF::UiContext& ui_context) {
     const FontViewUiContext& fv_ui_context = static_cast<const FontViewUiContext&>(ui_context);
     FVContext* fv_context = fv_ui_context.get_legacy_context();

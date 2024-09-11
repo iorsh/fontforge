@@ -208,12 +208,17 @@ Gtk::Menu* place_dynamic_menu(const std::vector<FF::MenuInfo>& info, const UiCon
    return menu;
 }
 
-Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context) {
+Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
    Gtk::MenuBar* menu_bar = new Gtk::MenuBar();
 
    for (const auto& item : info) {
       Gtk::MenuItem* menu_item = new Gtk::MenuItem(item.label.text, true);
       menu_bar->append(*menu_item);
+
+      // Set enabled / disabled state from callback result
+      EnabledCB enabled_check = item.callbacks.enabled ? item.callbacks.enabled
+					               : ui_context.get_enabled_cb(item.mid);
+      menu_item->set_sensitive(enabled_check(ui_context));
 
       if (item.sub_menu) {
          Gtk::Menu* sub_menu = place_dynamic_menu(*item.sub_menu, ui_context);
@@ -224,7 +229,7 @@ Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, const UiC
    return menu_bar;
 }
 
-static void register_accelerators(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
+void register_accelerators(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context) {
     Glib::RefPtr<Gtk::AccelGroup> accel_group = ui_context.get_accel_group();
 
     for (const auto& item : info) {
@@ -246,14 +251,6 @@ static void register_accelerators(const std::vector<FF::MenuInfo>& info, const U
         if (item.sub_menu) {
             register_accelerators(*item.sub_menu, ui_context);
         }
-    }
-}
-
-void register_accelerators(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context) {
-    for (const auto& item : info) {
-        if (item.sub_menu) {
-	    register_accelerators(*item.sub_menu, ui_context);
-	}
     }
 }
 

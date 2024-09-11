@@ -60,6 +60,7 @@ extern std::vector<PythonMenuItem> python_menu_items;
 void register_py_menu_item(const PyMenuSpec* spec, int flags);
 
 std::vector<FF::MenuInfo> python_tools(const FF::UiContext& ui_context);
+bool python_tools_enabled(const FF::UiContext& ui_context);
 
 std::vector<FF::MenuInfo> recent_files(const FF::UiContext& ui_context);
 

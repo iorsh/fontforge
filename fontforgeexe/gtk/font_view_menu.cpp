@@ -721,22 +721,22 @@ std::vector<FF::MenuInfo> help_menu = {
     { { N_("_License..."), FF::NonCheckable, "" }, nullptr, { LaunchHelp("https://github.com/fontforge/fontforge/blob/master/LICENSE") }, 0 },
 };
 
-std::vector<FF::MenuBarInfo> top_menu = {
-    { { N_("_File") }, &file_menu, -1 },
-    { { N_("_Edit") }, &edit_menu, -1 },
-    { { N_("E_lement") }, &element_menu, -1 },
+std::vector<FF::MenuInfo> top_menu = {
+    { { N_("_File") }, &file_menu, FF::SubMenuCallbacks, -1 },
+    { { N_("_Edit") }, &edit_menu, FF::SubMenuCallbacks, -1 },
+    { { N_("E_lement") }, &element_menu, FF::SubMenuCallbacks, -1 },
 #ifndef _NO_PYTHON
-    { { N_("_Tools") }, &tools_menu, -1 },
+    { { N_("_Tools") }, &tools_menu, { FF::NoAction, FF::python_tools_enabled }, -1 },
 #endif
-    { { N_("H_ints") }, &hints_menu, -1 },
-    { { N_("E_ncoding") }, &encoding_menu, -1 },
-    { { N_("_View") }, &view_menu, -1 },
-    { { N_("_Metrics") }, &metrics_menu, -1 },
-    { { N_("_CID") }, &cid_menu, -1 },
+    { { N_("H_ints") }, &hints_menu, FF::SubMenuCallbacks, -1 },
+    { { N_("E_ncoding") }, &encoding_menu, FF::SubMenuCallbacks, -1 },
+    { { N_("_View") }, &view_menu, FF::SubMenuCallbacks, -1 },
+    { { N_("_Metrics") }, &metrics_menu, FF::SubMenuCallbacks, -1 },
+    { { N_("_CID") }, &cid_menu, FF::SubMenuCallbacks, -1 },
 /* GT: Here (and following) MM means "MultiMaster" */
-    { { N_("MM") }, &mm_menu, -1 },
-    { { N_("_Window") }, &window_menu, -1 },
-    { { N_("_Help") }, &help_menu, -1 },
+    { { N_("MM") }, &mm_menu, FF::SubMenuCallbacks, -1 },
+    { { N_("_Window") }, &window_menu, FF::SubMenuCallbacks, -1 },
+    { { N_("_Help") }, &help_menu, FF::SubMenuCallbacks, -1 },
 };
 
 std::vector<FF::MenuInfo> popup_menu = {

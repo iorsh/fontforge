@@ -130,17 +130,11 @@ struct MenuInfo {
 
 static const MenuInfo kMenuSeparator = {{""}};
 
-struct MenuBarInfo {
-    LabelInfo label;
-    std::vector<FF::MenuInfo> *sub_menu;
-    int mid;
-};
-
 Gtk::Menu* place_dynamic_menu(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context);
 
-Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context);
+Gtk::MenuBar* build_menu_bar(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context);
 
-void register_accelerators(const std::vector<FF::MenuBarInfo>& info, const UiContext& ui_context);
+void register_accelerators(const std::vector<FF::MenuInfo>& info, const UiContext& ui_context);
 
 // Find the C callback set
 template<typename ACT>
