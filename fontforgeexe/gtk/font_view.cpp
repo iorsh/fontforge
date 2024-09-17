@@ -144,7 +144,7 @@ bool on_font_view_event(GdkEvent* event) {
     // Wayland fails to dismiss open menus when the user moves the window or changes
     // the focus to another application. This hack dismisses the menus manually,
     // but it would be nice if someday Wayland does it itself.
-    if (event->type == GDK_FOCUS_CHANGE || event->type == GDK_WINDOW_STATE || event->type == GDK_CONFIGURE) {
+    if (event->type == GDK_WINDOW_STATE || event->type == GDK_CONFIGURE) {
 	dismiss_menus(event);
     }
 

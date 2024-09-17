@@ -4101,10 +4101,12 @@ static bool ellistcheck(FontView *fv, int mid) {
 	  case MID_CharInfo:
 	    disabled = anychars<0 || in_modal;
 	  break;
+#if 0
 	  case MID_Transform:
 	    disabled = anychars==-1;
 	    /* some Transformations make sense on bitmaps now */
 	  break;
+#endif
 	  case MID_AddExtrema: case MID_AddInflections:
 	  case MID_Harmonize: case MID_Simplify: 
 	  case MID_Stroke: case MID_RmOverlap: case MID_Styles: 
@@ -5479,7 +5481,6 @@ FVMenuAction fvpopupactions[] = {
     { MID_RegenBitmaps, ellistcheck, NULL, FVMenuBitmaps },
     { MID_RemoveBitmaps, ellistcheck, NULL, FVMenuBitmaps },
     { MID_Styles, ellistcheck, NULL, NULL },
-    { MID_Transform, ellistcheck, NULL, NULL },
     { MID_Stroke, ellistcheck, NULL, FVMenuStroke },
 #ifdef FONTFORGE_CONFIG_TILEPATH
     { MID_TilePath, ellistcheck, NULL, FVMenuTilePath },
