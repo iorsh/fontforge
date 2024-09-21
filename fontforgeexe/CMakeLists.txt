@@ -1,10 +1,9 @@
 # Distributed under the original FontForge BSD 3-clause license
 
 add_executable(fontforgeexe
-        gtk/open_dialog_shim.hpp
-        gtk/open_dialog_shim.cpp
-        gtk/open_filters.hpp)
-target_sources(fontforgeexe PUBLIC main.cpp)
+        gtk/dialogs.hpp
+        gtk/dialogs.cpp)
+target_sources(fontforgeexe PUBLIC main.c)
 set_target_properties(fontforgeexe PROPERTIES OUTPUT_NAME "fontforge")
 
 # TODO: position better?
