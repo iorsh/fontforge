@@ -1,8 +1,8 @@
-# TODO: try and make it build in a way that links properly...
-#add_library(gtk STATIC)
-#target_sources(gtk
-#target_sources(fontforgeexe
-#   PRIVATE
-#      dialogs.hpp
-#      dialogs.cpp
-#)
+add_library(ffgtk OBJECT
+  dialogs.hpp
+  dialogs.cpp
+)
+target_link_libraries(ffgtk PRIVATE
+  fontforge_common_headers
+  PkgConfig::GTKMM
+)

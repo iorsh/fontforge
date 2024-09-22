@@ -123,16 +123,6 @@ if(HAVE_PTHREAD_H)
   find_package(Threads)
 endif()
 
-# TODO: integrate better
-find_package(PkgConfig)
-pkg_check_modules(GTKMM gtkmm-3.0)
-include_directories(${GTKMM_INCLUDE_DIRS})
-link_directories(${GTKMM_LIBRARY_DIRS})
-
-pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-include_directories(${GTK3_INCLUDE_DIRS})
-link_directories(${GTK3_LIBRARY_DIRS})
-
 # Requirements for options
 if(ENABLE_GUI)
   if(ENABLE_X11)
@@ -144,6 +134,9 @@ if(ENABLE_GUI)
     find_package(X11 REQUIRED)
   else()
     find_package(GDK3 3.10 REQUIRED)
+    find_package(PkgConfig)
+    pkg_check_modules(GTK3 REQUIRED IMPORTED_TARGET gtk+-3.0)
+    pkg_check_modules(GTKMM REQUIRED IMPORTED_TARGET  gtkmm-3.0)
   endif()
 endif()
 

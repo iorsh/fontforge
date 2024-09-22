@@ -1,15 +1,9 @@
 # Distributed under the original FontForge BSD 3-clause license
 
-add_executable(fontforgeexe
-        gtk/dialogs.hpp
-        gtk/dialogs.cpp)
-target_sources(fontforgeexe PUBLIC main.c)
+add_executable(fontforgeexe main.c)
 set_target_properties(fontforgeexe PROPERTIES OUTPUT_NAME "fontforge")
 
 # TODO: position better?
-add_subdirectory(gtk)
-target_link_libraries(fontforgeexe PUBLIC ${GTKMM_LIBRARIES})
-target_link_libraries(fontforgeexe PUBLIC ${GTK3_LIBRARIES})
 
 if(ENABLE_GUI)
 
@@ -98,6 +92,8 @@ if(ENABLE_GUI)
     wordlistparser.h
   )
 
+  add_subdirectory(gtk)
+
   if(APPLE)
     target_sources(fontforgeexe PRIVATE macobjective.m)
     target_link_libraries(fontforgeexe
@@ -110,7 +106,10 @@ if(ENABLE_GUI)
     target_link_libraries(fontforgeexe PRIVATE Threads::Threads)
   endif()
 
-  target_link_libraries(fontforgeexe PRIVATE gdraw)
+  target_link_libraries(fontforgeexe PRIVATE
+    gdraw
+    ffgtk
+  )
 else()
   target_sources(fontforgeexe PRIVATE startnoui.c)
 endif()
