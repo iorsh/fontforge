@@ -12,7 +12,7 @@
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm.h>
 #include <iostream>
 #include "dialogs.hpp"
 #include "intl.h"
@@ -45,6 +45,7 @@ class AddEncodingSlotsDialog final : public Gtk::Dialog {
 
    // Show the dialog and return either the entered integer, 0 if the dialog was cancelled/closed, or -1 if something strange happened
    static int show() {
+      Gtk::Main::init_gtkmm_internals();
       auto *dialog = new AddEncodingSlotsDialog();
       int i = -1;
       dialog->signal_response().connect([=, &i](int response_id){

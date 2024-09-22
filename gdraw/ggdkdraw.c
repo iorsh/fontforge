@@ -40,7 +40,8 @@
 
 #include <assert.h>
 #include <math.h>
-#include <gtk/gtk.h>
+// #include <gtk/gtk.h>
+void gtk_main_do_event (GdkEvent* event);
 
 // HACK HACK HACK
 #ifdef GDK_WINDOWING_WIN32
