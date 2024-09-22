@@ -9,6 +9,7 @@ set_target_properties(fontforgeexe PROPERTIES OUTPUT_NAME "fontforge")
 # TODO: position better?
 add_subdirectory(gtk)
 target_link_libraries(fontforgeexe PUBLIC ${GTKMM_LIBRARIES})
+target_link_libraries(fontforgeexe PUBLIC ${GTK3_LIBRARIES})
 
 if(ENABLE_GUI)
 

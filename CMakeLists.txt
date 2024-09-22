@@ -129,6 +129,10 @@ pkg_check_modules(GTKMM gtkmm-3.0)
 include_directories(${GTKMM_INCLUDE_DIRS})
 link_directories(${GTKMM_LIBRARY_DIRS})
 
+pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+include_directories(${GTK3_INCLUDE_DIRS})
+link_directories(${GTK3_LIBRARY_DIRS})
+
 # Requirements for options
 if(ENABLE_GUI)
   if(ENABLE_X11)
