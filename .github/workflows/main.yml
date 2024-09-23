@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ master, local_ci, releases/** ]
+    branches: [ master, gtk_base, releases/** ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
