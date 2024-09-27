@@ -50,8 +50,7 @@ bool on_drawing_area_event(GdkEvent* event) {
 
 FontView::FontView(int width, int height) {
     static auto app = Gtk::Application::create("org.fontforge");
-    font_view_window = new Gtk::Window();
-    font_view_window->set_default_size(width, height);
+    window.set_default_size(width, height);
 
     Gtk::DrawingArea* drawing_area = new Gtk::DrawingArea();
     drawing_area->set_name("CharGrid");
@@ -61,13 +60,13 @@ FontView::FontView(int width, int height) {
     drawing_area->signal_event().connect(&on_drawing_area_event);
     drawing_area->set_events(Gdk::ALL_EVENTS_MASK);
 
-    font_view_window->add(*drawing_area);
+    window.add(*drawing_area);
 
-    font_view_window->show_all();
+    window.show_all();
 }
 
 GtkWidget* FontView::get_drawing_widget_c() {
-    Gtk::Widget* drawing_area = gtk_find_child(font_view_window, "CharGrid");
+    Gtk::Widget* drawing_area = gtk_find_child(&window, "CharGrid");
 
     return (GtkWidget*)drawing_area->gobj();
 }

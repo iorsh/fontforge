@@ -37,15 +37,13 @@ class FontView {
 
     void set_title(const std::string& window_title,
                    const std::string& taskbar_title) {
-    if (font_view_window != nullptr) {
-        font_view_window->set_title(window_title);
-    }
+        window.set_title(window_title);
     }
 
     GtkWidget* get_drawing_widget_c();
 
  private:
-Gtk::Window* font_view_window;
+Gtk::Window window;
 };
 
 }  // namespace ff::views
