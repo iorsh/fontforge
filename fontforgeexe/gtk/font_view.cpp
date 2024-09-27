@@ -39,7 +39,6 @@ bool on_drawing_area_event(GdkEvent* event) {
    // but the framework just invokes the handler directly. Here we catch it and
    // place into the main loop, so that it can reach the GDraw handler.
    if (event->type == GDK_CONFIGURE) {
-	std::cout << "config event" << std::endl;
       gdk_event_put(event);
       return true;
    }
@@ -60,14 +59,22 @@ FontView::FontView(int width, int height) {
     da.set_events(Gdk::ALL_EVENTS_MASK);
 
     window.add(da);
+    std::cout << "da constr " << &da << std::endl;
 
     window.show_all();
 }
 
 GtkWidget* FontView::get_drawing_widget_c() {
-    Gtk::Widget* drawing_area = gtk_find_child(&window, "CharGrid");
+     gtk_find_child(&window, "zz");
+//     std::cout << "da found " << &da << std::endl;
 
-    return (GtkWidget*)drawing_area->gobj();
+// GtkWidget* da_wi_found = (GtkWidget*)drawing_area->gobj();
+GtkWidget* da_wi = (GtkWidget*)da.gobj();
+
+//     std::cout << "da_wi_found " << da_wi_found << std::endl;
+    std::cout << "da_wi " << da_wi << std::endl;
+
+    return da_wi;
 }
 
 }  // namespace ff::views

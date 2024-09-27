@@ -28,9 +28,9 @@ Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name) {
 
     if (c) {
         std::vector<Gtk::Widget*> children = c->get_children();
-        for (size_t i = 0; res == nullptr && i < children.size(); ++i) {
-            res = gtk_find_child(children[i], name);
-        }
+//         for (size_t i = 0; res == nullptr && i < children.size(); ++i) {
+//             res = gtk_find_child(children[i], name);
+//         }
     }
     return res;
 }
