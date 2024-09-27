@@ -44,6 +44,7 @@ class FontView {
 
  private:
 Gtk::Window window;
+Gtk::DrawingArea da;
 };
 
 }  // namespace ff::views

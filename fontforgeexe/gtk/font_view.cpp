@@ -52,15 +52,14 @@ FontView::FontView(int width, int height) {
     static auto app = Gtk::Application::create("org.fontforge");
     window.set_default_size(width, height);
 
-    Gtk::DrawingArea* drawing_area = new Gtk::DrawingArea();
-    drawing_area->set_name("CharGrid");
+    da.set_name("CharGrid");
 
     // Fontforge drawing area processes events in the legacy code
     // expose, keypresses, mouse etc.
-    drawing_area->signal_event().connect(&on_drawing_area_event);
-    drawing_area->set_events(Gdk::ALL_EVENTS_MASK);
+    da.signal_event().connect(&on_drawing_area_event);
+    da.set_events(Gdk::ALL_EVENTS_MASK);
 
-    window.add(*drawing_area);
+    window.add(da);
 
     window.show_all();
 }
