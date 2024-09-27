@@ -1684,10 +1684,6 @@ static void FVMenuCondense(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNU
 
 #define MID_Warnings	3000
 
-bool IsGTK(FontView *fv){
-   return (fv->gtk_window != NULL);
-}
-
 /* returns -1 if nothing selected, if exactly one char return it, -2 if more than one */
 static int FVAnyCharSelected(FontView *fv) {
     int i, val=-1;
@@ -6832,9 +6828,7 @@ return( GGadgetDispatchEvent(fv->vsb,event));
     GGadgetPopupExternalEvent(event);
     switch ( event->type ) {
       case et_resize:
-      if (IsGTK(fv)) {
         gs_sizeSet(fv,gw);
-      }
       break;
       case et_expose:
 	GDrawSetLineWidth(gw,0);
@@ -7325,10 +7319,8 @@ static void FVCreateInnards(FontView *fv,GRect *pos) {
     wattrs.event_masks = ~(1<<et_charup);
     wattrs.cursor = ct_pointer;
     wattrs.background_color = view_bgcol;
-    if (IsGTK(fv)) {
-      wattrs.mask |= wam_gtk_wrapper;
-      wattrs.gtk_widget = get_drawing_widget_c(fv->gtk_window);
-    }
+    wattrs.mask |= wam_gtk_wrapper;
+    wattrs.gtk_widget = get_drawing_widget_c(fv->gtk_window);
     fv->v = GWidgetCreateTopWindow(NULL,pos,v_e_h,fv,&wattrs);
     GDrawSetVisible(fv->v,true);
     GDrawSetWindowTypeName(fv->v, "FontView");
@@ -7875,10 +7867,6 @@ return;
     subsize.x = 0; subsize.y = 0;
     subsize.width = cc*fv->cbw + 1;
     subsize.height = rc*fv->cbh + 1;
-    if (!IsGTK(fv)) {
-      GDrawResize(fv->v,subsize.width,subsize.height);
-      GDrawMove(fv->v,0,y);
-    }
     GGadgetMove(fv->vsb,subsize.width,y);
     GGadgetResize(fv->vsb,gsize.width,subsize.height);
 
@@ -7895,13 +7883,11 @@ return;
     GDrawRequestExpose(fv->v,NULL,true);
 
     /* TODO(GTK): verify behavior of default_fv_row_count/default_fv_col_count preference */
-    if (IsGTK(fv)) {
-      default_fv_row_count = fv->rowcnt;
-      default_fv_col_count = fv->colcnt;
-      fv->b.sf->desired_row_cnt = fv->rowcnt;
-      fv->b.sf->desired_col_cnt = fv->colcnt;
-      SavePrefs(true);
-    }
+    default_fv_row_count = fv->rowcnt;
+    default_fv_col_count = fv->colcnt;
+    fv->b.sf->desired_row_cnt = fv->rowcnt;
+    fv->b.sf->desired_col_cnt = fv->colcnt;
+    SavePrefs(true);
 }
 
 static int gs_sub_e_h(GWindow pixmap, GEvent *event) {
