@@ -6801,11 +6801,6 @@ static void FVScrollToPos(FontView* fv, int32_t position) {
 static int v_e_h(GWindow gw, GEvent *event) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
 
-    if (( event->type==et_mouseup || event->type==et_mousedown ) &&
-	    (event->u.mouse.button>=4 && event->u.mouse.button<=7) ) {
-return( GGadgetDispatchEvent(fv->vsb,event));
-    }
-
     GGadgetPopupExternalEvent(event);
     switch ( event->type ) {
       case et_resize:
@@ -6934,11 +6929,6 @@ static FontView* ActiveFontView = 0;
 
 static int fv_e_h(GWindow gw, GEvent *event) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
-
-    if (( event->type==et_mouseup || event->type==et_mousedown ) &&
-	    (event->u.mouse.button>=4 && event->u.mouse.button<=7) ) {
-return( GGadgetDispatchEvent(fv->vsb,event));
-    }
 
     switch ( event->type ) {
       case et_focus:
@@ -7684,7 +7674,7 @@ static void FVCopyInnards(FontView *fv,GRect *pos,int infoh,
 
 void KFFontViewInits(struct kf_dlg *kf,GGadget *drawable) {
     GGadgetData gd;
-    GRect pos, gsize, sbsize;
+    GRect pos, gsize;
     GWindow dw = GDrawableGetWindow(drawable);
     int infoh;
     int ps;
@@ -7724,9 +7714,8 @@ void KFFontViewInits(struct kf_dlg *kf,GGadget *drawable) {
 
     kf->sf->display_size = ps;
 
-    GGadgetGetSize(kf->second_fv->vsb,&sbsize);
     gsize.x = gsize.y = 0;
-    gsize.width = pos.width + sbsize.width;
+    gsize.width = pos.width;
     gsize.height = pos.y+pos.height;
     GGadgetSetDesiredSize(drawable,NULL,&gsize);
 }
@@ -7868,12 +7857,6 @@ return( true );
     active_fv = (FontView *) GDrawGetUserData(pixmap);
     gs = (struct gsd *) (active_fv->b.container);
 
-    if (( event->type==et_mouseup || event->type==et_mousedown ) &&
-	    (event->u.mouse.button>=4 && event->u.mouse.button<=7) ) {
-return( GGadgetDispatchEvent(active_fv->vsb,event));
-    }
-
-
     switch ( event->type ) {
       case et_expose:
 	FVDrawInfo(active_fv,pixmap,event);
@@ -7922,7 +7905,7 @@ char *GlyphSetFromSelection(SplineFont *sf,int def_layer,char *current) {
     GGadget *drawable;
     GWindow dw;
     GGadgetData gd;
-    GRect gsize, sbsize;
+    GRect gsize;
     int infoh, mbh;
     int ps;
     FontView *fvorig = (FontView *) sf->fv;
@@ -8047,9 +8030,8 @@ char *GlyphSetFromSelection(SplineFont *sf,int def_layer,char *current) {
     }
     sf->display_size = ps;
 
-    GGadgetGetSize(gs.fv->vsb,&sbsize);
     gsize.x = gsize.y = 0;
-    gsize.width = pos.width + sbsize.width;
+    gsize.width = pos.width;
     gsize.height = pos.y+pos.height;
     GGadgetSetDesiredSize(drawable,NULL,&gsize);
 
