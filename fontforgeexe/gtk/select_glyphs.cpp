@@ -24,34 +24,32 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#pragma once
 
-#include <string>
-#include <gtkmm.h>
+#include "select_glyphs.hpp"
 
-#include "c_context.h"
-#include "char_grid.hpp"
-#include "i_char_grid_containter.hpp"
+#include "intl.h"
+#include "utils.hpp"
 
-namespace ff::views {
+namespace ff::dlg {
 
-class FontView : public ICharGridContainter {
- public:
-    FontView(std::shared_ptr<FVContext> context, int width, int height);
+SelectGlyphs::SelectGlyphs(std::shared_ptr<FVContext> context,
+                           Gtk::Window& parent, int width, int height)
+    : fv_context(context), dialog("", parent, true), char_grid(context) {
+    dialog.set_title(_("Glyph Set by Selection"));
 
-    void set_title(const std::string& window_title,
-                   const std::string& taskbar_title) {
-        window.set_title(window_title);
-    }
+    explanation.set_text(
+        _("Select glyphs in the font view above.\nThe selected glyphs "
+          "become your glyph class."));
+    explanation.set_halign(Gtk::ALIGN_START);
 
-    Gtk::Window& get_window() { return window; }
-    CharGrid& get_char_grid() override { return char_grid; }
+    dialog.get_content_area()->pack_start(char_grid.get_top_widget());
+    dialog.get_content_area()->pack_end(explanation, Gtk::PACK_SHRINK);
 
- private:
-    std::shared_ptr<FVContext> fv_context;
+    dialog.add_button(_("_OK"), Gtk::RESPONSE_OK);
+    dialog.add_button(_("_Cancel"), Gtk::RESPONSE_CANCEL);
 
-    Gtk::Window window;
-    CharGrid char_grid;
-};
+    dialog.show_all();
+    dialog.resize(width, height);
+}
 
-}  // namespace ff::views
+}  // namespace ff::dlg

@@ -26,32 +26,27 @@
  */
 #pragma once
 
-#include <string>
 #include <gtkmm.h>
 
 #include "c_context.h"
 #include "char_grid.hpp"
 #include "i_char_grid_containter.hpp"
 
-namespace ff::views {
+namespace ff::dlg {
 
-class FontView : public ICharGridContainter {
+class SelectGlyphs : public views::ICharGridContainter {
  public:
-    FontView(std::shared_ptr<FVContext> context, int width, int height);
+    SelectGlyphs(std::shared_ptr<FVContext> context, Gtk::Window& parent,
+                 int width, int height);
 
-    void set_title(const std::string& window_title,
-                   const std::string& taskbar_title) {
-        window.set_title(window_title);
-    }
-
-    Gtk::Window& get_window() { return window; }
-    CharGrid& get_char_grid() override { return char_grid; }
+    views::CharGrid& get_char_grid() override { return char_grid; }
 
  private:
     std::shared_ptr<FVContext> fv_context;
 
-    Gtk::Window window;
-    CharGrid char_grid;
+    Gtk::Dialog dialog;
+    Gtk::Label explanation;
+    views::CharGrid char_grid;
 };
 
-}  // namespace ff::views
+}  // namespace ff::dlg

@@ -7906,7 +7906,7 @@ char *GlyphSetFromSelection(SplineFont *sf,int def_layer,char *current) {
 
     gs.base.funcs = &glyphset_funcs;
 
-    wattrs.mask = wam_events|wam_cursor|wam_utf8_wtitle|wam_undercursor|wam_isdlg|wam_restrict;
+    wattrs.mask = wam_events|wam_cursor|wam_utf8_wtitle|wam_undercursor;
     wattrs.event_masks = ~(1<<et_charup);
     wattrs.restrict_input_to_me = true;
     wattrs.undercursor = 1;
@@ -7988,6 +7988,12 @@ char *GlyphSetFromSelection(SplineFont *sf,int def_layer,char *current) {
     pos.width = 16*gs.fv->cbw+1;
     pos.height = 4*gs.fv->cbh+1;
 
+    FVContext *fv_context = calloc(1, sizeof(FVContext));
+    fv_context->fv = gs.fv;
+    fv_context->scroll_fontview_to_position_cb = FVScrollToPos;
+    fv_context->tooltip_message_cb = FVTooltipMessage;
+    gs.fv->gtk_window = create_select_glyphs_dlg(&fv_context, fvorig->gtk_window, pos.width, pos.height);
+    
     GDrawSetUserData(dw,gs.fv);
     FVCopyInnards(gs.fv,&pos,fvorig,dw,def_layer,(struct fvcontainer *) &gs);
     pos.height = 4*gs.fv->cbh+1;	/* We don't know the real fv->cbh until after creating the innards. The size of the last window is probably wrong, we'll fix later */

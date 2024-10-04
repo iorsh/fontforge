@@ -29,9 +29,11 @@
 
 #include "c_context.h"
 #include "font_view.hpp"
+#include "select_glyphs.hpp"
 
 #include <gtkmm.h>
 
+using ff::dlg::SelectGlyphs;
 using ff::views::ICharGridContainter;
 
 void* create_font_view(FVContext** p_fv_context, int width, int height) {
@@ -71,4 +73,17 @@ void fv_set_scroller_bounds(void* fv_opaque, int32_t sb_min, int32_t sb_max,
 void fv_set_character_info(void* fv_opaque, char* info) {
     auto font_view = static_cast<ICharGridContainter*>(fv_opaque);
     font_view->get_char_grid().set_character_info(info);
+}
+
+void* create_select_glyphs_dlg(FVContext** p_fv_context, void* parent_fv_opaque,
+                               int width, int height) {
+    ff::views::FontView* parent_font_view =
+        static_cast<ff::views::FontView*>(parent_fv_opaque);
+
+    // Take ownership of *p_fv_context
+    std::shared_ptr<FVContext> context(*p_fv_context);
+    SelectGlyphs* sel_glyphs_dlg = new SelectGlyphs(
+        context, parent_font_view->get_window(), width, height);
+    *p_fv_context = NULL;
+    return sel_glyphs_dlg;
 }
