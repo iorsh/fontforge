@@ -41,6 +41,8 @@ class SelectGlyphs : public views::ICharGridContainter {
 
     views::CharGrid& get_char_grid() override { return char_grid; }
 
+    Gtk::ResponseType run() { return (Gtk::ResponseType)dialog.run(); }
+
  private:
     std::shared_ptr<FVContext> fv_context;
 

@@ -55,6 +55,8 @@ void fv_set_character_info(void* fv_opaque, char* info);
 void* create_select_glyphs_dlg(FVContext** p_fv_context, void* parent_fv_opaque,
                                int width, int height);
 
+bool run_select_glyphs_dlg(void** sg_opaque);
+
 #ifdef __cplusplus
 }
 #endif
