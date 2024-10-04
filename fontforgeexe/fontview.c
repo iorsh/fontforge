@@ -7891,6 +7891,7 @@ char *GlyphSetFromSelection(SplineFont *sf,int def_layer,char *current) {
 		*rpt='\0';
 	}
     }
+    GDrawDestroyWindow(gs.fv->v);
     FontViewFree(&gs.fv->b);
 return( ret );
 }
