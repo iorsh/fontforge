@@ -52,6 +52,9 @@ void fv_set_scroller_bounds(void* fv_opaque, int32_t sb_min, int32_t sb_max,
 
 void fv_set_character_info(void* fv_opaque, char* info);
 
+// Resize font view window to accomodate the new drawing area size
+void fv_resize_window(void* fv_opaque, int width, int height);
+
 void* create_select_glyphs_dlg(FVContext** p_fv_context, int width, int height);
 
 bool run_select_glyphs_dlg(void** sg_opaque);

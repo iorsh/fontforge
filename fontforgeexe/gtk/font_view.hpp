@@ -47,6 +47,14 @@ class FontView : public ICharGridContainter {
     Gtk::Window& get_window() { return window; }
     CharGrid& get_char_grid() override { return char_grid; }
 
+    void set_character_info(const std::string& info) {
+        char_grid.set_character_info(info);
+    }
+
+    void resize_drawing_area(int width, int height) {
+        char_grid.resize_drawing_area(width, height);
+    }
+
  private:
     std::shared_ptr<FVContext> fv_context;
 

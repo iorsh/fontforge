@@ -115,8 +115,6 @@ static unsigned char fontview2_bits[] = {
    0x55, 0x00, 0x5d, 0x00, 0x22, 0x00, 0x1c, 0x00};
 #endif
 
-extern int _GScrollBar_Width;
-
 static int fv_fs_init=0;
 Color fvfgcol = 0x000000;
 static Color fvselcol = 0xffff00, fvselfgcol=0x000000;
@@ -3312,12 +3310,10 @@ return;
 	    GDrawRequestExpose(fv->v,NULL,false);
 	} else if ( fv->b.container!=NULL && fv->b.container->funcs->doResize!=NULL ) {
 	    (fv->b.container->funcs->doResize)(fv->b.container,&fv->b,
-		    ccnt*fv->cbw+1+GDrawPointsToPixels(fv->gw,_GScrollBar_Width),
+		    ccnt*fv->cbw+1,
 		    rcnt*fv->cbh+1+fv->mbh);
 	} else {
-	    GDrawResize(fv->gw,
-		    ccnt*fv->cbw+1+GDrawPointsToPixels(fv->gw,_GScrollBar_Width),
-		    rcnt*fv->cbh+1+fv->mbh);
+            fv_resize_window(fv->gtk_window, ccnt*fv->cbw+1, rcnt*fv->cbh+1);
 	}
     }
 }
@@ -3592,9 +3588,7 @@ static void FVMenuWSize(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     } else {
 	h = 8; v=2;
     }
-    GDrawResize(fv->gw,
-	    h*fv->cbw+1+GDrawPointsToPixels(fv->gw,_GScrollBar_Width),
-	    v*fv->cbh+1+fv->mbh);
+    fv_resize_window(fv->gtk_window, h*fv->cbw+1, v*fv->cbh+1);
     fv->b.sf->desired_col_cnt = default_fv_col_count = h;
     fv->b.sf->desired_row_cnt = default_fv_row_count = v;
 

@@ -27,6 +27,7 @@
 
 #include "font_view_shim.hpp"
 
+#include "application.hpp"
 #include "c_context.h"
 #include "font_view.hpp"
 #include "select_glyphs.hpp"
@@ -37,6 +38,9 @@ using ff::dlg::SelectGlyphs;
 using ff::views::ICharGridContainter;
 
 void* create_font_view(FVContext** p_fv_context, int width, int height) {
+    // TODO(myoresh): move to main() once it becomes GTK-aware.
+    ff::app::GtkApp();
+
     // Take ownership of *p_fv_context
     std::shared_ptr<FVContext> context(*p_fv_context);
     ff::views::FontView* font_view =
@@ -76,6 +80,11 @@ void fv_set_scroller_bounds(void* fv_opaque, int32_t sb_min, int32_t sb_max,
 void fv_set_character_info(void* fv_opaque, char* info) {
     auto font_view = static_cast<ICharGridContainter*>(fv_opaque);
     font_view->get_char_grid().set_character_info(info);
+}
+
+void fv_resize_window(void* fv_opaque, int width, int height) {
+    auto font_view = static_cast<ICharGridContainter*>(fv_opaque);
+    font_view->get_char_grid().resize_drawing_area(width, height);
 }
 
 void* create_select_glyphs_dlg(FVContext** p_fv_context, int width,

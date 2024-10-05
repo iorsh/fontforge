@@ -29,10 +29,6 @@
 
 namespace ff::app {
 
-// TODO(myoresh): move to main() once it becomes GTK-aware.
-// Don't use this variable, use GtkApp() instead.
-static auto app_ = GtkApp();
-
 Glib::RefPtr<Gtk::Application> GtkApp() {
     // Unique instance mode doesn't work well as long as the startup sequence is
     // handled in the legacy code. It would be possible to enable it once the
