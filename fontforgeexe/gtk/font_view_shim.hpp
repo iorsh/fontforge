@@ -52,8 +52,7 @@ void fv_set_scroller_bounds(void* fv_opaque, int32_t sb_min, int32_t sb_max,
 
 void fv_set_character_info(void* fv_opaque, char* info);
 
-void* create_select_glyphs_dlg(FVContext** p_fv_context, void* parent_fv_opaque,
-                               int width, int height);
+void* create_select_glyphs_dlg(FVContext** p_fv_context, int width, int height);
 
 bool run_select_glyphs_dlg(void** sg_opaque);
 

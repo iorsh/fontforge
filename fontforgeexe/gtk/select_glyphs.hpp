@@ -30,23 +30,20 @@
 
 #include "c_context.h"
 #include "char_grid.hpp"
+#include "dialog.hpp"
 #include "i_char_grid_containter.hpp"
 
 namespace ff::dlg {
 
-class SelectGlyphs : public views::ICharGridContainter {
+class SelectGlyphs : public Dialog, public views::ICharGridContainter {
  public:
-    SelectGlyphs(std::shared_ptr<FVContext> context, Gtk::Window& parent,
-                 int width, int height);
+    SelectGlyphs(std::shared_ptr<FVContext> context, int width, int height);
 
     views::CharGrid& get_char_grid() override { return char_grid; }
-
-    Gtk::ResponseType run() { return (Gtk::ResponseType)dialog.run(); }
 
  private:
     std::shared_ptr<FVContext> fv_context;
 
-    Gtk::Dialog dialog;
     Gtk::Label explanation;
     views::CharGrid char_grid;
 };

@@ -42,7 +42,10 @@ void* create_font_view(FVContext** p_fv_context, int width, int height) {
     ff::views::FontView* font_view =
         new ff::views::FontView(context, width, height);
     *p_fv_context = NULL;
-    return font_view;
+
+    // To prevent issues with multiple inheritance, the final static void*
+    // casting should occur only to/from ICharGridContainter*
+    return dynamic_cast<ICharGridContainter*>(font_view);
 }
 
 void gtk_set_title(void* fv_opaque, char* window_title, char* taskbar_title) {
@@ -75,26 +78,27 @@ void fv_set_character_info(void* fv_opaque, char* info) {
     font_view->get_char_grid().set_character_info(info);
 }
 
-void* create_select_glyphs_dlg(FVContext** p_fv_context, void* parent_fv_opaque,
-                               int width, int height) {
-    ff::views::FontView* parent_font_view =
-        static_cast<ff::views::FontView*>(parent_fv_opaque);
-
+void* create_select_glyphs_dlg(FVContext** p_fv_context, int width,
+                               int height) {
     // Take ownership of *p_fv_context
     std::shared_ptr<FVContext> context(*p_fv_context);
-    SelectGlyphs* sel_glyphs_dlg = new SelectGlyphs(
-        context, parent_font_view->get_window(), width, height);
-    *p_fv_context = NULL;
-    return sel_glyphs_dlg;
+    SelectGlyphs* sel_glyphs_dlg = new SelectGlyphs(context, width, height);
+
+    // To prevent issues with multiple inheritance, the final static void*
+    // casting should occur only to/from ICharGridContainter*
+    return dynamic_cast<ICharGridContainter*>(sel_glyphs_dlg);
 }
 
 bool run_select_glyphs_dlg(void** sg_opaque) {
-    auto sel_glyphs_dlg = static_cast<SelectGlyphs*>(*sg_opaque);
+    // To prevent issues with multiple inheritance, the final static void*
+    // casting should occur only to/from ICharGridContainter*
+    auto sel_glyphs_dlg = dynamic_cast<SelectGlyphs*>(
+        static_cast<ICharGridContainter*>(*sg_opaque));
     Gtk::ResponseType response = sel_glyphs_dlg->run();
 
     // Destroy dialog and reset pointer
     delete sel_glyphs_dlg;
     *sg_opaque = NULL;
-    
+
     return (response == Gtk::RESPONSE_OK);
 }

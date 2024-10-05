@@ -32,9 +32,9 @@
 
 namespace ff::dlg {
 
-SelectGlyphs::SelectGlyphs(std::shared_ptr<FVContext> context,
-                           Gtk::Window& parent, int width, int height)
-    : fv_context(context), dialog("", parent, true), char_grid(context) {
+SelectGlyphs::SelectGlyphs(std::shared_ptr<FVContext> context, int width,
+                           int height)
+    : Dialog(), fv_context(context), char_grid(context) {
     dialog.set_title(_("Glyph Set by Selection"));
 
     explanation.set_text(
