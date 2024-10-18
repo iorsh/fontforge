@@ -62,6 +62,8 @@
         PyObject_HEAD_INIT(type) size,
 #endif
 
+typedef PyObject PyCapsule;
+
 extern SplineChar *sc_active_in_ui;
 extern FontViewBase *fv_active_in_ui;
 extern int layer_active_in_ui;
@@ -117,7 +119,7 @@ extern PyTypeObject PyFF_LayerType;
 typedef struct {
     PyObject_HEAD
     /* Type-specific fields go here. */
-    SplineChar *sc;
+    PyCapsule *py_sc;
     uint8_t replace;
     uint8_t ended;
     uint8_t changed;
@@ -127,24 +129,24 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     /* Type-specific fields go here. */
-    SplineChar *sc;
+    PyCapsule *py_sc;
 } PyFF_LayerArray;
 
 typedef struct {
     PyObject_HEAD
     /* Type-specific fields go here. */
-    SplineChar *sc;
+    PyCapsule *py_sc;
 } PyFF_RefArray;
 
 typedef struct glyphmathkernobject {
     PyObject_HEAD
-    SplineChar *sc;
+    PyCapsule *py_sc;
 } PyFF_MathKern;
 
 typedef struct {
     PyObject_HEAD
     /* Type-specific fields go here. */
-    SplineChar *sc;
+    PyCapsule *py_sc;
     PyFF_LayerArray *layers;
     PyFF_RefArray *refs;
     PyFF_MathKern *mk;
