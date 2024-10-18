@@ -206,5 +206,6 @@ extern PyMethodDef module_fontforge_methods[];
 
 PyObject* PyFF_FontForFV(FontViewBase *fv);
 PyObject* PyFF_FontForFV_I(FontViewBase *fv);
+void PyFFCapsule_Invalidate(void *py_capsule);
 
 #endif /* FONTFORGE_FFPYTHON_H */
