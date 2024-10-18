@@ -19948,11 +19948,13 @@ void PyFF_FreeFV(FontViewBase *fv) {
 	((PyFF_Font *) (fv->python_fv_object))->fv = NULL;
 	Py_DECREF( (PyObject *) (fv->python_fv_object));
     }
+    PyFFCapsule_Invalidate(fv->py_capsule);
 }
 
 void PyFF_FreeSF(SplineFont *sf) {
     Py_XDECREF( (PyObject *) (sf->python_persistent));
     Py_XDECREF( (PyObject *) (sf->python_temporary));
+    PyFFCapsule_Invalidate(sf->py_capsule);
 }
 
 void PyFF_FreeSC(SplineChar *sc) {
@@ -19965,6 +19967,7 @@ void PyFF_FreeSC(SplineChar *sc) {
     Py_XDECREF( (PyObject *) (sc->python_persistent));
 #endif // 0
     Py_XDECREF( (PyObject *) (sc->python_temporary));
+    PyFFCapsule_Invalidate(sc->py_capsule);
 }
 
 void PyFF_FreeSCLayer(SplineChar *sc, int layer) {
