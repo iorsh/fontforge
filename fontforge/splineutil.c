@@ -5998,6 +5998,7 @@ void SplineCharFree(SplineChar *sc) {
     if ( sc==NULL )
 return;
     SplineCharFreeContents(sc);
+    PyFF_FreeSC(sc);
     chunkfree(sc,sizeof(SplineChar));
 }
 
