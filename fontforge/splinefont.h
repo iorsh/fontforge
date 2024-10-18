@@ -1457,6 +1457,7 @@ struct altuni { struct altuni *next; int32_t unienc, vs; uint32_t fid; };
 	/* NOTE: GlyphInfo displays vs==-1 as vs==0, and fixes things up */
 
 typedef struct splinechar {
+    void *py_capsule;
     char *name;
     int unicodeenc;
     int orig_pos;		/* Original position in the glyph list */
@@ -1812,6 +1813,7 @@ struct ff_rawoffsets {
 };
 
 typedef struct splinefont {
+    void *py_capsule;
     char *fontname, *fullname, *familyname, *weight;
     char *familyname_with_timestamp;
     char *copyright;
