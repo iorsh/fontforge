@@ -480,8 +480,34 @@ static PyObject *TagToPythonString(uint32_t tag,int ismac) {
 return( PyUnicode_FromString(foo));
 }
 
+PyObject* PyFFCapsule_GetSplineCharCapsule(SplineChar *sc) {
+    if (!sc->py_capsule) {
+	sc->py_capsule = PyCapsule_New(sc, "SplineChar", NULL);
+	Py_XINCREF(sc->py_capsule);
+    }
+    return sc->py_capsule;
+}
+
+static void* PyFFCapsule_GetPtr(PyCapsule *py_capsule, const char *name) {
+    if (!py_capsule || !PyCapsule_CheckExact(py_capsule)) {
+        PyErr_SetString(PyExc_TypeError, "PyFFCapsule_GetPtr called with incorrect object");
+	return NULL;
+    }
+
+    if (strcmp(PyCapsule_GetName(py_capsule), name)) {
+        PyErr_Format(PyExc_ValueError, "%s object is not valid", name);
+	return NULL;
+    }
+
+    return PyCapsule_GetPointer(py_capsule, name);
+}
+
+SplineChar* PyFFCapsule_GetSplineCharPtr(PyCapsule *py_capsule) {
+    return (SplineChar*)PyFFCapsule_GetPtr(py_capsule, "SplineChar");
+}
+
 void PyFFCapsule_Invalidate(void *py_capsule) {
-    PyObject *capsule = (PyObject*)py_capsule;
+    PyCapsule *capsule = (PyCapsule*)py_capsule;
     PyCapsule_SetName(capsule, "Invalid");
 }
 
