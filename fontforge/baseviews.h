@@ -174,6 +174,7 @@ struct fvcontainer_funcs {
 };
 
 typedef struct fontviewbase {
+    void *py_capsule;
     struct fontviewbase *next;		/* Next on list of open fontviews */
     struct fontviewbase *nextsame;	/* Next fv looking at this font */
     EncMap *map;			/* Current encoding info */
