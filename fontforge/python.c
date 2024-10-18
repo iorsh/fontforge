@@ -480,6 +480,11 @@ static PyObject *TagToPythonString(uint32_t tag,int ismac) {
 return( PyUnicode_FromString(foo));
 }
 
+void PyFFCapsule_Invalidate(void *py_capsule) {
+    PyObject *capsule = (PyObject*)py_capsule;
+    PyCapsule_SetName(capsule, "Invalid");
+}
+
 /* ************************************************************************** */
 /* Methods of module FontForge                                                */
 /* ************************************************************************** */
