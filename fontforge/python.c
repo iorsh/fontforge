@@ -475,6 +475,20 @@ static PyObject *TagToPythonString(uint32_t tag,int ismac) {
 return( PyUnicode_FromString(foo));
 }
 
+static SplineChar* PyFF_Glyph_GetSC(PyFF_Glyph *glyph) {
+    if (!glyph) {
+	return NULL;
+    }
+
+    // Underlying C object is dead, must throw exception.
+    if (glyph->sc == NULL) {
+        PyErr_Format(PyExc_ValueError, "%s object is not valid", name);
+	return NULL;
+    }
+
+    return glyph->sc;
+}
+
 PyObject* PyFFCapsule_GetSplineCharCapsule(SplineChar *sc) {
     if (!sc->py_capsule) {
 	sc->py_capsule = PyCapsule_New(sc, "SplineChar", NULL);
@@ -5614,30 +5628,42 @@ return( layer );
 static PyTypeObject PyFF_GlyphPenType;
 
 static void PyFF_GlyphPen_dealloc(PyFF_GlyphPen *self) {
-    if ( self->sc!=NULL ) {
+    SplineChar *sc = PyFF_Glyph_GetSC(self->glyph);
+    if ( sc!=NULL ) {
 	if ( self->changed )
-	    SCCharChangedUpdate(self->sc,self->layer);
-	self->sc = NULL;
+	    SCCharChangedUpdate(sc,self->layer);
     }
+    Py_XDECREF(self->glyph);
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 static PyObject *PyFFGlyphPen_Str(PyFF_GlyphPen *self) {
-return( PyUnicode_FromFormat( "<GlyphPen for %s>", self->sc->name ));
+    SplineChar *sc = PyFF_Glyph_GetSC(self->glyph);
+    if (sc != NULL) {
+	return( PyUnicode_FromFormat( "<GlyphPen for %s>", sc->name ));
+    } else {
+	return Py_None;
+    }
 }
 
 /* ************************************************************************** */
 /*  GlyphPen Methods  */
 /* ************************************************************************** */
 static void GlyphClear(PyObject *self) {
-    SplineChar *sc = ((PyFF_GlyphPen *) self)->sc;
+    SplineChar *sc = PyFF_Glyph_GetSC(((PyFF_GlyphPen *) self)->glyph);
+    if (sc == NULL) {
+	return;
+    }
     int layer = ((PyFF_GlyphPen *) self)->layer;
     SCClearContents(sc,layer);
     ((PyFF_GlyphPen *) self)->replace = false;
 }
 
 static PyObject *PyFFGlyphPen_moveTo(PyObject *self, PyObject *args) {
-    SplineChar *sc = ((PyFF_GlyphPen *) self)->sc;
+    SplineChar *sc = PyFF_Glyph_GetSC(((PyFF_GlyphPen *) self)->glyph);
+    if (sc == NULL) {
+	return NULL;
+    }
     int layer = ((PyFF_GlyphPen *) self)->layer;
     SplineSet *ss;
     double x,y;
@@ -5665,7 +5691,10 @@ Py_RETURN( self );
 }
 
 static PyObject *PyFFGlyphPen_lineTo(PyObject *self, PyObject *args) {
-    SplineChar *sc = ((PyFF_GlyphPen *) self)->sc;
+    SplineChar *sc = PyFF_Glyph_GetSC(((PyFF_GlyphPen *) self)->glyph);
+    if (sc == NULL) {
+	return NULL;
+    }
     int layer = ((PyFF_GlyphPen *) self)->layer;
     SplinePoint *sp;
     SplineSet *ss;
@@ -5689,7 +5718,10 @@ Py_RETURN( self );
 }
 
 static PyObject *PyFFGlyphPen_curveTo(PyObject *self, PyObject *args) {
-    SplineChar *sc = ((PyFF_GlyphPen *) self)->sc;
+    SplineChar *sc = PyFF_Glyph_GetSC(((PyFF_GlyphPen *) self)->glyph);
+    if (sc == NULL) {
+	return NULL;
+    }
     int layer = ((PyFF_GlyphPen *) self)->layer;
     SplinePoint *sp;
     SplineSet *ss;
@@ -5724,7 +5756,10 @@ Py_RETURN( self );
 }
 
 static PyObject *PyFFGlyphPen_qCurveTo(PyObject *self, PyObject *args) {
-    SplineChar *sc = ((PyFF_GlyphPen *) self)->sc;
+    SplineChar *sc = PyFF_Glyph_GetSC(((PyFF_GlyphPen *) self)->glyph);
+    if (sc == NULL) {
+	return NULL;
+    }
     int layer = ((PyFF_GlyphPen *) self)->layer;
     SplinePoint *sp;
     SplineSet *ss;
@@ -5823,7 +5858,10 @@ Py_RETURN( self );
 }
 
 static PyObject *PyFFGlyphPen_closePath(PyObject *self, PyObject *UNUSED(args)) {
-    SplineChar *sc = ((PyFF_GlyphPen *) self)->sc;
+    SplineChar *sc = PyFF_Glyph_GetSC(((PyFF_GlyphPen *) self)->glyph);
+    if (sc == NULL) {
+	return NULL;
+    }
     int layer = ((PyFF_GlyphPen *) self)->layer;
     SplineSet *ss;
 
@@ -5861,7 +5899,10 @@ Py_RETURN( self );
 }
 
 static PyObject *PyFFGlyphPen_addComponent(PyObject *self, PyObject *args) {
-    SplineChar *sc = ((PyFF_GlyphPen *) self)->sc;
+    SplineChar *sc = PyFF_Glyph_GetSC(((PyFF_GlyphPen *) self)->glyph);
+    if (sc == NULL) {
+	return NULL;
+    }
     int layer = ((PyFF_GlyphPen *) self)->layer;
     real transform[6];
     SplineChar *rsc;
