@@ -236,11 +236,6 @@ static PyFF_Font* PyFF_FontForSC( SplineChar *sc ) {
 	return NULL;
     return PyFF_FontForSF( sc->parent );
 }
-static PyFF_Glyph* PyFF_GlyphForSC( SplineChar *sc ) {
-    if ( sc==NULL )
-	return NULL;
-    return sc->python_sc_object;
-}
 
 /* ************************************************************************** */
 /* Checks for closed fonts */
@@ -6217,7 +6212,7 @@ Py_RETURN_NONE;
 }
 
 static PyObject *PyFF_LayerArray_get_glyph(PyFF_LayerArray *self, void *UNUSED(closure)) {
-    PyFF_Glyph *glyph = PyFF_GlyphForSC( self->sc );
+    PyFF_Glyph *glyph = self->glyph;
     if ( glyph==NULL )
 Py_RETURN_NONE;
     Py_INCREF(glyph);
