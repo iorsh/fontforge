@@ -9978,7 +9978,7 @@ static int setup_glyph_type(PyTypeObject* glyphtype) {
     int i, n_accessors = sizeof(PyFF_Glyph_raw_getset) / sizeof(PyFF_Glyph_raw_getset[0]);
     PyGetSetDef *getset = calloc(n_accessors + 1, sizeof(PyGetSetDef));
 
-    for (i = 0; i <= n_accessors; ++i) {
+    for (i = 0; i < n_accessors; ++i) {
 	getset[i].name = PyFF_Glyph_raw_getset[i].name;
 	getset[i].get = (getter) PyFF_Glyph_get_wrapper;
 	getset[i].set = PyFF_Glyph_raw_getset[i].setter ? (setter) PyFF_Glyph_set_wrapper : NULL;
