@@ -135,7 +135,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: iorsh/fontforgebuilds
-          ref: spiro_ci
           path: fontforgebuilds
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
