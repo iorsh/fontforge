@@ -134,7 +134,7 @@ jobs:
       - name: Checkout FontForgeBuilds
         uses: actions/checkout@v4
         with:
-          repository: fontforge/fontforgebuilds
+          repository: iorsh/fontforgebuilds
           ref: spiro_ci
           path: fontforgebuilds
       - name: Setup MSYS2
