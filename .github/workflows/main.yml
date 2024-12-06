@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ master, releases/** ]
+    branches: [ master, releases/**, check_pacman_ci ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
@@ -134,7 +134,8 @@ jobs:
       - name: Checkout FontForgeBuilds
         uses: actions/checkout@v4
         with:
-          repository: fontforge/fontforgebuilds
+          repository: iorsh/fontforgebuilds
+          ref: pacman_hack
           path: fontforgebuilds
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
