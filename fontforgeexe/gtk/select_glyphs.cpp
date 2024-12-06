@@ -45,8 +45,16 @@ SelectGlyphs::SelectGlyphs(GWindow parent, std::shared_ptr<FVContext> context,
     get_content_area()->pack_start(char_grid.get_top_widget());
     get_content_area()->pack_end(explanation, Gtk::PACK_SHRINK);
 
+    // Dialog::resize() doesn't work until after the realization, i.e. after
+    // Dialog::show_all(). Use the realize event to ensure reliable resizing.
+    //
+    // Also, the signal itself must be connected before Dialog::show_all(),
+    // otherwise it wouldn't work for some reason...
+    signal_realize().connect([this, width, height]() {
+        char_grid.resize_drawing_area(width, height);
+    });
+
     show_all();
-    resize(width, height);
 }
 
 }  // namespace ff::dlg
