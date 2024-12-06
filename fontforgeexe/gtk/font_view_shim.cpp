@@ -31,10 +31,12 @@
 
 #include "application.hpp"
 #include "c_context.h"
-#include "select_glyphs.hpp"
 #include "font_view.hpp"
+#include "kerning_format.hpp"
+#include "select_glyphs.hpp"
 #include "utils.hpp"
 
+using ff::dlg::KerningFormat;
 using ff::dlg::SelectGlyphs;
 using ff::views::CharGrid;
 using ff::views::ICharGridContainter;
@@ -119,4 +121,17 @@ bool run_select_glyphs_dlg(void** sg_opaque) {
     *sg_opaque = NULL;
 
     return (response == Gtk::RESPONSE_OK);
+}
+
+void* create_kerning_format_dlg(GWindow parent, FVContext** p_fv_context,
+                                int width, int height) {
+    // Take ownership of *p_fv_context
+    std::shared_ptr<FVContext> context(*p_fv_context);
+    KerningFormat* kern_fmt_dlg =
+        new KerningFormat(parent, context, width, height);
+    *p_fv_context = NULL;
+
+    // To prevent issues with multiple inheritance, the final static void*
+    // casting should occur only to/from ICharGridContainter*
+    return dynamic_cast<ICharGridContainter*>(kern_fmt_dlg);
 }
