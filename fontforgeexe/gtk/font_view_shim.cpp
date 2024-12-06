@@ -123,13 +123,16 @@ bool run_select_glyphs_dlg(void** sg_opaque) {
     return (response == Gtk::RESPONSE_OK);
 }
 
-void* create_kerning_format_dlg(GWindow parent, FVContext** p_fv_context,
-                                int width, int height) {
+void* create_kerning_format_dlg(GWindow parent, FVContext** p_fv_context1,
+                                FVContext** p_fv_context2, int width,
+                                int height) {
     // Take ownership of *p_fv_context
-    std::shared_ptr<FVContext> context(*p_fv_context);
+    std::shared_ptr<FVContext> context1(*p_fv_context1, &free);
+    std::shared_ptr<FVContext> context2(*p_fv_context2, &free);
     KerningFormat* kern_fmt_dlg =
-        new KerningFormat(parent, context, width, height);
-    *p_fv_context = NULL;
+        new KerningFormat(parent, context1, context2, width, height);
+    *p_fv_context1 = NULL;
+    *p_fv_context2 = NULL;
 
     // To prevent issues with multiple inheritance, the final static void*
     // casting should occur only to/from ICharGridContainter*

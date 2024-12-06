@@ -63,8 +63,9 @@ void* create_select_glyphs_dlg(GWindow parent, FVContext** p_fv_context,
 
 bool run_select_glyphs_dlg(void** sg_opaque);
 
-void* create_kerning_format_dlg(GWindow parent, FVContext** p_fv_context,
-                                int width, int height);
+void* create_kerning_format_dlg(GWindow parent, FVContext** p_fv_context1,
+                                FVContext** p_fv_context2, int width,
+                                int height);
 
 #ifdef __cplusplus
 }
