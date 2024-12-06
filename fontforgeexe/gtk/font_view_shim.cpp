@@ -74,3 +74,9 @@ void fv_set_scroller_bounds(void* fv_opaque, int32_t sb_min, int32_t sb_max,
         static_cast<ff::views::FontView*>(fv_opaque);
     font_view->set_scroller_bounds(sb_min, sb_max, sb_pagesize);
 }
+
+void fv_set_character_info(void* fv_opaque, char* info) {
+    ff::views::FontView* font_view =
+        static_cast<ff::views::FontView*>(fv_opaque);
+    font_view->set_character_info(info);
+}
