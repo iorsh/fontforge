@@ -32,6 +32,16 @@ extern "C" {
 
 typedef struct fontview FontView;
 
+typedef struct fv_menu_action {
+    int mid;
+    bool (*is_disabled)(FontView* fv, int mid); /* called before showing */
+    bool (*is_checked)(FontView* fv, int mid);  /* called before showing */
+    void (*action)(FontView* fv, int mid);      /* called on mouse release */
+} FVMenuAction;
+
+#define MENUACTION_LAST \
+    { 0, NULL, NULL, NULL }
+
 // C structure and callback for interacting with legacy code
 typedef struct fontview_context {
     FontView* fv;
@@ -41,6 +51,9 @@ typedef struct fontview_context {
 
     // Tooltip message to display for particular character
     char* (*tooltip_message_cb)(FontView* fv, int x, int y);
+
+    // Menu actions per menu ID
+    FVMenuAction* actions;
 } FVContext;
 
 typedef struct kerning_format_data {
