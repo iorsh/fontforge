@@ -56,3 +56,5 @@ void gtk_post_error(const char* title, const char* statement, ...);
 Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name);
 
 int label_offset(Gtk::Widget* w);
+
+Glib::RefPtr<Gdk::Pixbuf> load_icon(const Glib::ustring& icon_name, int size);
