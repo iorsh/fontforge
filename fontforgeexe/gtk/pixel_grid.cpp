@@ -26,6 +26,9 @@
  */
 
 #include "pixel_grid.hpp"
+
+#include <atomic>
+
 #include "utils.hpp"
 #include <iostream>
 
@@ -35,6 +38,12 @@ bool on_drawing_area_event(GdkEvent* event);
 bool on_drawing_area_key(GdkEventKey* event, Gtk::DrawingArea& drawing_area);
 void on_scrollbar_value_changed(std::shared_ptr<BVContext> fv_context,
                                 Gtk::Scrollbar& scroller);
+bool on_query_tooltip(int x, int y, bool keyboard_tooltip,
+                      const Glib::RefPtr<Gtk::Tooltip>& tooltip);
+bool on_mouse_move(Gtk::DrawingArea& drawing_area);
+
+// A hack to transfer motion event to tooltip query
+static std::atomic<bool> mouse_moved(false);
 
 PixelGrid::PixelGrid(std::shared_ptr<BVContext> context) {
     hscroller_.signal_value_changed().connect(
@@ -74,6 +83,13 @@ PixelGrid::PixelGrid(std::shared_ptr<BVContext> context) {
     // in the same window (e.g. toolbar controls).
     drawing_area.set_can_focus(true);
     drawing_area.signal_map().connect([this]() { drawing_area.grab_focus(); });
+
+    // When the pointer is over character cell, display tooltip with this
+    // character's Unicode info; dismissed on mouse movement.
+    drawing_area.set_has_tooltip();
+    drawing_area.signal_query_tooltip().connect(&on_query_tooltip);
+    drawing_area.signal_motion_notify_event().connect(
+        [this](GdkEventMotion*) { return on_mouse_move(drawing_area); });
 
     pixel_grid_box_.attach(drawing_area, 0, 0);
     pixel_grid_box_.attach(hscroller_, 0, 1);
@@ -168,6 +184,28 @@ void on_scrollbar_value_changed(std::shared_ptr<BVContext> bv_context,
 
     bv_context->scroll_bitmapview_to_position_cb(bv_context->bv, is_vertical,
                                                  new_position);
+}
+
+bool on_query_tooltip(int x, int y, bool keyboard_tooltip,
+                      const Glib::RefPtr<Gtk::Tooltip>& tooltip) {
+    Glib::ustring text =
+        Glib::ustring::compose("<small>x %1, y %2</small>", x, y);
+    tooltip->set_markup(text);
+    if (mouse_moved) {
+        // Mouse motion occured, dismiss the tooltip
+        mouse_moved = false;
+        return false;
+    } else {
+        return true;
+    }
+}
+
+bool on_mouse_move(Gtk::DrawingArea& drawing_area) {
+    if (!mouse_moved) {
+        mouse_moved = true;
+        drawing_area.trigger_tooltip_query();
+    }
+    return false;  // Allow further propagation of the event
 }
 
 }  // namespace ff::views
