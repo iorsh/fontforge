@@ -3,6 +3,8 @@
 add_library(ffgtk OBJECT
   application.hpp
   application.cpp
+  char_grid.hpp
+  char_grid.cpp
   css_builder.hpp
   css_builder.cpp
   dialog.hpp
