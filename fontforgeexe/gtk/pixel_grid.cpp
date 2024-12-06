@@ -197,14 +197,14 @@ bool on_query_tooltip(std::shared_ptr<BVContext> bv_context,
         return false;
     }
 
-    char* tooltip_msg = bv_context->tooltip_message_cb(bv_context->bv);
-    if (!tooltip_msg) {
+    std::string tooltip_msg =
+        StringWrapper(bv_context->tooltip_message_cb)(bv_context->bv);
+    if (tooltip_msg.empty()) {
         return false;
     }
 
     Glib::ustring text = Glib::Markup::escape_text(tooltip_msg);
     text = Glib::ustring::compose("<small>%1</small>", text);
-    free(tooltip_msg);
     tooltip->set_markup(text);
 
     return true;

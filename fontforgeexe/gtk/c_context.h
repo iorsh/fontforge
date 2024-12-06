@@ -74,4 +74,24 @@ typedef struct bitmapview_context {
 
 #ifdef __cplusplus
 }
+
+#include <string>
+
+// A wrapper converts C-style callback which returns C-style buffer to C++
+// function with same arguments which internally reallocates buffer to C++
+// std::string.
+//
+// Usage for original callback with return value type char*:
+//	std::string s = StringWrapper(c_callback)(c_callback_arguments);
+template <typename... ARGS>
+auto StringWrapper(char(*f(ARGS... args))) {
+    return [f](ARGS... args) -> std::string {
+        char* c_str = f(args...);
+        // Check NULL pointer before initializing std::string.
+        std::string str(c_str ? c_str : "");
+        free(c_str);
+        return str;
+    };
+}
+
 #endif
