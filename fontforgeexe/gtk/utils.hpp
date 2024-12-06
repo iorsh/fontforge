@@ -48,4 +48,6 @@ inline char get_list_separator() {
 // TODO(iorsh): Integrate this function into the global log collection
 void post_error(const char* title, const char* statement, ...);
 
+Glib::RefPtr<Gdk::Pixbuf> load_icon(const Glib::ustring& icon_name, int size);
+
 }  // namespace ff::ui_utils
