@@ -26,14 +26,22 @@
  */
 
 #include "font_view.hpp"
+
+#include "application.hpp"
 #include "utils.hpp"
 
 namespace ff::views {
 
 FontView::FontView(std::shared_ptr<FVContext> context, int width, int height)
     : fv_context(context), char_grid(context) {
-    window.add(char_grid.get_top_widget());
+    ff::app::add_top_view(window);
 
+    window.signal_delete_event().connect([this](GdkEventAny*) {
+        ff::app::remove_top_view(window);
+        return false;
+    });
+
+    window.add(char_grid.get_top_widget());
     window.show_all();
     window.resize(width, height);
 
