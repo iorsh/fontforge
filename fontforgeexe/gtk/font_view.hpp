@@ -43,6 +43,7 @@ class FontViewUiContext : public UiContext {
         : legacy_context(fv_context) {}
 
     ActivateCB get_activate_cb(int mid) const override;
+    EnabledCB get_enabled_cb(int mid) const override;
 
     std::shared_ptr<FVContext> legacy() const { return legacy_context; }
 
