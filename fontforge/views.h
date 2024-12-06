@@ -438,7 +438,7 @@ typedef struct fontview {
     GIC *gic;
     GIC *gwgic;
     int width, height;		/* of v */
-    int16_t infoh,mbh;
+    int16_t mbh;
     int16_t lab_height, lab_as;
     int16_t colcnt, rowcnt;		/* of display window */
     int32_t rowoff, rowltot;		/* Can be really big in full unicode */
@@ -689,7 +689,7 @@ struct kf_dlg /* : fvcontainer */ {
     GFont *plain, *bold;
     int fh, as;
     GGadget *mb, *guts, *topbox;
-    int mbh, label2_y, infoh;
+    int mbh, label2_y;
 
     SplineFont *sf;
     int def_layer;
