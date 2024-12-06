@@ -1078,6 +1078,14 @@ void BVSetLayerVisibility(BitmapView* bv, int /*enum bvlayers*/ layer,
     GDrawRequestExpose(bv->v, NULL, false);
 }
 
+char* BVTooltipMessage(BitmapView* bv) {
+    int enc = BVCurEnc(bv);
+    char* msg = PopupMsg(bv->bc->sc, bv->fv->b.map->remap, enc,
+                         UniFromEnc(enc, bv->fv->b.map->enc));
+
+    return msg;
+}
+
 static int IsReferenceTouched(BitmapView *bv, BDFRefChar *ref, int x, int y){
     BDFRefChar *head;
     BDFChar *rbc;
@@ -2328,6 +2336,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv_context->draw_gimage_in_cairo_context = GGDKDrawDrawImageInContext;
     bv_context->set_intensity = BVSetIntensity;
     bv_context->set_layer_visibility = BVSetLayerVisibility;
+    bv_context->tooltip_message_cb = BVTooltipMessage;
 
     bv->gtk_window = create_bitmap_view(&bv_context, pos.width, pos.height);
 

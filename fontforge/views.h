@@ -840,6 +840,7 @@ extern void SFPrivateInfo(SplineFont *sf);
 extern void FVDelay(FontView *fv,void (*func)(FontView *));
 extern void GFI_FinishContextNew(struct gfi_data *d,FPST *fpst, int success);
 extern void SCPreparePopup(GWindow gw,SplineChar *sc, struct remap *remap, int enc, int actualuni);
+extern char* PopupMsg(SplineChar *sc,struct remap *remap, int localenc, int actualuni);
 enum outlinesfm_flags {
     sfm_stroke=0x1,
     sfm_fill=0x2,

@@ -6347,7 +6347,7 @@ return;
     }
 }
 
-void SCPreparePopup(GWindow gw,SplineChar *sc,struct remap *remap, int localenc,
+char* PopupMsg(SplineChar *sc,struct remap *remap, int localenc,
 	int actualuni) {
 /* This is for the popup which appears when you hover mouse over a character on main window */
     int upos=-1;
@@ -6410,7 +6410,13 @@ void SCPreparePopup(GWindow gw,SplineChar *sc,struct remap *remap, int localenc,
         free(msg_old);
     }
 
-    GGadgetPreparePopup8( gw, msg );
+    return msg;
+}
+
+void SCPreparePopup(GWindow gw, SplineChar* sc, struct remap* remap,
+                    int localenc, int actualuni) {
+    char* msg = PopupMsg(sc, remap, localenc, actualuni);
+    GGadgetPreparePopup8(gw, msg);
     free(msg);
 }
 

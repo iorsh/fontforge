@@ -67,6 +67,9 @@ typedef struct bitmapview_context {
     void (*set_layer_visibility)(BitmapView* bv, int /*enum bvlayers*/ layer_id,
                                  bool visible);
 
+    // Tooltip message to display
+    char* (*tooltip_message_cb)(BitmapView* bv);
+
 } BVContext;
 
 #ifdef __cplusplus
