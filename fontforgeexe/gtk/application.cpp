@@ -31,6 +31,10 @@
 #include "gresource.h"
 #include "css_builder.hpp"
 
+extern "C" {
+#include "gfile.h"
+}
+
 extern GResInfo gdraw_ri;
 
 namespace ff::app {
@@ -47,6 +51,10 @@ Glib::RefPtr<Gtk::Application> GtkApp() {
     if (!initialized) {
         app->register_application();
         load_legacy_style();
+
+        auto theme = Gtk::IconTheme::get_default();
+        std::string pixmap_dir = getPixmapDir();
+        theme->prepend_search_path(pixmap_dir);
 
         initialized = true;
     }
