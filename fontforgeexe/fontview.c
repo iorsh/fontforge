@@ -6598,18 +6598,15 @@ static void FVMouse(FontView *fv, GEvent *event) {
     int gid;
     int realpos = pos;
     SplineChar *sc, dummy;
-    int dopopup = true;
 
     if ( event->type==et_mousedown )
 	CVPaletteDeactivate();
     if ( pos<0 ) {
 	pos = 0;
-	dopopup = false;
     } else if ( pos>=fv->b.map->enccount ) {
 	pos = fv->b.map->enccount-1;
 	if ( pos<0 )		/* No glyph slots in font */
 return;
-	dopopup = false;
     }
 
     sc = (gid=fv->b.map->map[pos])!=-1 ? fv->b.sf->glyphs[gid] : NULL;
@@ -6661,9 +6658,6 @@ return;
 	    } else
 		BitmapViewCreate(bc,bdf,fv,pos);
 	}
-    } else if ( event->type == et_mousemove ) {
-	if ( dopopup )
-	    SCPreparePopup(fv->v,sc,fv->b.map->remap,pos,sc==&dummy?dummy.unicodeenc: UniFromEnc(pos,fv->b.map->enc));
     }
     if ( event->type == et_mousedown ) {
 	if ( fv->drag_and_drop ) {
@@ -6739,8 +6733,6 @@ return;
 	    fv->pressed = NULL;
 	}
     }
-    if ( event->type==et_mouseup && dopopup )
-	SCPreparePopup(fv->v,sc,fv->b.map->remap,pos,sc==&dummy?dummy.unicodeenc: UniFromEnc(pos,fv->b.map->enc));
     if ( event->type==et_mouseup )
 	SVAttachFV(fv,2);
 }
