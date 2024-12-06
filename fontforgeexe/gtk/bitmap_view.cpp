@@ -30,9 +30,9 @@
 
 namespace ff::views {
 
-BitmapView::BitmapView(std::shared_ptr<BVContext> context, int width,
+BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
                        int height)
-    : bv_context(context), pixel_grid(context) {
+    : context(bv_context), pixel_grid(bv_context) {
     Gtk::Grid* root_grid = Gtk::make_managed<Gtk::Grid>();
 
     Gtk::Box* infobar = build_infobar();
@@ -94,8 +94,8 @@ bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {
     static const int kInvalidCoord = 100000;
     int pixel_x, pixel_y, tool_x = kInvalidCoord, tool_y = kInvalidCoord;
 
-    bv_context->get_pixel_and_tool_coords(bv_context->bv, &pixel_x, &pixel_y,
-                                          &tool_x, &tool_y);
+    context.legacy()->get_pixel_and_tool_coords(context.legacy()->bv, &pixel_x,
+                                                &pixel_y, &tool_x, &tool_y);
 
     pointer_location_.set_text(std::to_string(pixel_x) +
                                ui_utils::get_list_separator() +
