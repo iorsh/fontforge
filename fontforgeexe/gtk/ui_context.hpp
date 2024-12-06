@@ -37,6 +37,7 @@ class UiContext;
 
 using ActivateCB = std::function<void(const UiContext&)>;
 using EnabledCB = std::function<bool(const UiContext&)>;
+using CheckedCB = std::function<bool(const UiContext&)>;
 
 class UiContext {
  public:
@@ -44,6 +45,7 @@ class UiContext {
 
     virtual ActivateCB get_activate_cb(int mid) const = 0;
     virtual EnabledCB get_enabled_cb(int mid) const = 0;
+    virtual CheckedCB get_checked_cb(int mid) const = 0;
 };
 
 }  // namespace ff::views
