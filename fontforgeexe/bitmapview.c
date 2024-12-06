@@ -1910,7 +1910,7 @@ return( 0 );
 return( 1 );
 }
 
-void BVRotateBitmap(BitmapView *bv,enum bvxforms type ) {
+static void BVTransformBitmap(BitmapView *bv, int /*enum bvxforms*/ type ) {
     int xoff=0, yoff=0;
 
     if ( type==bvt_skew )
@@ -1923,7 +1923,7 @@ return;
 
 void BVMenuRotateInvoked(GWindow gw,struct gmenuitem *mi,GEvent *g) {
     BitmapView *bv = (BitmapView *) GDrawGetUserData(gw);
-    BVRotateBitmap(bv,mi->mid);
+    BVTransformBitmap(bv,mi->mid);
 }
 
 static void ellistcheck(GWindow gw,struct gmenuitem *mi,GEvent *e) {
@@ -2323,6 +2323,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv_context->get_pixel_and_tool_coords = BVInfoGetText;
     bv_context->activate_tool = BVActivateTool;
     bv_context->active_width_tool = BVActiveWidthTool;
+    bv_context->activate_xform = BVTransformBitmap;
     bv_context->create_overview_image = BVCreateOverviewImage;
     bv_context->draw_gimage_in_cairo_context = GGDKDrawDrawImageInContext;
     bv_context->set_intensity = BVSetIntensity;

@@ -57,6 +57,8 @@ typedef struct bitmapview_context {
 
     int /*enum bvtools*/ (*active_width_tool)(BitmapView* bv, int x, int y);
 
+    void (*activate_xform)(BitmapView* bv, int /*enum bvxforms*/ xform_id);
+
     GImage* (*create_overview_image)(BitmapView* bv, Color fg, Color bg);
 
     void (*draw_gimage_in_cairo_context)(cairo_t* cc, GImage* image, GRect* src,

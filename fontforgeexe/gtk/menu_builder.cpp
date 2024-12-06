@@ -33,7 +33,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace ff::views {
 
 Gtk::Menu* build_menu(const std::vector<MenuInfo>& info,
-                      const BVContext& context) {
+                      const UiContext& context) {
     Gtk::Menu* menu = new Gtk::Menu();
 
     for (const auto& item : info) {
@@ -43,6 +43,11 @@ Gtk::Menu* build_menu(const std::vector<MenuInfo>& info,
         } else {
             menu_item = Gtk::make_managed<Gtk::MenuItem>(item.label.text, true);
         }
+
+        ActivateCB action = item.handler;
+        menu_item->signal_activate().connect(
+            [action, &context]() { action(context); });
+
         menu->append(*menu_item);
     }
 

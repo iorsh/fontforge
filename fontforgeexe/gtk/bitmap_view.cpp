@@ -124,7 +124,7 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
     window.resize(width, height);
 
     std::vector<MenuInfo> popup_menu = build_popup_menu_desc();
-    pop_up_ = std::move(*build_menu(popup_menu, *bv_context));
+    pop_up_ = std::move(*build_menu(popup_menu, context));
 }
 
 Gtk::Box* BitmapView::build_infobar() {
@@ -226,16 +226,27 @@ std::vector<MenuInfo> BitmapView::build_popup_menu_desc() {
     std::vector<MenuInfo> popup_menu_desc;
 
     for (const auto& tool_def : bitmap_view_tools) {
+        auto handler = [tool_id = tool_def.tool_id](const UiContext& context) {
+            auto bv_context =
+                static_cast<const BitmapViewUiContext&>(context).legacy();
+            bv_context->activate_tool(bv_context->bv, tool_id);
+        };
         MenuInfo menu_item{
-            {tool_def.label, "", ""}, {}, NoAction, tool_def.tool_id};
+            {tool_def.label, "", ""}, {}, handler, tool_def.tool_id};
         popup_menu_desc.push_back(std::move(menu_item));
     }
 
     popup_menu_desc.push_back(kMenuSeparator);
 
     for (const auto& xform_def : bitmap_view_xforms) {
+        auto handler = [xform_id =
+                            xform_def.xform_id](const UiContext& context) {
+            auto bv_context =
+                static_cast<const BitmapViewUiContext&>(context).legacy();
+            bv_context->activate_xform(bv_context->bv, xform_id);
+        };
         MenuInfo menu_item{
-            {xform_def.label, "", ""}, {}, NoAction, xform_def.xform_id};
+            {xform_def.label, "", ""}, {}, handler, xform_def.xform_id};
         popup_menu_desc.push_back(std::move(menu_item));
     }
 
