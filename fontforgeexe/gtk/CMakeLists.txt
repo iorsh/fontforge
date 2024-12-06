@@ -17,6 +17,8 @@ add_library(ffgtk OBJECT
   i_char_grid_containter.hpp
   language_list.hpp
   language_list.cpp
+  select_glyphs.hpp
+  select_glyphs.cpp
   simple_dialogs.hpp
   simple_dialogs.cpp
   utils.hpp
