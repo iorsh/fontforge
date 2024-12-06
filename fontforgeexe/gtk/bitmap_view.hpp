@@ -30,6 +30,7 @@
 #include <gtkmm.h>
 
 #include "bitmap_view_shim.hpp"
+#include "menu_builder.hpp"
 #include "pixel_grid.hpp"
 #include "c_context.h"
 #include "ui_context.hpp"
@@ -82,6 +83,7 @@ class BitmapView {
     void build_toolbar();
     void build_layers_panel(const std::vector<BitmapViewLayer>& layer_defs);
     Gtk::Widget* build_panels();
+    std::vector<MenuInfo> build_popup_menu_desc();
 
     void update_primary_cursor(const BitmapViewTool& tool_def);
 

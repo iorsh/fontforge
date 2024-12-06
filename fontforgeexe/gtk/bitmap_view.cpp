@@ -121,10 +121,8 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
     window.show_all();
     window.resize(width, height);
 
-    Gtk::MenuItem* menu1 = Gtk::make_managed<Gtk::MenuItem>("Menu 1");
-    Gtk::MenuItem* menu2 = Gtk::make_managed<Gtk::MenuItem>("Menu 2");
-    pop_up_.append(*menu1);
-    pop_up_.append(*menu2);
+    std::vector<MenuInfo> popup_menu = build_popup_menu_desc();
+    pop_up_ = std::move(*build_menu(popup_menu, *bv_context));
 }
 
 Gtk::Box* BitmapView::build_infobar() {
@@ -218,6 +216,20 @@ Gtk::Widget* BitmapView::build_panels() {
     scroller->add(*panels);
 
     return scroller;
+}
+
+std::vector<MenuInfo> BitmapView::build_popup_menu_desc() {
+    const auto& bitmap_view_tools = *static_cast<std::vector<BitmapViewTool>*>(
+        context.legacy()->p_bitmap_view_tools);
+    std::vector<MenuInfo> popup_menu_desc;
+
+    for (const auto& tool_def : bitmap_view_tools) {
+        MenuInfo menu_item{
+            {tool_def.label, "", ""}, {}, NoAction, tool_def.tool_id};
+        popup_menu_desc.push_back(std::move(menu_item));
+    }
+
+    return popup_menu_desc;
 }
 
 void BitmapView::update_primary_cursor(const BitmapViewTool& tool_def) {
