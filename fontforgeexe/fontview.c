@@ -64,6 +64,7 @@
 #include "views.h"
 
 #include "gtk/simple_dialogs.hpp"
+#include "gtk/font_view_shim.hpp"
 
 #include <math.h>
 #include <unistd.h>
@@ -3826,6 +3827,7 @@ return;
     free(enc);
 
     GDrawSetWindowTitles8(fv->gw,title,fv->b.sf->fontname);
+    gtk_set_title(fv->gtk_window, title, fv->b.sf->fontname);
     free(title);
 }
 
@@ -7395,10 +7397,11 @@ static void FVCreateInnards(FontView *fv,GRect *pos) {
     fv->vsb = GScrollBarCreate(gw,&gd,fv);
 
     memset(&wattrs,0,sizeof(wattrs));
-    wattrs.mask = wam_events|wam_cursor|wam_backcol;
+    wattrs.mask = wam_events|wam_cursor|wam_backcol|wam_gtk_wrapper;
     wattrs.event_masks = ~(1<<et_charup);
     wattrs.cursor = ct_pointer;
     wattrs.background_color = view_bgcol;
+    wattrs.gtk_widget = get_drawing_widget_c(fv->gtk_window);
     fv->v = GWidgetCreateSubWindow(gw,pos,v_e_h,fv,&wattrs);
     GDrawSetVisible(fv->v,true);
     GDrawSetWindowTypeName(fv->v, "FontView");
@@ -7466,6 +7469,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     if ( nexty+pos.height > size.height )
 	nexty = 0;
     fv->gw = gw = GDrawCreateTopWindow(NULL,&pos,fv_e_h,fv,&wattrs);
+    fv->gtk_window = create_font_view(pos.width, pos.height);
     FontViewSetTitle(fv);
     GDrawSetWindowTypeName(fv->gw, "FontView");
 

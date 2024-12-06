@@ -7,6 +7,8 @@ add_library(ffgtk OBJECT
   css_builder.cpp
   dialog.hpp
   dialog.cpp
+  font_view_shim.hpp
+  font_view_shim.cpp
   language_list.hpp
   language_list.cpp
   simple_dialogs.hpp
