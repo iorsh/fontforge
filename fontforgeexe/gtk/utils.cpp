@@ -29,6 +29,7 @@
 
 #include <glib/gprintf.h>
 #include <iostream>
+#include <vector>
 
 static Cairo::TextExtents ui_font_extents(const std::string& sample_text) {
     Cairo::RefPtr<Cairo::ImageSurface> srf =
@@ -80,4 +81,21 @@ void gtk_post_error(const char* title, const char* statement, ...) {
     }
 
     va_end(ap);
+}
+
+Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name) {
+    if (w->get_name() == name) {
+        return w;
+    }
+
+    Gtk::Widget* res = nullptr;
+    Gtk::Container* c = dynamic_cast<Gtk::Container*>(w);
+
+    if (c) {
+        std::vector<Gtk::Widget*> children = c->get_children();
+        for (size_t i = 0; res == nullptr && i < children.size(); ++i) {
+            res = gtk_find_child(children[i], name);
+        }
+    }
+    return res;
 }

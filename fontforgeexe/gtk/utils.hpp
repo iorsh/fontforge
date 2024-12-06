@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include <string>
 #include <gtkmm.h>
 
 double ui_font_em_size();
@@ -33,3 +34,5 @@ double ui_font_eX_size();
 
 // TODO(iorsh): Integrate this function into the global log collection
 void gtk_post_error(const char* title, const char* statement, ...);
+
+Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name);
