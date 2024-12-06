@@ -25,6 +25,7 @@ add_library(ffgtk OBJECT
   select_glyphs.cpp
   simple_dialogs.hpp
   simple_dialogs.cpp
+  ui_context.hpp
   utils.hpp
   utils.cpp
 )
