@@ -30,15 +30,20 @@
 #include <gtkmm.h>
 
 #include "application.hpp"
+#include "c_context.h"
 #include "font_view.hpp"
 #include "utils.hpp"
 
-void* create_font_view(int width, int height) {
+void* create_font_view(FVContext** p_fv_context, int width, int height) {
     // To avoid instability, the GTK application is lazily initialized only when
     // a GTK window is invoked.
     ff::app::GtkApp();
 
-    ff::views::FontView* font_view = new ff::views::FontView(width, height);
+    // Take ownership of *p_fv_context
+    std::shared_ptr<FVContext> context(*p_fv_context, &free);
+    ff::views::FontView* font_view =
+        new ff::views::FontView(context, width, height);
+    *p_fv_context = NULL;
     return font_view;
 }
 
