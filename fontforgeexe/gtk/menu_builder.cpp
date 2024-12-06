@@ -37,8 +37,12 @@ Gtk::Menu* build_menu(const std::vector<MenuInfo>& info,
     Gtk::Menu* menu = new Gtk::Menu();
 
     for (const auto& item : info) {
-        Gtk::MenuItem* menu_item =
-            Gtk::make_managed<Gtk::MenuItem>(item.label.text, true);
+        Gtk::MenuItem* menu_item = nullptr;
+        if (item.is_separator()) {
+            menu_item = Gtk::make_managed<Gtk::SeparatorMenuItem>();
+        } else {
+            menu_item = Gtk::make_managed<Gtk::MenuItem>(item.label.text, true);
+        }
         menu->append(*menu_item);
     }
 
