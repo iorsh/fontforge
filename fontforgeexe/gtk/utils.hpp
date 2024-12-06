@@ -36,3 +36,5 @@ double ui_font_eX_size();
 void gtk_post_error(const char* title, const char* statement, ...);
 
 Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name);
+
+int label_offset(Gtk::Widget* w);

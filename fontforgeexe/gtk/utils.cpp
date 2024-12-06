@@ -99,3 +99,19 @@ Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name) {
     }
     return res;
 }
+
+int label_offset(Gtk::Widget* w) {
+    Gtk::Container* c = dynamic_cast<Gtk::Container*>(w);
+    if (c) {
+        std::vector<Gtk::Widget*> children = c->get_children();
+        if (!children.empty()) {
+            Gtk::Widget* label = children[0];
+            int x, y;
+            if (label->translate_coordinates(*w, 0, 0, x, y)) {
+                return x;
+            }
+        }
+    }
+
+    return 0;
+}
