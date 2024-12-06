@@ -29,6 +29,7 @@
 
 #include <glib/gprintf.h>
 #include <iostream>
+#include <vector>
 
 #include "application.hpp"
 
@@ -138,6 +139,23 @@ void unset_cursor(Gtk::Widget* widget, Glib::RefPtr<Gdk::Cursor> old_cursor) {
 
     // old_cursor is allowed to be NULL
     gdk_window->set_cursor(old_cursor);
+}
+
+Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name) {
+    if (w->get_name() == name) {
+        return w;
+    }
+
+    Gtk::Widget* res = nullptr;
+    Gtk::Container* c = dynamic_cast<Gtk::Container*>(w);
+
+    if (c) {
+        std::vector<Gtk::Widget*> children = c->get_children();
+        for (size_t i = 0; res == nullptr && i < children.size(); ++i) {
+            res = gtk_find_child(children[i], name);
+        }
+    }
+    return res;
 }
 
 }  // namespace ff::ui_utils

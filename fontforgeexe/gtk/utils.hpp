@@ -27,6 +27,7 @@
 #pragma once
 
 #include <clocale>
+#include <string>
 #include <gtkmm.h>
 
 namespace ff::ui_utils {
@@ -53,4 +54,5 @@ Glib::RefPtr<Gdk::Cursor> set_cursor(Gtk::Widget* widget,
 
 void unset_cursor(Gtk::Widget* widget, Glib::RefPtr<Gdk::Cursor> old_cursor);
 
+Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name);
 }  // namespace ff::ui_utils
