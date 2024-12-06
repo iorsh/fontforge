@@ -31,8 +31,20 @@
 
 #include "pixel_grid.hpp"
 #include "c_context.h"
+#include "ui_context.hpp"
 
 namespace ff::views {
+
+class BitmapViewUiContext : public UiContext {
+ public:
+    BitmapViewUiContext(std::shared_ptr<BVContext> bv_context)
+        : legacy_context(bv_context) {}
+
+    std::shared_ptr<BVContext> legacy() const { return legacy_context; }
+
+ private:
+    std::shared_ptr<BVContext> legacy_context;
+};
 
 class BitmapView {
  public:
@@ -63,7 +75,7 @@ class BitmapView {
 
     bool on_motion_notify_event(GdkEventMotion* event);
 
-    std::shared_ptr<BVContext> bv_context;
+    BitmapViewUiContext context;
 
     Gtk::Window window;
     Gtk::Label pointer_location_;
