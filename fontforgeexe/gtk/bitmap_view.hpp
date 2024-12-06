@@ -101,6 +101,7 @@ class BitmapView {
     BitmapPreview preview_;
     Gtk::VBox layers_panel_;
     BitmapColorChooser color_chooser_;
+    Gtk::Menu pop_up_;
 };
 
 }  // namespace ff::views

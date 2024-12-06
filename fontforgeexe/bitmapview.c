@@ -1140,7 +1140,7 @@ static void BVMouseDown(BitmapView *bv, GEvent *event) {
 return;		/* I treat this more like a modifier key change than a button press */
 
     if ( event->u.mouse.button==3 ) {
-	BVToolsPopup(bv,event);
+	// BVToolsPopup(bv,event);
 return;
     }
     BVToolsSetCursor(bv,event->u.mouse.state|(1<<(7+event->u.mouse.button)), event->u.mouse.device );
@@ -1467,7 +1467,6 @@ return( true );
 
 static int bv_e_h(GWindow gw, GEvent *event) {
     BitmapView *bv = (BitmapView *) GDrawGetUserData(gw);
-    int enc;
 
     switch ( event->type ) {
       case et_expose:

@@ -120,6 +120,11 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
 
     window.show_all();
     window.resize(width, height);
+
+    Gtk::MenuItem* menu1 = Gtk::make_managed<Gtk::MenuItem>("Menu 1");
+    Gtk::MenuItem* menu2 = Gtk::make_managed<Gtk::MenuItem>("Menu 2");
+    pop_up_.append(*menu1);
+    pop_up_.append(*menu2);
 }
 
 Gtk::Box* BitmapView::build_infobar() {
@@ -297,6 +302,12 @@ bool BitmapView::on_key_event(GdkEventKey* event) {
 }
 
 bool BitmapView::on_button_press_event(GdkEventButton* event) {
+    if (event->button == GDK_BUTTON_SECONDARY) {
+        pop_up_.show_all();
+        pop_up_.popup(event->button, event->time);
+        return true;
+    }
+
     BVDevice device = determine_device(event);
     if (device == bvd_undefined) return false;  // unsupported device
 
