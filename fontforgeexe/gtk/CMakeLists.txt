@@ -14,6 +14,7 @@ add_library(ffgtk OBJECT
   font_view.cpp
   font_view_shim.hpp
   font_view_shim.cpp
+  i_char_grid_containter.hpp
   language_list.hpp
   language_list.cpp
   simple_dialogs.hpp
