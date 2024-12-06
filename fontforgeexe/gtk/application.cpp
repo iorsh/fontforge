@@ -114,6 +114,13 @@ void load_legacy_style() {
     }
 }
 
+void add_top_view(Gtk::Window& window) { GtkApp()->add_window(window); }
+
+void remove_top_view(Gtk::Window& window) {
+    GtkApp()->remove_window(window);
+    GtkApp()->quit();
+}
+
 ColorManager::ColorManager() {
     style_ctx_ = Gtk::StyleContext::create();
 

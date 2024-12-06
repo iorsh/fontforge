@@ -26,6 +26,8 @@
  */
 
 #include "bitmap_view.hpp"
+
+#include "application.hpp"
 #include "bitmap_view_shim.hpp"
 #include "utils.hpp"
 
@@ -56,6 +58,13 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
           context.legacy()->p_bitmap_view_tools)),
       preview_(bv_context),
       color_chooser_(get_color_chooser_mode(bv_context->depth)) {
+    app::add_top_view(window);
+
+    window.signal_delete_event().connect([this](GdkEventAny*) {
+        app::remove_top_view(window);
+        return false;
+    });
+
     // TODO(iorsh): Remove this later. The persistent width/height values are
     // currently broken, make sure they are positive so as not to break the
     // window resizing.

@@ -37,6 +37,10 @@ Glib::RefPtr<Gtk::Application> GtkApp();
 
 void load_legacy_style();
 
+void add_top_view(Gtk::Window& window);
+
+void remove_top_view(Gtk::Window& window);
+
 using ColorMap = std::map<
     std::string /*fontforge color name*/,
     std::pair<std::string /*GTK theme color name*/, Gdk::RGBA /*fallback*/>>;
