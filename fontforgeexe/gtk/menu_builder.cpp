@@ -349,6 +349,13 @@ Gtk::MenuBar build_menu_bar(const std::vector<MenuInfo>& info,
             Gtk::Menu* sub_menu =
                 Gtk::manage(build_menu(item.sub_menu, context));
             menu_item->set_submenu(*sub_menu);
+
+            // TODO(iorsh): This hack is needed only to register accelerators
+            // for Python tools, so that they would be available to the user
+            // even if the user didn't open the "Tools" menu. It effectively
+            // emits menu "show" signal which causes dynamic menus to be built
+            // right at the beginning.
+            sub_menu->popup(0, 0);
         }
     }
 
