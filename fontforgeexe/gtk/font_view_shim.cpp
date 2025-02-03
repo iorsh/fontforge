@@ -97,6 +97,11 @@ void cg_resize_window(void* cg_opaque, int width, int height) {
     char_grid->resize_drawing_area(width, height);
 }
 
+void cg_raise_window(void* cg_opaque) {
+    auto char_grid = static_cast<CharGrid*>(cg_opaque);
+    char_grid->raise_window();
+}
+
 GTK_Window cg_get_gtk_window(void* cg_opaque) {
     auto char_grid = static_cast<CharGrid*>(cg_opaque);
     return gtk_get_window(char_grid->get_top_widget());
