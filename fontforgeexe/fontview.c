@@ -6668,7 +6668,7 @@ static FontView *FontView_Create(SplineFont *sf, int hide) {
     if ( fv_fontpx < 0 )
 	fv_fontpx = GDrawPointsToPixels(NULL, -fv_fontpx);
 
-    pos.x = 0; pos.y = fv->mbh;
+    pos.x = 0; pos.y = 0;
     FVCreateInnards(fv,&pos);
 
     if ( !hide ) {
@@ -6988,7 +6988,6 @@ void* KFFontViewInits(struct kf_dlg *kf) {
 
     FVCopyInnards(kf->first_fv,&pos,fvorig,kf->def_layer,(struct fvcontainer *) kf);
     pos.height = 8*kf->first_fv->cbh+1;		/* We don't know the real fv->cbh until after creating the innards. The size of the last window is probably wrong, we'll fix later */
-    kf->second_fv->mbh = 0;
     FVCopyInnards(kf->second_fv,&pos,fvorig,kf->def_layer,(struct fvcontainer *) kf);
 
     // The specified height is implicitly divided equally between the two character grids.
@@ -7118,7 +7117,6 @@ char *GlyphSetFromSelection(GWindow parent, SplineFont *sf,int def_layer,char *c
     ps = sf->display_size; sf->display_size = -24;
     gs.fv = __FontViewCreate(sf);
 
-    gs.fv->mbh = 0;
     pos.x = 0; pos.y = 0;
     pos.width = 16*gs.fv->cbw+1;
     pos.height = 4*gs.fv->cbh+1;
