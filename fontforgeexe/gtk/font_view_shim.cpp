@@ -99,10 +99,7 @@ void cg_resize_window(void* cg_opaque, int width, int height) {
 
 GTK_Window cg_get_gtk_window(void* cg_opaque) {
     auto char_grid = static_cast<CharGrid*>(cg_opaque);
-    // TODO(iorsh): use gtk_get_window()
-    Gtk::Container* top_containter = char_grid->get_top_widget().get_toplevel();
-    Gtk::Window* window = dynamic_cast<Gtk::Window*>(top_containter);
-    return window;
+    return gtk_get_window(char_grid->get_top_widget());
 }
 
 void* create_select_glyphs_dlg(GWindow parent, FVContext** p_fv_context,

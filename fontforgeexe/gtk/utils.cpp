@@ -31,6 +31,12 @@
 #include <iostream>
 #include <vector>
 
+Gtk::Window* gtk_get_window(Gtk::Widget& w) {
+    Gtk::Container* top_containter = w.get_toplevel();
+    Gtk::Window* window = dynamic_cast<Gtk::Window*>(top_containter);
+    return window;
+}
+
 static Cairo::TextExtents ui_font_extents(const std::string& sample_text) {
     Cairo::RefPtr<Cairo::ImageSurface> srf =
         Cairo::ImageSurface::create(Cairo::Format::FORMAT_RGB24, 100, 100);

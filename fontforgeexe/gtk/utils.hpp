@@ -47,6 +47,8 @@ class L10nText {
     mutable Glib::ustring l10n_text_;
 };
 
+Gtk::Window* gtk_get_window(Gtk::Widget& w);
+
 double ui_font_em_size();
 double ui_font_eX_size();
 
