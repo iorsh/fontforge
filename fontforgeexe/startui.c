@@ -985,7 +985,6 @@ exit( 0 );
     BitmapViewFinishNonStatic();
     MetricsViewFinishNonStatic();
     CharViewFinishNonStatic();
-    FontViewFinishNonStatic();
 
     ClearImageCache(); // This frees the contents of imagecache.
     // hotkeysSave();
