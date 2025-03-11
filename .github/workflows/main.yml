@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ master, gtk_base, releases/** ]
+    branches: [ master, gtk_base-CI, releases/** ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
@@ -135,7 +135,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: iorsh/fontforgebuilds
-          ref: gtk_win
+          ref: gtk_win-CI
           path: fontforgebuilds
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
