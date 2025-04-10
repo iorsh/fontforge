@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ master, releases/** ]
+    branches: [ master, msvc, releases/** ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
@@ -149,6 +149,7 @@ jobs:
         shell: msys2 {0}
         run: ./ffbuild.sh --github-actions --depsonly
       - name: Run FontForgeBuilds
+        uses: ilammy/msvc-dev-cmd@v1
         working-directory: fontforgebuilds
         shell: msys2 {0}
         run: |
