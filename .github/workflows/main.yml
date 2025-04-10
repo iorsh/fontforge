@@ -133,6 +133,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: repo
+      - uses: ilammy/msvc-dev-cmd@v1
       - name: Checkout FontForgeBuilds
         uses: actions/checkout@v4
         with:
@@ -149,7 +150,6 @@ jobs:
         shell: msys2 {0}
         run: ./ffbuild.sh --github-actions --depsonly
       - name: Run FontForgeBuilds
-        uses: ilammy/msvc-dev-cmd@v1
         working-directory: fontforgebuilds
         shell: msys2 {0}
         run: |
