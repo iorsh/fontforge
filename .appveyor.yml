@@ -4,6 +4,7 @@ platform:
 branches:
   only:
   - master
+  - custom_res
   - /release\/.*/
 environment:
   global:
