@@ -133,7 +133,6 @@ fontforge.MetricsView.SideBearingLineColor: #12376c
 fontforge.BDFProperties.Font: 83% ^View.DefaultFont
 fontforge.Combinations.Font: 76% ^View.DefaultFont
 fontforge.CVT.Font: 76% ^View.MonoFont
-fontforge.DebugView.Background: #ffffff
 fontforge.DebugView.Font: 76% ^View.DefaultFont
 fontforge.FontInfo.OriginLineColor: #808080
 fontforge.FontInfo.Font: ^View.DefaultFont
@@ -141,8 +140,8 @@ fontforge.GlyphInfo.Font: ^View.MonoFont
 fontforge.Groups.Font: ^View.DefaultFont
 fontforge.Histogram.GraphColor: #2020ff
 fontforge.Histogram.Font: 83% ^View.DefaultFont
-fontforge.KernClass.Font: ^View.MonoFont
 fontforge.KernClass.TextColor: #006080
+fontforge.KernClass.Font: ^View.MonoFont
 fontforge.KernFormat.Font: ^View.DefaultFont
 fontforge.KernFormat.BoldFont: bold ^View.DefaultFont
 fontforge.Math.Font: ^View.DefaultFont
@@ -189,9 +188,9 @@ Gdraw.GGadget.Popup.Delay: 1000
 Gdraw.GGadget.Popup.LifeTime: 20000
 
 Gdraw.GProgress.Font: ^View.MonoFont
-Gdraw.GProgress.Background: #edeceb
 Gdraw.GProgress.Foreground: #222222
 Gdraw.GProgress.FillColor: #88b2de
+Gdraw.GProgress.Background: #edeceb
 
 Gdraw.GGadget.Box.BorderInner: False
 Gdraw.GGadget.Box.BorderOuter: False
@@ -241,10 +240,25 @@ Gdraw.GListMark.Image: downarrow.png
 Gdraw.GListMark.DisabledImage: downarrow_disabled.png
 Gdraw.GListMark.Width: 8
 
-Gdraw.GLabel.Box.BorderType: none
-Gdraw.GLabel.Box.BorderWidth: 0
-Gdraw.GLabel.Box.Padding: 0
-Gdraw.GLabel.Font: 83% ^View.DefaultFont
+Gdraw.GLabel.Box.BorderInner: True
+Gdraw.GLabel.Box.BorderOuter: True
+Gdraw.GLabel.Box.ShadowOuter: True
+Gdraw.GLabel.Box.GradientBG: True
+Gdraw.GLabel.Box.NormalForeground: #1412ba
+Gdraw.GLabel.Box.DisabledForeground: #aba863
+Gdraw.GLabel.Box.NormalBackground: #ff3836
+Gdraw.GLabel.Box.DisabledBackground: #f0c4c7
+Gdraw.GLabel.Box.GradientStartCol: #ebed03
+Gdraw.GLabel.Box.BorderBrightest: #aba6f5
+Gdraw.GLabel.Box.BorderBrighter: #178f24
+Gdraw.GLabel.Box.BorderDarker: #ff8c21
+Gdraw.GLabel.Box.BorderDarkest: #2b26e8
+Gdraw.GLabel.Box.BorderInnerCol: #0d0dfc
+Gdraw.GLabel.Box.BorderType: box
+Gdraw.GLabel.Box.BorderShape: roundrect
+Gdraw.GLabel.Box.BorderWidth: 3
+Gdraw.GLabel.Box.Padding: 3
+Gdraw.GLabel.Font: 83% ^View.SerifFont
 
 Gdraw.GButton.Box.BorderInner: True
 Gdraw.GButton.Box.BorderOuter: True
@@ -252,7 +266,7 @@ Gdraw.GButton.Box.DoDepressedBackground: True
 Gdraw.GButton.Box.DrawDefault: False
 Gdraw.GButton.Box.GradientBG: True
 Gdraw.GButton.Box.NormalBackground: #ffffff
-Gdraw.GButton.Box.GradientStartCol: #e5e4e3
+Gdraw.GButton.Box.GradientStartCol: #ed1f1a
 Gdraw.GButton.Box.BorderInnerCol: #f9f8f7
 Gdraw.GButton.Box.BorderOuterCol: #dddcdb
 Gdraw.GButton.Box.BorderType: box
@@ -262,11 +276,24 @@ Gdraw.GButton.Box.Radius: 3
 Gdraw.GButton.Font: 83% ^View.DefaultFont
 Gdraw.GButton.ShiftOnPress: False
 
+Gdraw.GDefaultButton.Box.GradientStartCol: #e6ed26
 Gdraw.GDefaultButton.Box.BorderBrightest: #598ec6
 Gdraw.GDefaultButton.Box.BorderBrighter: #598ec6
 Gdraw.GDefaultButton.Box.BorderDarker: #598ec6
 Gdraw.GDefaultButton.Box.BorderDarkest: #598ec6
 Gdraw.GDefaultButton.Box.BorderOuterCol: #bcd2ea
+
+Gdraw.GCancelButton.Box.BorderInner: False
+Gdraw.GCancelButton.Box.BorderOuter: False
+Gdraw.GCancelButton.Box.DoDepressedBackground: False
+Gdraw.GCancelButton.Box.GradientBG: False
+Gdraw.GCancelButton.Box.BorderBrightest: #0a0a8f
+Gdraw.GCancelButton.Box.BorderBrighter: #140a8f
+Gdraw.GCancelButton.Box.BorderDarker: #fffcfc
+Gdraw.GCancelButton.Box.BorderDarkest: #fffcfc
+Gdraw.GCancelButton.Box.BorderShape: rect
+Gdraw.GCancelButton.Box.BorderWidth: 2
+
 
 Gdraw.GDropList.Box.BorderType: none
 Gdraw.GDropList.Box.BorderShape: rect
@@ -331,7 +358,7 @@ Gdraw.GVisibilityBoxOff.Image: check_off.png
 Gdraw.GVisibilityBoxOff.DisabledImage: check_off_disabled.png
 
 Gdraw.GTextField.Box.BorderInner: True
-Gdraw.GTextField.Box.NormalBackground: #ffffff
+Gdraw.GTextField.Box.NormalBackground: #fa8cff
 Gdraw.GTextField.Box.BorderBrightest: #f9f8f7
 Gdraw.GTextField.Box.BorderBrighter: #f9f8f7
 Gdraw.GTextField.Box.BorderDarker: #dddcdb
@@ -437,7 +464,16 @@ Gdraw.GGroup.Box.BorderType: none
 Gdraw.GGroup.Box.BorderShape: rect
 Gdraw.GGroup.Box.Padding: 0
 
+Gdraw.GFlowBox.Box.BorderType: none
+Gdraw.GFlowBox.Box.BorderWidth: 0
+Gdraw.GFlowBox.Box.Padding: 0
+
+Gdraw.GScroll1Box.Box.BorderType: none
+Gdraw.GScroll1Box.Box.BorderWidth: 1
+Gdraw.GScroll1Box.Box.Padding: 3
+
 Gdraw.GMenuBar.Box.BorderOuter: False
+Gdraw.GMenuBar.Box.NormalBackground: #ffa6c7
 Gdraw.GMenuBar.Box.GradientStartCol: #e5e4e3
 Gdraw.GMenuBar.Box.BorderInnerCol: #edeceb
 Gdraw.GMenuBar.Box.ActiveBorder: #ededed
