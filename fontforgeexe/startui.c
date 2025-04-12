@@ -725,7 +725,7 @@ int fontforge_main( int argc, char **argv ) {
     {
 	GGadgetSetImageDir( getPixmapDir() );
 	char* path = smprintf("%s/resources/fontforge.resource", getShareDir());
-	GResourceAddResourceFile(path, GResourceProgramName,false);
+	GResourceAddResourceFile(path, GResourceProgramName,true);
 	free(path);
     }
     hotkeysLoad();
