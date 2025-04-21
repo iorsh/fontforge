@@ -15,7 +15,7 @@ but which are used throughout FontForge.
 There are other defines where it is not clear if they should be
 configured, or if they are defined locally in source only:
 
-BIGICONS, CHUNKDEBUG, DEBUG, DEBUG_FREEHAND, ESCAPE_LIBXML_STRINGS,
+CHUNKDEBUG, DEBUG, DEBUG_FREEHAND, ESCAPE_LIBXML_STRINGS,
 FF_OVERLAP_VERBOSE, FF_RELATIONAL_GEOM, FLAG, GLYPH_DATA_DEBUG,
 HANYANG, KNIFE_CONTINUOUS, KOREAN, MEMORY_MASK, MyMemory,
 NEED_WIDE_CHAR, OPTIMIZE_TTF_INSTRS, THIRDS_IN_WIDTH,
