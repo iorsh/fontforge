@@ -103,6 +103,10 @@ set_font_family(ui "${FONT_FAMILIES_UI}")
 set_font_family(label "${FONT_FAMILIES_LABEL}")
 set_font_family(mono "${FONT_FAMILIES_MONO}")
 
+if (APPLE)
+  set(CMAKE_FIND_FRAMEWORK NEVER)
+endif()
+
 # Required and default dependencies
 # Note: When adding a dependency, ensure it has an imported target (wherever appropriate) 
 find_package(Freetype 2.3.7 REQUIRED)
