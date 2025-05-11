@@ -104,7 +104,7 @@ set_font_family(label "${FONT_FAMILIES_LABEL}")
 set_font_family(mono "${FONT_FAMILIES_MONO}")
 
 if (APPLE)
-  set(CMAKE_FIND_FRAMEWORK NEVER)
+  set(CMAKE_FIND_FRAMEWORK LAST)
 endif()
 
 # Required and default dependencies
