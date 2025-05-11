@@ -166,7 +166,7 @@ find_package_auto(ENABLE_LIBTIFF          TIFF)
 find_package_auto(ENABLE_WOFF2            WOFF2)
 find_package_auto(ENABLE_CODE_COVERAGE    Gcov)
 if(ENABLE_LIBPNG)
-  pkg_check_modules(PNG libpng16 REQUIRED)
+  pkg_check_modules(LIBPNG REQUIRED libpng16 IMPORTED_TARGET)
 endif()
 
 add_subdirectory(inc)
