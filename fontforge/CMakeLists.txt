@@ -224,6 +224,8 @@ add_library(fontforge
   zapfnomen.c
 )
 
+add_subdirectory(cgal)
+
 if(ENABLE_WOFF2_RESULT)
   target_sources(fontforge PRIVATE woff2.cc)
 endif()

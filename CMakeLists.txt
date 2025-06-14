@@ -117,6 +117,7 @@ find_package(Iconv REQUIRED)
 find_package(LibXml2 REQUIRED)
 find_package(MathLib REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(CGAL REQUIRED)
 
 check_include_file(pthread.h HAVE_PTHREAD_H)
 if(HAVE_PTHREAD_H)
