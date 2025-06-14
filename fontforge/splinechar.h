@@ -132,6 +132,9 @@ struct pen {
 #define HntMax 96 /* PS says at most 96 hints */
 typedef uint8_t HintMask[HntMax / 8];
 
+enum overlap_type { over_remove, over_rmselected, over_intersect, over_intersel,
+	over_exclude, over_findinter, over_fisel };
+
 enum pointtype { pt_curve, pt_corner, pt_tangent, pt_hvcurve };
 typedef struct splinepoint {
     BasePoint me;
