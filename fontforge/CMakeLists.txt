@@ -114,6 +114,16 @@ set(FONTFORGE_INST_HEADERS
   views.h
 )
 
+add_library(fontforge_base INTERFACE
+  splinechar.h
+)
+
+target_include_directories(fontforge_base
+  INTERFACE
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+)
+
 add_library(fontforge
   ${FONTFORGE_NOINST_HEADERS}
   ${FONTFORGE_INST_HEADERS}
@@ -239,6 +249,7 @@ target_include_directories(fontforge PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(fontforge
   PUBLIC
     fontforge_common_headers
+    fontforge_base
     Freetype::Freetype
     LibXml2::LibXml2
     GLIB::GLIB
