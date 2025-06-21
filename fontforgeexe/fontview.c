@@ -66,6 +66,7 @@
 
 #include "fv_mids.h"
 
+#include "gtk/dialogs.hpp"
 #include "gtk/simple_dialogs.hpp"
 
 #include <math.h>
@@ -1414,6 +1415,14 @@ static void FVMenuPrint(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED
     if ( fv->b.container!=NULL && fv->b.container->funcs->is_modal )
 return;
     PrintFFDlg(fv,NULL,NULL);
+}
+
+static void FVMenuGtkPrint(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
+    FontView *fv = (FontView *) GDrawGetUserData(gw);
+
+    if ( fv->b.container!=NULL && fv->b.container->funcs->is_modal )
+return;
+    print_dialog();
 }
 
 #if !defined(_NO_FFSCRIPT) || !defined(_NO_PYTHON)
@@ -4105,6 +4114,7 @@ static void fllistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
 	    mi->ti.disabled = script_menu_names[0]==NULL;
 	  break;
 	  case FV_MID_Print:
+	  case FV_MID_GtkPrint:
 	    mi->ti.disabled = fv->b.sf->onlybitmaps || in_modal;
 	  break;
 	}
@@ -4452,6 +4462,7 @@ static GMenuItem2 fllist[] = {
     { { (unichar_t *) N_("Clear Special Data"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'R' }, H_("Clear Special Data|No Shortcut"), NULL, NULL, FVMenuClearSpecialData, FV_MID_ClearSpecialData },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("_Print..."), (GImage *) "fileprint.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'P' }, H_("Print...|No Shortcut"), NULL, NULL, FVMenuPrint, FV_MID_Print },
+    { { (unichar_t *) N_("GTK Print..."), (GImage *) "fileprint.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'P' }, H_("Print...|No Shortcut"), NULL, NULL, FVMenuGtkPrint, FV_MID_GtkPrint },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
 #if !defined(_NO_PYTHON)
     { { (unichar_t *) N_("E_xecute Script..."), (GImage *) "python.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'x' }, H_("Execute Script...|No Shortcut"), NULL, NULL, FVMenuExecute, 0 },
