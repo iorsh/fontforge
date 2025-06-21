@@ -9,6 +9,8 @@ add_library(ffgtk OBJECT
   dialog.cpp
   language_list.hpp
   language_list.cpp
+  dialogs.hpp
+  dialogs.cpp
   simple_dialogs.hpp
   simple_dialogs.cpp
   utils.hpp
