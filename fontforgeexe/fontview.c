@@ -63,6 +63,7 @@
 #include "utype.h"
 #include "views.h"
 
+#include "gtk/dialogs.hpp"
 #include "gtk/simple_dialogs.hpp"
 
 #include <math.h>
@@ -1423,6 +1424,14 @@ return;
     PrintFFDlg(fv,NULL,NULL);
 }
 
+static void FVMenuGtkPrint(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
+    FontView *fv = (FontView *) GDrawGetUserData(gw);
+
+    if ( fv->b.container!=NULL && fv->b.container->funcs->is_modal )
+return;
+    print_dialog();
+}
+
 #if !defined(_NO_FFSCRIPT) || !defined(_NO_PYTHON)
 static void FVMenuExecute(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
@@ -1628,6 +1637,7 @@ static void FVMenuCondense(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNU
 #define MID_GenerateTTC 2709
 #define MID_OpenMetrics	2710
 #define MID_ClearSpecialData 2711
+#define MID_GtkPrint	2720
 #define MID_Cut		2101
 #define MID_Copy	2102
 #define MID_Paste	2103
@@ -4288,6 +4298,7 @@ static void fllistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
 	    mi->ti.disabled = script_menu_names[0]==NULL;
 	  break;
 	  case MID_Print:
+	  case MID_GtkPrint:
 	    mi->ti.disabled = fv->b.sf->onlybitmaps || in_modal;
 	  break;
 	}
@@ -4635,6 +4646,7 @@ static GMenuItem2 fllist[] = {
     { { (unichar_t *) N_("Clear Special Data"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'R' }, H_("Clear Special Data|No Shortcut"), NULL, NULL, FVMenuClearSpecialData, MID_ClearSpecialData },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
     { { (unichar_t *) N_("_Print..."), (GImage *) "fileprint.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'P' }, H_("Print...|No Shortcut"), NULL, NULL, FVMenuPrint, MID_Print },
+    { { (unichar_t *) N_("GTK Print..."), (GImage *) "fileprint.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'P' }, H_("Print...|No Shortcut"), NULL, NULL, FVMenuGtkPrint, MID_GtkPrint },
     { { NULL, NULL, COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 1, 0, 0, 0, '\0' }, NULL, NULL, NULL, NULL, 0 }, /* line */
 #if !defined(_NO_PYTHON)
     { { (unichar_t *) N_("E_xecute Script..."), (GImage *) "python.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'x' }, H_("Execute Script...|No Shortcut"), NULL, NULL, FVMenuExecute, 0 },
