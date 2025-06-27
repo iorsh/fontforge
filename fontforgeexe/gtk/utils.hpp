@@ -27,6 +27,7 @@
 #pragma once
 
 #include <clocale>
+#include <string>
 #include <gtkmm.h>
 
 namespace ff::ui_utils {
@@ -47,5 +48,7 @@ inline char get_list_separator() {
 
 // TODO(iorsh): Integrate this function into the global log collection
 void post_error(const char* title, const char* statement, ...);
+
+void apply_css(Gtk::Widget& w, const std::string& style);
 
 }  // namespace ff::ui_utils
