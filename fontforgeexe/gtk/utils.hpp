@@ -26,7 +26,10 @@
  */
 #pragma once
 
+#include <string>
 #include <gtkmm.h>
+
+void apply_css(Gtk::Widget& w, const std::string& style);
 
 // Get the current topmost window
 Glib::RefPtr<Gdk::Window> gtk_get_topmost_window();
