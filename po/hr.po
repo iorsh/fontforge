@@ -141,8 +141,8 @@ msgid " Bad contextual substitution table, ignored\n"
 msgstr " Neispravna tablica kontekstne zamjene, zanemaruje se\n"
 
 #. GT: This continues a multi-line error message, hence the leading space
-msgid " Bad contextual table, ignored\n"
-msgstr " Neispravna kontekstna tablica, znemaruje se\n"
+msgid " Bad contextual table, ignored"
+msgstr " Neispravna kontekstna tablica, znemaruje se"
 
 #. GT: This continues a multi-line error message, hence the leading space
 msgid " Bad cursive alignment table, ignored\n"
@@ -155,8 +155,8 @@ msgstr " Neispravna tablica klasa podrezivanja, zanemaruje se\n"
 msgid " Bad ligature table, ignored\n"
 msgstr " Neispravna tablica ligatura, zanemaruje se\n"
 
-msgid " Bad mark attachment table, ignored\n"
-msgstr " Neispravna tablica povezivanja dijakritičkih znakova, zanemaruje se\n"
+msgid " Bad mark attachment table, ignored"
+msgstr " Neispravna tablica povezivanja dijakritičkih znakova, zanemaruje se"
 
 msgid " Bad multiple substitution table, ignored\n"
 msgstr " Neispravna tablica višestruke zamjene, zanemaruje se\n"
@@ -8579,8 +8579,8 @@ msgstr "7 – Serifni slobodnih oblika"
 msgid "Freehand"
 msgstr "Prostoručna"
 
-msgid "Freetype rasterization failed.\n"
-msgstr "Freetype rasterizacija neuspjela.\n"
+msgid "Freetype rasterization failed."
+msgstr "Freetype rasterizacija neuspjela."
 
 msgid "French"
 msgstr "Francuski"

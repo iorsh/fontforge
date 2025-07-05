@@ -922,7 +922,7 @@ static void gposMarkSubTable(FILE *ttf, uint32_t stoffset,
     baseglyphs = getCoverageTable(ttf,stoffset+basecoverage,info);
     if ( baseglyphs==NULL || markglyphs==NULL ) {
 	free(baseglyphs); free(markglyphs);
-	LogError( _(" Bad mark attachment table, ignored\n") );
+	LogError( _(" Bad mark attachment table, ignored") );
 return;
     }
 	/* as is the (first) mark table */
@@ -1044,7 +1044,7 @@ static void g___ContextSubTable1(FILE *ttf, int stoffset,
     glyphs = getCoverageTable(ttf,stoffset+coverage,info);
     if ( glyphs==NULL ) {
 /* GT: This continues a multi-line error message, hence the leading space */
-	LogError( _(" Bad contextual table, ignored\n") );
+	LogError( _(" Bad contextual table, ignored") );
         free(rules);
 return;
     }

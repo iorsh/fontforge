@@ -131,8 +131,8 @@ msgid " Bad contextual substitution table, ignored\n"
 msgstr " Ungültige Tabelle der kontekstuellen Substitution, ignoriert\n"
 
 #. GT: This continues a multi-line error message, hence the leading space
-msgid " Bad contextual table, ignored\n"
-msgstr " Ungültige kontextuelle Tabelle, ignoriert\n"
+msgid " Bad contextual table, ignored"
+msgstr " Ungültige kontextuelle Tabelle, ignoriert"
 
 #. GT: This continues a multi-line error message, hence the leading space
 msgid " Bad cursive alignment table, ignored\n"
@@ -145,8 +145,8 @@ msgstr " Ungültige Tabelle der Unterschneidungs-Klassen, ignoriert\n"
 msgid " Bad ligature table, ignored\n"
 msgstr " Ungültige Tabelle der Ligaturen, ignoriert\n"
 
-msgid " Bad mark attachment table, ignored\n"
-msgstr " Ungültige Tabelle der Akzent-Verbindung, ignoriert\n"
+msgid " Bad mark attachment table, ignored"
+msgstr " Ungültige Tabelle der Akzent-Verbindung, ignoriert"
 
 msgid " Bad multiple substitution table, ignored\n"
 msgstr " Ungültige Tabelle der mehrfachen Substitution, ignoriert\n"
@@ -6790,8 +6790,8 @@ msgstr "7 – Serifen mit freien Formen"
 msgid "Freehand"
 msgstr "Freihand"
 
-msgid "Freetype rasterization failed.\n"
-msgstr "Freetype-Rasterisierung fehlgeschlagen.\n"
+msgid "Freetype rasterization failed."
+msgstr "Freetype-Rasterisierung fehlgeschlagen."
 
 msgid "French"
 msgstr "Französisch"

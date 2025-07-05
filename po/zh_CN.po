@@ -100,8 +100,8 @@ msgstr " 字偶距类表有误，已忽略\n"
 msgid " Bad ligature table, ignored\n"
 msgstr " 连写表不对，忽略之\n"
 
-msgid " Bad mark attachment table, ignored\n"
-msgstr " 标记附件表不对，忽略之\n"
+msgid " Bad mark attachment table, ignored"
+msgstr " 标记附件表不对，忽略之"
 
 #, c-format
 msgid " Curvature: %g"
@@ -5620,8 +5620,8 @@ msgstr "自由形衬线体(FS)"
 msgid "Freehand"
 msgstr "手绘"
 
-msgid "Freetype rasterization failed.\n"
-msgstr "Freetype矢量化失败。\n"
+msgid "Freetype rasterization failed."
+msgstr "Freetype矢量化失败。"
 
 msgid "French"
 msgstr "法语"
