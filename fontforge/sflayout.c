@@ -30,6 +30,7 @@
 
 #include "bvedit.h"
 #include "encoding.h"
+#include "fffreetype.h"
 #include "ffglib.h"
 #include "fontforgevw.h"
 #include "fvfonts.h"
