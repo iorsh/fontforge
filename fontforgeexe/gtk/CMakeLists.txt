@@ -22,5 +22,6 @@ add_library(ffgtk OBJECT
 
 target_link_libraries(ffgtk PRIVATE
   fontforge_common_headers
+  fontforge
   PkgConfig::GTKMM
 )
