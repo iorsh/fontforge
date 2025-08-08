@@ -76,6 +76,7 @@ set(FONTFORGE_INST_HEADERS
   baseviews.h
   bezctx_ff.h
   bitmapcontrol.h
+  cairo_painter.hpp
   delta.h
   edgelist.h
   edgelist2.h
@@ -130,6 +131,7 @@ add_library(fontforge
   bitmapchar.c
   bitmapcontrol.c
   bvedit.c
+  cairo_painter.cpp
   clipnoui.c
   crctab.c
   cvexport.c
@@ -243,6 +245,7 @@ target_link_libraries(fontforge
   PUBLIC
     fontforge_common_headers
     Freetype::Freetype
+    PkgConfig::CairoMM
     LibXml2::LibXml2
     GLIB::GLIB
     Intl::Intl
