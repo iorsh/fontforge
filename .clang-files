@@ -1,3 +1,5 @@
+fontforge/cairo_painter.cpp
+fontforge/cairo_painter.hpp
 fontforge/metrics.h
 fontforge/splinechar.h
 fontforge/splinefont_enums.h
