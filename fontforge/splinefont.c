@@ -394,6 +394,10 @@ EncMap* SFGetMap(SplineFont *sf) {
     return sf->map;
 }
 
+char* SFGetFullName(SplineFont *sf) {
+    return sf->fullname;
+}
+
 static char *scaleString(char *string, double scale) {
     char *result;
     char *pt;
