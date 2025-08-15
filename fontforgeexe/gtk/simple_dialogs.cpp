@@ -20,12 +20,12 @@
 
 #include "intl.h"
 #include "application.hpp"
-#include "dialog.hpp"
+#include "dialog_base.hpp"
 
 namespace ff::dlg {
 
 // A simple dialog to query the user for a number of new encoding slots to add.
-class NumericalInputDialog final : public ff::dlg::Dialog {
+class NumericalInputDialog final : public ff::dlg::DialogBase {
  private:
     Gtk::SpinButton* input;
 

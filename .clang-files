@@ -17,8 +17,8 @@ fontforgeexe/gtk/application.cpp
 fontforgeexe/gtk/application.hpp
 fontforgeexe/gtk/css_builder.cpp
 fontforgeexe/gtk/css_builder.hpp
-fontforgeexe/gtk/dialog.cpp
-fontforgeexe/gtk/dialog.hpp
+fontforgeexe/gtk/dialog_base.cpp
+fontforgeexe/gtk/dialog_base.hpp
 fontforgeexe/gtk/print_dialog.cpp
 fontforgeexe/gtk/print_dialog.hpp
 fontforgeexe/gtk/print_preview.cpp

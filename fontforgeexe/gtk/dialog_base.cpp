@@ -25,14 +25,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "dialog.hpp"
+#include "dialog_base.hpp"
 
 #include "intl.h"
 #include "utils.hpp"
 
 namespace ff::dlg {
 
-Dialog::Dialog() {
+DialogBase::DialogBase() {
     parent_window = gtk_get_topmost_window();
 
     auto ok_button = add_button(_("_OK"), Gtk::RESPONSE_OK);
@@ -44,7 +44,7 @@ Dialog::Dialog() {
     set_default_response(Gtk::RESPONSE_OK);
 }
 
-Gtk::ResponseType Dialog::run() {
+Gtk::ResponseType DialogBase::run() {
     if (parent_window) {
         Glib::RefPtr<Gdk::Window> win = get_window();
         win->set_transient_for(parent_window);
