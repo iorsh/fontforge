@@ -5,8 +5,8 @@ add_library(ffgtk OBJECT
   application.cpp
   css_builder.hpp
   css_builder.cpp
-  dialog.hpp
-  dialog.cpp
+  dialog_base.hpp
+  dialog_base.cpp
   print_dialog.hpp
   print_dialog.cpp
   print_preview.hpp

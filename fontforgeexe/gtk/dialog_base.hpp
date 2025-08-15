@@ -30,9 +30,9 @@
 
 namespace ff::dlg {
 
-class Dialog : public Gtk::Dialog {
+class DialogBase : public Gtk::Dialog {
  public:
-    Dialog();
+    DialogBase();
 
     Gtk::ResponseType run();
 
