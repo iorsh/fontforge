@@ -30,3 +30,5 @@ fontforgeexe/gtk/utils.hpp
 fontforgeexe/gtk/win32_utils.cpp
 fontforgeexe/gtk/win32_utils.hpp
 fontforgeexe/gtk/widgets/aspect_frame_bg.hpp
+fontforgeexe/gtk/widgets/rich_text_editor.cpp
+fontforgeexe/gtk/widgets/rich_text_editor.hpp
