@@ -8,3 +8,4 @@ fontforgeexe/shapers/*.cpp
 fontforgeexe/shapers/*.hpp
 fontforgeexe/gtk/*.cpp
 fontforgeexe/gtk/*.hpp
+fontforgeexe/gtk/widgets/aspect_frame_bg.hpp
