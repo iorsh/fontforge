@@ -27,6 +27,6 @@ fontforgeexe/gtk/simple_dialogs.cpp
 fontforgeexe/gtk/simple_dialogs.hpp
 fontforgeexe/gtk/utils.cpp
 fontforgeexe/gtk/utils.hpp
-fontforgeexe/gtk/widgets.hpp
 fontforgeexe/gtk/win32_utils.cpp
 fontforgeexe/gtk/win32_utils.hpp
+fontforgeexe/gtk/widgets/aspect_frame_bg.hpp
