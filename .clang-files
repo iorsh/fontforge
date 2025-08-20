@@ -9,3 +9,5 @@ fontforgeexe/shapers/*.hpp
 fontforgeexe/gtk/*.cpp
 fontforgeexe/gtk/*.hpp
 fontforgeexe/gtk/widgets/aspect_frame_bg.hpp
+fontforgeexe/gtk/widgets/rich_text_editor.cpp
+fontforgeexe/gtk/widgets/rich_text_editor.hpp
