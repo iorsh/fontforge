@@ -241,13 +241,17 @@ std::string build_styles(const GResInfo* gdraw_ri) {
     };
 
     static const std::map<std::string, Selector> css_selector_map = {
-        {"", {"box", {}}},
-        {"GLabel", {"label", {"button"}}},
-        {"GButton", {"button", {"spinbutton"}}},
+        {"", {"box", {"button"}}},
+        {"GLabel", {"label", {"button", "radiobutton", "header"}}},
+        {"GButton", {"button:not(.toggle)", {"spinbutton"}}},
         {"GDefaultButton", {"button#ok", {}}},
         {"GCancelButton", {"button#cancel", {}}},
         {"GNumericField", {"spinbutton", {}}},
-        {"GNumericFieldSpinner", {"spinbutton button", {}}},
+        // It's not quite clear why internal spinbutton buttons need to specify
+        // the same pseudoclass as GButton, which is already excluded and should
+        // not be affecting the style.
+        // TODO(iorsh): Review this hack.
+        {"GNumericFieldSpinner", {"spinbutton button:not(.toggle)", {}}},
     };
 
     std::string styles;
@@ -263,6 +267,10 @@ std::string build_styles(const GResInfo* gdraw_ri) {
             // Collect some default properties from the base class.
             auto props_main = collect_css_properties_main(ri->extras);
             styles += build_style(selector.node_name, props_main);
+            for (const std::string& container : selector.excluded_containers) {
+                styles += build_unset_style(
+                    container + " " + selector.node_name, props_main);
+            }
             continue;
         }
 
