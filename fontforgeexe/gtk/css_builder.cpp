@@ -266,7 +266,7 @@ std::string build_styles(const GResInfo* gdraw_ri) {
     };
 
     static const std::map<std::string, Selector> css_selector_map = {
-        {"", {"box", {"button"}}},
+        {"", {"box stack", {"button"}}},
         {"GLabel", {"label", {"button", "radiobutton", "header"}}},
         {"GButton", {"button:not(.toggle)", {"spinbutton"}}},
         {"GDefaultButton", {"button#ok", {}}},
