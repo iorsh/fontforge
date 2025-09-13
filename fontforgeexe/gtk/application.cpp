@@ -28,6 +28,7 @@
 #include "application.hpp"
 
 #include <iostream>
+#include <regex>
 #include "gresource.h"
 #include "css_builder.hpp"
 
@@ -47,6 +48,7 @@ Glib::RefPtr<Gtk::Application> GtkApp() {
     if (!initialized) {
         app->register_application();
         load_legacy_style();
+        register_stretched_ui_fonts();
 
         initialized = true;
     }
@@ -83,6 +85,45 @@ void load_legacy_style() {
     } catch (...) {
         std::cerr << "Unknown error occurred while loading CSS." << std::endl;
     }
+}
+
+void register_stretched_ui_fonts() {
+    FcConfig* current_config = FcConfigGetCurrent();
+    std::string match = "<fontconfig>";
+    std::regex re_name("WIDTH_NAME");
+    std::regex re_value("WIDTH_VALUE");
+
+    std::string match_template =
+        "<match target=\"pattern\">                                "
+        "  <test name=\"width\" compare=\"eq\">                    "
+        "    <const>WIDTH_NAME</const>                             "
+        "  </test>                                                 "
+        "  <edit name=\"matrix\" mode=\"assign\" binding=\"same\"> "
+        "    <matrix>                                              "
+        "      <double>WIDTH_VALUE</double>                        "
+        "      <double>0.0</double>                                "
+        "      <double>0.0</double>                                "
+        "      <double>1.0</double>                                "
+        "    </matrix>                                             "
+        "  </edit>                                                 "
+        "</match>                                                  ";
+
+    std::vector<std::pair<std::string, double>> width_values{
+        {"ultracondensed", 0.5}, {"extracondensed", 0.625},
+        {"condensed", 0.75},     {"semicondensed", 0.875},
+        {"semiexpanded", 1.125}, {"expanded", 1.25},
+        {"extraexpanded", 1.5},  {"ultraexpanded", 2.0}};
+    for (auto& [name, value] : width_values) {
+        std::string match_subst =
+            std::regex_replace(match_template, re_name, name);
+        match_subst =
+            std::regex_replace(match_subst, re_value, std::to_string(value));
+
+        match += match_subst;
+    }
+    match += "</fontconfig>";
+    FcConfigParseAndLoadFromMemory(current_config, (FcChar8*)match.c_str(),
+                                   true);
 }
 
 }  // namespace ff::app

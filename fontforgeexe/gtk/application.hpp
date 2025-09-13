@@ -34,4 +34,8 @@ Glib::RefPtr<Gtk::Application> GtkApp();
 
 void load_legacy_style();
 
+// UI fonts usually don't come in condensed / expanded variants. Register
+// FontConfig filter to emulate them with affine transformation.
+void register_stretched_ui_fonts();
+
 }  // namespace ff::app
