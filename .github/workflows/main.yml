@@ -156,7 +156,6 @@ jobs:
           ./ffbuild.sh --github-actions
           FFPATH=`cygpath -m "$GITHUB_WORKSPACE/repo"` ./make-portable-package.sh ci
       - name: Run InnoSetup
-        if: github.ref == 'refs/heads/master'
         working-directory: fontforgebuilds/fontforge-setup
         run: |
           winget install --id JRSoftware.InnoSetup -e -s winget
