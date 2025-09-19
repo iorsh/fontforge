@@ -48,7 +48,7 @@
 /*  fonts */
 #define BACK_LAYER_MAX 256
 
-typedef struct spline_font_properties SplineFontProperties;
+typedef struct cpp_SplineFontProperties cpp_SplineFontProperties;
 
 typedef struct dbasepoint {
     bigreal x;
@@ -1466,7 +1466,7 @@ extern void SplineFontSetUnChanged(SplineFont *sf);
 extern EncMap* SFGetMap(SplineFont *sf);
 extern char* SFGetFullName(SplineFont *sf);
 extern SplineFont** FVCollectFamily(SplineFont *sf);
-extern void SFGetProperties(SplineFont *sf, SplineFontProperties *properties);
+extern cpp_SplineFontProperties* SFGetProperties(SplineFont* sf);
 
 extern bool RealNear(real a,real b);
 
