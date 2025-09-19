@@ -860,7 +860,7 @@ long utf82u_strlen(const char *utf8_str) {
     return( len );
 }
 
-void utf8_strncpy(register char *to, const char *from, int len) {
+void utf8_strncpy(char *to, const char *from, int len) {
     /* copy n characters NOT bytes */
     const char *old = from;
     while ( len && *old ) {
