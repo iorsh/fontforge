@@ -76,11 +76,21 @@ using RichTextLayout =
 using PrintGlyphVec = std::vector<std::pair<int, SplineChar*>>;
 
 struct SplineFontProperties {
-    int ascent, descent;
-    bool italic;
-    int16_t os2_weight;
-    int16_t os2_width;
-    const char* styles;
+    int ascent = -1, descent = -1;
+    bool italic = false;
+    int16_t os2_weight = -1;
+    int16_t os2_width = -1;
+    std::string styles;
+
+    static SplineFontProperties from_tags(const std::vector<std::string>& tags);
+
+    // Merge properties, with the other object's meaningful fields taking
+    // priority.
+    void merge(const SplineFontProperties& other);
+
+    // Despite its name, distance() is not guaranteed to be a metric in
+    // mathematical sense.
+    int distance(const SplineFontProperties& other) const;
 };
 
 class CairoPainter {
@@ -123,8 +133,13 @@ class CairoPainter {
     static const std::string kScaleMaxHeight;
 
  private:
+    // Currently active font face (for example, whose FontView invoked the Print
+    // dialog).
     Cairo::RefPtr<Cairo::FtFontFace> cairo_face_;
+
+    // All the other currently open faces from the same family.
     CairoFontFamily cairo_family_;
+
     std::map<std::pair<bool /*bold*/, bool /*italic*/>,
              Cairo::RefPtr<Cairo::FtFontFace>>
         style_map_;
@@ -179,9 +194,14 @@ class CairoPainter {
     void paginate_full_display(double char_area_height, double pointsize,
                                double extravspace);
 
-    void build_style_map(const ParsedRichText& rich_text);
+    SplineFontProperties get_default_style(
+        const ParsedRichText& rich_text) const;
+
+    // Select specific face to print a text segment based on the tags which
+    // apply to it.
     Cairo::RefPtr<Cairo::FtFontFace> select_face(
-        const std::vector<std::string>& tags) const;
+        const std::vector<std::string>& tags,
+        const SplineFontProperties& default_properties) const;
 
     void setup_context(const Cairo::RefPtr<Cairo::Context>& cr);
 
@@ -220,7 +240,8 @@ class CairoPainter {
 
 Cairo::RefPtr<Cairo::FtFontFace> create_cairo_face(SplineFont* sf);
 CairoFontFamily create_cairo_family(SplineFont* current_sf);
-
+std::pair<std::string /*tag*/, std::string /*value*/> parse_tag(
+    const std::string& complete_tag);
 ParsedRichText parse_xml_stream(std::istream& input);
 
 }  // namespace ff::utils
