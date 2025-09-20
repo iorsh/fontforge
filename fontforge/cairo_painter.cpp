@@ -28,6 +28,7 @@
 #include "cairo_painter.hpp"
 
 #include <array>
+#include <regex>
 #include <sstream>
 
 extern "C" {
@@ -482,14 +483,14 @@ void CairoPainter::calculate_layout_sample_text(
 
     std::istringstream stream(sample_text);
     ParsedRichText parsed_text = parse_xml_stream(stream);
-    build_style_map(parsed_text);
+    SplineFontProperties default_properties = get_default_style(parsed_text);
 
     // Buffer of text blocks for a single line of output
     RichTextLineBuffer line_buffer;
     double line_buffer_width = 0;
 
     for (const auto& [current_tags, text] : parsed_text) {
-        cr->set_font_face(select_face(current_tags));
+        cr->set_font_face(select_face(current_tags, default_properties));
 
         // Iterator inside the currently processed block, which can be broken at
         // word boundaries.
@@ -534,8 +535,9 @@ void CairoPainter::calculate_layout_sample_text(
                 // This subblock exceeds the page width, we should output the
                 // current buffer and start a new line
                 std::string printable_subblock(subblock_start, subblock_break);
-                line_buffer.emplace_back(printable_subblock,
-                                         select_face(current_tags));
+                line_buffer.emplace_back(
+                    printable_subblock,
+                    select_face(current_tags, default_properties));
 
                 double line_height =
                     calculate_height_sample_text(cr, line_buffer);
@@ -559,7 +561,7 @@ void CairoPainter::calculate_layout_sample_text(
         cr->get_text_extents(printable_subblock, block_extents);
 
         line_buffer.emplace_back(std::string(subblock_start, text.end()),
-                                 select_face(current_tags));
+                                 select_face(current_tags, default_properties));
         line_buffer_width += block_extents.x_advance;
     }
 
@@ -720,33 +722,71 @@ void CairoPainter::invalidate_cached_layouts() {
     cached_lines_per_page_multisize_ = 0;
 }
 
-void CairoPainter::build_style_map(const ParsedRichText&) {
-    style_map_[{false, false}] = cairo_face_;
+SplineFontProperties CairoPainter::get_default_style(
+    const ParsedRichText& rich_text) const {
+    // Collect values for all tags in the sample text. A special value "set" is
+    // used for tags without arguments, like <bold> and <italic>. A special
+    // value "" is used for tags which are sometimes set and sometimes unset.
+    std::map<std::string, std::vector<std::string>> sample_text_values;
+    for (size_t i = 0; i <= rich_text.size(); ++i) {
+        // Traverse the first segment once again to collect tags which were
+        // initially unset.
+        const std::vector<std::string>& segment_tags =
+            (i < rich_text.size()) ? rich_text[i].first : rich_text[0].first;
 
-    for (const auto& [sf_properties, ref_face] : cairo_family_) {
-        if (sf_properties.italic) {
-            if (sf_properties.os2_weight > 500) {
-                style_map_[{true, true}] = ref_face;
+        for (const std::string& tag : segment_tags) {
+            auto [tag_name, tag_value] = parse_tag(tag);
+            if (sample_text_values.count(tag_name) == 0) {
+                sample_text_values[tag_name] = {tag_value};
             } else {
-                style_map_[{false, true}] = ref_face;
+                sample_text_values[tag_name].push_back(tag_value);
             }
-        } else if (sf_properties.os2_weight > 500) {
-            style_map_[{true, false}] = ref_face;
         }
     }
+
+    // If a particular property is not mentioned explicitly in the text, its
+    // default should be taken from the currently active face.
+    //
+    // For example, consider text tagged with upright and italics only, without
+    // any weight mentions. If the active face is normal, we should use Normal
+    // and Italic. If the active face is bold, we should use Bold and Bold
+    // Italic.
+    SplineFontProperties default_properties{
+        0,
+        0,  // ascent and descent are not used
+        (sample_text_values.count("italic") == 0)
+            ? cairo_family_[0].first.italic
+            : false,
+        (sample_text_values.count("bold") == 0)
+            ? cairo_family_[0].first.os2_weight
+            : (int16_t)400,
+        (sample_text_values.count("width") == 0)
+            ? cairo_family_[0].first.os2_width
+            : (int16_t)5,
+        ""  // style names are not used
+    };
+
+    return default_properties;
 }
 
 Cairo::RefPtr<Cairo::FtFontFace> CairoPainter::select_face(
-    const std::vector<std::string>& tags) const {
-    bool has_bold = std::count(tags.begin(), tags.end(), "bold");
-    bool has_italic = std::count(tags.begin(), tags.end(), "italic");
+    const std::vector<std::string>& tags,
+    const SplineFontProperties& default_properties) const {
+    // Desired properties are derived from the default ones, with
+    // segment-specific tags overriding them when applicable.
+    SplineFontProperties text_props = SplineFontProperties::from_tags(tags);
+    SplineFontProperties desired_properties = default_properties;
+    desired_properties.merge(text_props);
 
-    auto face_it = style_map_.find({has_bold, has_italic});
-    if (face_it != style_map_.end()) {
-        return face_it->second;
-    } else {
-        return cairo_face_;
-    }
+    // Find the face with properties closest to the desired properties.
+    auto closest_face =
+        std::min_element(cairo_family_.begin(), cairo_family_.end(),
+                         [&desired_properties](const auto& a, const auto& b) {
+                             return desired_properties.distance(a.first) <
+                                    desired_properties.distance(b.first);
+                         });
+
+    return closest_face->second;
 }
 
 void CairoPainter::setup_context(const Cairo::RefPtr<Cairo::Context>& cr) {
@@ -861,6 +901,27 @@ bool tags_match(const std::string& opening_tag,
                                std::string::npos) == 0;
 }
 
+std::pair<std::string /*tag*/, std::string /*value*/> parse_tag(
+    const std::string& complete_tag) {
+    // Attempt to match tag name and "value" attribute
+    // The string below is equivalent to ^(.+?)\s+value=\"(.+?)\"
+    std::regex re(R"-(^(.+?)\s+value=\"(.+?)\")-");
+    std::smatch tag_value_match;
+    if (std::regex_match(complete_tag, tag_value_match, re) &&
+        (tag_value_match.size() == 3)) {
+        // tag_value_match[0] holds the complete match, ignore it. We need just
+        // the capturing groups.
+        return {tag_value_match[1], tag_value_match[2]};
+    }
+
+    // Return tag name only, with "set" as value by convention.
+    auto space_it =
+        std::find_if(complete_tag.begin(), complete_tag.end(),
+                     [](unsigned char c) { return std::isspace(c); });
+    std::string tag_name(complete_tag.begin(), space_it);
+    return {tag_name, "set"};
+}
+
 ParsedRichText parse_xml_stream(std::istream& input) {
     std::string text, tag;
     // Array of text blocks as follows: (text block, list of tags applied on
@@ -893,6 +954,54 @@ ParsedRichText parse_xml_stream(std::istream& input) {
     }
 
     return parsed_input;
+}
+
+SplineFontProperties SplineFontProperties::from_tags(
+    const std::vector<std::string>& tags) {
+    static const std::map<std::string, int16_t> widths{
+        {"ultra-condensed", 1}, {"extra-condensed", 2}, {"condensed", 3},
+        {"semi-condensed", 4},  {"medium", 5},          {"semi-expanded", 6},
+        {"expanded", 7},        {"extra-expanded", 8},  {"ultra-expanded", 9},
+    };
+    SplineFontProperties props;
+    for (const std::string& tag : tags) {
+        auto [tag_name, tag_value] = parse_tag(tag);
+        if (tag_name == "italic") {
+            props.italic = true;
+        } else if (tag_name == "bold") {
+            props.os2_weight = 700;
+        } else if (tag_name == "width") {
+            props.os2_width = widths.at(tag_value);
+        }
+    }
+    return props;
+}
+
+void SplineFontProperties::merge(const SplineFontProperties& other) {
+    if (other.ascent != -1) ascent = other.ascent;
+    if (other.descent != -1) descent = other.descent;
+    italic = other.italic;
+    if (other.os2_weight != -1) os2_weight = other.os2_weight;
+    if (other.os2_width != -1) os2_width = other.os2_width;
+    if (!other.styles.empty()) styles = other.styles;
+}
+
+int SplineFontProperties::distance(const SplineFontProperties& other) const {
+    // A wildly heuristic mapping preference for width property. As a general
+    // rule, we prefer exact match, of course, but if there is no exact match we
+    // prefer to preserve expansion or condensing.
+    static const std::map<int16_t, std::vector<int16_t>> width_mapper = {
+        {1, {1, 2, 3, 4, 5, 6, 7, 8, 9}}, {2, {2, 1, 3, 4, 5, 6, 7, 8, 9}},
+        {3, {3, 2, 4, 1, 5, 6, 7, 8, 9}}, {4, {4, 3, 5, 2, 1, 6, 7, 8, 9}},
+        {5, {5, 4, 6, 3, 7, 2, 8, 1, 9}}, {6, {6, 7, 5, 8, 9, 4, 3, 2, 1}},
+        {7, {7, 8, 6, 9, 5, 4, 3, 2, 1}}, {8, {8, 9, 7, 6, 5, 4, 3, 2, 1}},
+        {9, {9, 8, 7, 6, 5, 4, 3, 2, 1}},
+    };
+    const std::vector<int16_t>& m = width_mapper.at(os2_width);
+    int width_dist = std::find(m.begin(), m.end(), other.os2_width) - m.begin();
+
+    return (int)(italic ^ other.italic) * 100 +
+           fabs(os2_weight - other.os2_weight) + width_dist * 100;
 }
 
 }  // namespace ff::utils
