@@ -72,7 +72,7 @@ if [ ! -z "$CI" ]; then
         dmgname=FontForge-$builddate-${HASH:0:7}.app.dmg
     fi
 
-    hdiutil create -size 800m   \
+    hdiutil create -size 800m -verbose  \
         -fs HFS+                 \
         -volname   FontForge     \
         -srcfolder $APPDIR       \
