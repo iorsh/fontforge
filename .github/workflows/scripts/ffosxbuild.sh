@@ -73,6 +73,7 @@ if [ ! -z "$CI" ]; then
     fi
 
     hdiutil create -size 800m   \
+        -fs HFS+                 \
         -volname   FontForge     \
         -srcfolder $APPDIR       \
         -ov        -format UDBZ  \
