@@ -946,6 +946,16 @@ std::pair<std::string /*tag*/, std::string /*value*/> parse_tag(
     return {tag_name, "set"};
 }
 
+std::string unescape_xml(const std::string& text_in) {
+    std::string text_out;
+    text_out = std::regex_replace(text_in, std::regex("&lt;"), "<");
+    text_out = std::regex_replace(text_out, std::regex("&quot;"), "\"");
+    text_out = std::regex_replace(text_out, std::regex("&apos;"), "\'");
+    text_out = std::regex_replace(text_out, std::regex("&gt;"), ">");
+    text_out = std::regex_replace(text_out, std::regex("&amp;"), "&");
+    return text_out;
+}
+
 ParsedRichText parse_xml_stream(std::istream& input) {
     std::string text, tag;
     // Array of text blocks as follows: (text block, list of tags applied on
@@ -955,7 +965,8 @@ ParsedRichText parse_xml_stream(std::istream& input) {
 
     while (std::getline(input, text, '<') && std::getline(input, tag, '>')) {
         if (!text.empty()) {
-            parsed_input.emplace_back(current_tags, text);
+            std::string unescaped_text = unescape_xml(text);
+            parsed_input.emplace_back(current_tags, unescaped_text);
         }
         if (tag.size() > 0 && tag.front() == '/') {
             if (!current_tags.empty() &&
