@@ -125,14 +125,14 @@ if(HAVE_PTHREAD_H)
   find_package(Threads)
 endif()
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(CairoMM REQUIRED IMPORTED_TARGET cairomm-1.0)
+
 # Requirements for options
 if(ENABLE_GUI)
   find_package(GDK3 3.10 REQUIRED)
-  find_package(PkgConfig)
   pkg_check_modules(GTK3 REQUIRED IMPORTED_TARGET gtk+-3.0)
   pkg_check_modules(GTKMM REQUIRED IMPORTED_TARGET  gtkmm-3.0)
-  find_package(PkgConfig)
-  pkg_check_modules(CairoMM REQUIRED IMPORTED_TARGET cairomm-1.0)
   pkg_check_modules(FontConfig REQUIRED IMPORTED_TARGET fontconfig)
   if (ENABLE_HARFBUZZ)
     pkg_check_modules(HarfBuzz REQUIRED IMPORTED_TARGET harfbuzz)
