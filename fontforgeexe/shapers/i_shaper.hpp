@@ -45,6 +45,10 @@ class IShaper {
     // shaper in the system.
     virtual const char* name() const = 0;
 
+    // Return the start of the free Private Use Area where all the unencoded
+    // glyphs were remapped.
+    int fake_unicode_base() const { return fake_unicode_base_; }
+
     // glyphs - a sequence of glyphs to be shaped
     // NOTE: the glyph sequence can't be passed as a Unicode string, since some
     // glyphs don't have encoding at all, and the shaper should still be able to
@@ -61,6 +65,9 @@ class IShaper {
     // OpenType features enabled by default
     virtual std::set<Tag> default_features(Tag script, Tag lang,
                                            bool vertical) const = 0;
+
+ protected:
+    int fake_unicode_base_ = -1;
 };
 
 }  // namespace ff::shapers

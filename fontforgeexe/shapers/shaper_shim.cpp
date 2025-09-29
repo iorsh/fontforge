@@ -116,6 +116,16 @@ const char* shaper_name(cpp_IShaper* shaper) {
     }
 }
 
+int shaper_fake_unicode_base(cpp_IShaper* shaper) {
+    ff::shapers::IShaper* ishaper = toCPP(shaper);
+
+    if (shaper) {
+        return ishaper->fake_unicode_base();
+    } else {
+        return -1;
+    }
+}
+
 struct shaper_out shaper_apply_features(cpp_IShaper* shaper,
                                         SplineChar** glyphs,
                                         FeatureMap* feat_map, uint32_t script,

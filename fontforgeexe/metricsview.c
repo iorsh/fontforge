@@ -1618,13 +1618,17 @@ static void MVToggleVertical(MetricsView *mv) {
     MVRemetric(mv);
 }
 
+static int MVFakeUnicodeBase(MetricsView *mv) {
+	return shaper_fake_unicode_base(mv->shaper);
+}
+
 static SplineChar *MVSCFromUnicode(MetricsView *mv, SplineFont *sf, EncMap *map, int ch,BDFFont *bdf) {
     int i;
     SplineChar *sc;
 
-    if ( mv->fake_unicode_base && ch>=mv->fake_unicode_base &&
-	    ch<=mv->fake_unicode_base+mv->sf->glyphcnt )
-return( mv->sf->glyphs[ch-mv->fake_unicode_base] );
+    if ( ch>=MVFakeUnicodeBase(mv) &&
+	    ch<=MVFakeUnicodeBase(mv)+mv->sf->glyphcnt )
+return( mv->sf->glyphs[ch-MVFakeUnicodeBase(mv)] );
 
     i = SFFindSlot(sf,map,ch,NULL);
     if ( i==-1 )
@@ -1824,23 +1828,19 @@ static int MVFakeUnicodeOfSc(MetricsView *mv, SplineChar *sc) {
     if ( sc->unicodeenc!=-1 )
 return( sc->unicodeenc );
 
-    if ( mv->fake_unicode_base==0 ) {		/* Not set */
-    	mv->fake_unicode_base = SFFakeUnicodeBase(mv->sf);
-    }
-
-    if ( mv->fake_unicode_base==-1 )
+    if ( MVFakeUnicodeBase(mv)==-1 )
 return( 0xfffd );
     else
-return( mv->fake_unicode_base+sc->orig_pos );
+return( MVFakeUnicodeBase(mv)+sc->orig_pos );
 }
 
 static int MVOddMatch(MetricsView *mv,int uni,SplineChar *sc) {
     if ( sc->unicodeenc!=-1 )
 return( false );
-    else if ( mv->fake_unicode_base<=0 )
+    else if ( MVFakeUnicodeBase(mv)<=0 )
 return( uni==0xfffd );
     else
-return( uni>=mv->fake_unicode_base && sc->orig_pos == uni-mv->fake_unicode_base );
+return( uni>=MVFakeUnicodeBase(mv) && sc->orig_pos == uni-MVFakeUnicodeBase(mv) );
 }
 
 void MVSetSCs(MetricsView *mv, SplineChar **scs) {
@@ -1923,8 +1923,8 @@ return;					/* Nothing changed */
 
     missing = 0;
     for ( tpt=pt; tpt<ept; ++tpt )
-	if ( mv->fake_unicode_base>0 && *tpt>=mv->fake_unicode_base &&
-		*tpt<=mv->fake_unicode_base+mv->sf->glyphcnt )
+	if ( MVFakeUnicodeBase(mv)>0 && *tpt>=MVFakeUnicodeBase(mv) &&
+		*tpt<=MVFakeUnicodeBase(mv)+mv->sf->glyphcnt )
 	    /* That's ok */;
 	else if ( SFFindSlot(mv->sf,mv->fv->b.map,*tpt,NULL)==-1 )
 	    ++missing;
@@ -3947,9 +3947,8 @@ static void ellistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
 static ShaperContext* MVMakeShaperContext(MetricsView *mv) {
     ShaperContext *context = calloc(1,sizeof(ShaperContext));
     context->sf = mv->sf;
-    context->mv = mv;
     context->apply_ticked_features = ApplyTickedFeatures;
-    context->fake_unicode = MVFakeUnicodeOfSc;
+    context->fake_unicode_base = SFFakeUnicodeBase;
     context->get_enc_map = SFGetMap;
     context->get_char_width = MVCharWidth;
     context->get_metrics = MVGetMetrics;
