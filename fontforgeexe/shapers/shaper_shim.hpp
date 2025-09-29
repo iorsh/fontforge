@@ -50,7 +50,6 @@ typedef struct cpp_IShaper cpp_IShaper;
 
 typedef struct shaper_context {
     SplineFont* sf;
-    MetricsView* mv;
 
     // Apply OpenType lookups and compute positional info
     struct opentype_str* (*apply_ticked_features)(
@@ -58,7 +57,7 @@ typedef struct shaper_context {
         bool gpos_only, int pixelsize, SplineChar** glyphs);
 
     // Map glyphs without unicode value to a private area
-    int (*fake_unicode)(MetricsView* mv, SplineChar* sc);
+    int (*fake_unicode_base)(SplineFont* sf);
 
     // Get encoding map
     EncMap* (*get_enc_map)(SplineFont* sf);
@@ -115,6 +114,8 @@ void shaper_free(cpp_IShaper** p_shaper);
 
 /* Get the internal name of the shaper */
 const char* shaper_name(cpp_IShaper* shaper);
+
+int shaper_fake_unicode_base(cpp_IShaper* shaper);
 
 /* Perform shaping: apply font features to the input string and compute position
  * of each glyph.
