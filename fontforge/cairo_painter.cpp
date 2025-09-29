@@ -38,7 +38,7 @@ extern "C" {
 #include "splinechar.h"
 #include "ustring.h"
 
-extern SplineFont** FVCollectFamily(SplineFont* sf);
+extern SplineFont** SFCollectFamily(SplineFont* sf);
 }
 
 inline ff::utils::SplineFontProperties* toCPP(cpp_SplineFontProperties* p) {
@@ -888,7 +888,7 @@ Cairo::RefPtr<Cairo::FtFontFace> create_cairo_face(SplineFont* sf) {
 }
 
 CairoFontFamily create_cairo_family(SplineFont* current_sf) {
-    SplineFont** family_sfs = FVCollectFamily(current_sf);
+    SplineFont** family_sfs = SFCollectFamily(current_sf);
     SplineFontProperties* sf_properties = nullptr;
     Cairo::RefPtr<Cairo::FtFontFace> ft_face;
 
