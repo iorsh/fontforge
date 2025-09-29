@@ -8191,33 +8191,6 @@ char *GlyphSetFromSelection(SplineFont *sf,int def_layer,char *current) {
 return( ret );
 }
 
-SplineFont** FVCollectFamily(SplineFont *sf_in) {
-    int cnt;
-    FontViewBase *fv;
-    SplineFont *sf = NULL, **family = NULL;
-
-    for ( fv=fv_list, cnt=0; fv!=NULL; fv=fv->next )
-	if ( fv->nextsame==NULL )
-	    ++cnt;
-    family = calloc(cnt+1,sizeof(SplineFont*));
-
-    for ( fv=fv_list, cnt=0; fv!=NULL; fv=fv->next ) {
-	if ( fv->nextsame==NULL ) {
-	    sf = fv->sf;
-	    if ( sf->cidmaster!=NULL ) sf = sf->cidmaster;
-
-	    /* Skip the incoming argument, and other families */
-	    if ((sf == sf_in) || (strcmp(sf_in->familyname, sf->familyname) != 0))
-	        continue;
-
-	    family[cnt] = sf;
-	    ++cnt;
-	}
-    }
-
-    return family;
-}
-
 /* local variables: */
 /* tab-width: 8     */
 /* end:             */
