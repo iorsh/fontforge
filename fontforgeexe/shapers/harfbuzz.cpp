@@ -38,6 +38,7 @@ namespace ff::shapers {
 
 HarfBuzzShaper::HarfBuzzShaper(std::shared_ptr<ShaperContext> context)
     : context_(context) {
+    fake_unicode_base_ = context_->fake_unicode_base(context_->sf);
     FILE* ttf_file = GFileTmpfile();
 
     // HarfBuzz can only accept Unicode as the input buffer, but the Metrics
@@ -279,10 +280,14 @@ ShaperOutput HarfBuzzShaper::apply_features(
     Tag lang, int pixelsize, bool vertical) {
     std::vector<unichar_t> u_vec;
     for (size_t len = 0; glyphs[len] != NULL; ++len) {
-        u_vec.push_back(
-            (glyphs[len]->unicodeenc > 0)
-                ? glyphs[len]->unicodeenc
-                : context_->fake_unicode(context_->mv, glyphs[len]));
+        // The logic below is similar to MVFakeUnicodeOfSc()
+        unichar_t unicodeenc = glyphs[len]->unicodeenc;
+        if (unicodeenc == -1) {
+            unicodeenc = (fake_unicode_base_ == -1)
+                             ? 0xffd
+                             : fake_unicode_base_ + glyphs[len]->orig_pos;
+        }
+        u_vec.push_back(unicodeenc);
     }
     u_vec.push_back(0);
 

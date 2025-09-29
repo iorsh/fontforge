@@ -31,7 +31,9 @@ namespace ff::shapers {
 
 class BuiltInShaper : public IShaper {
  public:
-    BuiltInShaper(std::shared_ptr<ShaperContext> context) : context_(context) {}
+    BuiltInShaper(std::shared_ptr<ShaperContext> context) : context_(context) {
+        fake_unicode_base_ = context_->fake_unicode_base(context_->sf);
+    }
 
     const char* name() const override { return "builtin"; }
 
