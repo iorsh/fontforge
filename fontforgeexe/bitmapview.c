@@ -32,6 +32,7 @@
 #include "bvedit.h"
 #include "cvundoes.h"
 #include "encoding.h"
+#include "fffreetype.h"
 #include "fontforgeui.h"
 #include "fvfonts.h"
 #include "gkeysym.h"

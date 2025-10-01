@@ -32,6 +32,7 @@
 #include "bvedit.h"
 #include "cvundoes.h"
 #include "dumpbdf.h"
+#include "fffreetype.h"
 #include "fontforgevw.h"
 #include "fvfonts.h"
 #include "splinefill.h"

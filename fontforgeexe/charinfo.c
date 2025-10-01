@@ -30,6 +30,7 @@
 
 #include "autowidth2.h"
 #include "cvundoes.h"
+#include "fffreetype.h"
 #include "fontforgeui.h"
 #include "fvcomposite.h"
 #include "fvfonts.h"
