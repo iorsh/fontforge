@@ -30,8 +30,8 @@
 #include "bitmapcontrol.h"
 
 #include "autohint.h"
-#include "bitmapcontrol.h"
 #include "bvedit.h"
+#include "fffreetype.h"
 #include "fontforgevw.h"
 #include "splinefill.h"
 #include "splinesaveafm.h"

@@ -30,6 +30,7 @@
 #include "splinefill.h"
 
 #include "edgelist.h"
+#include "fffreetype.h"
 #include "fontforge.h"
 #include "fvfonts.h"
 #include "psread.h"

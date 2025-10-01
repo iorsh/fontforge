@@ -1711,11 +1711,9 @@ extern int hasFreeTypeByteCode(void);
 extern int FreeTypeAtLeast(int major, int minor, int patch);
 extern char *FreeTypeStringVersion(void);
 extern void doneFreeType(void);
-extern void *FreeTypeFontContext(SplineFont *sf,SplineChar *sc,struct fontviewbase *fv,int layer);
 extern BDFFont *SplineFontFreeTypeRasterize(void *freetypecontext,int pixelsize,int depth);
 extern BDFChar *SplineCharFreeTypeRasterize(void *freetypecontext,int gid,
 	int ptsize, int dpi,int depth);
-extern void FreeTypeFreeContext(void *freetypecontext);
 extern SplineSet *FreeType_GridFitChar(void *single_glyph_context,
 	int enc, real ptsizey, real ptsizex, int dpi, uint16_t *width,
 	SplineChar *sc, int depth, int scaled);
