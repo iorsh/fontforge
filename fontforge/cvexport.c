@@ -32,6 +32,7 @@
 #include "autohint.h"
 #include "bvedit.h"
 #include "dumppfa.h"
+#include "fffreetype.h"
 #include "fontforgevw.h"
 #include "gfile.h"
 #include "gicons.h"

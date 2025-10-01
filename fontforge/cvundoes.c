@@ -35,6 +35,7 @@
 #include "bvedit.h"
 #include "cvexport.h"
 #include "cvimages.h"
+#include "fffreetype.h"
 #include "fontforgevw.h"
 #include "fvfonts.h"
 #include "gfile.h"

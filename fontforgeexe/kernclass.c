@@ -28,6 +28,7 @@
 #include <fontforge-config.h>
 
 #include "autowidth2.h"
+#include "fffreetype.h"
 #include "fontforgeui.h"
 #include "fvfonts.h"
 #include "gkeysym.h"

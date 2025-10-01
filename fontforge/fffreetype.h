@@ -86,4 +86,8 @@ extern void *__FreeTypeFontContext(FT_Library context,
 extern void *_FreeTypeFontContext(SplineFont *sf,SplineChar *sc,struct fontviewbase *fv,
 	int layer, enum fontformat ff,int flags,void *shared_ftc);
 
+extern void *FreeTypeFontContext(SplineFont *sf,SplineChar *sc,struct fontviewbase *fv,int layer);
+
+extern void FreeTypeFreeContext(void *freetypecontext);
+
 #endif /* FONTFORGE_FFFREETYPE_H */
