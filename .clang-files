@@ -4,10 +4,9 @@ fontforge/splinechar.h
 fontforge/splinefont_enums.h
 fontforge/*.cpp
 fontforge/*.hpp
-fontforgeexe/shapers/*.cpp
-fontforgeexe/shapers/*.hpp
+fontforge/shapers/*.cpp
+fontforge/shapers/*.hpp
 fontforgeexe/gtk/*.cpp
 fontforgeexe/gtk/*.hpp
-fontforgeexe/gtk/widgets/aspect_frame_bg.hpp
-fontforgeexe/gtk/widgets/rich_text_editor.cpp
-fontforgeexe/gtk/widgets/rich_text_editor.hpp
+fontforgeexe/gtk/widgets/*.cpp
+fontforgeexe/gtk/widgets/*.hpp
