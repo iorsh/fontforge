@@ -1,3 +1,4 @@
+inc/tag.hpp
 fontforge/cairo_painter.cpp
 fontforge/cairo_painter.hpp
 fontforge/metrics.h
@@ -5,14 +6,13 @@ fontforge/splinechar.h
 fontforge/splinefont_enums.h
 fontforge/std_maps.cpp
 fontforge/std_maps.hpp
-fontforgeexe/shapers/builtin.cpp
-fontforgeexe/shapers/builtin.hpp
-fontforgeexe/shapers/harfbuzz.cpp
-fontforgeexe/shapers/harfbuzz.hpp
-fontforgeexe/shapers/i_shaper.hpp
-fontforgeexe/shapers/shaper_shim.cpp
-fontforgeexe/shapers/shaper_shim.hpp
-fontforgeexe/shapers/tag.hpp
+fontforge/shapers/builtin.cpp
+fontforge/shapers/builtin.hpp
+fontforge/shapers/harfbuzz.cpp
+fontforge/shapers/harfbuzz.hpp
+fontforge/shapers/i_shaper.hpp
+fontforge/shapers/shaper_shim.cpp
+fontforge/shapers/shaper_shim.hpp
 fontforgeexe/gtk/application.cpp
 fontforgeexe/gtk/application.hpp
 fontforgeexe/gtk/css_builder.cpp
