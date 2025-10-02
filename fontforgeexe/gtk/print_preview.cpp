@@ -383,7 +383,7 @@ size_t PrintPreviewWidget::paginate() {
     if (!sample_text_->is_visible()) {
         size_t old_num_pages = page_counter_.get_adjustment()->get_upper() - 1;
         size_t new_value =
-            std::clamp((size_t)page_counter_.get_value(), 1UL, num_pages);
+            std::clamp((size_t)page_counter_.get_value(), (size_t)1, num_pages);
 
         // We must reconfigure the scale sparingly to avoid infinite loop of
         // redrawing events.
