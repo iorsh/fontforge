@@ -4,7 +4,7 @@ fontforge/splinechar.h
 fontforge/splinefont_enums.h
 fontforge/std_maps.cpp
 fontforge/std_maps.hpp
-fontforgeexe/shapers/*.cpp
-fontforgeexe/shapers/*.hpp
+fontforge/shapers/*.cpp
+fontforge/shapers/*.hpp
 fontforgeexe/gtk/*.cpp
 fontforgeexe/gtk/*.hpp

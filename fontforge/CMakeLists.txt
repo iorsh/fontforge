@@ -217,6 +217,8 @@ add_library(fontforge
   zapfnomen.c
 )
 
+add_subdirectory(shapers)
+
 if(ENABLE_WOFF2_RESULT)
   target_sources(fontforge PRIVATE woff2.cc)
 endif()
