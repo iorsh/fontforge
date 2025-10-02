@@ -124,6 +124,11 @@ if(HAVE_PTHREAD_H)
   find_package(Threads)
 endif()
 
+if (ENABLE_HARFBUZZ)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(HarfBuzz REQUIRED IMPORTED_TARGET harfbuzz)
+endif()
+
 # Requirements for options
 if(ENABLE_GUI)
   find_package(GDK3 3.10 REQUIRED)
