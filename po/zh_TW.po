@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fontforge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-01 15:10+0300\n"
-"PO-Revision-Date: 2025-08-01 12:08\n"
+"POT-Creation-Date: 2025-10-30 21:31+0200\n"
+"PO-Revision-Date: 2025-10-30 19:29\n"
 "Last-Translator: \n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
@@ -7575,6 +7575,12 @@ msgstr "卡爾梅克語"
 
 msgid "Kamba"
 msgstr "卡姆帕語"
+
+msgid "Kana Extended-A"
+msgstr "緬甸文擴展-A"
+
+msgid "Kana Extended-B"
+msgstr "緬甸文擴展-B"
 
 msgid "Kanbun"
 msgstr "漢文"

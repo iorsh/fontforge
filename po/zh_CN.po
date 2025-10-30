@@ -22,8 +22,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fontforge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-01 15:10+0300\n"
-"PO-Revision-Date: 2025-08-01 12:08\n"
+"POT-Creation-Date: 2025-10-30 21:31+0200\n"
+"PO-Revision-Date: 2025-10-30 19:29\n"
 "Last-Translator: \n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
@@ -1197,6 +1197,12 @@ msgstr "增添极值点(_D)"
 
 msgid "A_lign"
 msgstr "对齐(_L)"
+
+msgid "Abaza"
+msgstr "阿巴札语"
+
+msgid "Abkhazian"
+msgstr "阿布哈兹语"
 
 msgid "Above Base Forms"
 msgstr "基底形式之上"
@@ -3289,6 +3295,9 @@ msgstr "/BlendDesignMap 中轴 %s 的混合值错误。"
 msgid "Bad xfig file"
 msgstr "错误的 xfig 文件"
 
+msgid "Bagri"
+msgstr "巴格里文"
+
 msgid "Balancing..."
 msgstr "正在平衡..."
 
@@ -3351,6 +3360,9 @@ msgstr "用于拉丁文、希腊文、西里尔文的基线。"
 
 msgid "Bases"
 msgstr "基底"
+
+msgid "Bashkir"
+msgstr "巴什基尔语"
 
 msgid "Basic Latin"
 msgstr "基本拉丁文"
@@ -3570,6 +3582,12 @@ msgstr "边框"
 msgid "Bosnian"
 msgstr "爱沙尼亚语"
 
+msgid "Bosnian (Cyrillic)"
+msgstr "波斯尼亚语（西里尔字母）"
+
+msgid "Bosnian (Latin)"
+msgstr "波斯尼亚语（拉丁字母）"
+
 msgid "Both"
 msgstr "两者"
 
@@ -3732,6 +3750,9 @@ msgstr "白俄罗斯语"
 msgid "Byzantine Music"
 msgstr "拜占庭乐符"
 
+msgid "Byzantine Music & Music & Ancient Greek Music"
+msgstr "拜占庭音乐 & 音乐 & 古希腊音乐"
+
 msgid "Byzantine Musical Symbols"
 msgstr "拜占庭乐符"
 
@@ -3839,6 +3860,9 @@ msgstr "中日韩统一表意文字扩展 G"
 
 msgid "CJK Unified Ideographs Extension H"
 msgstr "中日韩统一表意文字扩展 H"
+
+msgid "CJK Unified Ideographs Extension I"
+msgstr "中日韩统一表意文字扩展区 I"
 
 msgid ""
 "CLEAR\n"
@@ -5556,6 +5580,9 @@ msgstr "三次方"
 msgid "Cuneiform"
 msgstr "楔形文字"
 
+msgid "Cuneiform (& Numbers and Punctuation)"
+msgstr "楔形文字(& 数字和标点符号)"
+
 msgid "Cuneiform Numbers and Punctuation"
 msgstr "楔形数字和标点符号"
 
@@ -5792,6 +5819,9 @@ msgstr "定义组(_E)…"
 
 msgid "Danish"
 msgstr "丹麦语"
+
+msgid "Dari"
+msgstr "达利语"
 
 msgid "Darker Border:"
 msgstr "更暗边框："
@@ -6625,6 +6655,9 @@ msgstr "埃及圣书体格式控制符"
 
 msgid "Egyptian Hieroglyphs"
 msgstr "埃及圣书体文字"
+
+msgid "Egyptian Hieroglyphs Extended-A"
+msgstr "埃及象形文字扩展-A"
 
 msgid ""
 "Either a glyph should have no overlapping hints,\n"
@@ -8363,6 +8396,9 @@ msgstr "加利西亚语"
 msgid "Galla"
 msgstr "盖拉语"
 
+msgid "Garay"
+msgstr "加萊文"
+
 msgid "Gasp|Anti-Alias"
 msgstr "抗锯齿"
 
@@ -9035,6 +9071,9 @@ msgstr "古尔木其文"
 
 msgid "Gurmukhi2"
 msgstr "古尔木其文2"
+
+msgid "Gurung Khema"
+msgstr "古隆凯玛文"
 
 msgid "HFlex Hint Color"
 msgstr "水平Flex渲调提示颜色"
@@ -10739,6 +10778,9 @@ msgstr "契丹小字"
 msgid "Khmer"
 msgstr "高棉文"
 
+msgid "Khmer & Khmer Symbols"
+msgstr "高棉文 & 高棉文符号"
+
 msgid "Khmer Symbols"
 msgstr "高棉文符号"
 
@@ -10748,11 +10790,20 @@ msgstr "科杰基文"
 msgid "Khudawadi"
 msgstr "库达本德文"
 
+msgid "Kinyarwanda"
+msgstr "基尼亚卢旺达语"
+
 msgid "Kinyarwanda/Ruanda"
 msgstr "卢旺达"
 
+msgid "Kirat Rai"
+msgstr "基拉特拉伊文"
+
 msgid "Kirghiz"
 msgstr "吉尔吉斯语"
+
+msgid "Konkani"
+msgstr "孔卡尼文"
 
 msgid "Korean"
 msgstr "朝鲜语"
@@ -11228,6 +11279,9 @@ msgstr "线性文字 B 表意符号"
 msgid "Linear B Syllabary"
 msgstr "线性文字 B 字音表"
 
+msgid "Linear B Syllabary/Ideograms & Aegean Numbers"
+msgstr "线形文字B 音节文字/表意文字 & 爱琴海数字"
+
 msgid "Lining Figures"
 msgstr "线状图形"
 
@@ -11524,6 +11578,9 @@ msgstr "法语(卢森堡公国)"
 
 msgid "Lycian"
 msgstr "吕基亚文"
+
+msgid "Lycian/Carian/Lydian"
+msgstr "吕基亚字母/卡里亚字母/吕底亚字母"
 
 msgid "Lydian"
 msgstr "吕底亚文"
@@ -12940,6 +12997,9 @@ msgstr "缅甸文扩展 A"
 msgid "Myanmar Extended-B"
 msgstr "缅甸文扩展 B"
 
+msgid "Myanmar Extended-C"
+msgstr "缅甸文扩展-C"
+
 msgid ""
 "N PUSH Bytes\n"
 "Reads an (unsigned) count byte from the\n"
@@ -14188,6 +14248,9 @@ msgstr "欧甘文"
 
 msgid "Ol Chiki"
 msgstr "奥尔奇基文"
+
+msgid "Ol Onal"
+msgstr "普密吉文"
 
 msgid "Old Hungarian"
 msgstr "古匈牙利文"
@@ -16846,6 +16909,12 @@ msgstr "相同的表标记“%c%c%c%c”在 sfnt 标头中出现两次"
 msgid "Sami (Lappish)"
 msgstr "萨米语（拉普兰语）"
 
+msgid "Sami (Lule) (Norway)"
+msgstr "萨米族（Lule）（挪威）"
+
+msgid "Sami (Lule) (Sweden)"
+msgstr "萨米族（Lule）（瑞典）"
+
 msgid "Samoan"
 msgstr "萨摩亚语"
 
@@ -19268,6 +19337,9 @@ msgstr "Sundanese (罗马字母)"
 msgid "Sundanese Supplement"
 msgstr "巽他文补充"
 
+msgid "Sunuwar"
+msgstr "苏努瓦尔文"
+
 msgid "Sup1:"
 msgstr "上标1:"
 
@@ -19417,6 +19489,9 @@ msgstr "符号及象形扩展 A"
 msgid "Symbols for Legacy Computing"
 msgstr "传统电脑符号"
 
+msgid "Symbols for Legacy Computing Supplement"
+msgstr "遗留计算符号补充"
+
 msgid "Symbols:"
 msgstr "符号："
 
@@ -19559,6 +19634,9 @@ msgstr "标签过长"
 
 msgid "Tagalog"
 msgstr "他加禄文"
+
+msgid "Tagalog/Hanunoo/Buhid/Tagbanwa"
+msgstr "他加禄字母/哈努诺文/布希德字母/塔格班瓦字母"
 
 msgid "Tagbanwa"
 msgstr "蒂亚格班瓦文"
@@ -22168,6 +22246,9 @@ msgstr "到它们自己的名称"
 msgid "To:"
 msgstr "到："
 
+msgid "Todhri"
+msgstr "托特里文"
+
 msgid "Todo"
 msgstr "Todo"
 
@@ -22312,7 +22393,7 @@ msgid "TopRight"
 msgstr "右上"
 
 msgid "Toto"
-msgstr "投投文"
+msgstr "投投字母"
 
 msgid "Trace Color"
 msgstr "跟踪轨迹颜色"
@@ -22499,6 +22580,9 @@ msgstr "聪加语"
 
 msgid "Tswana"
 msgstr "茨瓦纳语"
+
+msgid "Tulu-Tigalari"
+msgstr "图陆-提加拉里文"
 
 msgid "Turkish"
 msgstr "土耳其语"
@@ -23071,6 +23155,10 @@ msgstr "未保存的文字"
 
 msgid "Unspecified Language"
 msgstr "未知语言"
+
+#, c-format
+msgid "Unsupported GDEF table version: %d.%d"
+msgstr "不支持的 GDEF 表版本: %d.%d"
 
 #, c-format
 msgid "Unsupported decode filter parameters : %s"

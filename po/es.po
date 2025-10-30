@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fontforge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-01 15:10+0300\n"
-"PO-Revision-Date: 2025-08-01 12:08\n"
+"POT-Creation-Date: 2025-10-30 21:31+0200\n"
+"PO-Revision-Date: 2025-10-30 19:29\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
@@ -3615,6 +3615,9 @@ msgstr "Bengalí"
 msgid "Bengali Bangladesh"
 msgstr "Bengalí de Bangladesh"
 
+msgid "Beria Erfe"
+msgstr "Beria Erfe"
+
 msgid "Beti"
 msgstr "Beti"
 
@@ -4127,6 +4130,12 @@ msgstr "CJK, ideógrafos unificados, extensión G"
 msgid "CJK Unified Ideographs Extension H"
 msgstr "CJK, ideógrafos unificados, extensión H"
 
+msgid "CJK Unified Ideographs Extension I"
+msgstr "CJK, ideógrafos unificados, extensión I"
+
+msgid "CJK Unified Ideographs Extension J"
+msgstr "CJK, ideógrafos unificados, extensión J"
+
 msgid ""
 "CLEAR\n"
 "Pops all elements on stack"
@@ -4378,6 +4387,9 @@ msgstr "Catalán"
 
 msgid "Caucasian Albanian"
 msgstr "Albanés caucásico"
+
+msgid "Cayuga"
+msgstr "Cayuga"
 
 msgid "Cebuano"
 msgstr "Cebuano"
@@ -4924,6 +4936,9 @@ msgstr "Chichewa"
 msgid "Chiga"
 msgstr "Kiga"
 
+msgid "Chimila"
+msgstr "Chimila"
+
 msgid "Chin"
 msgstr "Chin"
 
@@ -5343,6 +5358,9 @@ msgstr "Separador de número común"
 
 msgid "Comorian"
 msgstr "Comorano"
+
+msgid "Comox"
+msgstr "Kʼómoks"
 
 msgid "Compact"
 msgstr "Compacto"
@@ -6034,6 +6052,9 @@ msgstr "Cvt"
 #, c-format
 msgid "Cvt %d was changed from %d (%.2f) to %d (%.2f) by the previous instruction"
 msgstr "El cvt %d fue cambiado de %d (%.2f) a %d (%.2f) por la instrucción anterior"
+
+msgid "Cypriot Arabic"
+msgstr "Árabe chipriota"
 
 msgid "Cypriot Syllabary"
 msgstr "Silabario chipriota"
@@ -6984,6 +7005,9 @@ msgstr ""
 msgid "Early Dynastic Cuneiform"
 msgstr "Cuneiforme de la dinastía temprana"
 
+msgid "Eastern Abenaki"
+msgstr "Abenaki oriental"
+
 msgid "Eastern Cham"
 msgstr "Cham oriental"
 
@@ -7086,6 +7110,9 @@ msgstr "Controles de formato de hieroglíficos egipcios"
 msgid "Egyptian Hieroglyphs"
 msgstr "Hieroglíficos egipcios"
 
+msgid "Egyptian Hieroglyphs Extended-A"
+msgstr "Hieroglifos egipcios extendidos - A"
+
 msgid ""
 "Either a glyph should have no overlapping hints,\n"
 "or a glyph with hint masks should have no overlapping\n"
@@ -7133,6 +7160,18 @@ msgstr "Elimaico"
 
 msgid "Em Units"
 msgstr "Unid. eme"
+
+msgid "Emberá-Baudó"
+msgstr "Emberá-Baudó"
+
+msgid "Emberá-Catío"
+msgstr "Emberá-Catío"
+
+msgid "Emberá-Chamí"
+msgstr "Emberá-Chamí"
+
+msgid "Emberá-Tadó"
+msgstr "Emberá-Tadó"
 
 msgid "Embolden as appropriate for Chinese, Japanese, Korean scripts"
 msgstr "Engrosa como sea apropiado para los sistemas de escritura chino, japonés y coreano"
@@ -7356,6 +7395,9 @@ msgstr "Entrada"
 #, c-format
 msgid "Entry (%d,%d)"
 msgstr "Entrada (%d,%d)"
+
+msgid "Epena"
+msgstr "Epena"
 
 msgid "Error Bound"
 msgstr "Límite de error"
@@ -8816,6 +8858,10 @@ msgstr "Longitud completa"
 msgid "Fullname"
 msgstr "Nombre completo"
 
+#, c-format
+msgid "Function %s() called with a message string containing unescaped format character(s): \"%s\""
+msgstr "Función %s() llamada con una cadena de mensaje que contiene caracteres de formato sin escapar: \"%s\""
+
 msgid ""
 "Function DEFinition\n"
 "Pops a value (n) and starts the nth\n"
@@ -8918,6 +8964,9 @@ msgstr "Galla"
 msgid "Ganda"
 msgstr "Ganda"
 
+msgid "Garay"
+msgstr "Garay"
+
 msgid "Garhwali"
 msgstr "Garhwali"
 
@@ -8951,6 +9000,9 @@ msgstr "_Versión"
 #. GT: This is a pun on the old latin drinking song "Gaudeamus igature!"
 msgid "Gaudeamus Ligature!"
 msgstr "¡Alabemos la ligadura!"
+
+msgid "Geba Karen"
+msgstr "Bwe oriental"
 
 msgid "General"
 msgstr "General"
@@ -9569,6 +9621,9 @@ msgstr "Ajuste a la cuadrícula con suavizado simétrico"
 msgid "Grid Fitting"
 msgstr "Ajuste a la cuadrícula"
 
+msgid "Gros Ventre"
+msgstr "Atsina"
+
 msgid "Group"
 msgid_plural "Groups"
 msgstr[0] "Grupo"
@@ -9637,6 +9692,9 @@ msgstr "Gurmují"
 msgid "Gurmukhi2"
 msgstr "Gurmují 2"
 
+msgid "Gurung Khema"
+msgstr "Gurung Khema"
+
 msgid "Gusii"
 msgstr "Gusii"
 
@@ -9700,6 +9758,9 @@ msgstr "Anchos medios"
 msgid "Halfwidth and Fullwidth Forms"
 msgstr "Formas de medio ancho y de ancho completo"
 
+msgid "Halkomelem"
+msgstr "Halkomelem"
+
 msgid "Hammer-Banna"
 msgstr "Hammer-Banna"
 
@@ -9756,6 +9817,9 @@ msgstr "Hatrán"
 
 msgid "Hausa"
 msgstr "Hausa"
+
+msgid "Havasupai-Walapai-Yavapai"
+msgstr "Havasupai-Walapai-Yavapai"
 
 msgid "Have the measure tool show horizontal and vertical distances on the canvas."
 msgstr "Hacer que la herramienta de medición muestre distancias horizontales y verticales en el lienzo."
@@ -11332,6 +11396,9 @@ msgstr ""
 "Salto relativo (JMPR)\n"
 "Desapila el desplazamiento (en bytes) para mover el puntero de instrucciones"
 
+msgid "Judeo-Tat"
+msgstr "Juhuri"
+
 msgid "Jula"
 msgstr "Yulá"
 
@@ -11386,6 +11453,9 @@ msgstr "Cabilio"
 
 msgid "Kachchi"
 msgstr "Kacchi"
+
+msgid "Kadiwéu"
+msgstr "Kadiweu"
 
 msgid "Kaithi"
 msgstr "Kaithi"
@@ -11595,6 +11665,9 @@ msgstr "Jakasio"
 msgid "Khamti Shan"
 msgstr "Shan de Hkamti"
 
+msgid "Khamyang"
+msgstr "Khamyang"
+
 msgid "Khanty-Kazim"
 msgstr "Janti-Kazym"
 
@@ -11612,6 +11685,9 @@ msgstr "Khasi"
 
 msgid "Khengkha"
 msgstr "Khengkha"
+
+msgid "Khinalug"
+msgstr "Khinalug"
 
 msgid "Khitan Small Script"
 msgstr "Escritura kitán pequeña"
@@ -11654,6 +11730,9 @@ msgstr "Kiñaruanda"
 
 msgid "Kinyarwanda/Ruanda"
 msgstr "Kinyarwanda/Ruanda"
+
+msgid "Kirat Rai"
+msgstr "Kirat Rai"
 
 msgid "Kirghiz"
 msgstr "Kirguís"
@@ -11730,6 +11809,9 @@ msgstr "Crimchaco"
 msgid "Kuanyama"
 msgstr "Kuanyama"
 
+msgid "Kube"
+msgstr "Kube"
+
 msgid "Kui"
 msgstr "Kui"
 
@@ -11753,6 +11835,9 @@ msgstr "Kuy"
 
 msgid "Kwak'wala"
 msgstr "Kwak'wala"
+
+msgid "Kâte"
+msgstr "Kâte"
 
 msgid "K’iche"
 msgstr "Quiché"
@@ -12319,6 +12404,9 @@ msgstr "Literales"
 msgid "Lithuanian"
 msgstr "Lituano"
 
+msgid "Liv"
+msgstr "Livón"
+
 msgid "Load Bitmap Fonts"
 msgstr "Cargar fuentes de mapa de bits"
 
@@ -12604,6 +12692,9 @@ msgstr "Luo"
 
 msgid "Luri"
 msgstr "Luri"
+
+msgid "Lushootseed"
+msgstr "Lushootseed"
 
 msgid "Luxembourgish"
 msgstr "Luxemburgués"
@@ -12939,6 +13030,9 @@ msgstr "Maninká"
 
 msgid "Manipuri"
 msgstr "Manipurí"
+
+msgid "Mano"
+msgstr "Mah"
 
 msgid "Mansi"
 msgstr "Mansi"
@@ -13676,6 +13770,9 @@ msgstr "Símbolos matemáticos misceláneos-B"
 msgid "Miscellaneous Symbols"
 msgstr "Símbolos misceláneos"
 
+msgid "Miscellaneous Symbols Supplement"
+msgstr "Símbolos misceláneos, suplemento"
+
 msgid "Miscellaneous Symbols and Arrows"
 msgstr "Símbolos y flechas misceláneos"
 
@@ -14196,6 +14293,9 @@ msgstr "Birmania extendido-A"
 
 msgid "Myanmar Extended-B"
 msgstr "Birmania extendido-B"
+
+msgid "Myanmar Extended-C"
+msgstr "Birmania extendido-C"
 
 msgid ""
 "N PUSH Bytes\n"
@@ -15139,6 +15239,9 @@ msgstr ""
 msgid "North Slavey"
 msgstr "Slavé del norte"
 
+msgid "Northern Emberá"
+msgstr "Emberá del norte"
+
 msgid "Northern Sami"
 msgstr "Sami del norte"
 
@@ -15289,6 +15392,9 @@ msgstr "Numerador 2:"
 msgid "Num3:"
 msgstr "Numerador 3:"
 
+msgid "Numanggang"
+msgstr "Numanggang"
+
 msgid "Number Forms"
 msgstr "Formas numéricas"
 
@@ -15345,6 +15451,9 @@ msgstr "Inuktitut de Nunavik"
 
 msgid "Nushu"
 msgstr "Nü shu"
+
+msgid "Nuu-chah-nulth"
+msgstr "Nuu-chah-nulth"
 
 msgid "Nyamwezi"
 msgstr "Nyamwezi"
@@ -15551,6 +15660,9 @@ msgstr "Ojibwa"
 msgid "Ol Chiki"
 msgstr "Ol Chiki"
 
+msgid "Ol Onal"
+msgstr "Ol Onal"
+
 msgid "Old Hungarian"
 msgstr "Húngaro antiguo"
 
@@ -15564,7 +15676,7 @@ msgid "Old Italic (Etruscan, Oscan, etc.)"
 msgstr "Italiano antiguo (Etrusco, Oscano, etc.)"
 
 msgid "Old North Arabian"
-msgstr "Árabe antiguo del Norte"
+msgstr "Árabe antiguo del norte"
 
 msgid "Old Outline Color"
 msgstr "Color del contorno antiguo"
@@ -15582,7 +15694,7 @@ msgid "Old Sogdian"
 msgstr "Sogdiano antiguo"
 
 msgid "Old South Arabian"
-msgstr "Árabe antiguo del Sur"
+msgstr "Árabe antiguo del sur"
 
 msgid "Old Style"
 msgstr "Estilo antiguo"
@@ -15652,6 +15764,9 @@ msgstr "Una de las fuentes %1$d,%2$d no tiene el glifo %3$d"
 
 msgid "One of the multiple master instances contains quadratic splines. It must be converted to cubic splines before it can be used in a multiple master"
 msgstr "Una de las instancias múltiples maestras contiene curvas cuadráticas. Debe ser convertida a cúbicas antes de que pueda ser utilizada en una múltiple maestra"
+
+msgid "Oneida"
+msgstr "Oneida"
 
 msgid ""
 "Only Bitmaps may be embedded.\n"
@@ -15736,6 +15851,9 @@ msgstr "Sólo se utilizarán los primeros 256 glifos en la codificación"
 
 msgid "Only upper case"
 msgstr "Solo mayúsculas"
+
+msgid "Onondaga"
+msgstr "Onondaga"
 
 msgid "Opacity"
 msgstr "Opacidad"
@@ -16619,6 +16737,12 @@ msgstr "Imágenes"
 
 msgid "Piemontese"
 msgstr "Piemontés"
+
+msgid "Pilagá"
+msgstr "Pilagá"
+
+msgid "Pite Sami"
+msgstr "Sami de Pite"
 
 msgid "Pixel List"
 msgstr "Lista de píxeles"
@@ -18845,6 +18969,9 @@ msgstr "Símbolo R"
 msgid "Script|Roman"
 msgstr "Romano"
 
+msgid "Script|Sidetic"
+msgstr "Sidético"
+
 msgid "Script|Simplified Chinese"
 msgstr "Chino simplificado"
 
@@ -18857,6 +18984,9 @@ msgstr "Cuneiforme sumero-acadia"
 msgid "Script|Sundanese"
 msgstr "Sondanés"
 
+msgid "Script|Sunuwar"
+msgstr "Sunuwar"
+
 msgid "Script|Syloti Nagri"
 msgstr "Silôṭi Nagri"
 
@@ -18868,6 +18998,9 @@ msgstr "Tagalo"
 
 msgid "Script|Tagbanwa"
 msgstr "Tagbanuá"
+
+msgid "Script|Tai Yo"
+msgstr "Tai Yo"
 
 msgid "Script|Tamil"
 msgstr "Tamil"
@@ -19193,6 +19326,9 @@ msgstr "Semiexpandido (112.5%)"
 
 msgid "Sena"
 msgstr "Sena"
+
+msgid "Seneca"
+msgstr "Seneca"
 
 msgid "Separate ratios for horizontal and vertical stems"
 msgstr "Relaciones separadas para astas horizontales y verticales"
@@ -19688,6 +19824,9 @@ msgstr "Formas"
 msgid "Sharada"
 msgstr "Sharada"
 
+msgid "Sharada Supplement"
+msgstr "Sharada, suplemento"
+
 msgid "Sharp/Closed Loops"
 msgstr "Afilada/bucles cerrados"
 
@@ -19832,6 +19971,9 @@ msgstr "Factor de expansión de margen lateral"
 
 msgid "Side Bearings:"
 msgstr "Márgenes laterales:"
+
+msgid "Sidetic"
+msgstr "Sidético"
 
 msgid "Silesian"
 msgstr "Silesio"
@@ -20719,6 +20861,9 @@ msgstr "Brazos rectos/vertical"
 msgid "Straight Arms/Wedge"
 msgstr "Brazos rectos/cuña"
 
+msgid "Straits Salish"
+msgstr "Salish del Estrecho Norte"
+
 msgid "Stretch:"
 msgstr "Extensión:"
 
@@ -20951,6 +21096,9 @@ msgstr "Sondanés (romano)"
 msgid "Sundanese Supplement"
 msgstr "Sondanés, suplemento"
 
+msgid "Sunuwar"
+msgstr "Sunuwar"
+
 msgid "Sup1:"
 msgstr "Superíndice 1:"
 
@@ -21114,6 +21262,9 @@ msgstr "Símbolos y pictografías extendidas-A"
 
 msgid "Symbols for Legacy Computing"
 msgstr "Símbolos para cómputo heredado"
+
+msgid "Symbols for Legacy Computing Supplement"
+msgstr "Símbolos para cómputo heredado, suplemento"
 
 msgid "Symbols:"
 msgstr "Símbolos:"
@@ -21286,6 +21437,9 @@ msgstr "Tagbanuá"
 msgid "Tags"
 msgstr "Etiquetas"
 
+msgid "Tahaggart Tamahaq"
+msgstr "Tamahaq Tahaggart"
+
 msgid "Tahitian"
 msgstr "Tahitiano"
 
@@ -21304,6 +21458,9 @@ msgstr "Tai Viet"
 msgid "Tai Xuan Jing Symbols"
 msgstr "Símbolos Tai Xuan Jing"
 
+msgid "Tai Yo"
+msgstr "Tai Yo"
+
 msgid "Tajik"
 msgstr "Tayiko"
 
@@ -21313,7 +21470,13 @@ msgstr "Tayico"
 msgid "Takri"
 msgstr "Takri"
 
+msgid "Talysh"
+msgstr "Talish"
+
 msgid "Tamashek"
+msgstr "Tamashek"
+
+msgid "Tamasheq"
 msgstr "Tamashek"
 
 msgid "Tamazight"
@@ -21340,6 +21503,9 @@ msgstr "Tangut"
 msgid "Tangut Components"
 msgstr "Tangut, componentes"
 
+msgid "Tangut Components Supplement"
+msgstr "Componentes tangut, suplemento"
+
 msgid "Tangut Supplement"
 msgstr "Tangut, suplemento"
 
@@ -21360,6 +21526,12 @@ msgstr "Tártaro"
 
 msgid "Tatar (Tatarstan)"
 msgstr "Tártaro (Tatarstan)"
+
+msgid "Tawallammat Tamajaq"
+msgstr "Tamajaq Tawallammat"
+
+msgid "Tayart Tamajeq"
+msgstr "Tamashek de Tayart"
 
 msgid "TeX Table"
 msgstr "Tabla TeX"
@@ -23916,6 +24088,9 @@ msgstr "Esta ventana muestra un solo glifo de mapa de bits"
 msgid "This window displays metrics information about a font"
 msgstr "Esta ventana muestra la información de las métricas sobre una fuente"
 
+msgid "Thompson"
+msgstr "Nlaka'pamux"
+
 msgid "Threshold between \"thin\" and \"thick\":"
 msgstr "Umbral entre \"delgadas\" y \"gruesas\":"
 
@@ -24082,11 +24257,20 @@ msgstr "A sus propios nombres"
 msgid "To:"
 msgstr "Hasta:"
 
+msgid "Tobo"
+msgstr "Tobo"
+
+msgid "Todhri"
+msgstr "Todhri"
+
 msgid "Todo"
 msgstr "Todo"
 
 msgid "Tok Pisin"
 msgstr "Tok Pisin"
+
+msgid "Tolong Siki"
+msgstr "Tolong Siki"
 
 msgid "Toma"
 msgstr "Toma"
@@ -24434,6 +24618,9 @@ msgstr "Setsuana"
 msgid "Tulu"
 msgstr "Tulu"
 
+msgid "Tulu-Tigalari"
+msgstr "Tulu-Tigalari"
+
 msgid "Tumbuka"
 msgstr "Tumbuka"
 
@@ -24448,6 +24635,9 @@ msgstr "Turcomano"
 
 msgid "Turoyo Aramaic"
 msgstr "Arameo turoyo"
+
+msgid "Tuscarora"
+msgstr "Tuscarora"
 
 msgid "Tuvalu"
 msgstr "Tuvaluano"
@@ -24569,6 +24759,9 @@ msgstr "U+%04x"
 msgid "U_nlink Reference"
 msgstr "Reemplazar refere_ncia"
 
+msgid "Udi"
+msgstr "Udi"
+
 msgid "Udmurt"
 msgstr "Udmurto"
 
@@ -24586,6 +24779,9 @@ msgstr "Ultraexpandido (200%)"
 
 msgid "Umbundu"
 msgstr "Umbundu"
+
+msgid "Ume Sami"
+msgstr "Sami de Ume"
 
 msgid ""
 "UnTouch Point\n"
@@ -25053,6 +25249,10 @@ msgid "Unspecified Language"
 msgstr "Idioma no especificado"
 
 #, c-format
+msgid "Unsupported GDEF table version: %d.%d"
+msgstr "Versión de tabla GDEF no soportada: %d.%d"
+
+#, c-format
 msgid "Unsupported decode filter parameters : %s"
 msgstr "Parámetros de filtro de decodificación no soportados: %s"
 
@@ -25116,6 +25316,9 @@ msgstr "Erguida/sin ajuste de texto"
 
 msgid "Upright/Some Wrapping"
 msgstr "Erguida/algo de ajuste de texto"
+
+msgid "Uralic Phonetic Alphabet"
+msgstr "Alfabeto fonético urálico"
 
 msgid "Urdu"
 msgstr "Urdú"
@@ -25623,6 +25826,9 @@ msgstr "Gbe Waci"
 msgid "Wagdi"
 msgstr "Wagdi"
 
+msgid "Wakhi"
+msgstr "Wají"
+
 msgid "Walloon"
 msgstr "Valón"
 
@@ -25920,6 +26126,9 @@ msgstr "Peso, ancho, solo pendiente"
 
 msgid "Welsh"
 msgstr "Galés"
+
+msgid "Wendat"
+msgstr "Wendat"
 
 msgid "West-Cree"
 msgstr "Cree del este"
@@ -26481,6 +26690,9 @@ msgstr "Tipo de archivo SFD incorrecto"
 
 msgid "Wuding-Luquan Yi"
 msgstr "Yi, Wuding-Luquan"
+
+msgid "Wyandot"
+msgstr "Wyandot"
 
 #. GT: X is a coordinate
 msgid "X"
