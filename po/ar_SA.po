@@ -1,0 +1,84 @@
+
+msgid ""
+msgstr ""
+"Project-Id-Version: fontforge\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-30 21:31+0200\n"
+"PO-Revision-Date: 2025-10-30 19:29\n"
+"Last-Translator: \n"
+"Language-Team: Arabic\n"
+"Language: ar_SA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
+"X-Crowdin-Project: fontforge\n"
+"X-Crowdin-Project-ID: 368599\n"
+"X-Crowdin-Language: ar\n"
+"X-Crowdin-File: FontForge.pot\n"
+"X-Crowdin-File-ID: 2\n"
+
+msgid "Bad Reference"
+msgstr "مرجع سيء"
+
+msgid "Bad Template"
+msgstr "قالب سيء"
+
+msgid "Bad image file"
+msgstr "ملف صورة سيء"
+
+#, c-format
+msgid "Bad image file: %.100s"
+msgstr "ملف صورة سيء: %.100s"
+
+msgid "Bad template, no extension"
+msgstr "قالب سيء، لا يوجد امتداد"
+
+msgid "Bad xfig file"
+msgstr "ملف xfig سيء"
+
+#, c-format
+msgid "Can't open %s"
+msgstr "لا يمكن فتح %s"
+
+msgid "I'm sorry this file is too complex for me to understand (or is erroneous, or is empty)"
+msgstr "أنا آسف هذا الملف معقد جدا لدرجة لا أستطيع فهمه (أو أنه خاطئ أو فارغ)"
+
+msgid "No _to All"
+msgstr "لا _للكل"
+
+msgid "No selection"
+msgstr "لا يوجد تحديد"
+
+msgid "Nothing Loaded"
+msgstr "لا شيء مُحمّل"
+
+msgid "Nothing Selected"
+msgstr "لا شيء محدد"
+
+msgid "Pasting..."
+msgstr "يلصق..."
+
+msgid "Private Use Area"
+msgstr "منطقة الاستخدام الخاص"
+
+msgid "Save Failed"
+msgstr "فشل الحفظ"
+
+msgid "Too Complex or Bad"
+msgstr "معقدة جداً أو سيئة"
+
+msgid "Yes to _All"
+msgstr "نعم ل _الكل"
+
+msgid "_Cancel"
+msgstr "_ألغِ"
+
+msgid "_No"
+msgstr "_لا"
+
+msgid "_OK"
+msgstr "_حسنا"
+
+msgid "_Yes"
+msgstr "_نعم"
