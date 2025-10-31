@@ -88,12 +88,29 @@ int add_encoding_slots_dialog(bool cid) {
             : _("How many unencoded glyph slots do you wish to add?"));
 }
 
-bool find_problems_dialog(GWindow parent) {
+bool find_problems_dialog(GWindow parent, const ProblemTab* pr_tabs) {
     // To avoid instability, the GTK application is lazily initialized only when
     // a GTK window is invoked.
     ff::app::GtkApp();
 
-    return (ff::dlg::FindProblemsDlg::show(parent) == Gtk::RESPONSE_OK);
+    std::vector<ff::dlg::ProblemTab> cpp_pr_tabs;
+    for (const ProblemTab* tab = pr_tabs; tab->label != NULL; ++tab) {
+        std::vector<ff::dlg::ProblemRecord> records;
+        for (const ProblemRec* rec = tab->records; rec->label != NULL; ++rec) {
+            ff::dlg::ProblemRecordValue value =
+                (rec->type == prob_bool) ? ff::dlg::ProblemRecordValue()
+                : (rec->type == prob_int)
+                    ? ff::dlg::ProblemRecordValue(rec->value.ival)
+                    : ff::dlg::ProblemRecordValue(rec->value.dval);
+            ff::dlg::ProblemRecord record{rec->label, rec->tooltip, true,
+                                          value};
+            records.push_back(std::move(record));
+        }
+        ff::dlg::ProblemTab pr_tab{tab->label, std::move(records)};
+        cpp_pr_tabs.push_back(std::move(pr_tab));
+    }
+    return (ff::dlg::FindProblemsDlg::show(parent, cpp_pr_tabs) ==
+            Gtk::RESPONSE_OK);
 }
 
 void update_appearance() {
