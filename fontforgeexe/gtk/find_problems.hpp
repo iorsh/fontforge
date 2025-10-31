@@ -1,4 +1,4 @@
-/* Copyright 2024 Maxim Iorsh <iorsh@users.sourceforge.net>
+/* Copyright (C) 2025 by Maxim Iorsh <iorsh@users@sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,20 +26,16 @@
  */
 #pragma once
 
-#include <gtkmm.h>
-
-typedef struct gwindow* GWindow;
+#include "dialog.hpp"
 
 namespace ff::dlg {
 
-class Dialog : public Gtk::Dialog {
- public:
-    Dialog();
-
-    Gtk::ResponseType run();
-
+class FindProblemsDlg final : public Dialog {
  private:
-    Glib::RefPtr<Gdk::Window> parent_window;
+    FindProblemsDlg(GWindow parent);
+
+ public:
+    static Gtk::ResponseType show(GWindow parent);
 };
 
 }  // namespace ff::dlg

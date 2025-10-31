@@ -1,4 +1,4 @@
-/* Copyright 2024 Maxim Iorsh <iorsh@users.sourceforge.net>
+/* Copyright (C) 2025 by Maxim Iorsh <iorsh@users@sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,22 +24,26 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#pragma once
 
-#include <gtkmm.h>
+#include "find_problems.hpp"
 
-typedef struct gwindow* GWindow;
+#include "intl.h"
 
 namespace ff::dlg {
 
-class Dialog : public Gtk::Dialog {
- public:
-    Dialog();
+FindProblemsDlg::FindProblemsDlg(GWindow parent) : Dialog() {
+    set_title(_("Find Problems"));
+    // set_help_context("ui/dialogs/problems.html", nullptr);
 
-    Gtk::ResponseType run();
+    show_all();
+}
 
- private:
-    Glib::RefPtr<Gdk::Window> parent_window;
-};
+Gtk::ResponseType FindProblemsDlg::show(GWindow parent) {
+    FindProblemsDlg dialog(parent);
+
+    Gtk::ResponseType result = dialog.run();
+
+    return result;
+}
 
 }  // namespace ff::dlg
