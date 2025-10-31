@@ -1,4 +1,10 @@
-
+# Swedish User Interface strings for FontForge.
+# Copyright (c) Daniel Nylander <po@danielnylander.se>, 2025.
+# This file is distributed under the same license as the FontForge package.
+#
+# Translators:
+# Daniel Nylander <po@danielnylander.se>, 2025-10-30 19:29
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: fontforge\n"
