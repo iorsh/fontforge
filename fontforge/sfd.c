@@ -2250,9 +2250,9 @@ int SFD_DumpSplineFontMetadata( FILE *sfd, SplineFont *sf )
     fprintf(sfd, "OS2Version: %d\n", sf->os2_version );
     fprintf(sfd, "OS2_WeightWidthSlopeOnly: %d\n", sf->weight_width_slope_only );
     fprintf(sfd, "OS2_UseTypoMetrics: %d\n", sf->use_typo_metrics );
-    fprintf(sfd, "CreationTime: %lld\n", sf->creationtime );
+    fprintf(sfd, "CreationTime: %lld\n", 0 );
     if (SaveEditorState)
-	fprintf(sfd, "ModificationTime: %lld\n", sf->modificationtime );
+	fprintf(sfd, "ModificationTime: %lld\n", 0 );
     if ( sf->pfminfo.pfmset ) {
 	fprintf(sfd, "PfmFamily: %d\n", sf->pfminfo.pfmfamily );
 	fprintf(sfd, "TTFWeight: %d\n", sf->pfminfo.weight );
