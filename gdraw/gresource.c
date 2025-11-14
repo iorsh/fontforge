@@ -806,7 +806,9 @@ GImage *GResImageGetImage(GResImage *ri) {
 }
 
 void fix_CJK_UI_font(GResFont* font) {
+	printf("In fix_CJK_UI_font()\n");
 #if defined(__MINGW32__)
+	printf("In __MINGW32__\n");
     /* On Windows systems the default UI font doesn't support CJK. We prepend it
 	   with locale-specific font by replacing the predefined
 	   "windows-cjk-workaround" alias. */
@@ -814,6 +816,7 @@ void fix_CJK_UI_font(GResFont* font) {
     char *ui_font = NULL;
 
     gettext_locale(locale);
+	printf("Locale %s\n", locale);
     if (strcmp(locale, "zh_CN") == 0) ui_font = "Microsoft YaHei UI";
     if (strcmp(locale, "zh_SG") == 0) ui_font = "Microsoft YaHei UI";
     if (strcmp(locale, "zh_TW") == 0) ui_font = "Microsoft JhengHei UI";
@@ -826,6 +829,7 @@ void fix_CJK_UI_font(GResFont* font) {
     if (ui_font == NULL) {
         return;
     }
+	printf("UI font %s\n", ui_font);
 
     char* pos = strstr(font->rstr, "windows-cjk-workaround");
     if (pos == NULL) {
@@ -841,6 +845,7 @@ void fix_CJK_UI_font(GResFont* font) {
     strncpy(result, font->rstr, prefix_len);  /* Copy prefix */
     strcpy(result + prefix_len, ui_font);  /* Insert replacement */
     strcpy(result + prefix_len + ui_font_len, pos + strlen("windows-cjk-workaround"));  /* Copy suffix */
+	printf("result %s\n", result);
 
     if (font->can_free_name)
         free(font->rstr);
