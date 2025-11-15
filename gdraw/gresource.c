@@ -278,10 +278,11 @@ void GResourceAddResourceFile(const char *filename,const char *prog,int warn) {
 
     file = fopen(filename,"r");
     if ( file==NULL ) {
-	if ( warn )
+	if ( true )
 	    fprintf( stderr, "Failed to open resource file: %s\n", filename );
 return;
     }
+    fprintf( stderr, "Reading resource file: %s\n", filename );
     while ( fgets(buffer,sizeof(buffer),file)!=NULL )
 	GResourceAddResourceString(buffer,prog);
     fclose(file);
