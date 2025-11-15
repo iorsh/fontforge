@@ -187,6 +187,8 @@ void GResourceAddResourceString(const char *string,const char *prog) {
     int cnt, plen;
     struct _GResource_Res temp;
     int i,j,k, off;
+	printf("Prog: %s\n", prog);
+	printf("ResString: %s\n", string);
 
     GResourceSetProg(prog);
     plen = strlen(GResourceProgramName);
@@ -310,6 +312,7 @@ void GResourceFind( GResStruct *info,const char *prefix) {
 	    else
 		*(char **) (info->val) = copy( _GResource_Res[pos].val );
 	} else if ( info->type == rt_font ) {
+		printf("Searching font: _GResource_Res %s, GResFont %s\n", info->found ? _GResource_Res[pos].val : NULL, ((GResFont *) info->val)->rstr);
 	    _GResourceFindFont(info->found ? _GResource_Res[pos].val : NULL, (GResFont *) info->val, true);
 	} else if ( info->type == rt_image ) {
 	    _GResourceFindImage(info->found ? _GResource_Res[pos].val : NULL, (GResImage *) info->val);
@@ -718,6 +721,7 @@ static int _GResToFontRequest(const char *resname, FontRequest *rq, GHashTable *
 	return false;
     }
 
+	printf("Found family: %s\n", rq->utf8_family_name);
     return true;
 }
 
@@ -736,6 +740,7 @@ static void _GResourceFindFont(const char *resourcename, GResFont *font, int is_
 	rstr = GResourceFindString(resourcename);
 
     if ( rstr!=NULL && ( font->rstr==NULL || strcmp(rstr, font->rstr)!=0 ) ) {
+		printf("_GResourceFindFont() rst=%s\n", rstr);
 	if ( ResStrToFontRequest(rstr, &rq) ) {
 	    fi = GDrawInstanciateFont(NULL, &rq);
 	    if ( fi!=NULL ) {
@@ -829,7 +834,7 @@ void fix_CJK_UI_font(GResFont* font) {
     if (ui_font == NULL) {
         return;
     }
-	printf("Resource font: %s", font->rstr);
+	printf("Resource font: %s\n", font->rstr);
 	printf("UI font %s\n", ui_font);
 
     char* pos = strstr(font->rstr, "windows-cjk-workaround");
