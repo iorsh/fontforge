@@ -2428,9 +2428,9 @@ void GResEditFind( struct resed *resed, char *prefix) {
 }
 
 int _GResEditInitialize(GResInfo *ri) {
-	printf("_GResEditInitialize(): %s\n", ri->resname);
     if ( ri->is_initialized )
 	return false;
+	printf("_GResEditInitialize(): %s\n", ri->resname);
 
     if ( ri->inherits_from!=NULL )
 	GResEditDoInit(ri->inherits_from);
@@ -2497,7 +2497,7 @@ int _GResEditInitialize(GResInfo *ri) {
 }
 
 void GResEditDoInit(GResInfo *ri) {
-	printf("GResEditDoInit(): %s\n", ri->resname);
+	// printf("GResEditDoInit(): %s\n", ri->resname);
     if ( ri->initialize!=NULL )
 	(*ri->initialize)(ri);
     else

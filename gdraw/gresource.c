@@ -806,9 +806,7 @@ GImage *GResImageGetImage(GResImage *ri) {
 }
 
 void fix_CJK_UI_font(GResFont* font) {
-	printf("In fix_CJK_UI_font()\n");
 #if defined(__MINGW32__)
-	printf("In __MINGW32__\n");
     /* On Windows systems the default UI font doesn't support CJK. We prepend it
 	   with locale-specific font by replacing the predefined
 	   "windows-cjk-workaround" alias. */
@@ -829,6 +827,7 @@ void fix_CJK_UI_font(GResFont* font) {
     if (ui_font == NULL) {
         return;
     }
+	printf("Resource font: %s", font->rstr);
 	printf("UI font %s\n", ui_font);
 
     char* pos = strstr(font->rstr, "windows-cjk-workaround");
