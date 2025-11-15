@@ -274,6 +274,7 @@ return;
 void GResourceAddResourceFile(const char *filename,const char *prog,int warn) {
     FILE *file;
     char buffer[1000];
+    fprintf( stderr, "Opening resource file: %s\n", filename );
 
     file = fopen(filename,"r");
     if ( file==NULL ) {
