@@ -2428,6 +2428,7 @@ void GResEditFind( struct resed *resed, char *prefix) {
 }
 
 int _GResEditInitialize(GResInfo *ri) {
+	printf("_GResEditInitialize(): %s\n", ri->resname);
     if ( ri->is_initialized )
 	return false;
 
@@ -2484,6 +2485,7 @@ int _GResEditInitialize(GResInfo *ri) {
     if ( ri->extras!=NULL ) {
         for ( int i=0; ri->extras[i].name!=NULL; ++i ) {
             if (ri->extras[i].type == rt_font) {
+	            printf("RI font extra: %s\n", ri->extras[i].name);
                 fix_CJK_UI_font(ri->extras[i].val);
             }
         }
@@ -2495,6 +2497,7 @@ int _GResEditInitialize(GResInfo *ri) {
 }
 
 void GResEditDoInit(GResInfo *ri) {
+	printf("GResEditDoInit(): %s\n", ri->resname);
     if ( ri->initialize!=NULL )
 	(*ri->initialize)(ri);
     else
