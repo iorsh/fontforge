@@ -459,7 +459,7 @@ static OTLookup *lookup_in_rule(struct fpst_rule *r,int seq,int *index, int *pos
     /*  feature file. It doesn't seem likely to be used so I ignore it */
 
     for ( i=0; i<r->lookup_cnt && seq>r->lookups[i].seq; ++i );
-    if (i == r->lookup_cnt || (i > 0 && seq < r->lookups[i].seq))
+    if ((i > 0) && (i == r->lookup_cnt || seq < r->lookups[i].seq))
         --i;
     *index = i;
     *pos = seq-r->lookups[i].seq;
@@ -758,7 +758,8 @@ static void dump_contextpstcoverage(FILE *out,SplineFont *sf,
 	dump_glyphnamelist(out,sf,r->u.coverage.fcovers[i] );
 	fprintf( out, "] ");
     }
-    if ( sub->lookup->lookup_type == gsub_reversecchain ) {
+    if ( sub->lookup->lookup_type == gsub_reversecchain &&
+	 sub->fpst->format==pst_reversecoverage) {
 	fprintf( out, " by " );
 	if ( strchr(r->u.rcoverage.replacements,' ')==NULL )
 	    dump_glyphnamelist(out,sf,r->u.rcoverage.replacements);
