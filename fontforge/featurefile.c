@@ -4676,7 +4676,7 @@ static FPST *fea_markedglyphs_to_fpst(struct parseState *tok,struct markedglyphs
 
     fpst = chunkalloc(sizeof(FPST));
     fpst->type = is_reverse? pst_reversesub : is_pos ? pst_chainpos : pst_chainsub;
-    fpst->format = is_reverse ? pst_reversecoverage : all_single ? pst_glyphs : pst_coverage;
+    fpst->format = all_single ? pst_glyphs : pst_coverage;
     fpst->rule_cnt = 1;
     fpst->rules = r = calloc(1,sizeof(struct fpst_rule));
     if ( is_ignore )
@@ -4836,7 +4836,7 @@ static void fea_ParseSubstitute(struct parseState *tok) {
 	    *g, *rpl;
     int cnt, has_lookups, mk_num;
     SplineChar *sc;
-    struct feat_item *item, *head;
+    struct feat_item *item, *head = NULL;
 
     fea_ParseTok(tok);
     for ( cnt=has_lookups=mk_num=0, g=glyphs; g!=NULL; g=g->next, ++cnt ) {
@@ -4936,10 +4936,10 @@ static void fea_ParseSubstitute(struct parseState *tok) {
 		if ( rpl==NULL || rpl->next!=NULL || rpl->lookupname!=NULL ||
 			g==NULL ||
 			spacecount(g->name_or_class) != spacecount(rpl->name_or_class) ) {
-		    LogError(_("Expected a single glyph name in reverse substitution on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
+		    LogError(_("Expected a single glyph or class name in reverse substitution on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
 		    ++tok->err_count;
 		} else {
-		    r->u.rcoverage.replacements = copy(rpl->name_or_class );
+		    head = fea_process_sub_single(tok,g,rpl,NULL);
 		}
 	    } else {
 		if ( rpl==NULL ) {
@@ -4960,16 +4960,17 @@ static void fea_ParseSubstitute(struct parseState *tok) {
 		    } else if ( g->next!=NULL && g->mark_count==g->next->mark_count ) {
 			head = fea_process_sub_ligature(tok,g,rpl,NULL);
 		    } else {
-			head = NULL;
 			LogError(_("Unparseable contextual sequence on line %d of %s"), tok->line[tok->inc_depth], tok->filename[tok->inc_depth] );
 			++tok->err_count;
 		    }
-		    r->lookups[0].lookup = (OTLookup *) head;
-		    cnt = g->mark_count;
-		    while ( g!=NULL && g->mark_count == cnt )	/* skip everything involved here */
-			g=g->next;
-		    for ( ; g!=NULL && g->mark_count!=0; g=g->next ); /* skip any uninvolved glyphs */
 		}
+	    }
+	    if (head) {
+		r->lookups[0].lookup = (OTLookup *) head;
+		cnt = g->mark_count;
+		while ( g!=NULL && g->mark_count == cnt )	/* skip everything involved here */
+		    g=g->next;
+		for ( ; g!=NULL && g->mark_count!=0; g=g->next ); /* skip any uninvolved glyphs */
 	    }
 	    fea_markedglyphsFree(rpl);
 	}
