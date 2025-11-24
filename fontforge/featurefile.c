@@ -996,10 +996,13 @@ static void dump_contextpst(FILE *out,SplineFont *sf,struct lookup_subtable *sub
 	}
 	if ( sub->lookup->lookup_type>=gpos_start )
 	    fprintf( out, r->lookup_cnt==0 ? "    ignore pos " : "    pos " );
-	else if ( sub->lookup->lookup_type==gsub_reversecchain )
-	    fprintf( out, !r->u.rcoverage.replacements
-                     || !r->u.rcoverage.replacements[0] ?
-                     "    ignore reversesub " : "    reversesub " );
+	else if ( sub->lookup->lookup_type==gsub_reversecchain ) {
+	    bool ignore = sub->fpst->format==pst_reversecoverage &&
+			  !(r->u.rcoverage.replacements && r->u.rcoverage.replacements[0]);
+	    fprintf(out, "    ");
+	    fprintf(out, ignore ? "ignore " : "");
+            fprintf(out, "reversesub ");
+	}
         else
 	    fprintf( out, r->lookup_cnt==0 ? "    ignore sub " : "    sub " );
 	if ( fpst->format==pst_class ) {
