@@ -216,7 +216,8 @@ void PrintPreviewWidget::build_compound_preview_area() {
     page_counter_.signal_format_value().connect([this](double page_num) {
         char buffer[32];
         int total_pages = (int)page_counter_.get_adjustment()->get_upper() - 1;
-        sprintf(buffer, _("Page %d of %d"), (int)page_num, total_pages);
+        snprintf(buffer, sizeof(buffer), _("Page %d of %d"), (int)page_num,
+                 total_pages);
         return Glib::ustring(buffer);
     });
     // Modify scale label layout to prevent line breaks, they don't look good.
