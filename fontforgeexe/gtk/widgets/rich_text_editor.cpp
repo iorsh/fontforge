@@ -291,7 +291,7 @@ RichTechEditor::TagComboBox* RichTechEditor::build_size_combo(
 
         std::string tag_id = "size|" + num_str;
         char buffer[321];
-        sprintf(buffer, _("%s pt"), num_str.c_str());
+        snprintf(buffer, sizeof(buffer), _("%s pt"), num_str.c_str());
         Glib::ustring label(buffer);
 
         // Create and register tag

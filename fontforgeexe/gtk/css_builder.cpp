@@ -44,7 +44,7 @@ static std::string css_color(Color col, bool enabled = true) {
     // Build semitransparent color expression for disabled elements
     const char* format = enabled ? "#%06x" : "alpha(#%06x, 0.5)";
 
-    sprintf(value_string, format, col);
+    snprintf(value_string, sizeof(value_string), format, col);
     return value_string;
 }
 
