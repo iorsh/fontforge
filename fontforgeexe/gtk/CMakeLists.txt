@@ -24,6 +24,8 @@ add_library(ffgtk OBJECT
   widgets/rich_text_editor.cpp
 )
 
+target_include_directories(ffgtk BEFORE PRIVATE ${FontConfig_INCLUDE_DIRS})
+
 target_link_libraries(ffgtk PRIVATE
   fontforge_common_headers
   fontforge
