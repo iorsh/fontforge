@@ -593,7 +593,7 @@ static void CCD_EnableNextPrev(struct contextchaindlg *ccd) {
       case aw_glyphs_simple:
       case aw_classes_simple:
       case aw_coverage_simple:
-	GGadgetSetEnabled(GWidgetGetControl(ccd->gw,CID_Prev),ccd->fpst->type!=pst_reversesub);
+	GGadgetSetEnabled(GWidgetGetControl(ccd->gw,CID_Prev),true);
 	GGadgetSetEnabled(GWidgetGetControl(ccd->gw,CID_Next),false);
 	GGadgetSetEnabled(GWidgetGetControl(ccd->gw,CID_OK),true);
       break;
@@ -2171,10 +2171,7 @@ void ContextChainEdit(SplineFont *sf,FPST *fpst,
     boxes[0].gd.u.boxelements = hvarray[0];
     boxes[0].creator = GHVGroupCreate;
 
-    if ( fpst->type == pst_reversesub ) {
-	bgcd[2].gd.flags = bgcd[3].gd.flags = gg_visible;
-	ccd->aw = use_simple ? aw_coverage_simple : aw_coverage;
-    } else if ( ccd->isnew || fpst->rule_cnt==0) {
+    if ( ccd->isnew || fpst->rule_cnt==0) {
 	fpst->format = pst_class;
 	bgcd[1].gd.flags = gg_visible;
 	bgcd[3].gd.flags = gg_visible | gg_enabled;
