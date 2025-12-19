@@ -130,7 +130,7 @@ return( NULL );
     new->nccnt = nextclass;
     new->nclass = names;
     new->nclassnames = calloc(nextclass,sizeof(char *));	/* Leave as NULL */
-    if ( fpst->type==pst_chainpos || fpst->type==pst_chainsub ) {
+    if ( fpst->type==pst_chainpos || fpst->type==pst_chainsub || fpst->type==pst_reversesub) {
 	/* our class set has one "class" for each glyph used anywhere */
 	/*  all three class sets are the same */
 	new->bccnt = new->fccnt = nextclass;
