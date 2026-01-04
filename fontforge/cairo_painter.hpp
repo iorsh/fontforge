@@ -57,23 +57,8 @@ cpp_SplineFontProperties* make_SplineFontProperties(int ascent, int descent,
 namespace ff::utils {
 
 struct GlyphLine;
-struct SplineFontProperties;
 
 using PrintGlyphMap = std::map<int, SplineChar*>;
-
-// Several fonts comprising a family. By convention, the first element is the
-// default font (it doesn't need to be the regular face). The default font is
-// used when no modifiers are specified.
-using CairoFontFamily = std::vector<
-    std::pair<SplineFontProperties, Cairo::RefPtr<Cairo::FtFontFace>>>;
-
-using ParsedRichText =
-    std::vector<std::pair<std::vector<std::string>, std::string>>;
-using RichTextLineBuffer = std::vector<
-    std::tuple<std::string, Cairo::RefPtr<Cairo::FtFontFace>, double /*size*/>>;
-using RichTextLayout =
-    std::vector<std::pair<RichTextLineBuffer, double /*height*/>>;
-using PrintGlyphVec = std::vector<std::pair<int, SplineChar*>>;
 
 struct SplineFontProperties {
     int ascent = -1, descent = -1;
@@ -92,6 +77,24 @@ struct SplineFontProperties {
     // mathematical sense.
     int distance(const SplineFontProperties& other) const;
 };
+
+struct CairoFontRec {
+    SplineFontProperties props;
+    Cairo::RefPtr<Cairo::FtFontFace> face;
+};
+
+// Several fonts comprising a family. By convention, the first element is the
+// default font (it doesn't need to be the regular face). The default font is
+// used when no modifiers are specified.
+using CairoFontFamily = std::vector<CairoFontRec>;
+
+using ParsedRichText =
+    std::vector<std::pair<std::vector<std::string>, std::string>>;
+using RichTextLineBuffer = std::vector<
+    std::tuple<std::string, Cairo::RefPtr<Cairo::FtFontFace>, double /*size*/>>;
+using RichTextLayout =
+    std::vector<std::pair<RichTextLineBuffer, double /*height*/>>;
+using PrintGlyphVec = std::vector<std::pair<int, SplineChar*>>;
 
 class CairoPainter {
  public:
