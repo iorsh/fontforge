@@ -220,10 +220,8 @@ std::vector<MetricsCore> HarfBuzzShaper::reverse_ttb_metrics(
 }
 
 std::vector<int> HarfBuzzShaper::compute_kerning_deltas(
-    hb_buffer_t* hb_buffer, struct opentype_str* ots_arr) {
-    unsigned int glyph_count;
-    hb_glyph_info_t* glyph_info_arr =
-        hb_buffer_get_glyph_infos(hb_buffer, &glyph_count);
+    const std::vector<MetricsCore>& metrics, struct opentype_str* ots_arr) {
+    size_t glyph_count = metrics.size() - 1;  // Ignore auxiliary data
 
     // Retrieve the current kerning offsets and apply them manually if they
     // differ from their initial value. The initial value doesn't need
@@ -237,8 +235,8 @@ std::vector<int> HarfBuzzShaper::compute_kerning_deltas(
         }
 
         // Keep initial kerning offsets when they are first encountered
-        auto key = std::make_pair(glyph_info_arr[i].codepoint,
-                                  glyph_info_arr[i + 1].codepoint);
+        auto key =
+            std::make_pair(metrics[i].codepoint, metrics[i + 1].codepoint);
         // Insert only if absent
         initial_kerning_.insert({key, kerning_offset});
 
@@ -350,8 +348,7 @@ ShaperOutput HarfBuzzShaper::apply_features(
         ots_arr[i].r2l = rtl;
     }
 
-    std::vector<int> kerning_deltas =
-        compute_kerning_deltas(hb_buffer, ots_arr);
+    std::vector<int> kerning_deltas = compute_kerning_deltas(metrics, ots_arr);
 
     // Perhaps counterintuitively, when setting RTL direction for RTL
     // languages, HarfBuzz would reverse the glyph order in the output

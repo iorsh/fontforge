@@ -104,8 +104,8 @@ class HarfBuzzShaper : public IShaper {
 
     // Compute changes in kerning due to user's input after the font was
     // generated.
-    std::vector<int> compute_kerning_deltas(hb_buffer_t* hb_buffer,
-                                            struct opentype_str* ots_arr);
+    std::vector<int> compute_kerning_deltas(
+        const std::vector<MetricsCore>& metrics, struct opentype_str* ots_arr);
 
     // Compute changes in glyph width due to user's input after the font was
     // generated.
