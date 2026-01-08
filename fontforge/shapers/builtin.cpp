@@ -72,7 +72,8 @@ void BuiltInShaper::scale_metrics(MetricsView* mv, double iscale, double scale,
     int y = 10;
     for (int i = 0; ots_arr_[i].sc != NULL; ++i) {
         assert(!metrics[i].scaled);
-        SplineChar* sc = ots_arr_[i].sc;
+        SplineChar* sc = metrics[i].sc = ots_arr_[i].sc;
+        metrics[i].codepoint = INVALID_CODEPOINT;  // Not applicable
         metrics[i].dwidth = rint(iscale * context_->get_char_width(mv, sc));
         metrics[i].dx = x;
         metrics[i].xoff = rint(iscale * ots_arr_[i].vr.xoff);
