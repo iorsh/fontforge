@@ -112,17 +112,13 @@ std::vector<hb_feature_t> HarfBuzzShaper::hb_features(
     return hb_feature_vec;
 }
 
-std::pair<SplineChar**, std::vector<MetricsCore>>
-HarfBuzzShaper::extract_shaped_data(hb_buffer_t* hb_buffer) {
+std::vector<MetricsCore> HarfBuzzShaper::extract_shaped_data(
+    hb_buffer_t* hb_buffer) {
     unsigned int glyph_count;
     hb_glyph_info_t* glyph_info_arr =
         hb_buffer_get_glyph_infos(hb_buffer, &glyph_count);
     hb_glyph_position_t* glyph_pos_arr =
         hb_buffer_get_glyph_positions(hb_buffer, &glyph_count);
-
-    // Return NULL-terminated raw C-style array of pointers
-    SplineChar** glyphs_after_gpos =
-        (SplineChar**)calloc(glyph_count + 1, sizeof(SplineChar*));
 
     std::vector<MetricsCore> metrics(glyph_count + 1);
 
@@ -140,7 +136,8 @@ HarfBuzzShaper::extract_shaped_data(hb_buffer_t* hb_buffer) {
                                     ? ttf_map_it->second
                                     : get_notdef_glyph();
 
-        glyphs_after_gpos[i] = glyph_out;
+        metrics[i].sc = glyph_out;
+        metrics[i].codepoint = glyph_info.codepoint;
 
         // Fill unscaled metrics in font units
         metrics[i].dwidth = glyph_out->width;
@@ -164,7 +161,7 @@ HarfBuzzShaper::extract_shaped_data(hb_buffer_t* hb_buffer) {
     metrics.back().dy = total_y_advance;
     metrics.back().scaled = false;
 
-    return {glyphs_after_gpos, metrics};
+    return metrics;
 }
 
 std::vector<MetricsCore> HarfBuzzShaper::reverse_rtl_metrics(
@@ -178,6 +175,8 @@ std::vector<MetricsCore> HarfBuzzShaper::reverse_rtl_metrics(
 
     for (int i = 0; i < glyph_count; ++i) {
         int rev_idx = glyph_count - i - 1;
+        fixed_metrics[i].sc = reverse_metrics[rev_idx].sc;
+        fixed_metrics[i].codepoint = reverse_metrics[rev_idx].codepoint;
         fixed_metrics[i].dwidth = reverse_metrics[rev_idx].dwidth;
         fixed_metrics[i].dheight = reverse_metrics[rev_idx].dheight;
 
@@ -251,19 +250,17 @@ std::vector<int> HarfBuzzShaper::compute_kerning_deltas(
     return kerning_deltas;
 }
 
-std::vector<int> HarfBuzzShaper::compute_width_deltas(hb_buffer_t* hb_buffer,
-                                                      SplineChar** glyphs) {
-    unsigned int glyph_count;
-    hb_glyph_info_t* glyph_info_arr =
-        hb_buffer_get_glyph_infos(hb_buffer, &glyph_count);
+std::vector<int> HarfBuzzShaper::compute_width_deltas(
+    const std::vector<MetricsCore>& metrics) {
+    size_t glyph_count = metrics.size() - 1;  // Ignore auxiliary data
 
     // Compute width deltas for glyphs which might have changed.
     std::vector<int> width_deltas;
     for (int i = 0; i < glyph_count; ++i) {
-        int16_t width = glyphs[i]->width;
+        int16_t width = metrics[i].dwidth;  // Glyph width before adjustments.
 
         // Keep initial widths when they are first encountered
-        auto key = glyph_info_arr[i].codepoint;
+        auto key = metrics[i].codepoint;
         // Insert only if absent
         initial_width_.insert({key, width});
 
@@ -316,15 +313,20 @@ ShaperOutput HarfBuzzShaper::apply_features(
              hb_feature_vec.size());
 
     // Retrieve the results
-    auto [glyphs_after_gpos, metrics] = extract_shaped_data(hb_buffer);
+    std::vector<MetricsCore> metrics = extract_shaped_data(hb_buffer);
     int glyph_count = metrics.size() - 1;
 
-    std::vector<int> width_deltas =
-        compute_width_deltas(hb_buffer, glyphs_after_gpos);
+    std::vector<int> width_deltas = compute_width_deltas(metrics);
+
+    // glyphs_after_gpos is NULL-terminated thanks to metrics auxiliary data
+    std::vector<SplineChar*> glyphs_after_gpos;
+    std::transform(metrics.begin(), metrics.end(),
+                   std::back_inserter(glyphs_after_gpos),
+                   [](const MetricsCore& m) { return m.sc; });
 
     if (rtl) {
         // HarfBuzz reverses the order of an RTL output buffer
-        std::reverse(glyphs_after_gpos, glyphs_after_gpos + glyph_count);
+        std::reverse(glyphs_after_gpos.begin(), glyphs_after_gpos.end() - 1);
         std::reverse(width_deltas.begin(), width_deltas.end());
     }
 
@@ -341,7 +343,7 @@ ShaperOutput HarfBuzzShaper::apply_features(
     // calculated by the legacy shaper are ignored, except for kerning deltas.
     struct opentype_str* ots_arr = context_->apply_ticked_features(
         context_->sf, flist.data(), (uint32_t)script, (uint32_t)lang, true,
-        pixelsize, glyphs_after_gpos);
+        pixelsize, glyphs_after_gpos.data());
 
     // For simplicity, all characters are marked with the same direction.
     for (int i = 0; i < glyph_count; ++i) {

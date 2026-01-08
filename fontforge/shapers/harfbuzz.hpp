@@ -92,8 +92,7 @@ class HarfBuzzShaper : public IShaper {
         const std::map<Tag, bool>& feature_map) const;
 
     // Retrieve data from shaped buffer and fill metrics.
-    std::pair<SplineChar**, std::vector<MetricsCore>> extract_shaped_data(
-        hb_buffer_t* hb_buffer);
+    std::vector<MetricsCore> extract_shaped_data(hb_buffer_t* hb_buffer);
 
     // RTL HarfBuzz shaping returns metrics end-to-start. This method reverses
     // them.
@@ -110,8 +109,8 @@ class HarfBuzzShaper : public IShaper {
 
     // Compute changes in glyph width due to user's input after the font was
     // generated.
-    std::vector<int> compute_width_deltas(hb_buffer_t* hb_buffer,
-                                          SplineChar** glyphs);
+    std::vector<int> compute_width_deltas(
+        const std::vector<MetricsCore>& metrics);
 
     const std::set<Tag>& default_features_by_direction(
         hb_direction_t dir) const;
