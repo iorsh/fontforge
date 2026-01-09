@@ -38,6 +38,11 @@ class HarfBuzzShaper : public IShaper {
 
     const char* name() const override { return "harfbuzz"; }
 
+    std::vector<MetricsCore> apply_features_core(
+        const std::vector<unichar_t>& ubuf,
+        const std::map<Tag, bool>& feature_map, Tag script, Tag lang,
+        bool vertical);
+
     ShaperOutput apply_features(SplineChar** glyphs,
                                 const std::map<Tag, bool>& feature_map,
                                 Tag script, Tag lang, int pixelsize,

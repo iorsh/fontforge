@@ -270,24 +270,11 @@ std::vector<int> HarfBuzzShaper::compute_width_deltas(
     return width_deltas;
 }
 
-ShaperOutput HarfBuzzShaper::apply_features(
-    SplineChar** glyphs, const std::map<Tag, bool>& feature_map, Tag script,
-    Tag lang, int pixelsize, bool vertical) {
-    std::vector<unichar_t> u_vec;
-    for (size_t len = 0; glyphs[len] != NULL; ++len) {
-        // The logic below is similar to MVFakeUnicodeOfSc()
-        unichar_t unicodeenc = glyphs[len]->unicodeenc;
-        if (unicodeenc == -1) {
-            unicodeenc = (fake_unicode_base_ == -1)
-                             ? 0xffd
-                             : fake_unicode_base_ + glyphs[len]->orig_pos;
-        }
-        u_vec.push_back(unicodeenc);
-    }
-    u_vec.push_back(0);
-
+std::vector<MetricsCore> HarfBuzzShaper::apply_features_core(
+    const std::vector<unichar_t>& ubuf, const std::map<Tag, bool>& feature_map,
+    Tag script, Tag lang, bool vertical) {
     hb_buffer_t* hb_buffer = hb_buffer_create();
-    hb_buffer_add_utf32(hb_buffer, u_vec.data(), -1, 0, -1);
+    hb_buffer_add_utf32(hb_buffer, ubuf.data(), -1, 0, -1);
 
     // Set script and language
     hb_script_t hb_script = hb_ot_tag_to_script(script);
@@ -314,6 +301,44 @@ ShaperOutput HarfBuzzShaper::apply_features(
     std::vector<MetricsCore> metrics = extract_shaped_data(hb_buffer);
     int glyph_count = metrics.size() - 1;
 
+    // Perhaps counterintuitively, when setting RTL direction for RTL
+    // languages, HarfBuzz would reverse the glyph order in the output
+    // buffer. We therefore need to recompute metrics in reverse direction
+    if (rtl) {
+        metrics = reverse_rtl_metrics(metrics);
+    }
+
+    // Reverse vertical metrics from bottom-up direction (HarfBuzz convention)
+    // to top-down (MetricsView convention)
+    if (vertical) {
+        metrics = reverse_ttb_metrics(metrics);
+    }
+
+    // Cleanup
+    hb_buffer_destroy(hb_buffer);
+
+    return metrics;
+}
+
+ShaperOutput HarfBuzzShaper::apply_features(
+    SplineChar** glyphs, const std::map<Tag, bool>& feature_map, Tag script,
+    Tag lang, int pixelsize, bool vertical) {
+    std::vector<unichar_t> u_vec;
+    for (size_t len = 0; glyphs[len] != NULL; ++len) {
+        // The logic below is similar to MVFakeUnicodeOfSc()
+        unichar_t unicodeenc = glyphs[len]->unicodeenc;
+        if (unicodeenc == -1) {
+            unicodeenc = (fake_unicode_base_ == -1)
+                             ? 0xffd
+                             : fake_unicode_base_ + glyphs[len]->orig_pos;
+        }
+        u_vec.push_back(unicodeenc);
+    }
+    u_vec.push_back(0);
+
+    std::vector<MetricsCore> metrics =
+        apply_features_core(u_vec, feature_map, script, lang, vertical);
+
     std::vector<int> width_deltas = compute_width_deltas(metrics);
 
     // glyphs_after_gpos is NULL-terminated thanks to metrics auxiliary data
@@ -321,12 +346,6 @@ ShaperOutput HarfBuzzShaper::apply_features(
     std::transform(metrics.begin(), metrics.end(),
                    std::back_inserter(glyphs_after_gpos),
                    [](const MetricsCore& m) { return m.sc; });
-
-    if (rtl) {
-        // HarfBuzz reverses the order of an RTL output buffer
-        std::reverse(glyphs_after_gpos.begin(), glyphs_after_gpos.end() - 1);
-        std::reverse(width_deltas.begin(), width_deltas.end());
-    }
 
     // Zero-terminated list of features
     std::vector<uint32_t> flist;
@@ -344,24 +363,15 @@ ShaperOutput HarfBuzzShaper::apply_features(
         pixelsize, glyphs_after_gpos.data());
 
     // For simplicity, all characters are marked with the same direction.
+    size_t glyph_count = metrics.size() - 1;  // Ignore auxiliary data
+    hb_script_t hb_script = hb_ot_tag_to_script(script);
+    bool rtl =
+        (hb_script_get_horizontal_direction(hb_script) == HB_DIRECTION_RTL);
     for (int i = 0; i < glyph_count; ++i) {
         ots_arr[i].r2l = rtl;
     }
 
     std::vector<int> kerning_deltas = compute_kerning_deltas(metrics, ots_arr);
-
-    // Perhaps counterintuitively, when setting RTL direction for RTL
-    // languages, HarfBuzz would reverse the glyph order in the output
-    // buffer. We therefore need to recompute metrics in reverse direction
-    if (rtl) {
-        metrics = reverse_rtl_metrics(metrics);
-    }
-
-    // Reverse vertical metrics from bottom-up direction (HarfBuzz convention)
-    // to top-down (MetricsView convention)
-    if (vertical) {
-        metrics = reverse_ttb_metrics(metrics);
-    }
 
     // Compute the accumulated shifts dx for each glyph as partial sums of
     // kerning and width deltas. Adjust glyph widths as appropriate.
@@ -373,9 +383,6 @@ ShaperOutput HarfBuzzShaper::apply_features(
         metrics[i].dx += shift;
         metrics[i].dwidth += width_deltas[i];
     }
-
-    // Cleanup
-    hb_buffer_destroy(hb_buffer);
 
     return {ots_arr, metrics};
 }
