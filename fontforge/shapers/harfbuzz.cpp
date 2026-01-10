@@ -287,7 +287,7 @@ std::vector<int> HarfBuzzShaper::compute_width_deltas(
     return width_deltas;
 }
 
-std::vector<MetricsCore> HarfBuzzShaper::apply_features_core(
+std::vector<MetricsCore> HarfBuzzShaper::apply_features(
     const std::vector<unichar_t>& ubuf, const std::map<Tag, bool>& feature_map,
     Tag script, Tag lang, bool vertical) {
     hb_buffer_t* hb_buffer = hb_buffer_create();
@@ -337,7 +337,7 @@ std::vector<MetricsCore> HarfBuzzShaper::apply_features_core(
     return metrics;
 }
 
-ShaperOutput HarfBuzzShaper::apply_features(
+ShaperOutput HarfBuzzShaper::mv_apply_features(
     SplineChar** glyphs, const std::map<Tag, bool>& feature_map, Tag script,
     Tag lang, int pixelsize, bool vertical) {
     std::vector<unichar_t> u_vec;
@@ -350,7 +350,7 @@ ShaperOutput HarfBuzzShaper::apply_features(
     u_vec.push_back(0);
 
     std::vector<MetricsCore> metrics =
-        apply_features_core(u_vec, feature_map, script, lang, vertical);
+        apply_features(u_vec, feature_map, script, lang, vertical);
 
     std::vector<int> width_deltas = compute_width_deltas(metrics);
 

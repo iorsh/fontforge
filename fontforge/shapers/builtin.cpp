@@ -31,7 +31,13 @@ extern "C" {
 
 namespace ff::shapers {
 
-ShaperOutput BuiltInShaper::apply_features(
+std::vector<MetricsCore> BuiltInShaper::apply_features(
+    const std::vector<unichar_t>& ubuf, const std::map<Tag, bool>& feature_map,
+    Tag script, Tag lang, bool vertical) {
+    return std::vector<MetricsCore>();
+}
+
+ShaperOutput BuiltInShaper::mv_apply_features(
     SplineChar** glyphs, const std::map<Tag, bool>& feature_map, Tag script,
     Tag lang, int pixelsize, bool vertical) {
     // Zero-terminated list of enabled features
