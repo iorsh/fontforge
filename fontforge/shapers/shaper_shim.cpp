@@ -138,8 +138,8 @@ struct shaper_out shaper_apply_features(cpp_IShaper* shaper,
     }
 
     if (shaper) {
-        auto output = ishaper->apply_features(glyphs, feature_map, Tag(script),
-                                              Tag(lang), pixelsize, vertical);
+        auto output = ishaper->mv_apply_features(
+            glyphs, feature_map, Tag(script), Tag(lang), pixelsize, vertical);
         MetricsCore* metrics =
             (MetricsCore*)calloc(output.second.size() + 1, sizeof(MetricsCore));
         memcpy(metrics, output.second.data(),
