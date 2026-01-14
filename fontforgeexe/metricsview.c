@@ -943,13 +943,6 @@ static int16_t MVCharWidth(MetricsView *mv, SplineChar *sc) {
     return bdfc->width;
 }
 
-static MetricsCore* MVGetMetrics(MetricsView *mv, int* p_glyphcnt) {
-    if (p_glyphcnt) {
-	*p_glyphcnt = mv->glyphcnt;
-    }
-    return mv->metrics;
-}
-
 void MVRefreshMetric(MetricsView *mv) {
     double iscale = mv->pixelsize_set_by_window ? 1.0 : mv_scales[mv->scale_index];
     double scale = iscale*mv->pixelsize/(double) (mv->sf->ascent+mv->sf->descent);
@@ -958,7 +951,7 @@ void MVRefreshMetric(MetricsView *mv) {
     for ( cnt=0; mv->glyphs[cnt].sc!=NULL; ++cnt ) {
 	MVRefreshValues(mv,cnt);
     }
-    shaper_scale_metrics(mv->shaper, mv, iscale, scale, mv->vertical);
+    shaper_scale_metrics(mv->shaper, mv, mv->metrics, iscale, scale, mv->vertical);
     MVSetVSb(mv);
     MVSetSb(mv);
 }
@@ -3939,7 +3932,6 @@ static ShaperContext* MVMakeShaperContext(MetricsView *mv) {
     context->apply_ticked_features = ApplyTickedFeatures;
     context->get_enc_map = SFGetMap;
     context->get_char_width = MVCharWidth;
-    context->get_metrics = MVGetMetrics;
     context->get_kern_offset = MVGetKernOffset;
     context->script_is_rtl = ScriptIsRightToLeft;
     context->get_or_make_char = SFGetOrMakeChar;

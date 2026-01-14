@@ -70,9 +70,8 @@ ShaperOutput BuiltInShaper::mv_apply_features(
     return {ots_arr_, metrics};
 }
 
-void BuiltInShaper::scale_metrics(MetricsView* mv, double iscale, double scale,
-                                  bool vertical) {
-    MetricsCore* metrics = context_->get_metrics(mv, NULL);
+void BuiltInShaper::scale_metrics(MetricsView* mv, MetricsCore* metrics,
+                                  double iscale, double scale, bool vertical) {
     // Calculate positions.
     int x = 10;
     int y = 10;

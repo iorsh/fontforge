@@ -64,9 +64,6 @@ typedef struct shaper_context {
     // Case-specific glyph width computation, not to be used in general case.
     int16_t (*get_char_width)(MetricsView* mv, SplineChar* sc);
 
-    // Accessor for MetricsView::metrics
-    MetricsCore* (*get_metrics)(MetricsView* mv, int* p_glyphcnt);
-
     // Retrieve current kerning value from glyph data
     int (*get_kern_offset)(struct opentype_str* glyph);
 
@@ -126,8 +123,9 @@ struct shaper_out shaper_apply_features(cpp_IShaper* shaper,
                                         uint32_t lang, int pixelsize,
                                         bool vertical);
 
-void shaper_scale_metrics(cpp_IShaper* shaper, MetricsView* mv, double iscale,
-                          double scale, bool vertical);
+void shaper_scale_metrics(cpp_IShaper* shaper, MetricsView* mv,
+                          MetricsCore* metrics, double iscale, double scale,
+                          bool vertical);
 
 uint32_t* shaper_default_features(cpp_IShaper* shaper, uint32_t script,
                                   uint32_t lang, bool vertical);

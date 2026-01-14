@@ -400,12 +400,11 @@ ShaperOutput HarfBuzzShaper::mv_apply_features(
     return {ots_arr, metrics};
 }
 
-void HarfBuzzShaper::scale_metrics(MetricsView* mv, double iscale, double scale,
-                                   bool vertical) {
+void HarfBuzzShaper::scale_metrics(MetricsView* mv, MetricsCore* metrics,
+                                   double iscale, double scale, bool vertical) {
     int glyphcnt = 0;
-    MetricsCore* metrics = context_->get_metrics(mv, &glyphcnt);
     int x0 = 10, y0 = 10;
-    for (int i = 0; i < glyphcnt; ++i) {
+    for (int i = 0; metrics[i].sc != NULL; ++i) {
         MetricsCore& m = metrics[i];
         assert(!m.scaled);
         m.dx = x0 + m.dx * scale;

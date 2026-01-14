@@ -64,8 +64,8 @@ class IShaper {
         Tag lang, int pixelsize, bool vertical) = 0;
 
     // Scale glyph sequence metrics from font units to pixels
-    virtual void scale_metrics(MetricsView* mv, double iscale, double scale,
-                               bool vertical) = 0;
+    virtual void scale_metrics(MetricsView* mv, MetricsCore* metrics,
+                               double iscale, double scale, bool vertical) = 0;
 
     // OpenType features enabled by default
     virtual std::set<Tag> default_features(Tag script, Tag lang,
