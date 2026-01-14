@@ -47,8 +47,8 @@ class BuiltInShaper : public IShaper {
                                    Tag script, Tag lang, int pixelsize,
                                    bool vertical) override;
 
-    void scale_metrics(MetricsView* mv, double iscale, double scale,
-                       bool vertical) override;
+    void scale_metrics(MetricsView* mv, MetricsCore* metrics, double iscale,
+                       double scale, bool vertical) override;
 
     std::set<Tag> default_features(Tag script, Tag lang,
                                    bool vertical) const override;

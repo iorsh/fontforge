@@ -150,10 +150,11 @@ struct shaper_out shaper_apply_features(cpp_IShaper* shaper,
     }
 }
 
-void shaper_scale_metrics(cpp_IShaper* shaper, MetricsView* mv, double iscale,
-                          double scale, bool vertical) {
+void shaper_scale_metrics(cpp_IShaper* shaper, MetricsView* mv,
+                          MetricsCore* metrics, double iscale, double scale,
+                          bool vertical) {
     ff::shapers::IShaper* ishaper = toCPP(shaper);
-    ishaper->scale_metrics(mv, iscale, scale, vertical);
+    ishaper->scale_metrics(mv, metrics, iscale, scale, vertical);
 }
 
 uint32_t* shaper_default_features(cpp_IShaper* shaper, uint32_t script,
