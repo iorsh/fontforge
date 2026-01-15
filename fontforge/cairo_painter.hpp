@@ -52,7 +52,11 @@ cpp_SplineFontProperties* make_SplineFontProperties(int ascent, int descent,
 
 #include <iostream>
 #include <map>
+#include <memory>
 #include <cairomm/context.h>
+
+#include "shapers/i_shaper.hpp"
+#include "shapers/shaper_shim.hpp"
 
 namespace ff::utils {
 
@@ -81,6 +85,8 @@ struct SplineFontProperties {
 struct CairoFontRec {
     SplineFontProperties props;
     Cairo::RefPtr<Cairo::FtFontFace> face;
+    std::shared_ptr<shapers::IShaper> shaper;
+    std::map<Tag, bool> features;
 };
 
 // Several fonts comprising a family. By convention, the first element is the
@@ -246,7 +252,8 @@ class CairoPainter {
 };
 
 Cairo::RefPtr<Cairo::FtFontFace> create_cairo_face(SplineFont* sf);
-CairoFontFamily create_cairo_family(SplineFont* current_sf);
+CairoFontFamily create_cairo_family(SplineFont* current_sf, Tag script,
+                                    Tag lang);
 std::pair<std::string /*tag*/, std::string /*value*/> parse_tag(
     const std::string& complete_tag);
 ParsedRichText parse_xml_stream(std::istream& input);
