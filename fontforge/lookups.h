@@ -1,10 +1,19 @@
 #ifndef FONTFORGE_LOOKUPS_H
 #define FONTFORGE_LOOKUPS_H
 
-#include "splinefont.h"
 #include "uiinterface.h"
+#include "splinechar.h"
 
 typedef struct cpp_SubtableMap cpp_SubtableMap;
+typedef struct splinefont SplineFont;
+typedef struct otlookup OTLookup;
+typedef struct featurescriptlanglist FeatureScriptLangList;
+typedef struct generic_fpst FPST;
+struct fpst_rule;
+struct scriptlanglist;
+typedef struct anchorclass AnchorClass;
+typedef struct kernclass KernClass;
+struct lookup_subtable;
 
 struct sllk {
 	uint32_t script;
@@ -93,7 +102,7 @@ extern void NameOTLookup(OTLookup *otl, SplineFont *sf);
 extern void OTLookupsCopyInto(SplineFont *into_sf, SplineFont *from_sf, OTLookup **from_list, OTLookup *before);
 extern void SFFindClearUnusedLookupBits(SplineFont *sf);
 extern void SFFindUnusedLookups(SplineFont *sf);
-extern void SFGlyphRenameFixup(SplineFont *sf, const char *old, const char *new, int rename_related_glyphs);
+extern void SFGlyphRenameFixup(SplineFont *sf, const char *old_name, const char *new_name, int rename_related_glyphs);
 extern void SFRemoveLookup(SplineFont *sf, OTLookup *otl, int remove_acs);
 extern void SFRemoveLookupSubTable(SplineFont *sf, struct lookup_subtable *sub, int remove_acs);
 extern void SFRemoveUnusedLookupSubTables(SplineFont *sf, int remove_incomplete_anchorclasses, int remove_unused_lookups);

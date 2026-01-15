@@ -444,7 +444,7 @@ struct fv_interface {
 
    /* When we revert a font we need to change the alegence of all outline */
    /*  glyph windows to the new value of the font */
-    void (*reattach_cvs)(struct splinefont *old, struct splinefont *new);
+    void (*reattach_cvs)(struct splinefont *sf_old, struct splinefont *sf_new);
 
    /* deselect any selected glyphs */
     void (*deselect_all)(struct fontviewbase *);
