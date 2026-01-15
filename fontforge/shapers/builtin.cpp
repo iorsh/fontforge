@@ -34,7 +34,18 @@ namespace ff::shapers {
 std::vector<MetricsCore> BuiltInShaper::apply_features(
     const std::vector<unichar_t>& ubuf, const std::map<Tag, bool>& feature_map,
     Tag script, Tag lang, bool vertical) {
-    return std::vector<MetricsCore>();
+    std::vector<SplineChar*> glyphs;
+
+    // ubuf is zero-terminated, ignore its last zero element.
+    for (unichar_t u : ubuf) {
+        if (u != 0)
+            glyphs.push_back(context_->get_or_make_char(context_->sf, u, NULL));
+    }
+    glyphs.push_back(NULL);  // NULL-terminated array
+    ShaperOutput shaper_output = mv_apply_features(glyphs.data(), feature_map,
+                                                   script, lang, 0, vertical);
+    scale_metrics(NULL, shaper_output.second.data(), 1.0, 1.0, vertical);
+    return shaper_output.second;
 }
 
 ShaperOutput BuiltInShaper::mv_apply_features(
@@ -78,8 +89,9 @@ void BuiltInShaper::scale_metrics(MetricsView* mv, MetricsCore* metrics,
     for (int i = 0; ots_arr_[i].sc != NULL; ++i) {
         assert(!metrics[i].scaled);
         SplineChar* sc = metrics[i].sc = ots_arr_[i].sc;
-        metrics[i].codepoint = INVALID_CODEPOINT;  // Not applicable
-        metrics[i].dwidth = rint(iscale * context_->get_char_width(mv, sc));
+        metrics[i].codepoint = sc->ttf_glyph;
+        int16_t width = mv ? context_->get_char_width(mv, sc) : sc->width;
+        metrics[i].dwidth = rint(iscale * width);
         metrics[i].dx = x;
         metrics[i].xoff = rint(iscale * ots_arr_[i].vr.xoff);
         metrics[i].yoff = rint(iscale * ots_arr_[i].vr.yoff);
