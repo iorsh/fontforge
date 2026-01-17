@@ -6237,6 +6237,15 @@ return( 0 );
 return( ret );
 }
 
+/* A special version of TrueType font, which has all glyphs encoded and drops
+ * outline for performance. */
+int WriteTTFFontForShaper(FILE* ttf, SplineFont* sf) {
+    return _WriteTTFFont(
+        ttf, sf, ff_ttf, NULL, bf_ttf,
+        ttf_flag_otmode | ttf_flag_no_outlines, sf->map,
+        ly_fore);
+}
+
 /* ************************************************************************** */
 /* ****************************** Type42 stuff ****************************** */
 /* ************************************************************************** */

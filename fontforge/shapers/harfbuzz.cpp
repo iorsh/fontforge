@@ -31,7 +31,6 @@
 extern "C" {
 #include "gfile.h"
 #include "splinechar.h"
-#include "splinefont_enums.h"
 }
 
 namespace ff::shapers {
@@ -52,9 +51,7 @@ HarfBuzzShaper::HarfBuzzShaper(std::shared_ptr<ShaperContext> context)
     : context_(context) {
     FILE* ttf_file = GFileTmpfile();
 
-    _WriteTTFFont(ttf_file, context_->sf, ff_ttf, NULL, bf_ttf,
-                  ttf_flag_otmode | ttf_flag_no_outlines,
-                  context_->get_enc_map(context_->sf), ly_fore);
+    WriteTTFFontForShaper(ttf_file, context_->sf);
 
     // Build map of TTF codepoints
     SplineCharTTFMap* ttf_map = MakeGlyphTTFMap(context_->sf);

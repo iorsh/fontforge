@@ -41,9 +41,7 @@ static const int INVALID_KERN_OFFSET = 0x7ffffff;
 static const int FAKE_UNICODE_BASE = 0x110000;
 
 char* u2utf8_copy(const unichar_t* ubuf);
-int _WriteTTFFont(FILE* ttf, SplineFont* sf, int /*enum fontformat*/ format,
-                  int32_t* bsizes, int /*enum bitmapformat*/ bf, int flags,
-                  EncMap* enc, int layer);
+int WriteTTFFontForShaper(FILE* ttf, SplineFont* sf);
 extern SplineCharTTFMap* MakeGlyphTTFMap(SplineFont* sf);
 
 /* Dummy incomplete type which can be casted to C++ type ff::shapers::IShaper */
@@ -57,9 +55,6 @@ typedef struct shaper_context {
     struct opentype_str* (*apply_ticked_features)(
         SplineFont* sf, uint32_t* flist, uint32_t script, uint32_t lang,
         bool gpos_only, int pixelsize, SplineChar** glyphs);
-
-    // Get encoding map
-    EncMap* (*get_enc_map)(SplineFont* sf);
 
     // Case-specific glyph width computation, not to be used in general case.
     int16_t (*get_char_width)(MetricsView* mv, SplineChar* sc);
