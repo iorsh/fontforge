@@ -41,7 +41,6 @@ extern "C" {
 
 extern SplineFont** SFCollectFamily(SplineFont* sf);
 extern int SFFakeUnicodeBase(SplineFont* sf);
-extern EncMap* SFGetMap(SplineFont* sf);
 extern int ScriptIsRightToLeft(uint32_t script);
 extern SplineChar* SFGetOrMakeChar(SplineFont* sf, int unienc,
                                    const char* name);
@@ -947,7 +946,6 @@ std::shared_ptr<ShaperContext> make_shaper_context(SplineFont* sf) {
     context->sf = sf;
     context->apply_ticked_features = dummy_apply_ticked_features;
     context->fake_unicode_base = SFFakeUnicodeBase;
-    context->get_enc_map = SFGetMap;
     context->get_char_width = nullptr;
     context->get_kern_offset = dummy_get_kern_offset;
     context->script_is_rtl = ScriptIsRightToLeft;

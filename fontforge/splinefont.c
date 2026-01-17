@@ -391,10 +391,6 @@ void SplineFontSetUnChanged(SplineFont *sf) {
 	    _SplineFontSetUnChanged(sf->mm->instances[i]);
 }
 
-EncMap* SFGetMap(SplineFont *sf) {
-    return sf->map;
-}
-
 char* SFGetFullName(SplineFont *sf) {
     return sf->fullname;
 }

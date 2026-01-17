@@ -40,9 +40,7 @@ typedef struct encmap EncMap;
 static int INVALID_KERN_OFFSET = 0x7ffffff;
 
 char* u2utf8_copy(const unichar_t* ubuf);
-int _WriteTTFFont(FILE* ttf, SplineFont* sf, int /*enum fontformat*/ format,
-                  int32_t* bsizes, int /*enum bitmapformat*/ bf, int flags,
-                  EncMap* enc, int layer);
+int WriteTTFFontForShaper(FILE* ttf, SplineFont* sf);
 extern SplineCharTTFMap* MakeGlyphTTFMap(SplineFont* sf);
 
 /* Dummy incomplete type which can be casted to C++ type ff::shapers::IShaper */
@@ -58,9 +56,6 @@ typedef struct shaper_context {
 
     // Map glyphs without unicode value to a private area
     int (*fake_unicode_base)(SplineFont* sf);
-
-    // Get encoding map
-    EncMap* (*get_enc_map)(SplineFont* sf);
 
     // Case-specific glyph width computation, not to be used in general case.
     int16_t (*get_char_width)(MetricsView* mv, SplineChar* sc);
