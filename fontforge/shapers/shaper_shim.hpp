@@ -56,8 +56,10 @@ typedef struct shaper_context {
         SplineFont* sf, uint32_t* flist, uint32_t script, uint32_t lang,
         bool gpos_only, int pixelsize, SplineChar** glyphs);
 
-    // Case-specific glyph width computation, not to be used in general case.
-    int16_t (*get_char_width)(MetricsView* mv, SplineChar* sc);
+    // Glyph metrics callback, optional for HarfBuzz. May accept mv=NULL, and in
+    // that case plain SplineChar metrics are retrieved.
+    void (*get_char_metrics)(MetricsView* mv, SplineChar* sc, int16_t* width,
+                             int16_t* vwidth);
 
     // Retrieve current kerning value from glyph data
     int (*get_kern_offset)(struct opentype_str* glyph);

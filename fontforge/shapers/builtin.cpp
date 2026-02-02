@@ -89,8 +89,9 @@ void BuiltInShaper::scale_metrics(MetricsView* mv, MetricsCore* metrics,
     for (int i = 0; ots_arr_[i].sc != NULL; ++i) {
         assert(!metrics[i].scaled);
         SplineChar* sc = metrics[i].sc = ots_arr_[i].sc;
+        int16_t width, vwidth;
         metrics[i].codepoint = sc->ttf_glyph;
-        int16_t width = mv ? context_->get_char_width(mv, sc) : sc->width;
+        context_->get_char_metrics(mv, sc, &width, &vwidth);
         metrics[i].dwidth = rint(iscale * width);
         metrics[i].dx = x;
         metrics[i].xoff = rint(iscale * ots_arr_[i].vr.xoff);
@@ -98,7 +99,7 @@ void BuiltInShaper::scale_metrics(MetricsView* mv, MetricsCore* metrics,
         metrics[i].kernafter = rint(iscale * ots_arr_[i].vr.h_adv_off);
         x += metrics[i].dwidth + metrics[i].kernafter;
 
-        metrics[i].dheight = rint(sc->vwidth * scale);
+        metrics[i].dheight = rint(vwidth * scale);
         metrics[i].dy = y;
         if (vertical) {
             metrics[i].kernafter = rint(iscale * ots_arr_[i].vr.v_adv_off);

@@ -149,13 +149,15 @@ std::vector<MetricsCore> HarfBuzzShaper::extract_shaped_data(
         SplineChar* glyph_out = (ttf_map_it != ttf_map_.end())
                                     ? ttf_map_it->second
                                     : get_notdef_glyph();
+        int16_t width, vwidth;
+        context_->get_char_metrics(NULL, glyph_out, &width, &vwidth);
 
         metrics[i].sc = glyph_out;
         metrics[i].codepoint = glyph_info.codepoint;
 
         // Fill unscaled metrics in font units
-        metrics[i].dwidth = glyph_out->width;
-        metrics[i].dheight = glyph_out->vwidth;
+        metrics[i].dwidth = width;
+        metrics[i].dheight = vwidth;
 
         metrics[i].xoff = glyph_pos.x_offset;
         metrics[i].yoff = glyph_pos.y_offset;

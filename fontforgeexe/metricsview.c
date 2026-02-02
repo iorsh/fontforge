@@ -938,9 +938,19 @@ static void MVCreateFields(MetricsView *mv,int i) {
 static void MVSetSb(MetricsView *mv);
 static int MVSetVSb(MetricsView *mv);
 
-static int16_t MVCharWidth(MetricsView *mv, SplineChar *sc) {
-    BDFChar * bdfc = mv->bdf!=NULL ? mv->bdf->glyphs[sc->orig_pos] : BDFPieceMealCheck(mv->show,sc->orig_pos);
-    return bdfc->width;
+static void MVCharMetrics(MetricsView* mv, SplineChar* sc, int16_t* width,
+                          int16_t* vwidth) {
+    if (width) {
+        if (mv) {
+            BDFChar* bdfc = mv->bdf != NULL
+                                ? mv->bdf->glyphs[sc->orig_pos]
+                                : BDFPieceMealCheck(mv->show, sc->orig_pos);
+            *width = bdfc->width;
+        } else
+            *width = sc->width;
+    }
+
+    if (vwidth) *vwidth = sc->vwidth;
 }
 
 void MVRefreshMetric(MetricsView *mv) {
@@ -3930,7 +3940,7 @@ static ShaperContext* MVMakeShaperContext(MetricsView *mv) {
     context->sf = mv->sf;
     context->mv = mv;
     context->apply_ticked_features = ApplyTickedFeatures;
-    context->get_char_width = MVCharWidth;
+    context->get_char_metrics = MVCharMetrics;
     context->get_kern_offset = MVGetKernOffset;
     context->script_is_rtl = ScriptIsRightToLeft;
     context->get_or_make_char = SFGetOrMakeChar;
