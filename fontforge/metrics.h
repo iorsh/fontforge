@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef struct splinechar SplineChar;
@@ -48,3 +49,8 @@ typedef struct metrics_core {
 } MetricsCore;
 
 #define INVALID_CODEPOINT (uint32_t)(-1)
+
+typedef struct splinechar_ttf_map {
+    SplineChar* glyph;
+    int ttf_glyph;
+} SplineCharTTFMap;

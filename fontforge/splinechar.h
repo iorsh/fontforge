@@ -725,11 +725,6 @@ struct opentype_str {
     int16_t bsln_off;
 };
 
-typedef struct splinechar_ttf_map {
-    SplineChar* glyph;
-    int ttf_glyph;
-} SplineCharTTFMap;
-
 /* Returns NULL if the name is valid, or error message. If the function returned
    error message and set `questionable` to true, the name should be accepted,
    but discouraged. The error message should not be freed. */

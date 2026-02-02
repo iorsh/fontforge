@@ -1,6 +1,7 @@
 #ifndef FONTFORGE_TOTTF_H
 #define FONTFORGE_TOTTF_H
 
+#include "metrics.h"
 #include "splinefont.h"
 #include "ttf.h"
 
