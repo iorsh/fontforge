@@ -43,6 +43,8 @@ static const int FAKE_UNICODE_BASE = 0x110000;
 char* u2utf8_copy(const unichar_t* ubuf);
 int WriteTTFFontForShaper(FILE* ttf, SplineFont* sf);
 extern SplineCharTTFMap* MakeGlyphTTFMap(SplineFont* sf);
+const char* SCGetName(const SplineChar* sc);
+void SCGetEncoding(const SplineChar* sc, int* p_unicodeenc, int* p_ttf_glyph);
 
 /* Dummy incomplete type which can be casted to C++ type ff::shapers::IShaper */
 typedef struct cpp_IShaper cpp_IShaper;

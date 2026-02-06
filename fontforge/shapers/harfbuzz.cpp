@@ -30,9 +30,6 @@
 
 extern "C" {
 #include "gfile.h"
-
-const char* SCGetName(const SplineChar* sc);
-void SCGetEncoding(const SplineChar* sc, int* p_unicodeenc, int* p_ttf_glyph);
 }
 
 namespace ff::shapers {

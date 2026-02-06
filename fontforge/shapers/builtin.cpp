@@ -25,10 +25,6 @@
 #include <assert.h>
 #include <math.h>
 
-extern "C" {
-void SCGetEncoding(const SplineChar* sc, int* p_unicodeenc, int* p_ttf_glyph);
-}
-
 namespace ff::shapers {
 
 std::vector<MetricsCore> BuiltInShaper::apply_features(
