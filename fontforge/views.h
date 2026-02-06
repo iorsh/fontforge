@@ -39,7 +39,6 @@
 #include "ggadget.h"
 #include "multidialog.h"
 #include "search.h"
-#include "metrics.h"
 
 struct gfi_data;
 struct contextchaindlg;

@@ -92,7 +92,6 @@ set(FONTFORGE_INST_HEADERS
   groups.h
   lookups.h
   mem.h
-  metrics.h
   mm.h
   namehash.h
   nonlineartrans.h
@@ -244,6 +243,7 @@ target_include_directories(fontforge PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(fontforge
   PUBLIC
     fontforge_common_headers
+    shapers
     Freetype::Freetype
     LibXml2::LibXml2
     GLIB::GLIB

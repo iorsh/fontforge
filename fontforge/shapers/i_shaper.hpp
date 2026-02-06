@@ -27,13 +27,13 @@
 #include <vector>
 
 #include "metrics.h"
+#include "opentype_str.h"
 #include "tag.hpp"
 
 typedef uint32_t unichar_t;
 
 typedef struct splinechar SplineChar;
 typedef struct metricsview MetricsView;
-struct opentype_str;
 
 namespace ff::shapers {
 

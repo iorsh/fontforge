@@ -1,9 +1,9 @@
 #ifndef FONTFORGE_TOTTF_H
 #define FONTFORGE_TOTTF_H
 
-#include "metrics.h"
 #include "splinefont.h"
 #include "ttf.h"
+#include "shapers/metrics.h"
 
 extern char *utf8_verify_copy(const char *str);
 extern int32_t filechecksum(FILE *file);

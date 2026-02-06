@@ -30,7 +30,9 @@
 
 extern "C" {
 #include "gfile.h"
-#include "splinechar.h"
+
+const char* SCGetName(const SplineChar* sc);
+void SCGetEncoding(const SplineChar* sc, int* p_unicodeenc, int* p_ttf_glyph);
 }
 
 namespace ff::shapers {
@@ -342,9 +344,10 @@ ShaperOutput HarfBuzzShaper::mv_apply_features(
     std::vector<unichar_t> u_vec;
     // Assigned fake encodings will be interpreted by resolve_fake_encoding().
     for (size_t len = 0; glyphs[len] != NULL; ++len) {
-        u_vec.push_back((glyphs[len]->unicodeenc > 0)
-                            ? glyphs[len]->unicodeenc
-                            : (glyphs[len]->ttf_glyph + FAKE_UNICODE_BASE));
+        int unicodeenc = -1, ttf_glyph = -1;
+        SCGetEncoding(glyphs[len], &unicodeenc, &ttf_glyph);
+        u_vec.push_back((unicodeenc > 0) ? unicodeenc
+                                         : (ttf_glyph + FAKE_UNICODE_BASE));
     }
     u_vec.push_back(0);
 
@@ -602,7 +605,7 @@ SplineChar* HarfBuzzShaper::get_notdef_glyph() {
         "uni000D", "glyph1", "glyph2"};
     for (const std::string& name : notdef_names) {
         for (const auto& [idx, sc] : ttf_map_) {
-            if (name == sc->name) {
+            if (name == SCGetName(sc)) {
                 notdef_glyph_ = sc;
                 return notdef_glyph_;
             }

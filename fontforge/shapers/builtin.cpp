@@ -26,7 +26,7 @@
 #include <math.h>
 
 extern "C" {
-#include "splinechar.h"
+void SCGetEncoding(const SplineChar* sc, int* p_unicodeenc, int* p_ttf_glyph);
 }
 
 namespace ff::shapers {
@@ -90,7 +90,11 @@ void BuiltInShaper::scale_metrics(MetricsView* mv, MetricsCore* metrics,
         assert(!metrics[i].scaled);
         SplineChar* sc = metrics[i].sc = ots_arr_[i].sc;
         int16_t width, vwidth;
-        metrics[i].codepoint = sc->ttf_glyph;
+        int ttf_glyph = -1;
+
+        SCGetEncoding(sc, NULL, &ttf_glyph);
+        metrics[i].codepoint = ttf_glyph;
+
         context_->get_char_metrics(mv, sc, &width, &vwidth);
         metrics[i].dwidth = rint(iscale * width);
         metrics[i].dx = x;
