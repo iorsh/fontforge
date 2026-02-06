@@ -6152,7 +6152,6 @@ int _WriteTTFFont(FILE *ttf,SplineFont *sf,enum fontformat format,
 	int32_t *bsizes, enum bitmapformat bf,int flags,EncMap *map, int layer) {
     struct alltabs at;
     int i, anyglyphs;
-    bool *fake_mappings = NULL;
 
     short_too_long_warned = 0; // This is a static variable defined for putshort.
     /* TrueType probably doesn't need this, but OpenType does for floats in dictionaries */
@@ -6237,13 +6236,12 @@ return( 0 );
 return( ret );
 }
 
-/* A special version of TrueType font, which has all glyphs encoded and drops
- * outline for performance. */
+/* A special version of TrueType font, which drops all outlines for performance.
+ */
 int WriteTTFFontForShaper(FILE* ttf, SplineFont* sf) {
-    return _WriteTTFFont(
-        ttf, sf, ff_ttf, NULL, bf_ttf,
-        ttf_flag_otmode | ttf_flag_no_outlines, sf->map,
-        ly_fore);
+    return _WriteTTFFont(ttf, sf, ff_ttf, NULL, bf_ttf,
+                         ttf_flag_otmode | ttf_flag_no_outlines, sf->map,
+                         ly_fore);
 }
 
 /* ************************************************************************** */
