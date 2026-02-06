@@ -30,6 +30,7 @@ extern "C" {
 
 #include "basics.h"
 #include "metrics.h"
+#include "ustring.h"
 
 typedef struct splinechar SplineChar;
 typedef struct splinechar_ttf_map SplineCharTTFMap;
@@ -40,7 +41,6 @@ typedef struct encmap EncMap;
 static const int INVALID_KERN_OFFSET = 0x7ffffff;
 static const int FAKE_UNICODE_BASE = 0x110000;
 
-char* u2utf8_copy(const unichar_t* ubuf);
 int WriteTTFFontForShaper(FILE* ttf, SplineFont* sf);
 extern SplineCharTTFMap* MakeGlyphTTFMap(SplineFont* sf);
 const char* SCGetName(const SplineChar* sc);
