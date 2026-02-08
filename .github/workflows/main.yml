@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ master, releases/**, move_shapers ]
+    branches: [ master, releases/** ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
