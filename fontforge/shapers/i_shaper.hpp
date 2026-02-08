@@ -59,6 +59,9 @@ class IShaper {
     // NOTE: the glyph sequence can't be passed as a Unicode string, since some
     // glyphs don't have encoding at all, and the shaper should still be able to
     // apply features which involve these glyphs.
+    //
+    // TODO(iorsh): eliminate the reliance on SplineChar structure when
+    // modernizing the Metrics View.
     virtual ShaperOutput mv_apply_features(
         SplineChar** glyphs, const std::map<Tag, bool>& feature_map, Tag script,
         Tag lang, int pixelsize, bool vertical) = 0;
