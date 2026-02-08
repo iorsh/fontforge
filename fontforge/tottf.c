@@ -6000,7 +6000,7 @@ static void dumpttf(FILE *ttf,struct alltabs *at) {
     /* ttfcopyfile closed all the files (except ttf) */
 }
 
-SplineCharTTFMap* MakeGlyphTTFMap(SplineFont *sf) {
+static SplineCharTTFMap* MakeGlyphTTFMap(SplineFont *sf) {
     int i,k,max, map_idx;
     SplineChar *sc;
     SplineCharTTFMap *map = NULL;
@@ -6238,10 +6238,11 @@ return( ret );
 
 /* A special version of TrueType font, which drops all outlines for performance.
  */
-int WriteTTFFontForShaper(FILE* ttf, SplineFont* sf) {
-    return _WriteTTFFont(ttf, sf, ff_ttf, NULL, bf_ttf,
-                         ttf_flag_otmode | ttf_flag_no_outlines, sf->map,
-                         ly_fore);
+SplineCharTTFMap* WriteTTFFontForShaper(FILE* ttf, SplineFont* sf) {
+    _WriteTTFFont(ttf, sf, ff_ttf, NULL, bf_ttf,
+                  ttf_flag_otmode | ttf_flag_no_outlines, sf->map, ly_fore);
+    // Build map of TTF codepoints
+    return MakeGlyphTTFMap(sf);
 }
 
 /* ************************************************************************** */

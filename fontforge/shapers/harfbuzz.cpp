@@ -50,10 +50,8 @@ HarfBuzzShaper::HarfBuzzShaper(std::shared_ptr<ShaperContext> context)
     : context_(context) {
     FILE* ttf_file = GFileTmpfile();
 
-    WriteTTFFontForShaper(ttf_file, context_->sf);
+    SplineCharTTFMap* ttf_map = WriteTTFFontForShaper(ttf_file, context_->sf);
 
-    // Build map of TTF codepoints
-    SplineCharTTFMap* ttf_map = MakeGlyphTTFMap(context_->sf);
     for (SplineCharTTFMap* entry = ttf_map; entry->glyph != NULL; ++entry) {
         ttf_map_[entry->ttf_glyph] = entry->glyph;
     }

@@ -41,8 +41,7 @@ typedef struct encmap EncMap;
 static const int INVALID_KERN_OFFSET = 0x7ffffff;
 static const int FAKE_UNICODE_BASE = 0x110000;
 
-int WriteTTFFontForShaper(FILE* ttf, SplineFont* sf);
-extern SplineCharTTFMap* MakeGlyphTTFMap(SplineFont* sf);
+SplineCharTTFMap* WriteTTFFontForShaper(FILE* ttf, SplineFont* sf);
 const char* SCGetName(const SplineChar* sc);
 void SCGetEncoding(const SplineChar* sc, int* p_unicodeenc, int* p_ttf_glyph);
 
