@@ -41,10 +41,6 @@ typedef struct encmap EncMap;
 static const int INVALID_KERN_OFFSET = 0x7ffffff;
 static const int FAKE_UNICODE_BASE = 0x110000;
 
-SplineCharTTFMap* WriteTTFFontForShaper(FILE* ttf, SplineFont* sf);
-const char* SCGetName(const SplineChar* sc);
-void SCGetEncoding(const SplineChar* sc, int* p_unicodeenc, int* p_ttf_glyph);
-
 /* Dummy incomplete type which can be casted to C++ type ff::shapers::IShaper */
 typedef struct cpp_IShaper cpp_IShaper;
 
@@ -72,6 +68,16 @@ typedef struct shaper_context {
     // absent and necessary
     SplineChar* (*get_or_make_char)(SplineFont* sf, int unienc,
                                     const char* name);
+
+    // Create a binary blob with font data, return its encoding map
+    SplineCharTTFMap* (*write_font_into_memory)(FILE* ttf, SplineFont* sf);
+
+    // SplineChar::name accessor
+    const char* (*get_name)(const SplineChar* sc);
+
+    // SplineChar::unicodeenc, SplineChar::ttf_glyph accessor
+    void (*get_encoding)(const SplineChar* sc, int* p_unicodeenc,
+                         int* p_ttf_glyph);
 
 } ShaperContext;
 

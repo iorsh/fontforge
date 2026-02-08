@@ -88,7 +88,7 @@ void BuiltInShaper::scale_metrics(MetricsView* mv, MetricsCore* metrics,
         int16_t width, vwidth;
         int ttf_glyph = -1;
 
-        SCGetEncoding(sc, NULL, &ttf_glyph);
+        context_->get_encoding(sc, NULL, &ttf_glyph);
         metrics[i].codepoint = ttf_glyph;
 
         context_->get_char_metrics(mv, sc, &width, &vwidth);

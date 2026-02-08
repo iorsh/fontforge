@@ -45,6 +45,7 @@
 #include "splineoverlap.h"
 #include "splineutil.h"
 #include "splineutil2.h"
+#include "tottf.h"
 #include "tottfgpos.h"
 #include "ustring.h"
 #include "utype.h"
@@ -3935,8 +3936,8 @@ static void ellistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     }
 }
 
-static ShaperContext* MVMakeShaperContext(MetricsView *mv) {
-    ShaperContext *context = calloc(1,sizeof(ShaperContext));
+static ShaperContext* MVMakeShaperContext(MetricsView* mv) {
+    ShaperContext* context = calloc(1, sizeof(ShaperContext));
     context->sf = mv->sf;
     context->mv = mv;
     context->apply_ticked_features = ApplyTickedFeatures;
@@ -3944,6 +3945,9 @@ static ShaperContext* MVMakeShaperContext(MetricsView *mv) {
     context->get_kern_offset = MVGetKernOffset;
     context->script_is_rtl = ScriptIsRightToLeft;
     context->get_or_make_char = SFGetOrMakeChar;
+    context->write_font_into_memory = WriteTTFFontForShaper;
+    context->get_name = SCGetName;
+    context->get_encoding = SCGetEncoding;
 
     return context;
 }

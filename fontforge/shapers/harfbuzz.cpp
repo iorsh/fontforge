@@ -50,7 +50,8 @@ HarfBuzzShaper::HarfBuzzShaper(std::shared_ptr<ShaperContext> context)
     : context_(context) {
     FILE* ttf_file = GFileTmpfile();
 
-    SplineCharTTFMap* ttf_map = WriteTTFFontForShaper(ttf_file, context_->sf);
+    SplineCharTTFMap* ttf_map =
+        context_->write_font_into_memory(ttf_file, context_->sf);
 
     for (SplineCharTTFMap* entry = ttf_map; entry->glyph != NULL; ++entry) {
         ttf_map_[entry->ttf_glyph] = entry->glyph;
@@ -340,7 +341,7 @@ ShaperOutput HarfBuzzShaper::mv_apply_features(
     // Assigned fake encodings will be interpreted by resolve_fake_encoding().
     for (size_t len = 0; glyphs[len] != NULL; ++len) {
         int unicodeenc = -1, ttf_glyph = -1;
-        SCGetEncoding(glyphs[len], &unicodeenc, &ttf_glyph);
+        context_->get_encoding(glyphs[len], &unicodeenc, &ttf_glyph);
         u_vec.push_back((unicodeenc > 0) ? unicodeenc
                                          : (ttf_glyph + FAKE_UNICODE_BASE));
     }
@@ -600,7 +601,7 @@ SplineChar* HarfBuzzShaper::get_notdef_glyph() {
         "uni000D", "glyph1", "glyph2"};
     for (const std::string& name : notdef_names) {
         for (const auto& [idx, sc] : ttf_map_) {
-            if (name == SCGetName(sc)) {
+            if (name == context_->get_name(sc)) {
                 notdef_glyph_ = sc;
                 return notdef_glyph_;
             }
