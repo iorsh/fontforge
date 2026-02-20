@@ -7692,7 +7692,7 @@ void* KFFontViewInits(struct kf_dlg *kf,GGadget *drawable) {
     fv_context2->scroll_fontview_to_position_cb = FVScrollToPos;
     fv_context2->tooltip_message_cb = FVTooltipMessage;
 
-    cg_dlg = create_kerning_format_dlg(NULL, &fv_context1, &fv_context2, pos.width, pos.height);
+    cg_dlg = create_kerning_format_dlg(kf->sf->fontinfo->gw, &fv_context1, &fv_context2, pos.width, pos.height);
     kf->first_fv->cg_widget = get_char_grid_widget(cg_dlg, 0);
     kf->second_fv->cg_widget = get_char_grid_widget(cg_dlg, 1);
 
