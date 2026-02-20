@@ -1,6 +1,7 @@
 # Distributed under the original FontForge BSD 3-clause license
 
 cmake_minimum_required(VERSION 3.5)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
 
 # Update the version for each new release
 project(fontforge VERSION 20251009 LANGUAGES C CXX)
