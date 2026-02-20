@@ -1311,7 +1311,7 @@ extern void FontViewFinishNonStatic(void);
 extern void FVChar(FontView *fv,GEvent *event);
 extern void FVRedrawAllCharViews(FontView *fv);
 extern void KFFontViewInits(struct kf_dlg *kf,GGadget *drawable);
-extern char *GlyphSetFromSelection(SplineFont *sf,int def_layer,char *current);
+extern char *GlyphSetFromSelection(GWindow parent, SplineFont *sf,int def_layer,char *current);
 extern void ME_ListCheck(GGadget *g,int r, int c, SplineFont *sf);
 extern void ME_SetCheckUnique(GGadget *g,int r, int c, SplineFont *sf);
 extern void ME_ClassCheckUnique(GGadget *g,int r, int c, SplineFont *sf);

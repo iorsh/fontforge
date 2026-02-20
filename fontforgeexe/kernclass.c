@@ -2230,7 +2230,7 @@ static char *KCD_PickGlyphsForClass(GGadget *g,int r, int c) {
 
     int which    = GWidgetGetControl(kcd->gw,CID_ClassList+100) == g;
     int widgetid = whichToWidgetID( which );
-    char *new = GlyphSetFromSelection(kcd->sf,kcd->layer,classes[r*cols+c].u.md_str);
+    char *new = GlyphSetFromSelection(kcd->gw,kcd->sf,kcd->layer,classes[r*cols+c].u.md_str);
     if (new == NULL) new = copy("");
     if (new != NULL) {
       GGadgetSetTitle8(GWidgetGetControl(kcd->gw,widgetid),new );

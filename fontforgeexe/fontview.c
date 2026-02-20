@@ -7863,7 +7863,7 @@ static int gs_e_h(GWindow gw, GEvent *event) {
 return( true );
 }
 
-char *GlyphSetFromSelection(SplineFont *sf,int def_layer,char *current) {
+char *GlyphSetFromSelection(GWindow parent, SplineFont *sf,int def_layer,char *current) {
     struct gsd gs;
     GRect pos;
     GWindowAttrs wattrs;
@@ -7979,7 +7979,7 @@ char *GlyphSetFromSelection(SplineFont *sf,int def_layer,char *current) {
     fv_context->fv = gs.fv;
     fv_context->scroll_fontview_to_position_cb = FVScrollToPos;
     fv_context->tooltip_message_cb = FVTooltipMessage;
-    gs.fv->gtk_window = create_select_glyphs_dlg(NULL, &fv_context, pos.width, pos.height);
+    gs.fv->gtk_window = create_select_glyphs_dlg(parent, &fv_context, pos.width, pos.height);
     
     GDrawSetUserData(dw,gs.fv);
     FVCopyInnards(gs.fv,&pos,fvorig,dw,def_layer,(struct fvcontainer *) &gs);

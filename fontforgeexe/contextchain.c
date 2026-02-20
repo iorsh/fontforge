@@ -775,13 +775,13 @@ static char *CCD_PickGlyphsForClass(GGadget *g,int r, int c) {
     struct contextchaindlg *ccd = GDrawGetUserData(GGadgetGetWindow(g));
     int rows, cols = GMatrixEditGetColCnt(g);
     struct matrix_data *classes = _GMatrixEditGet(g,&rows);
-    char *new = GlyphSetFromSelection(ccd->sf,ccd->layer,classes[r*cols+c].u.md_str);
+    char *new = GlyphSetFromSelection(ccd->gw, ccd->sf,ccd->layer,classes[r*cols+c].u.md_str);
 return( new );
 }
 
 static void _CCD_FromSelection(struct contextchaindlg *ccd,int cid ) {
     char *curval = GGadgetGetTitle8(GWidgetGetControl(ccd->gw,cid));
-    char *new = GlyphSetFromSelection(ccd->sf,ccd->layer,curval);
+    char *new = GlyphSetFromSelection(ccd->gw, ccd->sf,ccd->layer,curval);
 
     free(curval);
     if ( new==NULL )

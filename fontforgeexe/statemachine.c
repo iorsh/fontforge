@@ -1264,7 +1264,7 @@ static char *SMD_PickGlyphsForClass(GGadget *g,int r, int c) {
     SMD *smd = GDrawGetUserData(GGadgetGetWindow(g));
     int rows, cols = GMatrixEditGetColCnt(g);
     struct matrix_data *classes = _GMatrixEditGet(g,&rows);
-    char *new = GlyphSetFromSelection(smd->sf,ly_fore,classes[r*cols+c].u.md_str);
+    char *new = GlyphSetFromSelection(smd->gw,smd->sf,ly_fore,classes[r*cols+c].u.md_str);
 return( new );
 }
 

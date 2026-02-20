@@ -2547,7 +2547,7 @@ static char *GFI_Mark_PickGlyphsForClass(GGadget *g,int r, int c) {
     struct gfi_data *d = GDrawGetUserData(GGadgetGetWindow(g));
     int rows, cols = GMatrixEditGetColCnt(g);
     struct matrix_data *classes = _GMatrixEditGet(g,&rows);
-    char *new = GlyphSetFromSelection(d->sf,d->def_layer,classes[r*cols+c].u.md_str);
+    char *new = GlyphSetFromSelection(d->gw,d->sf,d->def_layer,classes[r*cols+c].u.md_str);
 return( new );
 }
 
