@@ -9,10 +9,15 @@ if(NOT ENABLE_NATIVE_SCRIPTING AND NOT ENABLE_PYTHON_SCRIPTING_RESULT)
   return()
 endif()
 
-add_executable(systestdriver systestdriver.c)
-target_link_libraries(systestdriver PRIVATE GLIB::GLIB)
-if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+# systestdriver - standalone C++ test driver (no FontForge dependencies)
+add_executable(systestdriver systestdriver.cpp)
+target_link_libraries(systestdriver PRIVATE cxxopts)
+set_target_properties(systestdriver PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(systestdriver PRIVATE -Wall -pedantic)
+endif()
+if(MSVC)
+  target_compile_options(systestdriver PRIVATE /W4)
 endif()
 
 # Downloaded files
@@ -29,17 +34,21 @@ add_custom_target(check
   COMMAND "${CMAKE_CTEST_COMMAND}" "--output-on-failure" "--force-new-ctest-process"
   DEPENDS
     test_dependencies
-    fontforgeexe
     systestdriver
   VERBATIM
   USES_TERMINAL
 )
 
+# fontforgeexe is only available when not building a wheel
+if(NOT BUILDING_WHEEL)
+  add_dependencies(check fontforgeexe)
+endif()
+
 if(ENABLE_PYTHON_SCRIPTING_RESULT AND ENABLE_PYTHON_EXTENSION_RESULT)
   add_dependencies(check fontforge_pyhook psMat_pyhook)
 endif()
 
-if(ENABLE_NATIVE_SCRIPTING)
+if(ENABLE_NATIVE_SCRIPTING AND NOT BUILDING_WHEEL)
   add_ff_test(test001.pe "Caliban.sfd" "Zapfino-4.0d3.dfont" "Zapfino-4.1d6.dfont" "Generate a few font files")
   add_ff_test(test002.pe "HanSans-Bold.otf"                                        "OTF CID font check")
   add_ff_test(test003.pe "MunhwaGothic-Bold"                                       "Non-OTF CID font check")
