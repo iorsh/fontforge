@@ -44,7 +44,7 @@ class NumericalInputDialog final : public Dialog {
  private:
     Gtk::SpinButton* input;
 
-    NumericalInputDialog(GWindow parent, const std::string& title,
+    NumericalInputDialog(Gtk::Window* parent, const std::string& title,
                          const std::string& label)
         : Dialog(parent) {
         set_title(title);
@@ -67,7 +67,7 @@ class NumericalInputDialog final : public Dialog {
  public:
     // Show the dialog and return either the entered integer, 0 if the dialog
     // was cancelled/closed, or -1 if something strange happened
-    static int show(GWindow parent, const std::string& title,
+    static int show(Gtk::Window* parent, const std::string& title,
                     const std::string& label) {
         NumericalInputDialog dialog(parent, title, label);
         int i = -1;
@@ -94,13 +94,14 @@ class NumericalInputDialog final : public Dialog {
 }  // namespace ff::dlg
 
 // Shim for the C code to call the dialog
-int add_encoding_slots_dialog(GWindow parent, bool cid) {
+int add_encoding_slots_dialog(GTK_Window parent, bool cid) {
     // To avoid instability, the GTK application is lazily initialized only when
     // a GTK window is invoked.
     ff::app::GtkApp();
 
+    auto gtk_parent = static_cast<Gtk::Window*>(parent);
     return ff::dlg::NumericalInputDialog::show(
-        parent, _("Add Encoding Slots..."),
+        gtk_parent, _("Add Encoding Slots..."),
         cid ? _("How many CID slots do you wish to add?")
             : _("How many unencoded glyph slots do you wish to add?"));
 }

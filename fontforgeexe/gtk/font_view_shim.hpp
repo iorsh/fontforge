@@ -32,6 +32,7 @@ typedef struct _GtkWidget GtkWidget;
 typedef struct fontview_context FVContext;
 typedef struct gwindow* GWindow;
 typedef struct kerning_format_data KFDlgData;
+typedef void* GTK_Window;
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,6 +59,8 @@ void cg_set_character_info(void* cg_opaque, char* info);
 
 // Resize font view window to accomodate the new drawing area size
 void cg_resize_window(void* cg_opaque, int width, int height);
+
+GTK_Window cg_get_gtk_window(void* cg_opaque);
 
 void* create_select_glyphs_dlg(GWindow parent, FVContext** p_fv_context,
                                int width, int height);

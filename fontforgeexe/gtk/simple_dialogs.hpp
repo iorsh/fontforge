@@ -33,13 +33,14 @@ extern "C" {
 #include "gresource.h"
 
 typedef struct gwindow* GWindow;
+typedef void* GTK_Window;
 
 typedef struct {
     const char* name;
     uint32_t tag;
 } LanguageRec;
 
-int add_encoding_slots_dialog(GWindow parent, bool cid);
+int add_encoding_slots_dialog(GTK_Window parent, bool cid);
 
 // Return comma-separated list of language tags, or NULL if the action was
 // canceled. The caller is responsible to release the returned pointer.

@@ -4783,7 +4783,9 @@ static void FVEncodingMenuBuild(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED
 }
 
 static void FVMenuAddUnencoded(FontView *fv, int UNUSED(mid)) {
-   int i = add_encoding_slots_dialog(fv->gw, fv->b.cidmaster);
+   /* TODO(iorsh): move FV action under fontforgeexe, modernize this callback */
+   GTK_Window gtk_window = cg_get_gtk_window(fv->cg_widget);
+   int i = add_encoding_slots_dialog(gtk_window, fv->b.cidmaster);
    if(i == 0) {
       /* User canceled the action. */
       return;
