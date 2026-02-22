@@ -62,14 +62,12 @@ static GdkWindow* get_toplevel_gdk_window(GWindow gwin) {
 }
 
 Dialog::Dialog(GWindow parent_gwin) : parent_gwindow_(parent_gwin) {
-    auto ok_button = add_button(_("_OK"), Gtk::RESPONSE_OK);
-    ok_button->set_name("ok");
+    initialize();
+}
 
-    auto cancel_button = add_button(_("_Cancel"), Gtk::RESPONSE_CANCEL);
-    cancel_button->set_name("cancel");
-
-    set_default_response(Gtk::RESPONSE_OK);
-    set_position(Gtk::WIN_POS_CENTER);
+Dialog::Dialog(Gtk::Window* parent_gtk_win)
+    : parent_gtk_window_(parent_gtk_win) {
+    initialize();
 }
 
 Dialog::~Dialog() {
@@ -90,6 +88,8 @@ Gtk::ResponseType Dialog::run() {
         // its events.
         g_object_set_data(G_OBJECT(parent_gdk_window), "GTKModalBlock",
                           (gpointer) true);
+    } else if (parent_gtk_window_) {
+        set_transient_for(*parent_gtk_window_);
     }
 
     return (Gtk::ResponseType)Gtk::Dialog::run();
@@ -104,6 +104,17 @@ void Dialog::set_help_context(const std::string& file,
         signal_key_press_event().connect(
             sigc::mem_fun(*this, &Dialog::on_help_key_press), false);
     }
+}
+
+void Dialog::initialize() {
+    auto ok_button = add_button(_("_OK"), Gtk::RESPONSE_OK);
+    ok_button->set_name("ok");
+
+    auto cancel_button = add_button(_("_Cancel"), Gtk::RESPONSE_CANCEL);
+    cancel_button->set_name("cancel");
+
+    set_default_response(Gtk::RESPONSE_OK);
+    set_position(Gtk::WIN_POS_CENTER);
 }
 
 bool Dialog::on_help_key_press(GdkEventKey* event) {

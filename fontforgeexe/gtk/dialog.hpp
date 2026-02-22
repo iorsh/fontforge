@@ -39,6 +39,7 @@ class Dialog : public Gtk::Dialog {
     // TODO(iorsh): remove this constructor after the transition to GTK is
     // complete.
     Dialog(GWindow parent_gwin);
+    Dialog(Gtk::Window* parent_gtk_win);
     ~Dialog();
 
     Gtk::ResponseType run();
@@ -48,8 +49,11 @@ class Dialog : public Gtk::Dialog {
 
  private:
     GWindow parent_gwindow_ = nullptr;
+    Gtk::Window* parent_gtk_window_ = nullptr;
 
     std::string help_file_, help_section_;
+
+    void initialize();
 
     bool on_help_key_press(GdkEventKey* event);
 };
