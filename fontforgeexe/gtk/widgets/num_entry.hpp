@@ -1,4 +1,4 @@
-/* Copyright 2024 Maxim Iorsh <iorsh@users.sourceforge.net>
+/* Copyright 2025 Maxim Iorsh <iorsh@users.sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,33 +26,47 @@
  */
 #pragma once
 
+#include <variant>
 #include <gtkmm.h>
 
-typedef struct gwindow* GWindow;
+namespace ff::widgets {
 
-namespace ff::dlg {
+using NumericalValue = std::variant<std::monostate, int, double>;
 
-// Modal dialog
-class Dialog : public Gtk::Dialog {
+class NumericalEntry : public Gtk::Entry {
  public:
-    // The parent is a legacy GDraw window.
-    // TODO(iorsh): remove this constructor after the transition to GTK is
-    // complete.
-    Dialog(GWindow parent_gwin);
-    ~Dialog();
+    NumericalEntry();
+    virtual NumericalValue get_num_value() const = 0;
 
-    Gtk::ResponseType run();
-
-    // Add Help context to be opened if the user presses "F1".
-    void set_help_context(const std::string& file,
-                          const std::string& section = "");
+ protected:
+    virtual bool validate_text(const Glib::ustring& text) const = 0;
 
  private:
-    GWindow parent_gwindow_ = nullptr;
-
-    std::string help_file_, help_section_;
-
-    bool on_help_key_press(GdkEventKey* event);
+    void validate_text_cb(const Glib::ustring& text, int* position);
 };
 
-}  // namespace ff::dlg
+class IntegerEntry : public NumericalEntry {
+ public:
+    void set_value(int val);
+    int get_value() const;
+    NumericalValue get_num_value() const override { return get_value(); };
+
+ private:
+    bool validate_text(const Glib::ustring& text) const override;
+};
+
+class DoubleEntry : public NumericalEntry {
+ public:
+    DoubleEntry();
+
+    void set_value(double val);
+    double get_value() const;
+    NumericalValue get_num_value() const override { return get_value(); };
+
+ private:
+    std::string decimal_point_;
+
+    bool validate_text(const Glib::ustring& text) const override;
+};
+
+}  // namespace ff::widgets

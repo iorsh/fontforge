@@ -1,4 +1,4 @@
-/* Copyright 2024 Maxim Iorsh <iorsh@users.sourceforge.net>
+/* Copyright (C) 2025 by Maxim Iorsh <iorsh@users@sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,33 +26,38 @@
  */
 #pragma once
 
-#include <gtkmm.h>
+#include "dialog.hpp"
+#include "find_problems_shim.hpp"
 
-typedef struct gwindow* GWindow;
+#include <variant>
+
+#include "widgets/num_entry.hpp"
 
 namespace ff::dlg {
 
-// Modal dialog
-class Dialog : public Gtk::Dialog {
- public:
-    // The parent is a legacy GDraw window.
-    // TODO(iorsh): remove this constructor after the transition to GTK is
-    // complete.
-    Dialog(GWindow parent_gwin);
-    ~Dialog();
-
-    Gtk::ResponseType run();
-
-    // Add Help context to be opened if the user presses "F1".
-    void set_help_context(const std::string& file,
-                          const std::string& section = "");
-
+class FindProblemsDlg final : public Dialog {
  private:
-    GWindow parent_gwindow_ = nullptr;
+    FindProblemsDlg(GWindow parent, const std::vector<ProblemTab>& pr_tabs,
+                    double near);
 
-    std::string help_file_, help_section_;
+    Gtk::HBox* build_record_box(const ProblemRecord& record,
+                                Glib::RefPtr<Gtk::SizeGroup> size_group);
+    Gtk::Notebook* build_notebook(const std::vector<ProblemTab>& pr_tabs);
 
-    bool on_help_key_press(GdkEventKey* event);
+    void set_all_checkboxes(bool state);
+
+    using WidgetMap =
+        std::map<short /*cid*/,
+                 std::pair<Gtk::CheckButton, widgets::NumericalEntry*>>;
+    WidgetMap widget_map_;
+    widgets::DoubleEntry near_value_entry_;
+
+ public:
+    // Return only problem records ticked by the user, with their respective
+    // values.
+    static ProblemRecordsOut show(GWindow parent,
+                                  const std::vector<ProblemTab>& pr_tabs,
+                                  double& near);
 };
 
 }  // namespace ff::dlg

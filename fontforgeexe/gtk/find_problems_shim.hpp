@@ -1,4 +1,4 @@
-/* Copyright 2024 Maxim Iorsh <iorsh@users.sourceforge.net>
+/* Copyright (C) 2025 by Maxim Iorsh <iorsh@users@sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,33 +26,38 @@
  */
 #pragma once
 
-#include <gtkmm.h>
+#include <map>
+#include <vector>
+#include <variant>
 
-typedef struct gwindow* GWindow;
+#include "l10n_text.hpp"
 
 namespace ff::dlg {
 
-// Modal dialog
-class Dialog : public Gtk::Dialog {
- public:
-    // The parent is a legacy GDraw window.
-    // TODO(iorsh): remove this constructor after the transition to GTK is
-    // complete.
-    Dialog(GWindow parent_gwin);
-    ~Dialog();
+using NumericalValue = std::variant<std::monostate, int, double>;
+using ProblemRecordsOut = std::map<short /*cid*/, NumericalValue>;
 
-    Gtk::ResponseType run();
-
-    // Add Help context to be opened if the user presses "F1".
-    void set_help_context(const std::string& file,
-                          const std::string& section = "");
-
- private:
-    GWindow parent_gwindow_ = nullptr;
-
-    std::string help_file_, help_section_;
-
-    bool on_help_key_press(GdkEventKey* event);
+struct ProblemRecord {
+    short cid;
+    L10nText label;
+    L10nText tooltip;
+    bool active;
+    NumericalValue value;
+    short parent_cid;
+    bool disabled;
 };
+
+struct ProblemTab {
+    L10nText label;
+    std::vector<ProblemRecord> records;
+};
+
+/* This function updates pr_tabs in-place to preserve the state of the dialog
+   between invocations.
+
+   Return value: true, if any problem record was selected. The selected records
+                 are marked as active in pr_tabs. */
+bool find_problems_dialog(GWindow parent, std::vector<ProblemTab>& pr_tabs,
+                          double& near);
 
 }  // namespace ff::dlg

@@ -1,4 +1,4 @@
-/* Copyright 2024 Maxim Iorsh <iorsh@users.sourceforge.net>
+/* Copyright 2025 Maxim Iorsh <iorsh@users.sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,33 +26,25 @@
  */
 #pragma once
 
-#include <gtkmm.h>
+#include <libintl.h>
+#include <ffglib.h>
 
-typedef struct gwindow* GWindow;
-
-namespace ff::dlg {
-
-// Modal dialog
-class Dialog : public Gtk::Dialog {
+// Seamlessly localize a string using implicit constructor and conversion.
+// This class defers localization until the string is actually used, which
+// allows it to be used in static initializers and other contexts where
+// gettext() cannot be called at initialization time.
+class L10nText {
  public:
-    // The parent is a legacy GDraw window.
-    // TODO(iorsh): remove this constructor after the transition to GTK is
-    // complete.
-    Dialog(GWindow parent_gwin);
-    ~Dialog();
+    L10nText(const char* text) : text_(text) {}
 
-    Gtk::ResponseType run();
-
-    // Add Help context to be opened if the user presses "F1".
-    void set_help_context(const std::string& file,
-                          const std::string& section = "");
+    operator Glib::ustring() const {
+        if (!text_.empty() && l10n_text_.empty()) {
+            l10n_text_ = gettext(text_.c_str());
+        }
+        return l10n_text_;
+    }
 
  private:
-    GWindow parent_gwindow_ = nullptr;
-
-    std::string help_file_, help_section_;
-
-    bool on_help_key_press(GdkEventKey* event);
+    Glib::ustring text_;
+    mutable Glib::ustring l10n_text_;
 };
-
-}  // namespace ff::dlg
