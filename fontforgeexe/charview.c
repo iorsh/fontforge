@@ -10170,7 +10170,7 @@ static void CVMenuShowDependentSubs(GWindow gw, struct gmenuitem *UNUSED(mi), GE
 
 static void CVMenuBitmaps(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     CharView *cv = (CharView *) GDrawGetUserData(gw);
-    BitmapDlg((FontView *) (cv->b.fv),cv->b.sc,mi->mid==CV_MID_RemoveBitmaps?-1: (mi->mid==CV_MID_AvailBitmaps) );
+    BitmapDlg(cv->b.fv,gw,cv->b.sc,mi->mid==CV_MID_RemoveBitmaps?-1: (mi->mid==CV_MID_AvailBitmaps) );
 }
 
 static void cv_allistcheck(CharView *cv, struct gmenuitem *mi) {

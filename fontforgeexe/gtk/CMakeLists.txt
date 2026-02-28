@@ -5,10 +5,12 @@ add_subdirectory(widgets)
 add_library(ffgtk OBJECT
   application.hpp
   application.cpp
+  bitmaps_dlg.hpp
+  bitmaps_dlg.cpp
   css_builder.hpp
   css_builder.cpp
-  dialog.hpp
-  dialog.cpp
+  dialog_base.hpp
+  dialog_base.cpp
   find_problems.hpp
   find_problems.cpp
   language_list.hpp
@@ -19,7 +21,7 @@ add_library(ffgtk OBJECT
   utils.cpp
 )
 
-target_link_libraries(ffgtk PRIVATE
+target_link_libraries(ffgtk PUBLIC
   fontforge_common_headers
   ffgtk_widgets
   PkgConfig::GTKMM

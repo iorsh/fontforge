@@ -2623,7 +2623,7 @@ return;
 
 static void FVMenuBitmaps(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
     FontView *fv = (FontView *) GDrawGetUserData(gw);
-    BitmapDlg(fv,NULL,mi->mid==FV_MID_RemoveBitmaps?-1:(mi->mid==FV_MID_AvailBitmaps) );
+    BitmapDlg(&fv->b,gw,NULL,mi->mid==FV_MID_RemoveBitmaps?-1:(mi->mid==FV_MID_AvailBitmaps) );
 }
 
 static void FVMenuStroke(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {

@@ -26,7 +26,7 @@
  */
 #pragma once
 
-#include "dialog.hpp"
+#include "dialog_base.hpp"
 #include "find_problems_shim.hpp"
 
 #include <variant>
@@ -35,7 +35,7 @@
 
 namespace ff::dlg {
 
-class FindProblemsDlg final : public Dialog {
+class FindProblemsDlg final : public DialogBase {
  private:
     FindProblemsDlg(GWindow parent, const std::vector<ProblemTab>& pr_tabs,
                     double near);

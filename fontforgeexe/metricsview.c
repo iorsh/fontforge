@@ -2510,9 +2510,9 @@ static void MVMenuBitmaps(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
         if ( mv->perchar[i].selected )
     break;
     if ( i!=mv->glyphcnt )
-        BitmapDlg(mv->fv, mv->glyphs[i].sc, mi->mid==MV_MID_AvailBitmaps );
+        BitmapDlg(&mv->fv->b, gw, mv->glyphs[i].sc, mi->mid==MV_MID_AvailBitmaps );
     else if ( mi->mid==MV_MID_AvailBitmaps )
-        BitmapDlg(mv->fv, NULL, true );
+        BitmapDlg(&mv->fv->b, gw, NULL, true );
 }
 
 static int getorigin(void *d, BasePoint *base, int index) {

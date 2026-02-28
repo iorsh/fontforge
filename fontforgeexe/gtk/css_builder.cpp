@@ -29,6 +29,7 @@
 
 #include <cstring>
 #include <functional>
+#include <iostream>
 #include <map>
 #include <vector>
 
@@ -111,8 +112,10 @@ static std::string margin(const GBox& box_resource, bool enabled) {
 
 static std::string border_style(const GBox& box_resource, bool enabled) {
     static const std::map<enum border_type, std::string> border_type_map = {
-        {bt_none, "none"},     {bt_box, "solid"},       {bt_raised, "outset"},
-        {bt_lowered, "inset"}, {bt_engraved, "groove"}, {bt_embossed, "ridge"},
+        // CSS property values "inset" and "outset" modify colors, so we don't
+        // use them.
+        {bt_none, "none"},     {bt_box, "solid"},       {bt_raised, "solid"},
+        {bt_lowered, "solid"}, {bt_engraved, "groove"}, {bt_embossed, "ridge"},
         {bt_double, "double"}};
     return border_type_map.at(
         static_cast<enum border_type>(box_resource.border_type));
@@ -256,6 +259,42 @@ std::string build_unset_style(
     return selector + " {\n" + property_list + "}\n";
 }
 
+// Some GTK widgets have substantially different structure from their GDraw
+// analogs. For them we collect only color properties.
+std::string build_color_only_styles(const GResInfo* gdraw_ri) {
+    static const std::vector<
+        std::tuple<std::string /*GDraw resource*/, std::string /*CSS class*/,
+                   std::string /*CSS pseudoclass*/>>
+        css_selector_map_color = {
+            {"GList", "treeview", "selected"},
+            {"GList", "combobox menuitem", "hover"},
+            {"GTabSet", "header", "checked"},
+            {"GTabSet", "tab", "checked"},
+        };
+
+    std::string styles;
+    for (const auto& [gres, css_class, css_pseudoclass] :
+         css_selector_map_color) {
+        const GResInfo* ri = gdraw_ri;
+        for (; ri != NULL && ri->resname != gres; ri = ri->next);
+        if (ri == NULL || ri->boxdata == NULL) {
+            std::cerr << "GDraw resource \"" << gres << "\" not found"
+                      << std::endl;
+            continue;
+        }
+        auto props_color = collect_css_properties_color(*(ri->boxdata));
+        styles += build_style(css_class, props_color);
+
+        auto props_disabled = collect_css_properties_disabled(*(ri->boxdata));
+        styles += build_style(css_class + ":disabled", props_disabled);
+
+        auto props_selected = collect_css_properties_selected(*(ri->boxdata));
+        styles +=
+            build_style(css_class + ":" + css_pseudoclass, props_selected);
+    }
+    return styles;
+}
+
 std::string build_styles(const GResInfo* gdraw_ri) {
     struct Selector {
         std::string node_name;
@@ -277,30 +316,7 @@ std::string build_styles(const GResInfo* gdraw_ri) {
         {"GGadget.Popup", {"tooltip", {}}},
     };
 
-    // Some GTK widgets have substantially different structure from their GDraw
-    // analogs. For them we collect only color properties.
-    static const std::vector<std::pair<std::string, std::string>>
-        css_selector_map_color = {
-            {"GList", "treeview"},
-            {"GTabSet", "header"},
-            {"GTabSet", "tab"},
-        };
-
     std::string styles;
-
-    for (const GResInfo* ri = gdraw_ri; ri->next != NULL; ri = ri->next) {
-        for (const auto& [resname, css_node] : css_selector_map_color) {
-            if (resname == ri->resname) {
-                auto props_color = collect_css_properties_color(*(ri->boxdata));
-                styles += build_style(css_node, props_color);
-
-                auto props_selected =
-                    collect_css_properties_selected(*(ri->boxdata));
-                styles += build_style(css_node + ":selected", props_selected);
-                styles += build_style(css_node + ":checked", props_selected);
-            }
-        }
-    }
 
     for (const GResInfo* ri = gdraw_ri; ri->next != NULL; ri = ri->next) {
         auto sel_it = css_selector_map.find(ri->resname);
@@ -347,6 +363,7 @@ std::string build_styles(const GResInfo* gdraw_ri) {
         }
     }
 
+    styles += build_color_only_styles(gdraw_ri);
     styles += "tab { margin-bottom: 1px; }\n";
 
     return styles;

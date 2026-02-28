@@ -1,4 +1,4 @@
-/* Copyright 2024 Maxim Iorsh <iorsh@users.sourceforge.net>
+/* Copyright 2025 Maxim Iorsh <iorsh@users.sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,31 +28,34 @@
 
 #include <gtkmm.h>
 
-typedef struct gwindow* GWindow;
+namespace ff::widgets {
 
-namespace ff::dlg {
-
-// Modal dialog
-class Dialog : public Gtk::Dialog {
+// A text entry field which can verify its contents and highlight the error.
+class VerifiedEntry : public Gtk::Entry {
  public:
-    // The parent is a legacy GDraw window.
-    // TODO(iorsh): remove this constructor after the transition to GTK is
-    // complete.
-    Dialog(GWindow parent_gwin);
-    ~Dialog();
+    // Verification callback for the entry widget contents.
+    // Arguments:
+    //  * text [input] - widget contents to be verified.
+    //  * start_pos, end_pos [output] - the invalid region to be selected in
+    //    case of verification failure.
+    //  * return value - true if the input is verified successfully, otherwise
+    //    false.
+    using Verifier = std::function<bool(const Glib::ustring& text,
+                                        int& /*start_pos*/, int& /*end_pos*/)>;
 
-    Gtk::ResponseType run();
+    VerifiedEntry();
 
-    // Add Help context to be opened if the user presses "F1".
-    void set_help_context(const std::string& file,
-                          const std::string& section = "");
+    void set_verifier(Verifier verifier) { verifier_ = verifier; }
+
+    // Verify the widget contents using the provided callback, and highlight the
+    // widget in case of error.
+    bool verify();
 
  private:
-    GWindow parent_gwindow_ = nullptr;
+    Glib::RefPtr<Gtk::CssProvider> error_css_provider_;
+    Verifier verifier_;
 
-    std::string help_file_, help_section_;
-
-    bool on_help_key_press(GdkEventKey* event);
+    bool focus_in_event_slot(GdkEventFocus*);
 };
 
-}  // namespace ff::dlg
+}  // namespace ff::widgets

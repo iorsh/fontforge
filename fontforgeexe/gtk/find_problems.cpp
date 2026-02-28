@@ -36,7 +36,7 @@ namespace ff::dlg {
 FindProblemsDlg::FindProblemsDlg(GWindow parent,
                                  const std::vector<ProblemTab>& pr_tabs,
                                  double near)
-    : Dialog(parent) {
+    : DialogBase(parent) {
     set_title(_("Find Problems"));
     set_resizable(false);
     set_help_context("ui/dialogs/problems.html");
@@ -92,7 +92,7 @@ Gtk::HBox* FindProblemsDlg::build_record_box(
     // and cannot be selected without their parent.
     if (record.parent_cid != 0) {
         Gtk::CheckButton& parent_check = widget_map_[record.parent_cid].first;
-        record_check.set_margin_start(2 * ui_font_em_size());
+        record_check.set_margin_start(2 * ff::ui_utils::ui_font_em_size());
         disabled |= !parent_check.get_active();
         parent_check.signal_toggled().connect([&parent_check, record_box]() {
             record_box->set_sensitive(parent_check.get_active());

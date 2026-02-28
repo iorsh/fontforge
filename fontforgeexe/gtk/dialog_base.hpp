@@ -1,5 +1,5 @@
-/* Copyright (C) 2000-2012 by George Williams */
-/*
+/* Copyright 2024 Maxim Iorsh <iorsh@users.sourceforge.net>
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
 
@@ -24,36 +24,38 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#pragma once
 
-#ifndef FONTFORGE_BITMAPCONTROL_H
-#define FONTFORGE_BITMAPCONTROL_H
-
-#include "baseviews.h"
+#include <gtkmm.h>
 
 typedef struct gwindow* GWindow;
 
-enum bd_scope { bd_all, bd_selected, bd_current };
+namespace ff::dlg {
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// Modal dialog
+class DialogBase : public Gtk::Dialog {
+ public:
+    // The parent is a legacy GDraw window.
+    // TODO(iorsh): remove this constructor after the transition to GTK is
+    // complete.
+    DialogBase(GWindow parent_gwin);
+    ~DialogBase();
 
-typedef struct createbitmapdata {
-    FontViewBase *fv;
-    SplineFont *sf;
-    SplineChar *sc;
-    int layer;
-    int isavail;
-    enum bd_scope which;
-    int rasterize;
-    unsigned int done: 1;
-} CreateBitmapData;
+    Gtk::ResponseType run();
 
-void BitmapsDoIt(CreateBitmapData *bd,int32_t *sizes);
-extern int BitmapControl(FontViewBase *fv, int32_t *sizes, int isavail, int rasterize);
+    // Add Help context to be opened if the user presses "F1".
+    void set_help_context(const std::string& file,
+                          const std::string& section = "");
 
-#ifdef __cplusplus
-}
-#endif
+    // Allow window resize in horizontal direction only.
+    void set_hints_horizontal_resize_only();
 
-#endif /* FONTFORGE_BITMAPCONTROL_H */
+ private:
+    GWindow parent_gwindow_ = nullptr;
+
+    std::string help_file_, help_section_;
+
+    bool on_help_key_press(GdkEventKey* event);
+};
+
+}  // namespace ff::dlg
