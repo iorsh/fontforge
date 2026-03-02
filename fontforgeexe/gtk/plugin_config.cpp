@@ -113,8 +113,9 @@ void PluginConfigurationDlg::build_plugin_list(
         row->pack_start(*state, Gtk::PACK_SHRINK);
 
         auto button = Gtk::make_managed<Gtk::Button>();
+        int icon_height = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
         Glib::RefPtr<Gdk::Pixbuf> pixbuf =
-            ui_utils::load_icon("elementotherinfo", 16);
+            ui_utils::load_icon("elementotherinfo", icon_height);
         auto icon = Gtk::make_managed<Gtk::Image>(pixbuf);
         button->set_image(*icon);
         button->set_always_show_image(true);
