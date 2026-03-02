@@ -47,8 +47,8 @@ class PluginConfigurationDlg final : public DialogBase {
     PluginConfigurationDlg(GWindow parent,
                            const std::vector<PluginMetadata>& plugins_data);
     void build_plugin_list(const std::vector<PluginMetadata>& plugins_data);
-    void on_plugin_summary_clicked(const std::string& name,
-                                   const std::string& summary);
+    Gtk::Box* build_action_box(const PluginMetadata& plugin);
+    void on_plugin_summary_clicked(const PluginMetadata& plugin);
 
  public:
     // Show the dialog and return 1 on OK, 0 otherwise.

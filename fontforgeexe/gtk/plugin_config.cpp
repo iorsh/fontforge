@@ -125,38 +125,44 @@ void PluginConfigurationDlg::build_plugin_list(
         state->set_halign(Gtk::ALIGN_END);
         row->pack_start(*state, Gtk::PACK_SHRINK);
 
-        auto actions =
-            Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 4);
-        actions->set_vexpand(false);
-        actions->set_valign(Gtk::ALIGN_CENTER);
-        auto enabled_switch = Gtk::make_managed<Gtk::Switch>();
-        enabled_switch->set_active(true);
-        enabled_switch->set_vexpand(false);
-        enabled_switch->set_halign(Gtk::ALIGN_START);
-        enabled_switch->set_valign(Gtk::ALIGN_CENTER);
-        actions->pack_start(*enabled_switch, Gtk::PACK_SHRINK);
-
-        auto show_summary_cb = sigc::bind(
-            sigc::mem_fun(*this,
-                          &PluginConfigurationDlg::on_plugin_summary_clicked),
-            plugin.name, plugin.summary);
-        auto info_button =
-            build_icon_button("elementotherinfo", show_summary_cb);
-        actions->pack_start(*info_button, Gtk::PACK_SHRINK);
-
-        auto config_button = build_icon_button("fileprefs", show_summary_cb);
-        actions->pack_start(*config_button, Gtk::PACK_SHRINK);
+        auto actions = build_action_box(plugin);
         row->pack_start(*actions, Gtk::PACK_SHRINK);
 
         plugins_.add(*row);
     }
 }
 
+Gtk::Box* PluginConfigurationDlg::build_action_box(
+    const PluginMetadata& plugin) {
+    auto actions = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 4);
+    actions->set_vexpand(false);
+    actions->set_valign(Gtk::ALIGN_CENTER);
+
+    auto enabled_switch = Gtk::make_managed<Gtk::Switch>();
+    enabled_switch->set_active(true);
+    enabled_switch->set_vexpand(false);
+    enabled_switch->set_halign(Gtk::ALIGN_START);
+    enabled_switch->set_valign(Gtk::ALIGN_CENTER);
+    actions->pack_start(*enabled_switch, Gtk::PACK_SHRINK);
+
+    auto show_summary_cb = sigc::bind(
+        sigc::mem_fun(*this,
+                      &PluginConfigurationDlg::on_plugin_summary_clicked),
+        plugin);
+    auto info_button = build_icon_button("elementotherinfo", show_summary_cb);
+    actions->pack_start(*info_button, Gtk::PACK_SHRINK);
+
+    auto config_button = build_icon_button("fileprefs", show_summary_cb);
+    actions->pack_start(*config_button, Gtk::PACK_SHRINK);
+
+    return actions;
+}
+
 void PluginConfigurationDlg::on_plugin_summary_clicked(
-    const std::string& name, const std::string& summary) {
+    const PluginMetadata& plugin) {
     Gtk::MessageDialog dialog(*this, _("Plugin Summary"), false,
                               Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, true);
-    dialog.set_secondary_text(name + "\n\n" + summary);
+    dialog.set_secondary_text(plugin.name + "\n\n" + plugin.summary);
     dialog.run();
 }
 
