@@ -35,9 +35,13 @@ namespace {
 
 class PluginColumns : public Gtk::TreeModel::ColumnRecord {
  public:
-    PluginColumns() { add(name); }
+    PluginColumns() {
+        add(name);
+        add(state);
+    }
 
     Gtk::TreeModelColumn<Glib::ustring> name;
+    Gtk::TreeModelColumn<Glib::ustring> state;
 };
 
 Gtk::Box* build_startup_mode_choice() {
@@ -75,9 +79,25 @@ Gtk::Box* build_startup_mode_choice() {
     return choice_row;
 }
 
+void build_plugin_list(Gtk::TreeView& plugins,
+                       const std::vector<PluginMetadata>& plugins_data) {
+    PluginColumns columns;
+    auto plugin_model = Gtk::ListStore::create(columns);
+    plugins.set_model(plugin_model);
+    plugins.append_column(_("Plugin"), columns.name);
+    plugins.append_column(_("State"), columns.state);
+
+    for (const auto& plugin : plugins_data) {
+        auto row = *(plugin_model->append());
+        row[columns.name] = plugin.name;
+        row[columns.state] = "Enabled";
+    }
+}
+
 }  // namespace
 
-PluginConfigurationDlg::PluginConfigurationDlg(GWindow parent)
+PluginConfigurationDlg::PluginConfigurationDlg(
+    GWindow parent, const std::vector<PluginMetadata>& plugins_data)
     : DialogBase(parent) {
     set_title(_("Plugin Configuration"));
 
@@ -90,12 +110,7 @@ PluginConfigurationDlg::PluginConfigurationDlg(GWindow parent)
     label->set_halign(Gtk::ALIGN_START);
     get_content_area()->pack_start(*label, Gtk::PACK_SHRINK);
 
-    PluginColumns columns;
-    auto plugin_model = Gtk::ListStore::create(columns);
-    plugins_.set_model(plugin_model);
-    plugins_.append_column(_("Plugin"), columns.name);
-    auto row = *(plugin_model->append());
-    row[columns.name] = "Dummy plugin";
+    build_plugin_list(plugins_, plugins_data);
     get_content_area()->pack_start(plugins_, Gtk::PACK_EXPAND_WIDGET);
 
     auto suggestion = Gtk::make_managed<Gtk::Label>("Dummy suggestion");
@@ -106,8 +121,9 @@ PluginConfigurationDlg::PluginConfigurationDlg(GWindow parent)
     show_all();
 }
 
-int PluginConfigurationDlg::show(GWindow parent) {
-    PluginConfigurationDlg dialog(parent);
+int PluginConfigurationDlg::show(
+    GWindow parent, const std::vector<PluginMetadata>& plugins_data) {
+    PluginConfigurationDlg dialog(parent, plugins_data);
     Gtk::ResponseType result = dialog.run();
     return result == Gtk::RESPONSE_OK ? 1 : 0;
 }

@@ -26,20 +26,31 @@
  */
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "dialog_base.hpp"
 
 namespace ff::dlg {
+
+struct PluginMetadata {
+    std::string name;
+    std::string author;
+    std::string summary;
+};
 
 class PluginConfigurationDlg final : public DialogBase {
  private:
     Gtk::TreeView plugins_;
     Gtk::ListBox suggestions_;
 
-    explicit PluginConfigurationDlg(GWindow parent);
+    PluginConfigurationDlg(GWindow parent,
+                           const std::vector<PluginMetadata>& plugins_data);
 
  public:
     // Show the dialog and return 1 on OK, 0 otherwise.
-    static int show(GWindow parent);
+    static int show(GWindow parent,
+                    const std::vector<PluginMetadata>& plugins_data);
 };
 
 }  // namespace ff::dlg
