@@ -69,6 +69,19 @@ Gtk::Box* build_startup_mode_choice() {
     return choice_row;
 }
 
+Gtk::Button* build_icon_button(const std::string& icon_name,
+                               sigc::slot<void> callback) {
+    auto button = Gtk::make_managed<Gtk::Button>();
+    int icon_height = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf =
+        ui_utils::load_icon(icon_name.c_str(), icon_height);
+    auto icon = Gtk::make_managed<Gtk::Image>(pixbuf);
+    button->set_image(*icon);
+    button->set_always_show_image(true);
+    button->signal_clicked().connect(callback);
+    return button;
+}
+
 }  // namespace
 
 PluginConfigurationDlg::PluginConfigurationDlg(
@@ -112,18 +125,12 @@ void PluginConfigurationDlg::build_plugin_list(
         state->set_halign(Gtk::ALIGN_END);
         row->pack_start(*state, Gtk::PACK_SHRINK);
 
-        auto button = Gtk::make_managed<Gtk::Button>();
-        int icon_height = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
-        Glib::RefPtr<Gdk::Pixbuf> pixbuf =
-            ui_utils::load_icon("elementotherinfo", icon_height);
-        auto icon = Gtk::make_managed<Gtk::Image>(pixbuf);
-        button->set_image(*icon);
-        button->set_always_show_image(true);
-        button->signal_clicked().connect(sigc::bind(
+        auto show_summary_cb = sigc::bind(
             sigc::mem_fun(*this,
                           &PluginConfigurationDlg::on_plugin_summary_clicked),
-            plugin.name, plugin.summary));
-        row->pack_start(*button, Gtk::PACK_SHRINK);
+            plugin.name, plugin.summary);
+        auto info_button = build_icon_button("elementotherinfo", show_summary_cb);
+        row->pack_start(*info_button, Gtk::PACK_SHRINK);
 
         plugins_.add(*row);
     }
