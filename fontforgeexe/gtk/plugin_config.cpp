@@ -28,6 +28,7 @@
 #include "plugin_config.hpp"
 
 #include "intl.h"
+#include "utils.hpp"
 
 namespace ff::dlg {
 
@@ -112,8 +113,9 @@ void PluginConfigurationDlg::build_plugin_list(
         row->pack_start(*state, Gtk::PACK_SHRINK);
 
         auto button = Gtk::make_managed<Gtk::Button>();
-        auto icon = Gtk::make_managed<Gtk::Image>();
-        icon->set_from_icon_name("elementotherinfo", Gtk::ICON_SIZE_BUTTON);
+        Glib::RefPtr<Gdk::Pixbuf> pixbuf =
+            ui_utils::load_icon("elementotherinfo", 16);
+        auto icon = Gtk::make_managed<Gtk::Image>(pixbuf);
         button->set_image(*icon);
         button->set_always_show_image(true);
         button->signal_clicked().connect(sigc::bind(
