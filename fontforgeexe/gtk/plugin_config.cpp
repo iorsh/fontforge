@@ -40,11 +40,49 @@ class PluginColumns : public Gtk::TreeModel::ColumnRecord {
     Gtk::TreeModelColumn<Glib::ustring> name;
 };
 
+Gtk::Box* build_startup_mode_choice() {
+    auto choice_row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL);
+    choice_row->set_hexpand(true);
+
+    auto startup_mode_label =
+        Gtk::make_managed<Gtk::Label>(_("Plugin startup mode:"));
+    startup_mode_label->set_halign(Gtk::ALIGN_START);
+    choice_row->pack_start(*startup_mode_label, Gtk::PACK_EXPAND_WIDGET);
+
+    Gtk::RadioButton::Group mode_group;
+    auto choice_on =
+        Gtk::make_managed<Gtk::RadioButton>(mode_group, _("O_n"), true);
+    choice_on->set_tooltip_text(
+        _("When a new plugin is discovered it is recorded and activated"));
+    choice_on->set_hexpand(true);
+    choice_row->pack_start(*choice_on, Gtk::PACK_EXPAND_WIDGET);
+
+    auto choice_off =
+        Gtk::make_managed<Gtk::RadioButton>(mode_group, _("O_ff"), true);
+    choice_off->set_tooltip_text(
+        _("When a new plugin is discovered it is recorded but not activated"));
+    choice_off->set_hexpand(true);
+    choice_row->pack_start(*choice_off, Gtk::PACK_EXPAND_WIDGET);
+
+    auto choice_ask =
+        Gtk::make_managed<Gtk::RadioButton>(mode_group, _("_Ask"), true);
+    choice_ask->set_tooltip_text(
+        _("When a new plugin is discovered it is left unrecorded until "
+          "configured in this dialog."));
+    choice_ask->set_hexpand(true);
+    choice_row->pack_start(*choice_ask, Gtk::PACK_EXPAND_WIDGET);
+
+    return choice_row;
+}
+
 }  // namespace
 
 PluginConfigurationDlg::PluginConfigurationDlg(GWindow parent)
     : DialogBase(parent) {
     set_title(_("Plugin Configuration"));
+
+    Gtk::Box* startup_mode_choice = build_startup_mode_choice();
+    get_content_area()->pack_start(*startup_mode_choice, Gtk::PACK_SHRINK);
 
     auto label = Gtk::make_managed<Gtk::Label>(
         _("Plugins can be Loaded and Configured now.\nOther changes will take "
