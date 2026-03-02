@@ -125,16 +125,28 @@ void PluginConfigurationDlg::build_plugin_list(
         state->set_halign(Gtk::ALIGN_END);
         row->pack_start(*state, Gtk::PACK_SHRINK);
 
+        auto actions =
+            Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 4);
+        actions->set_vexpand(false);
+        actions->set_valign(Gtk::ALIGN_CENTER);
+        auto enabled_switch = Gtk::make_managed<Gtk::Switch>();
+        enabled_switch->set_active(true);
+        enabled_switch->set_vexpand(false);
+        enabled_switch->set_halign(Gtk::ALIGN_START);
+        enabled_switch->set_valign(Gtk::ALIGN_CENTER);
+        actions->pack_start(*enabled_switch, Gtk::PACK_SHRINK);
+
         auto show_summary_cb = sigc::bind(
             sigc::mem_fun(*this,
                           &PluginConfigurationDlg::on_plugin_summary_clicked),
             plugin.name, plugin.summary);
         auto info_button =
             build_icon_button("elementotherinfo", show_summary_cb);
-        row->pack_start(*info_button, Gtk::PACK_SHRINK);
+        actions->pack_start(*info_button, Gtk::PACK_SHRINK);
 
         auto config_button = build_icon_button("fileprefs", show_summary_cb);
-        row->pack_start(*config_button, Gtk::PACK_SHRINK);
+        actions->pack_start(*config_button, Gtk::PACK_SHRINK);
+        row->pack_start(*actions, Gtk::PACK_SHRINK);
 
         plugins_.add(*row);
     }
