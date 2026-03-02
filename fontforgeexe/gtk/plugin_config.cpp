@@ -129,8 +129,12 @@ void PluginConfigurationDlg::build_plugin_list(
             sigc::mem_fun(*this,
                           &PluginConfigurationDlg::on_plugin_summary_clicked),
             plugin.name, plugin.summary);
-        auto info_button = build_icon_button("elementotherinfo", show_summary_cb);
+        auto info_button =
+            build_icon_button("elementotherinfo", show_summary_cb);
         row->pack_start(*info_button, Gtk::PACK_SHRINK);
+
+        auto config_button = build_icon_button("fileprefs", show_summary_cb);
+        row->pack_start(*config_button, Gtk::PACK_SHRINK);
 
         plugins_.add(*row);
     }
