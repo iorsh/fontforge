@@ -32,6 +32,9 @@ namespace ff::dlg {
 
 class PluginConfigurationDlg final : public DialogBase {
  private:
+    Gtk::TreeView plugins_;
+    Gtk::ListBox suggestions_;
+
     explicit PluginConfigurationDlg(GWindow parent);
 
  public:

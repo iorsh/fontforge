@@ -31,9 +31,40 @@
 
 namespace ff::dlg {
 
+namespace {
+
+class PluginColumns : public Gtk::TreeModel::ColumnRecord {
+ public:
+    PluginColumns() { add(name); }
+
+    Gtk::TreeModelColumn<Glib::ustring> name;
+};
+
+}  // namespace
+
 PluginConfigurationDlg::PluginConfigurationDlg(GWindow parent)
     : DialogBase(parent) {
     set_title(_("Plugin Configuration"));
+
+    auto label = Gtk::make_managed<Gtk::Label>(
+        _("Plugins can be Loaded and Configured now.\nOther changes will take "
+          "effect at next restart."));
+    label->set_halign(Gtk::ALIGN_START);
+    get_content_area()->pack_start(*label, Gtk::PACK_SHRINK);
+
+    PluginColumns columns;
+    auto plugin_model = Gtk::ListStore::create(columns);
+    plugins_.set_model(plugin_model);
+    plugins_.append_column(_("Plugin"), columns.name);
+    auto row = *(plugin_model->append());
+    row[columns.name] = "Dummy plugin";
+    get_content_area()->pack_start(plugins_, Gtk::PACK_EXPAND_WIDGET);
+
+    auto suggestion = Gtk::make_managed<Gtk::Label>("Dummy suggestion");
+    suggestion->set_halign(Gtk::ALIGN_START);
+    suggestions_.add(*suggestion);
+    get_content_area()->pack_start(suggestions_, Gtk::PACK_EXPAND_WIDGET);
+
     show_all();
 }
 
