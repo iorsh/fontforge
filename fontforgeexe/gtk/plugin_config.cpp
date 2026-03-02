@@ -68,26 +68,6 @@ Gtk::Box* build_startup_mode_choice() {
     return choice_row;
 }
 
-void build_plugin_list(Gtk::ListBox& plugins,
-                       const std::vector<PluginMetadata>& plugins_data) {
-    plugins.set_selection_mode(Gtk::SELECTION_NONE);
-
-    for (const auto& plugin : plugins_data) {
-        auto row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
-
-        auto name = Gtk::make_managed<Gtk::Label>(plugin.name);
-        name->set_halign(Gtk::ALIGN_START);
-        name->set_hexpand(true);
-        row->pack_start(*name, Gtk::PACK_EXPAND_WIDGET);
-
-        auto state = Gtk::make_managed<Gtk::Label>("Enabled");
-        state->set_halign(Gtk::ALIGN_END);
-        row->pack_start(*state, Gtk::PACK_SHRINK);
-
-        plugins.add(*row);
-    }
-}
-
 }  // namespace
 
 PluginConfigurationDlg::PluginConfigurationDlg(
@@ -104,7 +84,7 @@ PluginConfigurationDlg::PluginConfigurationDlg(
     label->set_halign(Gtk::ALIGN_START);
     get_content_area()->pack_start(*label, Gtk::PACK_SHRINK);
 
-    build_plugin_list(plugins_, plugins_data);
+    build_plugin_list(plugins_data);
     get_content_area()->pack_start(plugins_, Gtk::PACK_EXPAND_WIDGET);
 
     auto suggestion = Gtk::make_managed<Gtk::Label>("Dummy suggestion");
@@ -113,6 +93,45 @@ PluginConfigurationDlg::PluginConfigurationDlg(
     get_content_area()->pack_start(suggestions_, Gtk::PACK_EXPAND_WIDGET);
 
     show_all();
+}
+
+void PluginConfigurationDlg::build_plugin_list(
+    const std::vector<PluginMetadata>& plugins_data) {
+    plugins_.set_selection_mode(Gtk::SELECTION_NONE);
+
+    for (const auto& plugin : plugins_data) {
+        auto row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
+
+        auto name = Gtk::make_managed<Gtk::Label>(plugin.name);
+        name->set_halign(Gtk::ALIGN_START);
+        name->set_hexpand(true);
+        row->pack_start(*name, Gtk::PACK_EXPAND_WIDGET);
+
+        auto state = Gtk::make_managed<Gtk::Label>("Enabled");
+        state->set_halign(Gtk::ALIGN_END);
+        row->pack_start(*state, Gtk::PACK_SHRINK);
+
+        auto button = Gtk::make_managed<Gtk::Button>();
+        auto icon = Gtk::make_managed<Gtk::Image>();
+        icon->set_from_icon_name("elementotherinfo", Gtk::ICON_SIZE_BUTTON);
+        button->set_image(*icon);
+        button->set_always_show_image(true);
+        button->signal_clicked().connect(sigc::bind(
+            sigc::mem_fun(*this,
+                          &PluginConfigurationDlg::on_plugin_summary_clicked),
+            plugin.name, plugin.summary));
+        row->pack_start(*button, Gtk::PACK_SHRINK);
+
+        plugins_.add(*row);
+    }
+}
+
+void PluginConfigurationDlg::on_plugin_summary_clicked(
+    const std::string& name, const std::string& summary) {
+    Gtk::MessageDialog dialog(*this, _("Plugin Summary"), false,
+                              Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, true);
+    dialog.set_secondary_text(name + "\n\n" + summary);
+    dialog.run();
 }
 
 int PluginConfigurationDlg::show(
