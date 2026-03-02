@@ -37,6 +37,7 @@ struct PluginMetadata {
     std::string name;
     std::string author;
     std::string summary;
+    bool enabled;
 };
 
 class PluginConfigurationDlg final : public DialogBase {

@@ -121,10 +121,6 @@ void PluginConfigurationDlg::build_plugin_list(
         name->set_hexpand(true);
         row->pack_start(*name, Gtk::PACK_EXPAND_WIDGET);
 
-        auto state = Gtk::make_managed<Gtk::Label>("Enabled");
-        state->set_halign(Gtk::ALIGN_END);
-        row->pack_start(*state, Gtk::PACK_SHRINK);
-
         auto actions = build_action_box(plugin);
         row->pack_start(*actions, Gtk::PACK_SHRINK);
 
@@ -139,7 +135,7 @@ Gtk::Box* PluginConfigurationDlg::build_action_box(
     actions->set_valign(Gtk::ALIGN_CENTER);
 
     auto enabled_switch = Gtk::make_managed<Gtk::Switch>();
-    enabled_switch->set_active(true);
+    enabled_switch->set_active(plugin.enabled);
     enabled_switch->set_vexpand(false);
     enabled_switch->set_halign(Gtk::ALIGN_START);
     enabled_switch->set_valign(Gtk::ALIGN_CENTER);
