@@ -15,6 +15,8 @@ add_library(ffgtk OBJECT
   find_problems.cpp
   language_list.hpp
   language_list.cpp
+  plugin_config.hpp
+  plugin_config.cpp
   simple_dialogs.hpp
   simple_dialogs.cpp
   utils.hpp
