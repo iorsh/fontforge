@@ -46,8 +46,11 @@ class PluginConfigurationDlg final : public DialogBase {
 
     PluginConfigurationDlg(GWindow parent,
                            const std::vector<PluginMetadata>& plugins_data);
+
     void build_plugin_list(const std::vector<PluginMetadata>& plugins_data);
     Gtk::Box* build_action_box(const PluginMetadata& plugin);
+
+    // Callback for plugin info action button.
     void on_plugin_summary_clicked(const PluginMetadata& plugin);
 
  public:
