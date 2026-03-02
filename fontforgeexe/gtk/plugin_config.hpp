@@ -41,7 +41,7 @@ struct PluginMetadata {
 
 class PluginConfigurationDlg final : public DialogBase {
  private:
-    Gtk::TreeView plugins_;
+    Gtk::ListBox plugins_;
     Gtk::ListBox suggestions_;
 
     PluginConfigurationDlg(GWindow parent,

@@ -33,17 +33,6 @@ namespace ff::dlg {
 
 namespace {
 
-class PluginColumns : public Gtk::TreeModel::ColumnRecord {
- public:
-    PluginColumns() {
-        add(name);
-        add(state);
-    }
-
-    Gtk::TreeModelColumn<Glib::ustring> name;
-    Gtk::TreeModelColumn<Glib::ustring> state;
-};
-
 Gtk::Box* build_startup_mode_choice() {
     auto choice_row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL);
     choice_row->set_hexpand(true);
@@ -79,18 +68,23 @@ Gtk::Box* build_startup_mode_choice() {
     return choice_row;
 }
 
-void build_plugin_list(Gtk::TreeView& plugins,
+void build_plugin_list(Gtk::ListBox& plugins,
                        const std::vector<PluginMetadata>& plugins_data) {
-    PluginColumns columns;
-    auto plugin_model = Gtk::ListStore::create(columns);
-    plugins.set_model(plugin_model);
-    plugins.append_column(_("Plugin"), columns.name);
-    plugins.append_column(_("State"), columns.state);
+    plugins.set_selection_mode(Gtk::SELECTION_NONE);
 
     for (const auto& plugin : plugins_data) {
-        auto row = *(plugin_model->append());
-        row[columns.name] = plugin.name;
-        row[columns.state] = "Enabled";
+        auto row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
+
+        auto name = Gtk::make_managed<Gtk::Label>(plugin.name);
+        name->set_halign(Gtk::ALIGN_START);
+        name->set_hexpand(true);
+        row->pack_start(*name, Gtk::PACK_EXPAND_WIDGET);
+
+        auto state = Gtk::make_managed<Gtk::Label>("Enabled");
+        state->set_halign(Gtk::ALIGN_END);
+        row->pack_start(*state, Gtk::PACK_SHRINK);
+
+        plugins.add(*row);
     }
 }
 
