@@ -49,7 +49,6 @@ static Cairo::TextExtents ui_font_extents(const std::string& sample_text) {
 
     Cairo::TextExtents extents;
     cairo_context->get_text_extents(sample_text, extents);
-    toy_face->unreference();  // Prevent memory leak
     return extents;
 }
 
