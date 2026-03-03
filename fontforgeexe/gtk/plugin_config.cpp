@@ -121,6 +121,14 @@ void PluginConfigurationDlg::build_plugin_list(
     for (const auto& plugin : plugins_data) {
         auto row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
 
+        // The three-dots icon will serve as a drag-n-drop handle for
+        // reordering.
+        int icon_height = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
+        Glib::RefPtr<Gdk::Pixbuf> pixbuf =
+            ui_utils::load_icon("view-more-symbolic", icon_height);
+        auto icon = Gtk::make_managed<Gtk::Image>(pixbuf);
+        row->pack_start(*icon, Gtk::PACK_SHRINK);
+
         auto name = Gtk::make_managed<Gtk::Label>();
         name->set_markup("<b>" + plugin.name + "</b>\n" + plugin.summary);
         name->set_halign(Gtk::ALIGN_START);
