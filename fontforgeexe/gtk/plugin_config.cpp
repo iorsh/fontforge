@@ -99,13 +99,19 @@ PluginConfigurationDlg::PluginConfigurationDlg(
     get_content_area()->pack_start(*label, Gtk::PACK_SHRINK);
 
     build_plugin_list(plugins_data);
-    get_content_area()->pack_start(plugins_, Gtk::PACK_EXPAND_WIDGET);
+    auto plugins_frame = Gtk::make_managed<Gtk::Frame>(_("Installed plugins"));
+    plugins_frame->add(plugins_);
+    get_content_area()->pack_start(*plugins_frame, Gtk::PACK_EXPAND_WIDGET);
 
     auto suggestion = Gtk::make_managed<Gtk::Label>("Dummy suggestion");
     suggestion->set_halign(Gtk::ALIGN_START);
     suggestions_.add(*suggestion);
-    get_content_area()->pack_start(suggestions_, Gtk::PACK_EXPAND_WIDGET);
+    auto suggestions_frame =
+        Gtk::make_managed<Gtk::Frame>(_("Suggested plugins"));
+    suggestions_frame->add(suggestions_);
+    get_content_area()->pack_start(*suggestions_frame, Gtk::PACK_EXPAND_WIDGET);
 
+    get_content_area()->set_spacing(ui_utils::ui_font_eX_size());
     show_all();
 }
 
@@ -116,7 +122,8 @@ void PluginConfigurationDlg::build_plugin_list(
     for (const auto& plugin : plugins_data) {
         auto row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
 
-        auto name = Gtk::make_managed<Gtk::Label>(plugin.name);
+        auto name = Gtk::make_managed<Gtk::Label>();
+        name->set_markup("<b>" + plugin.name + "</b>\n" + plugin.summary);
         name->set_halign(Gtk::ALIGN_START);
         name->set_hexpand(true);
         row->pack_start(*name, Gtk::PACK_EXPAND_WIDGET);
@@ -125,6 +132,8 @@ void PluginConfigurationDlg::build_plugin_list(
         row->pack_start(*actions, Gtk::PACK_SHRINK);
 
         plugins_.add(*row);
+        plugins_.add(
+            *Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
     }
 }
 
