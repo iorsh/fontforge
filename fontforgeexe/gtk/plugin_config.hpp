@@ -37,6 +37,7 @@ struct PluginMetadata {
     std::string name;
     std::string author;
     std::string summary;
+    std::string url;
     bool enabled;
 };
 
@@ -46,9 +47,12 @@ class PluginConfigurationDlg final : public DialogBase {
     Gtk::ListBox suggestions_;
 
     PluginConfigurationDlg(GWindow parent,
-                           const std::vector<PluginMetadata>& plugins_data);
+                           const std::vector<PluginMetadata>& plugins_data,
+                           const std::vector<PluginMetadata>& suggestions_data);
 
     void build_plugin_list(const std::vector<PluginMetadata>& plugins_data);
+    void build_suggestions_list(
+        const std::vector<PluginMetadata>& suggestions_data);
     Gtk::Box* build_action_box(const PluginMetadata& plugin);
 
     // Callback for plugin info action button.
@@ -57,7 +61,8 @@ class PluginConfigurationDlg final : public DialogBase {
  public:
     // Show the dialog and return 1 on OK, 0 otherwise.
     static int show(GWindow parent,
-                    const std::vector<PluginMetadata>& plugins_data);
+                    const std::vector<PluginMetadata>& plugins_data,
+                    const std::vector<PluginMetadata>& suggestions_data);
 };
 
 }  // namespace ff::dlg

@@ -85,7 +85,8 @@ Gtk::Button* build_icon_button(const std::string& icon_name,
 }  // namespace
 
 PluginConfigurationDlg::PluginConfigurationDlg(
-    GWindow parent, const std::vector<PluginMetadata>& plugins_data)
+    GWindow parent, const std::vector<PluginMetadata>& plugins_data,
+    const std::vector<PluginMetadata>& suggestions_data)
     : DialogBase(parent) {
     set_title(_("Plugin Configuration"));
 
@@ -103,9 +104,7 @@ PluginConfigurationDlg::PluginConfigurationDlg(
     plugins_frame->add(plugins_);
     get_content_area()->pack_start(*plugins_frame, Gtk::PACK_EXPAND_WIDGET);
 
-    auto suggestion = Gtk::make_managed<Gtk::Label>("Dummy suggestion");
-    suggestion->set_halign(Gtk::ALIGN_START);
-    suggestions_.add(*suggestion);
+    build_suggestions_list(suggestions_data);
     auto suggestions_frame =
         Gtk::make_managed<Gtk::Frame>(_("Suggested plugins"));
     suggestions_frame->add(suggestions_);
@@ -133,6 +132,39 @@ void PluginConfigurationDlg::build_plugin_list(
 
         plugins_.add(*row);
         plugins_.add(
+            *Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
+    }
+}
+
+void PluginConfigurationDlg::build_suggestions_list(
+    const std::vector<PluginMetadata>& suggestions_data) {
+    suggestions_.set_selection_mode(Gtk::SELECTION_NONE);
+
+    for (const auto& plugin : suggestions_data) {
+        auto row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
+
+        auto name = Gtk::make_managed<Gtk::Label>();
+        std::string details = "<b>" + plugin.name + "</b>\n" + plugin.summary;
+        name->set_markup(details);
+        name->set_halign(Gtk::ALIGN_START);
+        name->set_hexpand(true);
+        row->pack_start(*name, Gtk::PACK_EXPAND_WIDGET);
+
+        if (!plugin.url.empty()) {
+            auto show_uri_cb = [this, plugin]() {
+                gtk_show_uri_on_window(GTK_WINDOW(this->gobj()),
+                                       plugin.url.c_str(), GDK_CURRENT_TIME,
+                                       nullptr);
+            };
+            auto url_button =
+                build_icon_button("applications-internet", show_uri_cb);
+            url_button->set_vexpand(false);
+            url_button->set_valign(Gtk::ALIGN_CENTER);
+            row->pack_start(*url_button, Gtk::PACK_SHRINK);
+        }
+
+        suggestions_.add(*row);
+        suggestions_.add(
             *Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
     }
 }
@@ -172,8 +204,9 @@ void PluginConfigurationDlg::on_plugin_summary_clicked(
 }
 
 int PluginConfigurationDlg::show(
-    GWindow parent, const std::vector<PluginMetadata>& plugins_data) {
-    PluginConfigurationDlg dialog(parent, plugins_data);
+    GWindow parent, const std::vector<PluginMetadata>& plugins_data,
+    const std::vector<PluginMetadata>& suggestions_data) {
+    PluginConfigurationDlg dialog(parent, plugins_data, suggestions_data);
     Gtk::ResponseType result = dialog.run();
     return result == Gtk::RESPONSE_OK ? 1 : 0;
 }
