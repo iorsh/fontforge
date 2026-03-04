@@ -151,6 +151,15 @@ void PluginConfigurationDlg::build_suggestions_list(
     for (const auto& plugin : suggestions_data) {
         auto row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
 
+        // Create empty icon of the same size as in build_plugin_list() to
+        // maintain alignment.
+        int icon_height = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
+        Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create(
+            Gdk::COLORSPACE_RGB, true, 8, icon_height, icon_height);
+        pixbuf->fill(0x00000000);  // Transparent
+        auto icon = Gtk::make_managed<Gtk::Image>(pixbuf);
+        row->pack_start(*icon, Gtk::PACK_SHRINK);
+
         auto name = Gtk::make_managed<Gtk::Label>();
         std::string details = "<b>" + plugin.name + "</b>\n" + plugin.summary;
         name->set_markup(details);
