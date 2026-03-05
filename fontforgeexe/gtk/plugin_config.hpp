@@ -45,6 +45,7 @@ class PluginConfigurationDlg final : public DialogBase {
  private:
     Gtk::ListBox plugins_;
     Gtk::ListBox suggestions_;
+    Gtk::ListBoxRow* dragged_plugin_row_ = nullptr;
 
     PluginConfigurationDlg(GWindow parent,
                            const std::vector<PluginMetadata>& plugins_data,
@@ -54,9 +55,28 @@ class PluginConfigurationDlg final : public DialogBase {
     void build_suggestions_list(
         const std::vector<PluginMetadata>& suggestions_data);
     Gtk::Box* build_action_box(const PluginMetadata& plugin);
+    void setup_plugin_list_dnd();
 
     // Callback for plugin info action button.
     void on_plugin_summary_clicked(const PluginMetadata& plugin);
+
+    bool on_plugin_list_drag_motion(
+        const Glib::RefPtr<Gdk::DragContext>& /*context*/, int /*x*/, int y,
+        guint /*time*/);
+    void on_plugin_list_drag_leave(
+        const Glib::RefPtr<Gdk::DragContext>& /*context*/, guint /*time*/);
+    bool on_plugin_list_drag_drop(const Glib::RefPtr<Gdk::DragContext>& context,
+                                  int /*x*/, int y, guint time);
+    void on_plugin_list_drag_data_received(
+        const Glib::RefPtr<Gdk::DragContext>& context, int /*x*/, int y,
+        const Gtk::SelectionData& /*selection_data*/, guint /*info*/,
+        guint time);
+    void on_plugin_row_drag_begin(
+        const Glib::RefPtr<Gdk::DragContext>& /*context*/,
+        Gtk::ListBoxRow* row);
+    void on_plugin_row_drag_data_get(
+        const Glib::RefPtr<Gdk::DragContext>& /*context*/,
+        Gtk::SelectionData& selection_data, guint /*info*/, guint /*time*/);
 
  public:
     // Show the dialog and return 1 on OK, 0 otherwise.

@@ -34,6 +34,8 @@ namespace ff::dlg {
 
 namespace {
 
+constexpr const char* kPluginRowDragTarget = "FF_PLUGIN_ROW";
+
 Gtk::Box* build_startup_mode_choice() {
     auto choice_row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL);
     choice_row->set_hexpand(true);
@@ -90,6 +92,8 @@ PluginConfigurationDlg::PluginConfigurationDlg(
     : DialogBase(parent) {
     set_title(_("Plugin Configuration"));
 
+    setup_plugin_list_dnd();
+
     Gtk::Box* startup_mode_choice = build_startup_mode_choice();
     get_content_area()->pack_start(*startup_mode_choice, Gtk::PACK_SHRINK);
 
@@ -119,7 +123,10 @@ void PluginConfigurationDlg::build_plugin_list(
     plugins_.set_selection_mode(Gtk::SELECTION_NONE);
 
     for (const auto& plugin : plugins_data) {
-        auto row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
+        auto row_widget =
+            Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
+        auto row = Gtk::make_managed<Gtk::ListBoxRow>();
+        row->add(*row_widget);
 
         // The three-dots icon will serve as a drag-n-drop handle for
         // reordering.
@@ -127,20 +134,33 @@ void PluginConfigurationDlg::build_plugin_list(
         Glib::RefPtr<Gdk::Pixbuf> pixbuf =
             ui_utils::load_icon("view-more-symbolic", icon_height);
         auto icon = Gtk::make_managed<Gtk::Image>(pixbuf);
-        row->pack_start(*icon, Gtk::PACK_SHRINK);
+        auto handle = Gtk::make_managed<Gtk::EventBox>();
+        handle->add(*icon);
+        handle->set_visible_window(false);
+        row_widget->pack_start(*handle, Gtk::PACK_SHRINK);
+
+        std::vector<Gtk::TargetEntry> targets = {
+            Gtk::TargetEntry(kPluginRowDragTarget, Gtk::TARGET_SAME_APP)};
+        handle->drag_source_set(targets, Gdk::BUTTON1_MASK, Gdk::ACTION_MOVE);
+
+        handle->signal_drag_begin().connect(sigc::bind(
+            sigc::mem_fun(*this,
+                          &PluginConfigurationDlg::on_plugin_row_drag_begin),
+            row));
+
+        handle->signal_drag_data_get().connect(sigc::mem_fun(
+            *this, &PluginConfigurationDlg::on_plugin_row_drag_data_get));
 
         auto name = Gtk::make_managed<Gtk::Label>();
         name->set_markup("<b>" + plugin.name + "</b>\n" + plugin.summary);
         name->set_halign(Gtk::ALIGN_START);
         name->set_hexpand(true);
-        row->pack_start(*name, Gtk::PACK_EXPAND_WIDGET);
+        row_widget->pack_start(*name, Gtk::PACK_EXPAND_WIDGET);
 
         auto actions = build_action_box(plugin);
-        row->pack_start(*actions, Gtk::PACK_SHRINK);
+        row_widget->pack_start(*actions, Gtk::PACK_SHRINK);
 
         plugins_.add(*row);
-        plugins_.add(
-            *Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
     }
 }
 
@@ -212,12 +232,101 @@ Gtk::Box* PluginConfigurationDlg::build_action_box(
     return actions;
 }
 
+void PluginConfigurationDlg::setup_plugin_list_dnd() {
+    auto& list = plugins_;
+
+    std::vector<Gtk::TargetEntry> targets = {
+        Gtk::TargetEntry(kPluginRowDragTarget, Gtk::TARGET_SAME_APP)};
+
+    list.drag_dest_set(targets,
+                       Gtk::DEST_DEFAULT_MOTION | Gtk::DEST_DEFAULT_DROP,
+                       Gdk::ACTION_MOVE);
+
+    list.signal_drag_motion().connect(sigc::mem_fun(
+        *this, &PluginConfigurationDlg::on_plugin_list_drag_motion));
+
+    list.signal_drag_leave().connect(sigc::mem_fun(
+        *this, &PluginConfigurationDlg::on_plugin_list_drag_leave));
+
+    list.signal_drag_drop().connect(sigc::mem_fun(
+        *this, &PluginConfigurationDlg::on_plugin_list_drag_drop));
+
+    list.signal_drag_data_received().connect(sigc::mem_fun(
+        *this, &PluginConfigurationDlg::on_plugin_list_drag_data_received));
+}
+
 void PluginConfigurationDlg::on_plugin_summary_clicked(
     const PluginMetadata& plugin) {
     Gtk::MessageDialog dialog(*this, _("Plugin Summary"), false,
                               Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, true);
     dialog.set_secondary_text(plugin.name + "\n\n" + plugin.summary);
     dialog.run();
+}
+
+bool PluginConfigurationDlg::on_plugin_list_drag_motion(
+    const Glib::RefPtr<Gdk::DragContext>& /*context*/, int /*x*/, int y,
+    guint /*time*/) {
+    auto row = plugins_.get_row_at_y(y);
+    if (row) {
+        plugins_.drag_highlight_row(*row);
+    } else {
+        plugins_.drag_unhighlight_row();
+    }
+    return true;
+}
+
+void PluginConfigurationDlg::on_plugin_list_drag_leave(
+    const Glib::RefPtr<Gdk::DragContext>& /*context*/, guint /*time*/) {
+    plugins_.drag_unhighlight_row();
+}
+
+bool PluginConfigurationDlg::on_plugin_list_drag_drop(
+    const Glib::RefPtr<Gdk::DragContext>& context, int /*x*/, int y,
+    guint time) {
+    auto row = plugins_.get_row_at_y(y);
+    if (row) {
+        plugins_.drag_highlight_row(*row);
+    } else {
+        plugins_.drag_unhighlight_row();
+    }
+
+    plugins_.drag_get_data(context, kPluginRowDragTarget, time);
+    return true;
+}
+
+void PluginConfigurationDlg::on_plugin_list_drag_data_received(
+    const Glib::RefPtr<Gdk::DragContext>& context, int /*x*/, int y,
+    const Gtk::SelectionData& /*selection_data*/, guint /*info*/, guint time) {
+    bool success = false;
+    auto drop_row = plugins_.get_row_at_y(y);
+
+    if (dragged_plugin_row_ && drop_row && drop_row != dragged_plugin_row_) {
+        auto* dragged_row = dragged_plugin_row_;
+        dragged_row->reference();
+        plugins_.remove(*dragged_row);
+
+        int drop_index = drop_row->get_index();
+        plugins_.insert(*dragged_row, drop_index);
+        dragged_row->show();
+        dragged_row->unreference();
+        success = true;
+    }
+
+    plugins_.drag_unhighlight_row();
+    context->drag_finish(success, false, time);
+    dragged_plugin_row_ = nullptr;
+}
+
+void PluginConfigurationDlg::on_plugin_row_drag_begin(
+    const Glib::RefPtr<Gdk::DragContext>& /*context*/, Gtk::ListBoxRow* row) {
+    dragged_plugin_row_ = row;
+}
+
+void PluginConfigurationDlg::on_plugin_row_drag_data_get(
+    const Glib::RefPtr<Gdk::DragContext>& /*context*/,
+    Gtk::SelectionData& selection_data, guint /*info*/, guint /*time*/) {
+    const guint8 payload[] = {'1'};
+    selection_data.set(selection_data.get_target(), 8, payload, 1);
 }
 
 int PluginConfigurationDlg::show(
