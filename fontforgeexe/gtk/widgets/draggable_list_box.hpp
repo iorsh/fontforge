@@ -34,10 +34,14 @@ class DraggableListBox : public Gtk::ListBox {
  public:
     DraggableListBox();
 
-    void register_drag_handle(Gtk::Widget& handle, Gtk::Widget& row_widget);
+    // We expect the row widget to be a Gtk::Box, so that we can pack the drag
+    // handle.
+    void add_draggable_row(Gtk::Box& row_widget);
 
  private:
     Gtk::ListBoxRow* dragged_row_ = nullptr;
+
+    void register_drag_handle(Gtk::Widget& handle, Gtk::Widget& row_widget);
 
     bool on_drag_motion(const Glib::RefPtr<Gdk::DragContext>& /*context*/,
                         int /*x*/, int y, guint /*time*/);

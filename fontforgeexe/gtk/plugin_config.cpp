@@ -118,25 +118,8 @@ void PluginConfigurationDlg::build_plugin_list(
     const std::vector<PluginMetadata>& plugins_data) {
     plugins_.set_selection_mode(Gtk::SELECTION_NONE);
 
-    // Separators are also highlighted to indicate drop position, so we need one
-    // before the first item as well.
-    plugins_.add(
-        *Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
     for (const auto& plugin : plugins_data) {
         auto row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
-
-        // The three-dots icon will serve as a drag-n-drop handle for
-        // reordering.
-        int icon_height = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
-        Glib::RefPtr<Gdk::Pixbuf> pixbuf =
-            ui_utils::load_icon("view-more-symbolic", icon_height);
-        auto icon = Gtk::make_managed<Gtk::Image>(pixbuf);
-        auto handle = Gtk::make_managed<Gtk::EventBox>();
-        handle->add(*icon);
-        handle->set_visible_window(false);
-        row->pack_start(*handle, Gtk::PACK_SHRINK);
-
-        plugins_.register_drag_handle(*handle, *row);
 
         auto name = Gtk::make_managed<Gtk::Label>();
         name->set_markup("<b>" + plugin.name + "</b>\n" + plugin.summary);
@@ -147,10 +130,7 @@ void PluginConfigurationDlg::build_plugin_list(
         auto actions = build_action_box(plugin);
         row->pack_start(*actions, Gtk::PACK_SHRINK);
 
-        plugins_.add(*row);
-        // Add a separator after each item to indicate drop position.
-        plugins_.add(
-            *Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
+        plugins_.add_draggable_row(*row);
     }
 }
 
