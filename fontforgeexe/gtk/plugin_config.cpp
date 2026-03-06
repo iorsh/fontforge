@@ -36,6 +36,38 @@ namespace {
 
 constexpr const char* kPluginRowDragTarget = "FF_PLUGIN_ROW";
 
+bool is_separator_row(Gtk::ListBoxRow* candidate) {
+    return candidate && dynamic_cast<Gtk::Separator*>(candidate->get_child());
+}
+
+Gtk::ListBoxRow* get_separator_drop_row(Gtk::ListBox& list, int y) {
+    auto* row = list.get_row_at_y(y);
+    if (is_separator_row(row)) {
+        return row;
+    }
+    if (!row) {
+        return nullptr;
+    }
+
+    int row_index = row->get_index();
+    auto* prev_row = list.get_row_at_index(row_index - 1);
+    auto* next_row = list.get_row_at_index(row_index + 1);
+
+    auto allocation = row->get_allocation();
+    int row_midpoint = allocation.get_y() + allocation.get_height() / 2;
+
+    auto* preferred = (y < row_midpoint) ? prev_row : next_row;
+    auto* fallback = (preferred == prev_row) ? next_row : prev_row;
+
+    if (is_separator_row(preferred)) {
+        return preferred;
+    }
+    if (is_separator_row(fallback)) {
+        return fallback;
+    }
+    return nullptr;
+}
+
 Gtk::Box* build_startup_mode_choice() {
     auto choice_row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL);
     choice_row->set_hexpand(true);
@@ -270,33 +302,7 @@ void PluginConfigurationDlg::on_plugin_summary_clicked(
 bool PluginConfigurationDlg::on_plugin_list_drag_motion(
     const Glib::RefPtr<Gdk::DragContext>& /*context*/, int /*x*/, int y,
     guint /*time*/) {
-    auto* row = plugins_.get_row_at_y(y);
-    Gtk::ListBoxRow* highlight_row = nullptr;
-
-    auto is_separator_row = [](Gtk::ListBoxRow* candidate) {
-        return candidate &&
-               dynamic_cast<Gtk::Separator*>(candidate->get_child());
-    };
-
-    if (is_separator_row(row)) {
-        highlight_row = row;
-    } else if (row) {
-        int row_index = row->get_index();
-        auto* prev_row = plugins_.get_row_at_index(row_index - 1);
-        auto* next_row = plugins_.get_row_at_index(row_index + 1);
-
-        auto allocation = row->get_allocation();
-        int row_midpoint = allocation.get_y() + allocation.get_height() / 2;
-
-        auto* preferred = (y < row_midpoint) ? prev_row : next_row;
-        auto* fallback = (preferred == prev_row) ? next_row : prev_row;
-
-        if (is_separator_row(preferred)) {
-            highlight_row = preferred;
-        } else if (is_separator_row(fallback)) {
-            highlight_row = fallback;
-        }
-    }
+    auto* highlight_row = get_separator_drop_row(plugins_, y);
 
     if (highlight_row) {
         plugins_.drag_highlight_row(*highlight_row);
@@ -314,7 +320,7 @@ void PluginConfigurationDlg::on_plugin_list_drag_leave(
 bool PluginConfigurationDlg::on_plugin_list_drag_drop(
     const Glib::RefPtr<Gdk::DragContext>& context, int /*x*/, int y,
     guint time) {
-    auto row = plugins_.get_row_at_y(y);
+    auto* row = get_separator_drop_row(plugins_, y);
     if (row) {
         plugins_.drag_highlight_row(*row);
     } else {
@@ -329,18 +335,46 @@ void PluginConfigurationDlg::on_plugin_list_drag_data_received(
     const Glib::RefPtr<Gdk::DragContext>& context, int /*x*/, int y,
     const Gtk::SelectionData& /*selection_data*/, guint /*info*/, guint time) {
     bool success = false;
-    auto drop_row = plugins_.get_row_at_y(y);
+    auto* drop_row = get_separator_drop_row(plugins_, y);
 
-    if (dragged_plugin_row_ && drop_row && drop_row != dragged_plugin_row_) {
+    if (dragged_plugin_row_ && drop_row) {
         auto* dragged_row = dragged_plugin_row_;
-        dragged_row->reference();
-        plugins_.remove(*dragged_row);
+        int dragged_index = dragged_row->get_index();
 
-        int drop_index = drop_row->get_index();
-        plugins_.insert(*dragged_row, drop_index);
-        dragged_row->show();
-        dragged_row->unreference();
-        success = true;
+        auto* dragged_separator = plugins_.get_row_at_index(dragged_index + 1);
+        if (!is_separator_row(dragged_separator)) {
+            plugins_.drag_unhighlight_row();
+            context->drag_finish(false, false, time);
+            dragged_plugin_row_ = nullptr;
+            return;
+        }
+
+        int drop_index = drop_row->get_index() + 1;
+        int dragged_separator_index = dragged_separator->get_index();
+
+        if (dragged_index < drop_index) {
+            --drop_index;
+        }
+        if (dragged_separator_index < drop_index) {
+            --drop_index;
+        }
+
+        if (drop_index != dragged_index) {
+            dragged_row->reference();
+            dragged_separator->reference();
+
+            plugins_.remove(*dragged_separator);
+            plugins_.remove(*dragged_row);
+
+            plugins_.insert(*dragged_row, drop_index);
+            plugins_.insert(*dragged_separator, drop_index + 1);
+            dragged_row->show();
+            dragged_separator->show();
+
+            dragged_row->unreference();
+            dragged_separator->unreference();
+            success = true;
+        }
     }
 
     plugins_.drag_unhighlight_row();
