@@ -68,6 +68,17 @@ Gtk::ListBoxRow* get_separator_drop_row(Gtk::ListBox& list, int y) {
     return nullptr;
 }
 
+Gtk::EventBox* build_drag_handle() {
+    int icon_height = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf =
+        ui_utils::load_icon("view-more-symbolic", icon_height);
+    auto icon = Gtk::make_managed<Gtk::Image>(pixbuf);
+    auto handle = Gtk::make_managed<Gtk::EventBox>();
+    handle->add(*icon);
+    handle->set_visible_window(false);
+    return handle;
+}
+
 }  // namespace
 
 DraggableListBox::DraggableListBox() {
@@ -94,15 +105,7 @@ void DraggableListBox::add_draggable_row(Gtk::Box& row_widget) {
         add(*Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
     }
 
-    // The three-dots icon will serve as a drag-n-drop handle for
-    // reordering.
-    int icon_height = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
-    Glib::RefPtr<Gdk::Pixbuf> pixbuf =
-        ui_utils::load_icon("view-more-symbolic", icon_height);
-    auto icon = Gtk::make_managed<Gtk::Image>(pixbuf);
-    auto handle = Gtk::make_managed<Gtk::EventBox>();
-    handle->add(*icon);
-    handle->set_visible_window(false);
+    auto handle = build_drag_handle();
 
     // Put handle at the start of the row
     row_widget.pack_start(*handle, Gtk::PACK_SHRINK);
