@@ -130,7 +130,7 @@ void PluginConfigurationDlg::build_plugin_list(
         auto actions = build_action_box(plugin);
         row->pack_start(*actions, Gtk::PACK_SHRINK);
 
-        plugins_.add_draggable_row(*row);
+        plugins_.add(*row);
     }
 }
 

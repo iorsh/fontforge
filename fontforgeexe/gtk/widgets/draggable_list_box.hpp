@@ -36,7 +36,13 @@ class DraggableListBox : public Gtk::ListBox {
 
     // We expect the row widget to be a Gtk::Box, so that we can pack the drag
     // handle.
-    void add_draggable_row(Gtk::Box& row_widget);
+    void add(Gtk::Widget& child) override;
+
+    // Disable other ways of adding children to prevent bypassing the drag
+    // handle setup.
+    void append(Gtk::Widget& child) = delete;
+    void insert(Gtk::Widget& child, int position) = delete;
+    void prepend(Gtk::Widget& child) = delete;
 
  private:
     Gtk::ListBoxRow* dragged_row_ = nullptr;

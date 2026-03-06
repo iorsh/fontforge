@@ -98,23 +98,33 @@ DraggableListBox::DraggableListBox() {
         sigc::mem_fun(*this, &DraggableListBox::on_drag_data_received));
 }
 
-void DraggableListBox::add_draggable_row(Gtk::Box& row_widget) {
+void DraggableListBox::add(Gtk::Widget& child) {
+    auto* row_widget = dynamic_cast<Gtk::Box*>(&child);
+    if (!row_widget) {
+        std::cerr
+            << "DraggableListBox only supports adding Gtk::Box widgets as rows."
+            << std::endl;
+        return;
+    }
+
     // Separators are also highlighted to indicate drop position, so we need one
     // before the first item as well.
     if (get_children().empty()) {
-        add(*Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
+        Gtk::ListBox::add(
+            *Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
     }
 
     auto handle = build_drag_handle();
 
     // Put handle at the start of the row
-    row_widget.pack_start(*handle, Gtk::PACK_SHRINK);
-    row_widget.reorder_child(*handle, 0);
+    row_widget->pack_start(*handle, Gtk::PACK_SHRINK);
+    row_widget->reorder_child(*handle, 0);
 
-    register_drag_handle(*handle, row_widget);
-    add(row_widget);
+    register_drag_handle(*handle, *row_widget);
+    Gtk::ListBox::add(*row_widget);
     // Add a separator after each item to indicate drop position.
-    add(*Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
+    Gtk::ListBox::add(
+        *Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
 }
 
 void DraggableListBox::register_drag_handle(Gtk::Widget& handle,
@@ -201,8 +211,8 @@ void DraggableListBox::on_drag_data_received(
             remove(*dragged_separator);
             remove(*dragged_row);
 
-            insert(*dragged_row, drop_index);
-            insert(*dragged_separator, drop_index + 1);
+            Gtk::ListBox::insert(*dragged_row, drop_index);
+            Gtk::ListBox::insert(*dragged_separator, drop_index + 1);
             dragged_row->show();
             dragged_separator->show();
 
