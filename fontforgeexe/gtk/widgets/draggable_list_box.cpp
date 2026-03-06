@@ -116,6 +116,15 @@ void DraggableListBox::add(Gtk::Widget& child) {
 
     auto handle = build_drag_handle();
 
+    // Set drag cursor when hovering over the handle.
+    // TODO: Replace with Gtk:Widget::set_cursor() in GTK 4.
+    handle->signal_enter_notify_event().connect(sigc::bind(
+        sigc::mem_fun(*this, &DraggableListBox::on_drag_handle_enter_notify),
+        static_cast<Gtk::Widget*>(handle)));
+    handle->signal_leave_notify_event().connect(sigc::bind(
+        sigc::mem_fun(*this, &DraggableListBox::on_drag_handle_leave_notify),
+        static_cast<Gtk::Widget*>(handle)));
+
     // Put handle at the start of the row
     row_widget->pack_start(*handle, Gtk::PACK_SHRINK);
     row_widget->reorder_child(*handle, 0);
@@ -239,6 +248,40 @@ void DraggableListBox::on_row_drag_data_get(
     Gtk::SelectionData& selection_data, guint /*info*/, guint /*time*/) {
     const guint8 payload[] = {'1'};
     selection_data.set(selection_data.get_target(), 8, payload, 1);
+}
+
+bool DraggableListBox::on_drag_handle_enter_notify(GdkEventCrossing* /*event*/,
+                                                   Gtk::Widget* handle_widget) {
+    Glib::RefPtr<Gdk::Window> window;
+    Glib::RefPtr<Gdk::Display> display;
+    if (handle_widget) {
+        window = handle_widget->get_window();
+        display = handle_widget->get_display();
+    }
+    if (!window || !display) {
+        return false;
+    }
+
+    auto cursor = Gdk::Cursor::create(display, "grab");
+    if (!cursor) {
+        cursor = Gdk::Cursor::create(display, Gdk::HAND1);
+    }
+    if (cursor) {
+        window->set_cursor(cursor);
+    }
+    return false;
+}
+
+bool DraggableListBox::on_drag_handle_leave_notify(GdkEventCrossing* /*event*/,
+                                                   Gtk::Widget* handle_widget) {
+    Glib::RefPtr<Gdk::Window> window;
+    if (handle_widget) {
+        window = handle_widget->get_window();
+    }
+    if (window) {
+        window->set_cursor(Glib::RefPtr<Gdk::Cursor>());
+    }
+    return false;
 }
 
 }  // namespace ff::widgets

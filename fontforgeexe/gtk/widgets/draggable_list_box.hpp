@@ -65,6 +65,10 @@ class DraggableListBox : public Gtk::ListBox {
     void on_row_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& /*context*/,
                               Gtk::SelectionData& selection_data,
                               guint /*info*/, guint /*time*/);
+    bool on_drag_handle_enter_notify(GdkEventCrossing* /*event*/,
+                                     Gtk::Widget* handle_widget);
+    bool on_drag_handle_leave_notify(GdkEventCrossing* /*event*/,
+                                     Gtk::Widget* handle_widget);
 };
 
 }  // namespace ff::widgets
