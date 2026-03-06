@@ -270,9 +270,36 @@ void PluginConfigurationDlg::on_plugin_summary_clicked(
 bool PluginConfigurationDlg::on_plugin_list_drag_motion(
     const Glib::RefPtr<Gdk::DragContext>& /*context*/, int /*x*/, int y,
     guint /*time*/) {
-    auto row = plugins_.get_row_at_y(y);
-    if (row) {
-        plugins_.drag_highlight_row(*row);
+    auto* row = plugins_.get_row_at_y(y);
+    Gtk::ListBoxRow* highlight_row = nullptr;
+
+    auto is_separator_row = [](Gtk::ListBoxRow* candidate) {
+        return candidate &&
+               dynamic_cast<Gtk::Separator*>(candidate->get_child());
+    };
+
+    if (is_separator_row(row)) {
+        highlight_row = row;
+    } else if (row) {
+        int row_index = row->get_index();
+        auto* prev_row = plugins_.get_row_at_index(row_index - 1);
+        auto* next_row = plugins_.get_row_at_index(row_index + 1);
+
+        auto allocation = row->get_allocation();
+        int row_midpoint = allocation.get_y() + allocation.get_height() / 2;
+
+        auto* preferred = (y < row_midpoint) ? prev_row : next_row;
+        auto* fallback = (preferred == prev_row) ? next_row : prev_row;
+
+        if (is_separator_row(preferred)) {
+            highlight_row = preferred;
+        } else if (is_separator_row(fallback)) {
+            highlight_row = fallback;
+        }
+    }
+
+    if (highlight_row) {
+        plugins_.drag_highlight_row(*highlight_row);
     } else {
         plugins_.drag_unhighlight_row();
     }
