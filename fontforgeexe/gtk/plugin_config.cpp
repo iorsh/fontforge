@@ -123,10 +123,7 @@ void PluginConfigurationDlg::build_plugin_list(
     plugins_.set_selection_mode(Gtk::SELECTION_NONE);
 
     for (const auto& plugin : plugins_data) {
-        auto row_widget =
-            Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
-        auto row = Gtk::make_managed<Gtk::ListBoxRow>();
-        row->add(*row_widget);
+        auto row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
 
         // The three-dots icon will serve as a drag-n-drop handle for
         // reordering.
@@ -137,7 +134,7 @@ void PluginConfigurationDlg::build_plugin_list(
         auto handle = Gtk::make_managed<Gtk::EventBox>();
         handle->add(*icon);
         handle->set_visible_window(false);
-        row_widget->pack_start(*handle, Gtk::PACK_SHRINK);
+        row->pack_start(*handle, Gtk::PACK_SHRINK);
 
         std::vector<Gtk::TargetEntry> targets = {
             Gtk::TargetEntry(kPluginRowDragTarget, Gtk::TARGET_SAME_APP)};
@@ -155,10 +152,10 @@ void PluginConfigurationDlg::build_plugin_list(
         name->set_markup("<b>" + plugin.name + "</b>\n" + plugin.summary);
         name->set_halign(Gtk::ALIGN_START);
         name->set_hexpand(true);
-        row_widget->pack_start(*name, Gtk::PACK_EXPAND_WIDGET);
+        row->pack_start(*name, Gtk::PACK_EXPAND_WIDGET);
 
         auto actions = build_action_box(plugin);
-        row_widget->pack_start(*actions, Gtk::PACK_SHRINK);
+        row->pack_start(*actions, Gtk::PACK_SHRINK);
 
         plugins_.add(*row);
     }
@@ -318,8 +315,9 @@ void PluginConfigurationDlg::on_plugin_list_drag_data_received(
 }
 
 void PluginConfigurationDlg::on_plugin_row_drag_begin(
-    const Glib::RefPtr<Gdk::DragContext>& /*context*/, Gtk::ListBoxRow* row) {
-    dragged_plugin_row_ = row;
+    const Glib::RefPtr<Gdk::DragContext>& /*context*/, Gtk::Widget* row) {
+    auto* parent = row ? row->get_parent() : nullptr;
+    dragged_plugin_row_ = dynamic_cast<Gtk::ListBoxRow*>(parent);
 }
 
 void PluginConfigurationDlg::on_plugin_row_drag_data_get(

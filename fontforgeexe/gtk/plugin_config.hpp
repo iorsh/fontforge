@@ -72,8 +72,7 @@ class PluginConfigurationDlg final : public DialogBase {
         const Gtk::SelectionData& /*selection_data*/, guint /*info*/,
         guint time);
     void on_plugin_row_drag_begin(
-        const Glib::RefPtr<Gdk::DragContext>& /*context*/,
-        Gtk::ListBoxRow* row);
+        const Glib::RefPtr<Gdk::DragContext>& /*context*/, Gtk::Widget* row);
     void on_plugin_row_drag_data_get(
         const Glib::RefPtr<Gdk::DragContext>& /*context*/,
         Gtk::SelectionData& selection_data, guint /*info*/, guint /*time*/);
