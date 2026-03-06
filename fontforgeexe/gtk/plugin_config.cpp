@@ -27,6 +27,8 @@
 
 #include "plugin_config.hpp"
 
+#include <iostream>
+
 #include "intl.h"
 #include "utils.hpp"
 
@@ -318,15 +320,8 @@ void PluginConfigurationDlg::on_plugin_list_drag_leave(
 }
 
 bool PluginConfigurationDlg::on_plugin_list_drag_drop(
-    const Glib::RefPtr<Gdk::DragContext>& context, int /*x*/, int y,
-    guint time) {
-    auto* row = get_separator_drop_row(plugins_, y);
-    if (row) {
-        plugins_.drag_highlight_row(*row);
-    } else {
-        plugins_.drag_unhighlight_row();
-    }
-
+    const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint time) {
+    on_plugin_list_drag_motion(context, x, y, time);
     plugins_.drag_get_data(context, kPluginRowDragTarget, time);
     return true;
 }
@@ -340,23 +335,32 @@ void PluginConfigurationDlg::on_plugin_list_drag_data_received(
     if (dragged_plugin_row_ && drop_row) {
         auto* dragged_row = dragged_plugin_row_;
         int dragged_index = dragged_row->get_index();
+        int drop_separator_index = drop_row->get_index();
+        if (dragged_index % 2 == 0 || drop_separator_index % 2 != 0) {
+            plugins_.drag_unhighlight_row();
+            context->drag_finish(false, false, time);
+            dragged_plugin_row_ = nullptr;
+            std::cerr << "Dragging failure: ListBox structure broken."
+                      << std::endl;
+            return;
+        }
 
         auto* dragged_separator = plugins_.get_row_at_index(dragged_index + 1);
         if (!is_separator_row(dragged_separator)) {
             plugins_.drag_unhighlight_row();
             context->drag_finish(false, false, time);
             dragged_plugin_row_ = nullptr;
+            std::cerr << "Dragging failure: dragged row is not followed by a "
+                         "separator."
+                      << std::endl;
             return;
         }
 
-        int drop_index = drop_row->get_index() + 1;
-        int dragged_separator_index = dragged_separator->get_index();
+        int drop_index = drop_separator_index + 1;
+        int dragged_separator_index = dragged_index + 1;
 
         if (dragged_index < drop_index) {
-            --drop_index;
-        }
-        if (dragged_separator_index < drop_index) {
-            --drop_index;
+            drop_index -= 2;
         }
 
         if (drop_index != dragged_index) {
