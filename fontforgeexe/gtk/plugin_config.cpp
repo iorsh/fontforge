@@ -122,6 +122,10 @@ void PluginConfigurationDlg::build_plugin_list(
     const std::vector<PluginMetadata>& plugins_data) {
     plugins_.set_selection_mode(Gtk::SELECTION_NONE);
 
+    // Separators are also highlighted to indicate drop position, so we need one
+    // before the first item as well.
+    plugins_.add(
+        *Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
     for (const auto& plugin : plugins_data) {
         auto row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 8);
 
@@ -158,6 +162,9 @@ void PluginConfigurationDlg::build_plugin_list(
         row->pack_start(*actions, Gtk::PACK_SHRINK);
 
         plugins_.add(*row);
+        // Add a separator after each item to indicate drop position.
+        plugins_.add(
+            *Gtk::make_managed<Gtk::Separator>(Gtk::ORIENTATION_HORIZONTAL));
     }
 }
 
