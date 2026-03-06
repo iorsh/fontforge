@@ -27,48 +27,12 @@
 
 #include "plugin_config.hpp"
 
-#include <iostream>
-
 #include "intl.h"
 #include "utils.hpp"
 
 namespace ff::dlg {
 
 namespace {
-
-constexpr const char* kPluginRowDragTarget = "FF_PLUGIN_ROW";
-
-bool is_separator_row(Gtk::ListBoxRow* candidate) {
-    return candidate && dynamic_cast<Gtk::Separator*>(candidate->get_child());
-}
-
-Gtk::ListBoxRow* get_separator_drop_row(Gtk::ListBox& list, int y) {
-    auto* row = list.get_row_at_y(y);
-    if (is_separator_row(row)) {
-        return row;
-    }
-    if (!row) {
-        return nullptr;
-    }
-
-    int row_index = row->get_index();
-    auto* prev_row = list.get_row_at_index(row_index - 1);
-    auto* next_row = list.get_row_at_index(row_index + 1);
-
-    auto allocation = row->get_allocation();
-    int row_midpoint = allocation.get_y() + allocation.get_height() / 2;
-
-    auto* preferred = (y < row_midpoint) ? prev_row : next_row;
-    auto* fallback = (preferred == prev_row) ? next_row : prev_row;
-
-    if (is_separator_row(preferred)) {
-        return preferred;
-    }
-    if (is_separator_row(fallback)) {
-        return fallback;
-    }
-    return nullptr;
-}
 
 Gtk::Box* build_startup_mode_choice() {
     auto choice_row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL);
@@ -126,8 +90,6 @@ PluginConfigurationDlg::PluginConfigurationDlg(
     : DialogBase(parent) {
     set_title(_("Plugin Configuration"));
 
-    setup_plugin_list_dnd();
-
     Gtk::Box* startup_mode_choice = build_startup_mode_choice();
     get_content_area()->pack_start(*startup_mode_choice, Gtk::PACK_SHRINK);
 
@@ -174,17 +136,7 @@ void PluginConfigurationDlg::build_plugin_list(
         handle->set_visible_window(false);
         row->pack_start(*handle, Gtk::PACK_SHRINK);
 
-        std::vector<Gtk::TargetEntry> targets = {
-            Gtk::TargetEntry(kPluginRowDragTarget, Gtk::TARGET_SAME_APP)};
-        handle->drag_source_set(targets, Gdk::BUTTON1_MASK, Gdk::ACTION_MOVE);
-
-        handle->signal_drag_begin().connect(sigc::bind(
-            sigc::mem_fun(*this,
-                          &PluginConfigurationDlg::on_plugin_row_drag_begin),
-            row));
-
-        handle->signal_drag_data_get().connect(sigc::mem_fun(
-            *this, &PluginConfigurationDlg::on_plugin_row_drag_data_get));
+        plugins_.register_drag_handle(*handle, *row);
 
         auto name = Gtk::make_managed<Gtk::Label>();
         name->set_markup("<b>" + plugin.name + "</b>\n" + plugin.summary);
@@ -270,133 +222,12 @@ Gtk::Box* PluginConfigurationDlg::build_action_box(
     return actions;
 }
 
-void PluginConfigurationDlg::setup_plugin_list_dnd() {
-    auto& list = plugins_;
-
-    std::vector<Gtk::TargetEntry> targets = {
-        Gtk::TargetEntry(kPluginRowDragTarget, Gtk::TARGET_SAME_APP)};
-
-    list.drag_dest_set(targets,
-                       Gtk::DEST_DEFAULT_MOTION | Gtk::DEST_DEFAULT_DROP,
-                       Gdk::ACTION_MOVE);
-
-    list.signal_drag_motion().connect(sigc::mem_fun(
-        *this, &PluginConfigurationDlg::on_plugin_list_drag_motion));
-
-    list.signal_drag_leave().connect(sigc::mem_fun(
-        *this, &PluginConfigurationDlg::on_plugin_list_drag_leave));
-
-    list.signal_drag_drop().connect(sigc::mem_fun(
-        *this, &PluginConfigurationDlg::on_plugin_list_drag_drop));
-
-    list.signal_drag_data_received().connect(sigc::mem_fun(
-        *this, &PluginConfigurationDlg::on_plugin_list_drag_data_received));
-}
-
 void PluginConfigurationDlg::on_plugin_summary_clicked(
     const PluginMetadata& plugin) {
     Gtk::MessageDialog dialog(*this, _("Plugin Summary"), false,
                               Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, true);
     dialog.set_secondary_text(plugin.name + "\n\n" + plugin.summary);
     dialog.run();
-}
-
-bool PluginConfigurationDlg::on_plugin_list_drag_motion(
-    const Glib::RefPtr<Gdk::DragContext>& /*context*/, int /*x*/, int y,
-    guint /*time*/) {
-    auto* highlight_row = get_separator_drop_row(plugins_, y);
-
-    if (highlight_row) {
-        plugins_.drag_highlight_row(*highlight_row);
-    } else {
-        plugins_.drag_unhighlight_row();
-    }
-    return true;
-}
-
-void PluginConfigurationDlg::on_plugin_list_drag_leave(
-    const Glib::RefPtr<Gdk::DragContext>& /*context*/, guint /*time*/) {
-    plugins_.drag_unhighlight_row();
-}
-
-bool PluginConfigurationDlg::on_plugin_list_drag_drop(
-    const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint time) {
-    on_plugin_list_drag_motion(context, x, y, time);
-    plugins_.drag_get_data(context, kPluginRowDragTarget, time);
-    return true;
-}
-
-void PluginConfigurationDlg::on_plugin_list_drag_data_received(
-    const Glib::RefPtr<Gdk::DragContext>& context, int /*x*/, int y,
-    const Gtk::SelectionData& /*selection_data*/, guint /*info*/, guint time) {
-    bool success = false;
-    auto* drop_row = get_separator_drop_row(plugins_, y);
-
-    if (dragged_plugin_row_ && drop_row) {
-        auto* dragged_row = dragged_plugin_row_;
-        int dragged_index = dragged_row->get_index();
-        int drop_separator_index = drop_row->get_index();
-        if (dragged_index % 2 == 0 || drop_separator_index % 2 != 0) {
-            plugins_.drag_unhighlight_row();
-            context->drag_finish(false, false, time);
-            dragged_plugin_row_ = nullptr;
-            std::cerr << "Dragging failure: ListBox structure broken."
-                      << std::endl;
-            return;
-        }
-
-        auto* dragged_separator = plugins_.get_row_at_index(dragged_index + 1);
-        if (!is_separator_row(dragged_separator)) {
-            plugins_.drag_unhighlight_row();
-            context->drag_finish(false, false, time);
-            dragged_plugin_row_ = nullptr;
-            std::cerr << "Dragging failure: dragged row is not followed by a "
-                         "separator."
-                      << std::endl;
-            return;
-        }
-
-        int drop_index = drop_separator_index + 1;
-        int dragged_separator_index = dragged_index + 1;
-
-        if (dragged_index < drop_index) {
-            drop_index -= 2;
-        }
-
-        if (drop_index != dragged_index) {
-            dragged_row->reference();
-            dragged_separator->reference();
-
-            plugins_.remove(*dragged_separator);
-            plugins_.remove(*dragged_row);
-
-            plugins_.insert(*dragged_row, drop_index);
-            plugins_.insert(*dragged_separator, drop_index + 1);
-            dragged_row->show();
-            dragged_separator->show();
-
-            dragged_row->unreference();
-            dragged_separator->unreference();
-            success = true;
-        }
-    }
-
-    plugins_.drag_unhighlight_row();
-    context->drag_finish(success, false, time);
-    dragged_plugin_row_ = nullptr;
-}
-
-void PluginConfigurationDlg::on_plugin_row_drag_begin(
-    const Glib::RefPtr<Gdk::DragContext>& /*context*/, Gtk::Widget* row) {
-    auto* parent = row ? row->get_parent() : nullptr;
-    dragged_plugin_row_ = dynamic_cast<Gtk::ListBoxRow*>(parent);
-}
-
-void PluginConfigurationDlg::on_plugin_row_drag_data_get(
-    const Glib::RefPtr<Gdk::DragContext>& /*context*/,
-    Gtk::SelectionData& selection_data, guint /*info*/, guint /*time*/) {
-    const guint8 payload[] = {'1'};
-    selection_data.set(selection_data.get_target(), 8, payload, 1);
 }
 
 int PluginConfigurationDlg::show(

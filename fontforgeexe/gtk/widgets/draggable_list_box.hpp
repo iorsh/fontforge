@@ -1,4 +1,4 @@
-/* Copyright (C) 2026 by Maxim Iorsh <iorsh@users@sourceforge.net>
+/* Copyright 2026 Maxim Iorsh <iorsh@users.sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,44 +26,35 @@
  */
 #pragma once
 
-#include <string>
-#include <vector>
+#include <gtkmm.h>
 
-#include "dialog_base.hpp"
-#include "widgets/draggable_list_box.hpp"
+namespace ff::widgets {
 
-namespace ff::dlg {
-
-struct PluginMetadata {
-    std::string name;
-    std::string author;
-    std::string summary;
-    std::string url;
-    bool enabled;
-};
-
-class PluginConfigurationDlg final : public DialogBase {
- private:
-    ff::widgets::DraggableListBox plugins_;
-    Gtk::ListBox suggestions_;
-
-    PluginConfigurationDlg(GWindow parent,
-                           const std::vector<PluginMetadata>& plugins_data,
-                           const std::vector<PluginMetadata>& suggestions_data);
-
-    void build_plugin_list(const std::vector<PluginMetadata>& plugins_data);
-    void build_suggestions_list(
-        const std::vector<PluginMetadata>& suggestions_data);
-    Gtk::Box* build_action_box(const PluginMetadata& plugin);
-
-    // Callback for plugin info action button.
-    void on_plugin_summary_clicked(const PluginMetadata& plugin);
-
+class DraggableListBox : public Gtk::ListBox {
  public:
-    // Show the dialog and return 1 on OK, 0 otherwise.
-    static int show(GWindow parent,
-                    const std::vector<PluginMetadata>& plugins_data,
-                    const std::vector<PluginMetadata>& suggestions_data);
+    DraggableListBox();
+
+    void register_drag_handle(Gtk::Widget& handle, Gtk::Widget& row_widget);
+
+ private:
+    Gtk::ListBoxRow* dragged_row_ = nullptr;
+
+    bool on_drag_motion(const Glib::RefPtr<Gdk::DragContext>& /*context*/,
+                        int /*x*/, int y, guint /*time*/);
+    void on_drag_leave(const Glib::RefPtr<Gdk::DragContext>& /*context*/,
+                       guint /*time*/);
+    bool on_drag_drop(const Glib::RefPtr<Gdk::DragContext>& context, int /*x*/,
+                      int y, guint time);
+    void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context,
+                               int /*x*/, int y,
+                               const Gtk::SelectionData& /*selection_data*/,
+                               guint /*info*/, guint time);
+
+    void on_row_drag_begin(const Glib::RefPtr<Gdk::DragContext>& /*context*/,
+                           Gtk::Widget* row_widget);
+    void on_row_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& /*context*/,
+                              Gtk::SelectionData& selection_data,
+                              guint /*info*/, guint /*time*/);
 };
 
-}  // namespace ff::dlg
+}  // namespace ff::widgets
