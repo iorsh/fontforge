@@ -218,6 +218,7 @@ add_library(fontforge
   zapfnomen.c
 )
 
+add_subdirectory(layout)
 add_subdirectory(shapers)
 
 if(ENABLE_WOFF2_RESULT)
