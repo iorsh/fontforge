@@ -40,6 +40,7 @@
 #include "langfreq.h"
 #include "mm.h"
 #include "psread.h"
+#include "layout/legacy_printer.hpp"
 #include "sflayoutP.h"
 #include "splinesaveafm.h"
 #include "splineutil.h"
@@ -67,6 +68,25 @@ struct printdefaults pdefs[] = {
     { &custom, pt_chars, 0, NULL },
     { &custom, pt_fontdisplay, 0, NULL }
 };
+
+static void dump_prologue(PI *pi);
+static void dump_trailer(PI *pi);
+static void startpage(PI *pi);
+static void samplestartpage(PI *pi);
+
+static ff::layout::LegacyPrinter MakeLegacyPrinter(
+	PI *pi,
+	ff::layout::PrintPageStyle page_style) {
+    ff::layout::PrinterContext context;
+	context.pi = pi;
+	context.start_document_cb = dump_prologue;
+	context.end_document_cb = dump_trailer;
+	context.add_regular_page_cb = startpage;
+	context.add_sample_page_cb = samplestartpage;
+
+    return ff::layout::LegacyPrinter(
+		page_style, std::move(context));
+}
 
 
 /* ************************************************************************** */
@@ -1631,7 +1651,7 @@ return;
 	    fprintf(pi->out,"(%X) %d -54.84 n_show\n", i, 60+(pi->pointsize+pi->extrahspace)*i );
 }
 
-static int DumpLine(PI *pi) {
+static int DumpLine(PI *pi, ff::layout::IPrinter &printer) {
     int i=0, line, gid;
     struct sfbits *sfbit = &pi->sfbits[0];
 
@@ -1683,11 +1703,11 @@ return(0);
 
     if ( pi->chline==0 ) {
 	/* start the first page */
-	startpage(pi);
+	printer.add_page();
     } else {
 	/* start subsequent pages by displaying the one before */
 	if ( pi->ypos - pi->pointsize < -(pi->pageheight-90) ) {
-	    startpage(pi);
+	    printer.add_page();
 	}
     }
     pi->chline = line;
@@ -1770,10 +1790,12 @@ return(true);
 
 static void PIFontDisplay(PI *pi) {
     SplineFont *sf = pi->mainsf;
+	ff::layout::LegacyPrinter printer =
+		MakeLegacyPrinter(pi, ff::layout::PrintPageStyle::regular);
 
     if ( !PIDownloadFont(pi,sf,pi->mainmap))
 return;
-    dump_prologue(pi);
+	printer.start_document();
 
     pi->extravspace = pi->pointsize/6;
     pi->extrahspace = pi->pointsize/3;
@@ -1800,20 +1822,20 @@ return;
 	else if ( pi->max >= 2 ) pi->max = 2;
     }
 
-    while ( DumpLine(pi))
+	while ( DumpLine(pi,printer))
 	;
 
     if ( pi->chline==0 )
 	ff_post_notice(_("Print Failed"),_("Warning: Font contained no glyphs"));
     else
-	dump_trailer(pi);
+	printer.end_document();
 }
 
 /* ************************************************************************** */
 /* ********************* Code for single character dump ********************* */
 /* ************************************************************************** */
 
-static void SCPrintPage(PI *pi,SplineChar *sc) {
+static void SCPrintPage(PI *pi,SplineChar *sc, ff::layout::IPrinter &printer) {
     DBounds b, page;
     real scalex, scaley;
 
@@ -1825,7 +1847,7 @@ static void SCPrintPage(PI *pi,SplineChar *sc) {
 	fprintf(pi->out,"%%%%PageResources: font Times-Bold\n" );
 	fprintf(pi->out,"save mark\n" );
     } else {
-	startpage(pi);
+	printer.add_page();
     }
 
     SplineCharFindBounds(sc,&b);
@@ -1898,21 +1920,23 @@ static void SCPrintPage(PI *pi,SplineChar *sc) {
 
 static void PIChars(PI *pi) {
     int i, gid;
+	ff::layout::LegacyPrinter printer =
+	MakeLegacyPrinter(pi, ff::layout::PrintPageStyle::regular);
 
-    dump_prologue(pi);
+    printer.start_document();
     if ( pi->fv!=NULL )
 	for ( i=0; i<pi->mainmap->enccount; ++i ) {
 	    if ( pi->fv->selected[i] && (gid=pi->mainmap->map[i])!=-1 &&
 		    SCWorthOutputting(pi->mainsf->glyphs[gid]) )
-		SCPrintPage(pi,pi->mainsf->glyphs[gid]);
+		SCPrintPage(pi,pi->mainsf->glyphs[gid],printer);
     } else if ( pi->sc!=NULL )
-	SCPrintPage(pi,pi->sc);
+	SCPrintPage(pi,pi->sc,printer);
     else {
 	for ( i=0; i<MVGlyphCount(pi->mv); ++i )
 	    if ( SCWorthOutputting(MVGlyphIndex(pi->mv,i)))
-		SCPrintPage(pi,MVGlyphIndex(pi->mv,i));
+		SCPrintPage(pi,MVGlyphIndex(pi->mv,i),printer);
     }
-    dump_trailer(pi);
+    printer.end_document();
 }
 
 /* ************************************************************************** */
@@ -2036,6 +2060,8 @@ static void PIFontSample(PI *pi) {
     LayoutInfo *li = pi->sample;
     struct opentype_str **line;
     int i,j;
+	ff::layout::LegacyPrinter printer =
+		MakeLegacyPrinter(pi, ff::layout::PrintPageStyle::sample);
 
     pi->pointsize = 12;		/* no longer meaningful */
     pi->extravspace = pi->pointsize/6;
@@ -2050,9 +2076,9 @@ static void PIFontSample(PI *pi) {
 	if ( !PIDownloadFont(pi,sfmaps->sf,sfmaps->map))
 return;
     }
-    dump_prologue(pi);
+	printer.start_document();
 
-    samplestartpage(pi);
+	printer.add_page();
     if ( pi->printtype==pt_pdf ) {
 	fprintf(pi->out, "BT\n" );
 	pi->lastx = pi->lasty = 0;
@@ -2064,7 +2090,7 @@ return;
 	if ( y - li->lineheights[i].fh < bottom ) {
 	    if ( pi->printtype==pt_pdf )
 		fprintf(pi->out, "ET\n" );
-	    samplestartpage(pi);
+	    printer.add_page();
 	    if ( pi->printtype==pt_pdf ) {
 		fprintf(pi->out, "BT\n" );
 		pi->lastx = pi->lasty = 0;
@@ -2082,7 +2108,7 @@ return;
     }
     if ( pi->printtype==pt_pdf )
 	fprintf(pi->out, "ET\n" );
-    dump_trailer(pi);
+	printer.end_document();
 }
 
 /* ************************************************************************** */
@@ -2090,7 +2116,7 @@ return;
 /* ************************************************************************** */
 static double pointsizes[] = { 72, 48, 36, 24, 20, 18, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4.2, 4, 0 };
 
-static void SCPrintSizes(PI *pi,SplineChar *sc) {
+static void SCPrintSizes(PI *pi,SplineChar *sc, ff::layout::IPrinter &printer) {
     int xstart = 10, i;
     int enc;
     struct sfbits *sfbit = &pi->sfbits[0];
@@ -2099,7 +2125,7 @@ static void SCPrintSizes(PI *pi,SplineChar *sc) {
 return;
     enc = sfbit->map->backmap[sc->orig_pos];
     if ( pi->ypos - pi->pointsize < -(pi->pageheight-90) && pi->ypos!=-30 ) {
-	samplestartpage(pi);
+	printer.add_page();
     }
     if ( pi->printtype==pt_pdf ) {
 	fprintf(pi->out,"BT\n%d %d Td\n", xstart, pi->ypos );
@@ -2132,29 +2158,31 @@ return;
 static void PIMultiSize(PI *pi) {
     int i, gid;
     struct sfbits *sfbit = &pi->sfbits[0];
+	ff::layout::LegacyPrinter printer =
+		MakeLegacyPrinter(pi, ff::layout::PrintPageStyle::sample);
 
     pi->pointsize = pointsizes[0];
     pi->extravspace = pi->pointsize/6;
     if ( !PIDownloadFont(pi,pi->mainsf,pi->mainmap))
 return;
-    dump_prologue(pi);
+	printer.start_document();
 
-    samplestartpage(pi);
+	printer.add_page();
 
     if ( pi->fv!=NULL ) {
 	for ( i=0; i<sfbit->map->enccount; ++i )
 	    if ( pi->fv->selected[i] && (gid=sfbit->map->map[i])!=-1 &&
 		    SCWorthOutputting(sfbit->sf->glyphs[gid]) )
-		SCPrintSizes(pi,sfbit->sf->glyphs[gid]);
+		SCPrintSizes(pi,sfbit->sf->glyphs[gid],printer);
     } else if ( pi->sc!=NULL )
-	SCPrintSizes(pi,pi->sc);
+	SCPrintSizes(pi,pi->sc,printer);
     else {
 	for ( i=0; i<MVGlyphCount(pi->mv); ++i )
 	    if ( SCWorthOutputting(MVGlyphIndex(pi->mv,i)))
-		SCPrintSizes(pi,MVGlyphIndex(pi->mv,i));
+		SCPrintSizes(pi,MVGlyphIndex(pi->mv,i),printer);
     }
 
-    dump_trailer(pi);
+    printer.end_document();
 }
 
 /* ************************************************************************** */

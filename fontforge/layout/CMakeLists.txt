@@ -2,6 +2,7 @@
 
 add_library(layout INTERFACE
   i_printer.hpp
+  legacy_printer.hpp
 )
 
 if(BUILD_SHARED_LIBS)
