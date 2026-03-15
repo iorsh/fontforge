@@ -33,6 +33,8 @@ class IPrinter {
     virtual ~IPrinter() = default;
 
     virtual void add_page() = 0;
+    virtual void start_document() = 0;
+    virtual void end_document() = 0;
 };
 
 }  // namespace ff::layout
