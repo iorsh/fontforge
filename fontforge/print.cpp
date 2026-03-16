@@ -52,6 +52,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <time.h>
+#include <vector>
 #include "ffunistd.h"
 #if !defined(__MINGW32__) && !defined(_MSC_VER)
 #include <sys/wait.h>
@@ -134,7 +135,7 @@ static void pdf_addpage(PI *pi) {
 static void pdf_finishpage(PI *pi) {
     long streamlength;
 
-    if ( pi->pt!=pt_fontsample )
+	if ( pi->pg_state.pt!=pt_fontsample )
 	fprintf( pi->out, "Q\n" );
     streamlength = ftell(pi->out)-pi->start_cur_page;
     fprintf( pi->out, "\nendstream\n" );
@@ -1171,9 +1172,9 @@ static void dump_pdfprologue(PI *pi) {
     /* Output metadata */
     pdf_addobject(pi);
     fprintf( pi->out, "<<\n" );
-    if ( pi->pt==pt_fontdisplay ) {
+	if ( pi->pg_state.pt==pt_fontdisplay ) {
 	fprintf( pi->out, "  /Title (Font Display for %s)\n", pi->mainsf->fullname );
-    } else if ( pi->pt==pt_fontsample ) {
+	} else if ( pi->pg_state.pt==pt_fontsample ) {
 	fprintf( pi->out, "  /Title (Text Sample of %s)\n", pi->mainsf->fullname );
     } else if ( pi->sc!=NULL )
 	fprintf( pi->out, "  /Title (Character Display for %s from %s)\n", pi->sc->name, pi->mainsf->fullname );
@@ -1268,7 +1269,7 @@ static void dump_pdftrailer(PI *pi) {
 	fprintf( pi->out, "    %d 0 R\n", pi->page_objects[i]);
     fprintf( pi->out, "  ]\n" );
     fprintf( pi->out, "  /Count %d\n", pi->next_page );
-    fprintf( pi->out, "  /MediaBox [0 0 %d %d]\n", pi->pagewidth, pi->pageheight );
+	fprintf( pi->out, "  /MediaBox [0 0 %d %d]\n", pi->pagewidth, pi->pg_state.pageheight );
     fprintf( pi->out, "  /Resources <<\n" );
     /* In case we have a type3 font, include the image procsets */
     fprintf( pi->out, "    /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]\n" );
@@ -1399,13 +1400,13 @@ static void dump_prologue(PI *pi) {
     int ch, i, j, base, sfid;
     const char *author = GetAuthor();
 
-    if ( pi->printtype==pt_pdf ) {
+	if ( pi->pg_state.printtype==pt_pdf ) {
 	dump_pdfprologue(pi);
 return;
     }
 
     fprintf( pi->out, "%%!PS-Adobe-3.0\n" );
-    fprintf( pi->out, "%%%%BoundingBox: 20 20 %d %d\n", pi->pagewidth-30, pi->pageheight-20 );
+	fprintf( pi->out, "%%%%BoundingBox: 20 20 %d %d\n", pi->pagewidth-30, pi->pg_state.pageheight-20 );
     fprintf( pi->out, "%%%%Creator: FontForge\n" );
     now = GetTime();
     fprintf( pi->out, "%%%%CreationDate: %s", ctime(&now) );
@@ -1415,10 +1416,10 @@ return;
     fprintf( pi->out, "%%%%LanguageLevel: %d\n", 3 );
     fprintf( pi->out, "%%%%Orientation: Portrait\n" );
     fprintf( pi->out, "%%%%Pages: (atend)\n" );
-    if ( pi->pt==pt_fontdisplay ) {
+	if ( pi->pg_state.pt==pt_fontdisplay ) {
 	fprintf( pi->out, "%%%%Title: Font Display for %s\n", pi->mainsf->fullname );
 	fprintf( pi->out, "%%%%DocumentSuppliedResources: font %s\n", pi->mainsf->fontname );
-    } else if ( pi->pt==pt_fontsample ) {
+	} else if ( pi->pg_state.pt==pt_fontsample ) {
 	fprintf( pi->out, "%%%%Title: Text Sample of %s\n", pi->mainsf->fullname );
 	fprintf( pi->out, "%%%%DocumentSuppliedResources: font %s\n", pi->mainsf->fontname );
     } else if ( pi->sc!=NULL )
@@ -1434,7 +1435,7 @@ return;
 
     fprintf( pi->out, "%%%%BeginSetup\n" );
     if ( pi->hadsize )
-	fprintf( pi->out, "<< /PageSize [%d %d] >> setpagedevice\n", pi->pagewidth, pi->pageheight );
+	fprintf( pi->out, "<< /PageSize [%d %d] >> setpagedevice\n", pi->pagewidth, pi->pg_state.pageheight );
 
     fprintf( pi->out, "%% <font> <encoding> font_remap <font>	; from the cookbook\n" );
     fprintf( pi->out, "/reencodedict 5 dict def\n" );
@@ -1469,14 +1470,14 @@ return;
 	    fprintf( pi->out, "\n%%%%EndResource\n" );
 	    if ( sfbit->iscid )
 		DumpIdentCMap(pi,sfid);
-	    if ( pi->pt!=pt_fontsample ) {
-		sprintf(sfbit->psfontname,"%s__%d", sfbit->sf->fontname, pi->pointsize );
+	    if ( pi->pg_state.pt!=pt_fontsample ) {
+		sprintf(sfbit->psfontname,"%s__%d", sfbit->sf->fontname, pi->pg_state.pointsize );
 		if ( !sfbit->iscid )
 		    fprintf(pi->out,"/%s /%s findfont %d scalefont def\n",
-			    sfbit->psfontname, sfbit->sf->fontname, pi->pointsize );
+			    sfbit->psfontname, sfbit->sf->fontname, pi->pg_state.pointsize );
 		else
 		    fprintf(pi->out,"/%s /%s--Noop /Noop-%d [ /%s ] composefont %d scalefont def\n",
-			    sfbit->psfontname, sfbit->sf->fontname, 0, sfbit->sf->fontname, pi->pointsize );
+			    sfbit->psfontname, sfbit->sf->fontname, 0, sfbit->sf->fontname, pi->pg_state.pointsize );
 	    }
 
 	    if ( !sfbit->iscid ) {
@@ -1490,9 +1491,9 @@ return;
 		    int gid = sfbit->map->map[i];
 		    if ( gid!=-1 && SCWorthOutputting(sfbit->sf->glyphs[gid]) ) {
 			base = i&~0xff;
-			if ( pi->pt!=pt_fontsample )
+			if ( pi->pg_state.pt!=pt_fontsample )
 			    fprintf( pi->out, "/%s-%x__%d /%s-%x /%s%s findfont [\n",
-				    sfbit->sf->fontname, base>>8, pi->pointsize,
+				    sfbit->sf->fontname, base>>8, pi->pg_state.pointsize,
 				    sfbit->sf->fontname, base>>8,
 				    sfbit->sf->fontname, sfbit->twobyte?"Base":"" );
 			else
@@ -1508,9 +1509,9 @@ return;
 			}
 			for ( ;j<0x100; ++j )
 			    fprintf( pi->out, "\t/.notdef\n" );
-			if ( pi->pt!=pt_fontsample )
+			if ( pi->pg_state.pt!=pt_fontsample )
 			    fprintf( pi->out, " ] font_remap definefont %d scalefont def\n",
-				    pi->pointsize );
+				    pi->pg_state.pointsize );
 			else
 			    fprintf( pi->out, " ] font_remap definefont\n" );
 			i = base+0xff;
@@ -1540,8 +1541,8 @@ static int PIDownloadFont(PI *pi, SplineFont *sf, EncMap *map) {
     sfbit->isunicodefull = map->enc->is_unicodefull;
     sfbit->istype42cid = sf->layers[ly_fore].order2;
     sfbit->iscid = sf->subfontcnt!=0 || sfbit->istype42cid;
-    if ( pi->pointsize==0 )
-	pi->pointsize = sfbit->iscid && !sfbit->istype42cid?18:20;		/* 18 fits 20 across, 20 fits 16 */
+    if ( pi->pg_state.pointsize==0 )
+	pi->pg_state.pointsize = sfbit->iscid && !sfbit->istype42cid?18:20;		/* 18 fits 20 across, 20 fits 16 */
 
     sfbit->fontfile = GFileTmpfile();
     if ( sfbit->fontfile==NULL ) {
@@ -1554,16 +1555,16 @@ return(false);
     else
 	ff_progress_reset();
     ff_progress_enable_stop(false);
-    if ( pi->printtype==pt_pdf && sf->multilayer ) {
+    if ( pi->pg_state.printtype==pt_pdf && sf->multilayer ) {
 	/* These need to be done in line as pdf objects */
 	/* I leave fontfile open as a flag, even though we don't use it */
-    } else if ( pi->printtype==pt_pdf && sfbit->iscid ) {
+    } else if ( pi->pg_state.printtype==pt_pdf && sfbit->iscid ) {
 	if ( !_WriteTTFFont(sfbit->fontfile,sf,
 		sfbit->istype42cid?ff_type42cid:ff_cffcid,NULL,bf_none,
 		ps_flag_nocffsugar,map,ly_fore))
 	    error = true;
     } else if ( !_WritePSFont(sfbit->fontfile,sf,
-		pi->printtype==pt_pdf ? ff_pfb :
+		pi->pg_state.printtype==pt_pdf ? ff_pfb :
 		sf->multilayer?ff_ptype3:
 		is_mm?ff_mma:
 		sfbit->istype42cid?ff_type42cid:
@@ -1586,20 +1587,20 @@ return( true );
 }
 
 static void endpage(PI *pi ) {
-    if ( pi->printtype!=pt_pdf )
+    if ( pi->pg_state.printtype!=pt_pdf )
 	fprintf(pi->out,"showpage cleartomark restore\t\t%%End of Page\n" );
     else
 	pdf_finishpage(pi);
 }
 
 static void dump_trailer(PI *pi) {
-    if ( pi->page!=0 )
+	if ( pi->pg_state.page!=0 )
 	endpage(pi);
-    if ( pi->printtype==pt_pdf )
+	if ( pi->pg_state.printtype==pt_pdf )
 	dump_pdftrailer(pi);
     else {
 	fprintf( pi->out, "%%%%Trailer\n" );
-	fprintf( pi->out, "%%%%Pages: %d\n", pi->page );
+	fprintf( pi->out, "%%%%Pages: %d\n", pi->pg_state.page );
 	fprintf( pi->out, "%%%%EOF\n" );
     }
 }
@@ -1613,42 +1614,42 @@ static void startpage(PI *pi ) {
     /* I used to have a progress indicator here showing pages. But they went */
     /*  by so fast that even for CaslonRoman it was pointless */
 
-    if ( pi->page!=0 )
+	if ( pi->pg_state.page!=0 )
 	endpage(pi);
-    ++pi->page;
-    pi->ypos = -60-.9*pi->pointsize;
+	++pi->pg_state.page;
+	pi->pg_state.ypos = -60-.9*pi->pg_state.pointsize;
 
-    if ( pi->printtype==pt_pdf ) {
+	if ( pi->pg_state.printtype==pt_pdf ) {
 	pdf_addpage(pi);
-	if ( pi->pt == pt_chars )
+	if ( pi->pg_state.pt == pt_chars )
 return;
-	fprintf(pi->out,"q 1 0 0 1 40 %d cm\n", pi->pageheight-54 );
+	fprintf(pi->out,"q 1 0 0 1 40 %d cm\n", pi->pg_state.pageheight-54 );
 	fprintf( pi->out, "BT\n  /FTB 12 Tf\n  193.2 -10.92 Td\n" );
 	fprintf(pi->out,"(Font Display for %s) Tj\n", pi->mainsf->fontname );
 	fprintf( pi->out, "-159.8 -43.98 Td\n" );
 	if ( pi->sfbits[0].iscid && !pi->sfbits[0].istype42cid)
-	    for ( i=0; i<pi->max; ++i )
-		fprintf(pi->out,"%d 0 Td (%d) Tj\n", (pi->pointsize+pi->extrahspace), i );
+	    for ( i=0; i<pi->pg_state.max; ++i )
+		fprintf(pi->out,"%d 0 Td (%d) Tj\n", (pi->pg_state.pointsize+pi->pg_state.extrahspace), i );
 	else
-	    for ( i=0; i<pi->max; ++i )
-		fprintf(pi->out,"%d 0 Td (%X) Tj\n", (pi->pointsize+pi->extrahspace), i );
+	    for ( i=0; i<pi->pg_state.max; ++i )
+		fprintf(pi->out,"%d 0 Td (%X) Tj\n", (pi->pg_state.pointsize+pi->pg_state.extrahspace), i );
 	fprintf( pi->out, "ET\n" );
 return;
     }
 
-    fprintf(pi->out,"%%%%Page: %d %d\n", pi->page, pi->page );
+    fprintf(pi->out,"%%%%Page: %d %d\n", pi->pg_state.page, pi->pg_state.page );
     fprintf(pi->out,"%%%%PageResources: font Times-Bold font %s\n", pi->mainsf->fontname );
     fprintf(pi->out,"save mark\n" );
-    fprintf(pi->out,"40 %d translate\n", pi->pageheight-54 );
+    fprintf(pi->out,"40 %d translate\n", pi->pg_state.pageheight-54 );
     fprintf(pi->out,"Times-Bold__12 setfont\n" );
     fprintf(pi->out,"(Font Display for %s) 193.2 -10.92 n_show\n", pi->mainsf->fontname);
 
     if ( pi->sfbits[0].iscid && !pi->sfbits[0].istype42cid )
-	for ( i=0; i<pi->max; ++i )
-	    fprintf(pi->out,"(%d) %d -54.84 n_show\n", i, 60+(pi->pointsize+pi->extrahspace)*i );
+	for ( i=0; i<pi->pg_state.max; ++i )
+	    fprintf(pi->out,"(%d) %d -54.84 n_show\n", i, 60+(pi->pg_state.pointsize+pi->pg_state.extrahspace)*i );
     else
-	for ( i=0; i<pi->max; ++i )
-	    fprintf(pi->out,"(%X) %d -54.84 n_show\n", i, 60+(pi->pointsize+pi->extrahspace)*i );
+	for ( i=0; i<pi->pg_state.max; ++i )
+	    fprintf(pi->out,"(%X) %d -54.84 n_show\n", i, 60+(pi->pg_state.pointsize+pi->pg_state.extrahspace)*i );
 }
 
 static int DumpLine(PI *pi, ff::layout::IPrinter &printer) {
@@ -1657,20 +1658,20 @@ static int DumpLine(PI *pi, ff::layout::IPrinter &printer) {
 
     /* First find the next line with stuff on it */
     if ( !sfbit->iscid || sfbit->istype42cid ) {
-	for ( line = pi->chline ; line<sfbit->map->enccount; line += pi->max ) {
-	    for ( i=0; i<pi->max && line+i<sfbit->map->enccount; ++i )
+	for ( line = pi->chline ; line<sfbit->map->enccount; line += pi->pg_state.max ) {
+	    for ( i=0; i<pi->pg_state.max && line+i<sfbit->map->enccount; ++i )
 		if ( (gid=sfbit->map->map[line+i])!=-1 )
 		    if ( SCWorthOutputting(sfbit->sf->glyphs[gid]) )
 	    break;
-	    if ( i!=pi->max )
+	    if ( i!=pi->pg_state.max )
 	break;
 	}
     } else {
-	for ( line = pi->chline ; line<sfbit->cidcnt; line += pi->max ) {
-	    for ( i=0; i<pi->max && line+i<sfbit->cidcnt; ++i )
+	for ( line = pi->chline ; line<sfbit->cidcnt; line += pi->pg_state.max ) {
+	    for ( i=0; i<pi->pg_state.max && line+i<sfbit->cidcnt; ++i )
 		if ( CIDWorthOutputting(sfbit->sf,line+i)!= -1 )
 	    break;
-	    if ( i!=pi->max )
+	    if ( i!=pi->pg_state.max )
 	break;
 	}
     }
@@ -1686,18 +1687,18 @@ return(0);
 	    if ( !pi->overflow ) {
 		/* draw a line to indicate the end of the encoding */
 		/* but we've still got more (unencoded) glyphs coming */
-		if ( pi->printtype==pt_pdf ) {
+		if ( pi->pg_state.printtype==pt_pdf ) {
 		    fprintf( pi->out, "%d %d m %d %d l S\n",
-			100, pi->ypos+8*pi->pointsize/10-1, 400, pi->ypos+8*pi->pointsize/10-1 );
+			100, pi->pg_state.ypos+8*pi->pg_state.pointsize/10-1, 400, pi->pg_state.ypos+8*pi->pg_state.pointsize/10-1 );
 		} else
 		    fprintf( pi->out, "%d %d moveto %d %d rlineto stroke\n",
-			100, pi->ypos+8*pi->pointsize/10-1, 300, 0 );
-		pi->ypos -= 5;
+			100, pi->pg_state.ypos+8*pi->pg_state.pointsize/10-1, 300, 0 );
+		pi->pg_state.ypos -= 5;
 	    }
 	    pi->overflow = true;
 	    pi->lastbase = (line>>8);
 	    sprintf(sfbit->psfontname,"%s-%x__%d", sfbit->sf->fontname, pi->lastbase,
-		    pi->pointsize );
+		    pi->pg_state.pointsize );
 	}
     }
 
@@ -1706,35 +1707,35 @@ return(0);
 	printer.add_page();
     } else {
 	/* start subsequent pages by displaying the one before */
-	if ( pi->ypos - pi->pointsize < -(pi->pageheight-90) ) {
+	if ( pi->pg_state.ypos - pi->pg_state.pointsize < -(pi->pg_state.pageheight-90) ) {
 	    printer.add_page();
 	}
     }
     pi->chline = line;
 
-    if ( pi->printtype==pt_pdf ) {
+	if ( pi->pg_state.printtype==pt_pdf ) {
 	int lastfont = -1;
 	if ( !pi->overflow || (line<17*65536 && sfbit->isunicodefull)) {
-	    fprintf(pi->out, "BT\n  /FTB 12 Tf\n  26.88 %d Td\n", pi->ypos );
+	    fprintf(pi->out, "BT\n  /FTB 12 Tf\n  26.88 %d Td\n", pi->pg_state.ypos );
 	    if ( sfbit->iscid && !sfbit->istype42cid )
 		fprintf(pi->out,"(%d) Tj\n", pi->chline );
 	    else
 		fprintf(pi->out,"(%04X) Tj\n", pi->chline );
 	    fprintf(pi->out, "ET\n" );
 	}
-	fprintf(pi->out, "BT\n  %d %d Td\n", 58-(pi->pointsize+pi->extrahspace), pi->ypos );
+	fprintf(pi->out, "BT\n  %d %d Td\n", 58-(pi->pg_state.pointsize+pi->pg_state.extrahspace), pi->pg_state.ypos );
 	if ( sfbit->iscid )
-	    fprintf(pi->out, "  /F0 %d Tf\n", pi->pointsize );
-	for ( i=0; i<pi->max ; ++i ) {
-	    fprintf( pi->out, "  %d 0 TD\n", pi->pointsize+pi->extrahspace );
+	    fprintf(pi->out, "  /F0 %d Tf\n", pi->pg_state.pointsize );
+	for ( i=0; i<pi->pg_state.max ; ++i ) {
+	    fprintf( pi->out, "  %d 0 TD\n", pi->pg_state.pointsize+pi->pg_state.extrahspace );
 	    if ( i+pi->chline<sfbit->cidcnt &&
 			((sfbit->iscid && !sfbit->istype42cid && CIDWorthOutputting(sfbit->sf,i+pi->chline)!=-1) ||
 			 ((!sfbit->iscid || sfbit->istype42cid) && (gid=sfbit->map->map[i+pi->chline])!=-1 &&
 				 SCWorthOutputting(sfbit->sf->glyphs[gid]))) ) {
-		/*int x = 58 + i*(pi->pointsize+pi->extrahspace);*/
+		/*int x = 58 + i*(pi->pg_state.pointsize+pi->pg_state.extrahspace);*/
 		if ( !sfbit->iscid && (i+pi->chline)/256 != lastfont ) {
 		    lastfont = (i+pi->chline)/256;
-		    fprintf(pi->out, "  /F%d-%d %d Tf\n", pi->sfid, sfbit->fonts[lastfont], pi->pointsize );
+		    fprintf(pi->out, "  /F%d-%d %d Tf\n", pi->sfid, sfbit->fonts[lastfont], pi->pg_state.pointsize );
 		}
 		if ( sfbit->istype42cid ) {
 		    int gid = sfbit->map->map[pi->chline+i];
@@ -1751,40 +1752,40 @@ return(0);
 	if ( !pi->overflow || (line<17*65536 && sfbit->isunicodefull)) {
 	    fprintf(pi->out,"Times-Bold__12 setfont\n" );
 	    if ( sfbit->iscid && !sfbit->istype42cid )
-		fprintf(pi->out,"(%d) 26.88 %d n_show\n", pi->chline, pi->ypos );
+		fprintf(pi->out,"(%d) 26.88 %d n_show\n", pi->chline, pi->pg_state.ypos );
 	    else
-		fprintf(pi->out,"(%04X) 26.88 %d n_show\n", pi->chline, pi->ypos );
+		fprintf(pi->out,"(%04X) 26.88 %d n_show\n", pi->chline, pi->pg_state.ypos );
 	}
 	fprintf(pi->out,"%s setfont\n", sfbit->psfontname );
-	for ( i=0; i<pi->max ; ++i ) {
+	for ( i=0; i<pi->pg_state.max ; ++i ) {
 	    if ( i+pi->chline<sfbit->cidcnt &&
 			((sfbit->iscid && !sfbit->istype42cid && CIDWorthOutputting(sfbit->sf,i+pi->chline)!=-1) ||
 			 ((!sfbit->iscid || sfbit->istype42cid) && (gid=sfbit->map->map[i+pi->chline])!=-1 &&
 				 SCWorthOutputting(sfbit->sf->glyphs[gid]))) ) {
-		int x = 58 + i*(pi->pointsize+pi->extrahspace);
+		int x = 58 + i*(pi->pg_state.pointsize+pi->pg_state.extrahspace);
 		if ( sfbit->istype42cid ) {
 		    int gid = sfbit->map->map[pi->chline+i];
 		    if ( gid!=-1 ) gid = sfbit->sf->glyphs[gid]->ttf_glyph;
 		    fprintf( pi->out, "<%04x> %d %d n_show\n", gid==-1?0:gid,
-			    x, pi->ypos );
+			    x, pi->pg_state.ypos );
 		} else if ( pi->overflow ) {
 		    fprintf( pi->out, "<%02x> %d %d n_show\n", pi->chline +i-(pi->lastbase<<8),
-			    x, pi->ypos );
+			    x, pi->pg_state.ypos );
 		} else if ( sfbit->iscid ) {
 		    fprintf( pi->out, "<%04x> %d %d n_show\n", pi->chline +i,
-			    x, pi->ypos );
+			    x, pi->pg_state.ypos );
 		} else if ( sfbit->twobyte ) {
 		    fprintf( pi->out, "<%04x> %d %d n_show\n", pi->chline +i,
-			    x, pi->ypos );
+			    x, pi->pg_state.ypos );
 		} else {
 		    fprintf( pi->out, "<%02x> %d %d n_show\n", pi->chline +i,
-			    x, pi->ypos );
+			    x, pi->pg_state.ypos );
 		}
 	    }
 	}
     }
-    pi->ypos -= pi->pointsize+pi->extravspace;
-    pi->chline += pi->max;
+	pi->pg_state.ypos -= pi->pg_state.pointsize+pi->extravspace;
+	pi->chline += pi->pg_state.max;
 return(true);
 }
 
@@ -1797,9 +1798,9 @@ static void PIFontDisplay(PI *pi) {
 return;
 	printer.start_document();
 
-    pi->extravspace = pi->pointsize/6;
-    pi->extrahspace = pi->pointsize/3;
-    pi->max = (pi->pagewidth-100)/(pi->extrahspace+pi->pointsize);
+	pi->extravspace = pi->pg_state.pointsize/6;
+	pi->pg_state.extrahspace = pi->pg_state.pointsize/3;
+	pi->pg_state.max = (pi->pagewidth-100)/(pi->pg_state.extrahspace+pi->pg_state.pointsize);
     pi->sfbits[0].cidcnt = pi->sfbits[0].map->enccount;
     if ( sf->subfontcnt!=0 && pi->sfbits[0].iscid ) {
 	int i,max=0;
@@ -1810,16 +1811,16 @@ return;
     }
 
     if ( pi->sfbits[0].iscid && !pi->sfbits[0].istype42cid ) {
-	if ( pi->max>=20 ) pi->max = 20;
-	else if ( pi->max>=10 ) pi->max = 10;
-	else if ( pi->max >= 5 ) pi->max = 5;
-	else if ( pi->max >= 2 ) pi->max = 2;
+	if ( pi->pg_state.max>=20 ) pi->pg_state.max = 20;
+	else if ( pi->pg_state.max>=10 ) pi->pg_state.max = 10;
+	else if ( pi->pg_state.max >= 5 ) pi->pg_state.max = 5;
+	else if ( pi->pg_state.max >= 2 ) pi->pg_state.max = 2;
     } else {
-	if ( pi->max>=32 ) pi->max = 32;
-	else if ( pi->max>=16 ) pi->max = 16;
-	else if ( pi->max>=8 ) pi->max = 8;
-	else if ( pi->max >= 4 ) pi->max = 4;
-	else if ( pi->max >= 2 ) pi->max = 2;
+	if ( pi->pg_state.max>=32 ) pi->pg_state.max = 32;
+	else if ( pi->pg_state.max>=16 ) pi->pg_state.max = 16;
+	else if ( pi->pg_state.max>=8 ) pi->pg_state.max = 8;
+	else if ( pi->pg_state.max >= 4 ) pi->pg_state.max = 4;
+	else if ( pi->pg_state.max >= 2 ) pi->pg_state.max = 2;
     }
 
 	while ( DumpLine(pi,printer))
@@ -1839,11 +1840,11 @@ static void SCPrintPage(PI *pi,SplineChar *sc, ff::layout::IPrinter &printer) {
     DBounds b, page;
     real scalex, scaley;
 
-    if ( pi->page!=0 )
+	if ( pi->pg_state.page!=0 )
 	endpage(pi);
-    ++pi->page;
-    if ( pi->printtype!=pt_pdf ) {
-	fprintf(pi->out,"%%%%Page: %d %d\n", pi->page, pi->page );
+	++pi->pg_state.page;
+	if ( pi->pg_state.printtype!=pt_pdf ) {
+	    fprintf(pi->out,"%%%%Page: %d %d\n", pi->pg_state.page, pi->pg_state.page );
 	fprintf(pi->out,"%%%%PageResources: font Times-Bold\n" );
 	fprintf(pi->out,"save mark\n" );
     } else {
@@ -1859,9 +1860,9 @@ static void SCPrintPage(PI *pi,SplineChar *sc, ff::layout::IPrinter &printer) {
 
     /* From the default bounding box */
     page.minx = 40; page.maxx = pi->pagewidth-15;
-    page.miny = 20; page.maxy = pi->pageheight-20;
+	page.miny = 20; page.maxy = pi->pg_state.pageheight-20;
 
-    if ( pi->printtype!=pt_pdf ) {
+	if ( pi->pg_state.printtype!=pt_pdf ) {
 	fprintf(pi->out,"Times-Bold__12 setfont\n" );
 	fprintf(pi->out,"(%s from %s) 80 %g n_show\n", sc->name, sc->parent->fullname, (double) (page.maxy-12) );
     } else {
@@ -1879,7 +1880,7 @@ static void SCPrintPage(PI *pi,SplineChar *sc, ff::layout::IPrinter &printer) {
     pi->xoff = page.minx - b.minx*pi->scale;
     pi->yoff = page.miny - b.miny*pi->scale;
 
-    if ( pi->printtype!=pt_pdf ) {
+	if ( pi->pg_state.printtype!=pt_pdf ) {
 	fprintf(pi->out,"gsave .2 setlinewidth\n" );
 	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) page.minx, (double) pi->yoff, (double) page.maxx, (double) pi->yoff );
 	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) pi->xoff, (double) page.miny, (double) pi->xoff, (double) page.maxy );
@@ -1946,42 +1947,42 @@ static void PIChars(PI *pi) {
 static void samplestartpage(PI *pi ) {
     struct sfbits *sfbit = &pi->sfbits[0];
 
-    if ( pi->page!=0 )
+	if ( pi->pg_state.page!=0 )
 	endpage(pi);
-    ++pi->page;
-    if ( pi->printtype==pt_pdf ) {
+	++pi->pg_state.page;
+	if ( pi->pg_state.printtype==pt_pdf ) {
 	pdf_addpage(pi);
-	fprintf( pi->out, "BT\n  /FTB 12 Tf\n  80 %d Td\n", pi->pageheight-84 );
-	if ( pi->pt==pt_fontsample )
+	fprintf( pi->out, "BT\n  /FTB 12 Tf\n  80 %d Td\n", pi->pg_state.pageheight-84 );
+	if ( pi->pg_state.pt==pt_fontsample )
 	    fprintf(pi->out,"(Sample Text from %s) Tj\nET\n", sfbit->sf->fullname );
 	else {
 	    fprintf(pi->out,"(Sample Sizes of %s) Tj\n", sfbit->sf->fullname );
-	    fprintf(pi->out,"ET\nq 1 0 0 1 40 %d cm\n", pi->pageheight-34-
-		    pi->pointsize*sfbit->sf->ascent/(sfbit->sf->ascent+sfbit->sf->descent) );
+	    fprintf(pi->out,"ET\nq 1 0 0 1 40 %d cm\n", pi->pg_state.pageheight-34-
+		    pi->pg_state.pointsize*sfbit->sf->ascent/(sfbit->sf->ascent+sfbit->sf->descent) );
 	}
-	pi->lastfont = -1;
-	pi->wasps = -1;
+	pi->pg_state.lastfont = -1;
+	pi->pg_state.wasps = -1;
     } else {
-	fprintf(pi->out,"%%%%Page: %d %d\n", pi->page, pi->page );
+	fprintf(pi->out,"%%%%Page: %d %d\n", pi->pg_state.page, pi->pg_state.page );
 	fprintf(pi->out,"%%%%PageResources: font %s\n", sfbit->sf->fontname );
 	fprintf(pi->out,"save mark\n" );
 	fprintf(pi->out,"Times-Bold__12 setfont\n" );
-	if ( pi->pt==pt_fontsample )
-	    fprintf(pi->out,"(Sample Text from %s) 80 %d n_show\n", sfbit->sf->fullname, pi->pageheight-84 );
+	if ( pi->pg_state.pt==pt_fontsample )
+	    fprintf(pi->out,"(Sample Text from %s) 80 %d n_show\n", sfbit->sf->fullname, pi->pg_state.pageheight-84 );
 	else {
-	    fprintf(pi->out,"(Sample Sizes of %s) 80 %d n_show\n", sfbit->sf->fullname, pi->pageheight-84 );
-	    fprintf(pi->out,"40 %d translate\n", pi->pageheight-34-
-		    pi->pointsize*sfbit->sf->ascent/(sfbit->sf->ascent+sfbit->sf->descent) );
+	    fprintf(pi->out,"(Sample Sizes of %s) 80 %d n_show\n", sfbit->sf->fullname, pi->pg_state.pageheight-84 );
+	    fprintf(pi->out,"40 %d translate\n", pi->pg_state.pageheight-34-
+		    pi->pg_state.pointsize*sfbit->sf->ascent/(sfbit->sf->ascent+sfbit->sf->descent) );
 	}
 	if ( sfbit->iscid )
 	    fprintf(pi->out,"/Noop-%d [ /%s ] composefont %d scalefont setfont\n",
-		    0, sfbit->sf->fontname, pi->pointsize );
+		    0, sfbit->sf->fontname, pi->pg_state.pointsize );
 	else
 	    fprintf(pi->out,"/%s findfont %d scalefont setfont\n", sfbit->sf->fontname,
-		    pi->pointsize);
+		    pi->pg_state.pointsize);
     }
 
-    pi->ypos = -30;
+	pi->pg_state.ypos = -30;
 }
 
 static void outputchar(PI *pi, int sfid, SplineChar *sc) {
@@ -2015,11 +2016,11 @@ static void outputotchar(PI *pi,struct opentype_str *osc,int x,int baseline) {
     SplineChar *sc = osc->sc;
     int enc = sfbit->map->backmap[sc->orig_pos];
 
-    if ( pi->printtype==pt_pdf ) {
+	if ( pi->pg_state.printtype==pt_pdf ) {
 	int fn = sfbit->iscid?0:sfbit->fonts[enc/256];
-	if ( pi->wassfid!=sfid || fn!=pi->wasfn || fd->pointsize!=pi->wasps ) {
+	if ( pi->wassfid!=sfid || fn!=pi->wasfn || fd->pointsize!=pi->pg_state.wasps ) {
 	    fprintf(pi->out,"/F%d-%d %d Tf\n ", sfid, fn, fd->pointsize);
-	    pi->wassfid = sfid; pi->wasfn = fn; pi->wasps = fd->pointsize;
+	    pi->wassfid = sfid; pi->wasfn = fn; pi->pg_state.wasps = fd->pointsize;
 	}
 	fprintf(pi->out, "%g %g Td ",
 		(double) ((x+osc->vr.xoff-pi->lastx)*pi->scale),
@@ -2035,7 +2036,7 @@ static void outputotchar(PI *pi,struct opentype_str *osc,int x,int baseline) {
 		(double) ((baseline+osc->vr.yoff+osc->bsln_off)*pi->scale) );
 	if ( (sfbit->twobyte && enc>0xffff) || (!sfbit->twobyte && enc>0xff) )
 	    fn = enc>>8;
-	if ( pi->wassfid!=sfid || fn!=pi->wasfn || fd->pointsize!=pi->wasps ) {
+	if ( pi->wassfid!=sfid || fn!=pi->wasfn || fd->pointsize!=pi->pg_state.wasps ) {
 	    if ( sfbit->iscid )
 		putc('<',pi->out);
 	    else if ( (sfbit->twobyte && enc>0xffff) || (!sfbit->twobyte && enc>0xff) )
@@ -2045,7 +2046,7 @@ static void outputotchar(PI *pi,struct opentype_str *osc,int x,int baseline) {
 	    else
 		fprintf(pi->out,"/%s findfont %d scalefont setfont\n  <", sfbit->sf->fontname,
 			fd->pointsize);
-	    pi->wassfid = sfid; pi->wasfn = fn; pi->wasps = fd->pointsize;
+	    pi->wassfid = sfid; pi->wasfn = fn; pi->pg_state.wasps = fd->pointsize;
 	} else
 	    putc('<',pi->out);
 	outputchar(pi,sfid,sc);
@@ -2058,15 +2059,15 @@ static void PIFontSample(PI *pi) {
     int cnt=0;
     int y,x, bottom, top, baseline;
     LayoutInfo *li = pi->sample;
-    struct opentype_str **line;
+	struct opentype_str **line;
     int i,j;
 	ff::layout::LegacyPrinter printer =
 		MakeLegacyPrinter(pi, ff::layout::PrintPageStyle::sample);
 
-    pi->pointsize = 12;		/* no longer meaningful */
-    pi->extravspace = pi->pointsize/6;
+	pi->pg_state.pointsize = 12;		/* no longer meaningful */
+	pi->extravspace = pi->pg_state.pointsize/6;
     pi->scale = 72.0/li->dpi;
-    pi->lastfont = -1; pi->intext = false;
+	pi->pg_state.lastfont = -1; pi->intext = false;
     pi->wassfid = -1;
 
     for ( cnt=0, sfmaps = li->sfmaps; sfmaps!=NULL; sfmaps = sfmaps->next, ++cnt ) {
@@ -2079,19 +2080,19 @@ return;
 	printer.start_document();
 
 	printer.add_page();
-    if ( pi->printtype==pt_pdf ) {
+    if ( pi->pg_state.printtype==pt_pdf ) {
 	fprintf(pi->out, "BT\n" );
 	pi->lastx = pi->lasty = 0;
     }
-    y = top = rint((pi->pageheight - 96)/pi->scale);	/* In dpi units */
+    y = top = rint((pi->pg_state.pageheight - 96)/pi->scale);	/* In dpi units */
     bottom = rint(36/pi->scale);			/* multiply by scale to get ps points */
 
-    for ( i=0; i<li->lcnt; ++i ) {
+	for ( i=0; i<li->lcnt; ++i ) {
 	if ( y - li->lineheights[i].fh < bottom ) {
-	    if ( pi->printtype==pt_pdf )
+	    if ( pi->pg_state.printtype==pt_pdf )
 		fprintf(pi->out, "ET\n" );
 	    printer.add_page();
-	    if ( pi->printtype==pt_pdf ) {
+	    if ( pi->pg_state.printtype==pt_pdf ) {
 		fprintf(pi->out, "BT\n" );
 		pi->lastx = pi->lasty = 0;
 	    }
@@ -2100,13 +2101,13 @@ return;
 	x = rint(36/pi->scale);
 	baseline = y - li->lineheights[i].as;
 	y -= li->lineheights[i].fh;
-	line = li->lines[i];
-	for ( j=0; line[j]!=NULL; ++j ) {
+	    line = li->lines[i];
+	    for ( j=0; line[j]!=NULL; ++j ) {
 	    outputotchar(pi,line[j],x,baseline);
 	    x += line[j]->advance_width + line[j]->vr.h_adv_off;
 	}
     }
-    if ( pi->printtype==pt_pdf )
+    if ( pi->pg_state.printtype==pt_pdf )
 	fprintf(pi->out, "ET\n" );
 	printer.end_document();
 }
@@ -2124,16 +2125,16 @@ static void SCPrintSizes(PI *pi,SplineChar *sc, ff::layout::IPrinter &printer) {
     if ( !SCWorthOutputting(sc))
 return;
     enc = sfbit->map->backmap[sc->orig_pos];
-    if ( pi->ypos - pi->pointsize < -(pi->pageheight-90) && pi->ypos!=-30 ) {
+	if ( pi->pg_state.ypos - pi->pg_state.pointsize < -(pi->pg_state.pageheight-90) && pi->pg_state.ypos!=-30 ) {
 	printer.add_page();
     }
-    if ( pi->printtype==pt_pdf ) {
-	fprintf(pi->out,"BT\n%d %d Td\n", xstart, pi->ypos );
+	if ( pi->pg_state.printtype==pt_pdf ) {
+	fprintf(pi->out,"BT\n%d %d Td\n", xstart, pi->pg_state.ypos );
     } else {
-	fprintf(pi->out,"%d %d moveto ", xstart, pi->ypos );
+	fprintf(pi->out,"%d %d moveto ", xstart, pi->pg_state.ypos );
     }
     for ( i=0; pointsizes[i]!=0; ++i ) {
-	if ( pi->printtype==pt_pdf ) {
+	if ( pi->pg_state.printtype==pt_pdf ) {
 	    fprintf(pi->out,"/F%d-%d %g Tf\n  <", pi->sfid, sfbit->iscid?0:sfbit->fonts[enc/256], pointsizes[i]);
 	    outputchar(pi,0,sc);
 	    fprintf( pi->out, "> Tj\n" );
@@ -2150,9 +2151,9 @@ return;
 	    fprintf( pi->out, "> show\n" );
 	}
     }
-    if ( pi->printtype==pt_pdf )
+	if ( pi->pg_state.printtype==pt_pdf )
 	fprintf(pi->out, "ET\n");
-    pi->ypos -= pi->pointsize+pi->extravspace;
+	pi->pg_state.ypos -= pi->pg_state.pointsize+pi->extravspace;
 }
 
 static void PIMultiSize(PI *pi) {
@@ -2161,8 +2162,8 @@ static void PIMultiSize(PI *pi) {
 	ff::layout::LegacyPrinter printer =
 		MakeLegacyPrinter(pi, ff::layout::PrintPageStyle::sample);
 
-    pi->pointsize = pointsizes[0];
-    pi->extravspace = pi->pointsize/6;
+	pi->pg_state.pointsize = pointsizes[0];
+	pi->extravspace = pi->pg_state.pointsize/6;
     if ( !PIDownloadFont(pi,pi->mainsf,pi->mainmap))
 return;
 	printer.start_document();
@@ -2886,7 +2887,7 @@ static void QueueIt(PI *pi) {
 	close(stdinno);
 	dup2(fileno(pi->out),stdinno);
 	i = 0;
-	if ( pi->printtype == pt_ghostview ) {
+	if ( pi->pg_state.printtype == pt_ghostview ) {
 	    if ( !use_gv )
 		argv[i++] = (char *)"ghostview";
 	    else {
@@ -2894,7 +2895,7 @@ static void QueueIt(PI *pi) {
 		argv[i++] = (char *)"-antialias";
 	    }
 	    argv[i++] = (char *)"-";		/* read from stdin */
-	} else if ( pi->printtype == pt_lp ) {
+	} else if ( pi->pg_state.printtype == pt_lp ) {
 	    argv[i++] = (char *)"lp";
 	    if ( pi->printer!=NULL ) {
 		argv[i++] = (char *)"-d";
@@ -2905,7 +2906,7 @@ static void QueueIt(PI *pi) {
 		sprintf(buf,"%d", pi->copies );
 		argv[i++] = buf;
 	    }
-	} else if ( pi->printtype == pt_lpr ) {
+	} else if ( pi->pg_state.printtype == pt_lpr ) {
 	    argv[i++] = (char *)"lpr";
 	    if ( pi->printer!=NULL ) {
 		argv[i++] = (char *)"-P";
@@ -2945,7 +2946,7 @@ static void QueueIt(PI *pi) {
 	argv[i] = NULL;
  /*for ( i=0; argv[i]!=NULL; ++i ) printf( "%s ", argv[i]); printf("\n" );*/
 	execvp(argv[0],argv);
-	if ( pi->printtype == pt_ghostview ) {
+	if ( pi->pg_state.printtype == pt_ghostview ) {
 	    argv[0] = (char *)"gv";
 	    execvp(argv[0],argv);
 	}
@@ -2954,7 +2955,7 @@ static void QueueIt(PI *pi) {
 	_exit(1);
     } else if ( pid==-1 )
 	IError("Failed to fork print job");
-    else if ( pi->printtype != pt_ghostview ) {
+	else if ( pi->pg_state.printtype != pt_ghostview ) {
 	waitpid(pid,&status,0);
 	if ( !WIFEXITED(status) )
 	    IError("Failed to queue print job");
@@ -2972,7 +2973,7 @@ static void QueueIt(PI *pi) {
 void DoPrinting(PI *pi,char *filename) {
     int sfmax=1;
 
-    if ( pi->pt==pt_fontsample ) {
+    if ( pi->pg_state.pt==pt_fontsample ) {
 	struct sfmaps *sfmap;
 	for ( sfmap=pi->sample->sfmaps, sfmax=0; sfmap!=NULL; sfmap=sfmap->next, ++sfmax );
 	if ( sfmax==0 ) sfmax=1;
@@ -2981,11 +2982,11 @@ void DoPrinting(PI *pi,char *filename) {
     pi->sfbits = (struct sfbits *)calloc(sfmax,sizeof(struct sfbits));
     pi->sfcnt = 0;
 
-    if ( pi->pt==pt_fontdisplay )
+	if ( pi->pg_state.pt==pt_fontdisplay )
 	PIFontDisplay(pi);
-    else if ( pi->pt==pt_fontsample )
+	else if ( pi->pg_state.pt==pt_fontsample )
 	PIFontSample(pi);
-    else if ( pi->pt==pt_multisize )
+	else if ( pi->pg_state.pt==pt_multisize )
 	PIMultiSize(pi);
     else
 	PIChars(pi);
@@ -2993,7 +2994,7 @@ void DoPrinting(PI *pi,char *filename) {
     if ( ferror(pi->out) )
 	ff_post_error(_("Print Failed"),_("Failed to generate postscript in file %s"),
 		filename==NULL?"temporary":filename );
-    if ( pi->printtype!=pt_file && pi->printtype!=pt_pdf )
+	if ( pi->pg_state.printtype!=pt_file && pi->pg_state.printtype!=pt_pdf )
 	QueueIt(pi);
     if ( fclose(pi->out)!=0 )
 	ff_post_error(_("Print Failed"),_("Failed to generate postscript in file %s"),
@@ -3007,15 +3008,15 @@ void DoPrinting(PI *pi,char *filename) {
 
 static void PIGetPrinterDefs(PI *pi) {
     pi->pagewidth = pagewidth;
-    pi->pageheight = pageheight;
-    pi->printtype = printtype;
+	pi->pg_state.pageheight = pageheight;
+	pi->pg_state.printtype = printtype;
     pi->printer = copy(printlazyprinter);
     pi->copies = 1;
-    if ( pi->pagewidth!=0 && pi->pageheight!=0 )
+	if ( pi->pagewidth!=0 && pi->pg_state.pageheight!=0 )
 	pi->hadsize = true;
     else {
 	pi->pagewidth = 595;
-	pi->pageheight = 792;
+	pi->pg_state.pageheight = 792;
 	/* numbers chosen to fit either A4 or US-Letter */
 	pi->hadsize = false;	/* But we don't want to do a setpagedevice on this because then some printers will wait until fed this odd page size */
     }
@@ -3037,9 +3038,9 @@ void PI_Init(PI *pi,FontViewBase *fv,SplineChar *sc) {
     if ( pi->mainsf->cidmaster )
 	pi->mainsf = pi->mainsf->cidmaster;
     PIGetPrinterDefs(pi);
-    pi->pointsize = pdefs[di].pointsize;
-    if ( pi->pointsize==0 )
-	pi->pointsize = pi->mainsf->subfontcnt!=0?18:20;		/* 18 fits 20 across, 20 fits 16 */
+	pi->pg_state.pointsize = pdefs[di].pointsize;
+	if ( pi->pg_state.pointsize==0 )
+	pi->pg_state.pointsize = pi->mainsf->subfontcnt!=0?18:20;		/* 18 fits 20 across, 20 fits 16 */
 }
 
 
@@ -3097,9 +3098,9 @@ void ScriptPrint(FontViewBase *fv,int type,int32_t *pointsizes,char *samplefile,
     PI_Init(&pi,fv,NULL);
     if ( pointsizes!=NULL ) {
 	pi.pointsizes = pointsizes;
-	pi.pointsize = pointsizes[0];
+	pi.pg_state.pointsize = pointsizes[0];
     }
-    pi.pt = (enum printtype)type;
+	pi.pg_state.pt = (enum printtype)type;
     if ( type==pt_fontsample ) {
 	int width = (pi.pagewidth-1*72)*printdpi/72;
 	li = (LayoutInfo *)calloc(1,sizeof(LayoutInfo));
@@ -3109,7 +3110,7 @@ void ScriptPrint(FontViewBase *fv,int type,int32_t *pointsizes,char *samplefile,
 	li->ps = -1;
 	li->text = u_copy(temp);
 	SFMapOfSF(li,fv->sf);
-	LI_SetFontData(li,0,-1, fv->sf, fv->active_layer,sftf_otf,pi.pointsize,true,width);
+	LI_SetFontData(li,0,-1, fv->sf, fv->active_layer,sftf_otf,pi.pg_state.pointsize,true,width);
 
 	if ( samplefile!=NULL && *samplefile!='\0' )
 	    sample = FileToUString(samplefile,65536);
@@ -3121,10 +3122,10 @@ void ScriptPrint(FontViewBase *fv,int type,int32_t *pointsizes,char *samplefile,
 	pi.sample = li;
 	free(sample);
     }
-    if ( pi.printtype==pt_file || pi.printtype==pt_pdf ) {
+	if ( pi.pg_state.printtype==pt_file || pi.pg_state.printtype==pt_pdf ) {
 	if ( outputfile==NULL ) {
 	    sprintf(buf,"pr-%.90s.%s", pi.mainsf->fontname,
-		    pi.printtype==pt_file?"ps":"pdf" );
+		    pi.pg_state.printtype==pt_file?"ps":"pdf" );
 	    outputfile = buf;
 	}
 	pi.out = fopen(outputfile,"wb");
@@ -3143,7 +3144,7 @@ return;
 
     DoPrinting(&pi,outputfile);
 
-    if ( pi.pt==pt_fontsample ) {
+	if ( pi.pg_state.pt==pt_fontsample ) {
 	LayoutInfo_Destroy(pi.sample);
 	free(pi.sample);
     }

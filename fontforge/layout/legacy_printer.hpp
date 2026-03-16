@@ -26,10 +26,25 @@
  */
 #pragma once
 
+#ifdef __cplusplus
 #include <utility>
-
 #include "i_printer.hpp"
+#endif
 
+typedef struct PageState {
+    int pt;
+    int pointsize;
+    int extrahspace;
+    int ypos;
+    int max;
+    int page;
+    int pageheight;
+    int printtype;
+    int lastfont;
+    int wasps;
+} PageState;
+
+#ifdef __cplusplus
 struct printinfo;
 
 namespace ff::layout {
@@ -69,3 +84,5 @@ class LegacyPrinter final : public IPrinter {
 };
 
 }  // namespace ff::layout
+
+#endif

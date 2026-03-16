@@ -164,24 +164,24 @@ return( true );
 	if ( uc_strcmp(ret,"<default>")==0 || *ret=='\0' )
 	    ret = NULL;
 	pi->pi.printer = cu_copy(ret);
-	pi->pi.pagewidth = pgwidth; pi->pi.pageheight = pgheight;
+	pi->pi.pagewidth = pgwidth; pi->pi.pg_state.pageheight = pgheight;
 	pi->pi.copies = copies;
 
 	if ( GGadgetIsChecked(GWidgetGetControl(pi->setup,CID_lp)))
-	    pi->pi.printtype = pt_lp;
+	    pi->pi.pg_state.printtype = pt_lp;
 	else if ( GGadgetIsChecked(GWidgetGetControl(pi->setup,CID_lpr)))
-	    pi->pi.printtype = pt_lpr;
+	    pi->pi.pg_state.printtype = pt_lpr;
 	else if ( GGadgetIsChecked(GWidgetGetControl(pi->setup,CID_ghostview)))
-	    pi->pi.printtype = pt_ghostview;
+	    pi->pi.pg_state.printtype = pt_ghostview;
 	else if ( GGadgetIsChecked(GWidgetGetControl(pi->setup,CID_PDFFile)))
-	    pi->pi.printtype = pt_pdf;
+	    pi->pi.pg_state.printtype = pt_pdf;
 	else if ( GGadgetIsChecked(GWidgetGetControl(pi->setup,CID_Other))) {
-	    pi->pi.printtype = pt_other;
+	    pi->pi.pg_state.printtype = pt_other;
 	    printcommand = cu_copy(_GGadgetGetTitle(GWidgetGetControl(pi->setup,CID_OtherCmd)));
 	} else
-	    pi->pi.printtype = pt_file;
+	    pi->pi.pg_state.printtype = pt_file;
 
-	printtype = pi->pi.printtype;
+	printtype = pi->pi.pg_state.printtype;
 	free(printlazyprinter); printlazyprinter = copy(pi->pi.printer);
 	pagewidth = pgwidth; pageheight = pgheight;
 
@@ -381,7 +381,7 @@ static int PageSetup(PD *pi) {
     gcd[5].creator = GRadioCreate;
     radarray[2][0] = GCD_HPad10; radarray[2][1] = &gcd[5];
 
-    if ( (pt=pi->pi.printtype)==pt_unknown ) pt = pt_lp;
+	if ( (pt=pi->pi.pg_state.printtype)==pt_unknown ) pt = pt_lp;
     if ( pt==pt_pdf ) pt = 4;		/* These two are out of order */
     else if ( pt==pt_other ) pt = 5;
     if ( !(gcd[pt].gd.flags&gg_enabled) ) pt = pt_file;		/* always enabled */
@@ -409,20 +409,20 @@ static int PageSetup(PD *pi) {
     gcd[7].creator = GLabelCreate;
     txtarray[0][0] = &gcd[7];
 
-    if ( pi->pi.pagewidth==595 && pi->pi.pageheight==792 )
+	if ( pi->pi.pagewidth==595 && pi->pi.pg_state.pageheight==792 )
 	strcpy(pb,"US Letter");		/* Pick a name, this is the default case */
-    else if ( pi->pi.pagewidth==612 && pi->pi.pageheight==792 )
+	else if ( pi->pi.pagewidth==612 && pi->pi.pg_state.pageheight==792 )
 	strcpy(pb,"US Letter");
-    else if ( pi->pi.pagewidth==612 && pi->pi.pageheight==1008 )
+	else if ( pi->pi.pagewidth==612 && pi->pi.pg_state.pageheight==1008 )
 	strcpy(pb,"US Legal");
-    else if ( pi->pi.pagewidth==595 && pi->pi.pageheight==842 )
+	else if ( pi->pi.pagewidth==595 && pi->pi.pg_state.pageheight==842 )
 	strcpy(pb,"A4");
-    else if ( pi->pi.pagewidth==842 && pi->pi.pageheight==1191 )
+	else if ( pi->pi.pagewidth==842 && pi->pi.pg_state.pageheight==1191 )
 	strcpy(pb,"A3");
-    else if ( pi->pi.pagewidth==708 && pi->pi.pageheight==1000 )
+	else if ( pi->pi.pagewidth==708 && pi->pi.pg_state.pageheight==1000 )
 	strcpy(pb,"B4");
     else
-	sprintf(pb,"%dx%d mm", (int) (pi->pi.pagewidth*25.4/72),(int) (pi->pi.pageheight*25.4/72));
+	sprintf(pb,"%dx%d mm", (int) (pi->pi.pagewidth*25.4/72),(int) (pi->pi.pg_state.pageheight*25.4/72));
     label[8].text = (unichar_t *) pb;
     label[8].text_is_1byte = true;
     gcd[8].gd.label = &label[8];
@@ -547,7 +547,7 @@ static int PageSetup(PD *pi) {
 	GDrawProcessOneEvent(NULL);
     GDrawDestroyWindow(pi->setup);
     pi->pi.done = false;
-return( pi->pi.printtype!=pt_unknown );
+return( pi->pi.pg_state.printtype!=pt_unknown );
 }
 
 /* ************************************************************************** */
@@ -667,28 +667,28 @@ return(true);
 		CVCharChangedUpdate((CharViewBase *) cv);
 	    }
 	} else {
-	    pi->pi.pt = GTabSetGetSel(GWidgetGetControl(pi->gw,CID_TabSet))==0 ? pt_fontsample :
+	    pi->pi.pg_state.pt = GTabSetGetSel(GWidgetGetControl(pi->gw,CID_TabSet))==0 ? pt_fontsample :
 		       GGadgetIsChecked(GWidgetGetControl(pi->gw,CID_Chars))? pt_chars:
 		       GGadgetIsChecked(GWidgetGetControl(pi->gw,CID_MultiSize))? pt_multisize:
 		       pt_fontdisplay;
-	    if ( pi->pi.pt==pt_fontdisplay ) {
-		pi->pi.pointsize = GetInt8(pi->gw,CID_PointSize,_("_Pointsize:"),&err);
+	    if ( pi->pi.pg_state.pt==pt_fontdisplay ) {
+		pi->pi.pg_state.pointsize = GetInt8(pi->gw,CID_PointSize,_("_Pointsize:"),&err);
 		if ( err )
 return(true);
-		if ( pi->pi.pointsize<1 || pi->pi.pointsize>200 ) {
+		if ( pi->pi.pg_state.pointsize<1 || pi->pi.pg_state.pointsize>200 ) {
 		    ff_post_error(_("Invalid point size"),_("Invalid point size"));
 return(true);
 		}
 	    }
-	    if ( pi->pi.printtype==pt_unknown )
+	    if ( pi->pi.pg_state.printtype==pt_unknown )
 		if ( !PageSetup(pi))
 return(true);
 
-	    if ( pi->pi.printtype==pt_file || pi->pi.printtype==pt_pdf ) {
+	    if ( pi->pi.pg_state.printtype==pt_file || pi->pi.pg_state.printtype==pt_pdf ) {
 		sprintf(buf,"pr-%.90s.%s", pi->pi.mainsf->fontname,
-			pi->pi.printtype==pt_file?"ps":"pdf");
+			pi->pi.pg_state.printtype==pt_file?"ps":"pdf");
 		ret = gwwv_save_filename(_("Print To File..."),buf,
-			pi->pi.printtype==pt_pdf?"*.pdf":"*.ps");
+			pi->pi.pg_state.printtype==pt_pdf?"*.pdf":"*.ps");
 		if ( ret==NULL )
 return(true);
 		file = utf82def_copy(ret);
@@ -709,10 +709,10 @@ return(true);
 	    }
 
 	    pdefs[di].last_cs = pi->pi.mainmap->enc;
-	    pdefs[di].pt = pi->pi.pt;
-	    pdefs[di].pointsize = pi->pi.pointsize;
+	    pdefs[di].pt = (enum printtype) pi->pi.pg_state.pt;
+	    pdefs[di].pointsize = pi->pi.pg_state.pointsize;
 
-	    if ( pi->pi.pt==pt_fontsample ) {
+	    if ( pi->pi.pg_state.pt==pt_fontsample ) {
 		pi->pi.sample = LIConvertToPrint(
 			&((SFTextArea *) GWidgetGetControl(pi->gw,CID_SampleText))->li,
 			(pagewidth-1*72)*printdpi/72,
@@ -722,7 +722,7 @@ return(true);
 
 	    DoPrinting(&pi->pi,file);
 	    free(file);
-	    if ( pi->pi.pt==pt_fontsample ) {
+	    if ( pi->pi.pg_state.pt==pt_fontsample ) {
 		LayoutInfo_Destroy(pi->pi.sample);
 		free(pi->pi.sample);
 	    }
@@ -1979,7 +1979,7 @@ return;
 	pgcd[3].creator = GLabelCreate;
 	ptarray[0] = &pgcd[3];
 
-	sprintf(sizebuf,"%d",active->pi.pointsize);
+	sprintf(sizebuf,"%d",active->pi.pg_state.pointsize);
 	plabel[4].text = (unichar_t *) sizebuf;
 	plabel[4].text_is_1byte = true;
 	pgcd[4].gd.label = &plabel[4];

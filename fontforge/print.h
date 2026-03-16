@@ -28,6 +28,8 @@
 #ifndef FONTFORGE_PRINT_H
 #define FONTFORGE_PRINT_H
 
+#include "layout/legacy_printer.hpp"
+
 #include "baseviews.h"
 #include "splinefont.h"
 
@@ -76,24 +78,20 @@ typedef struct printinfo {
     SplineChar *sc;
     SplineFont *mainsf;
     EncMap *mainmap;
-    enum printtype pt;
-    int pointsize;
+    PageState pg_state;
     int32_t *pointsizes;
-    int extrahspace, extravspace;
+    int extravspace;
     FILE *out;
     unsigned int showvm: 1;
     unsigned int overflow: 1;
     unsigned int done: 1;
     unsigned int hadsize: 1;
-    int ypos;
-    int max;		/* max chars per line */
     int chline;		/* High order bits of characters we're outputting */
-    int page;
     int lastbase;
     real xoff, yoff, scale;
     char *printer;
     int copies;
-    int pagewidth, pageheight, printtype;
+    int pagewidth;
   /* data for pdf files */
     int *object_offsets;
     int *page_objects;
@@ -105,9 +103,9 @@ typedef struct printinfo {
     int sfcnt, sfmax, sfid;
     struct sfbits *sfbits;
     long start_cur_page;
-    int lastfont, intext;
+    int intext;
     struct layoutinfo *sample;
-    int wassfid, wasfn, wasps;
+    int wassfid, wasfn;
     int lastx, lasty;
 } PI, DI;
 
