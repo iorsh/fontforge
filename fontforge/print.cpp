@@ -1215,10 +1215,10 @@ static void dump_pdftrailer(PI *pi) {
     fprintf( pi->out, "2 0 obj\n<<\n  /Pages %05lu 0 R\n", pi->objects.offsets->size() );
 
     /* Fix up every page dictionary to point to the Pages dictionary */
-    for ( i=0 ; i<pi->objects.next_page; ++i ) {
-	fseek(pi->out, pi->objects.offsets->at(pi->objects.pages[i]), SEEK_SET );
+    for (int page : *(pi->objects.pages)) {
+	fseek(pi->out, pi->objects.offsets->at(page), SEEK_SET );
 	fprintf( pi->out, "%d 0 obj\n<<\n  /Parent %05lu 0 R\n",
-		pi->objects.pages[i], pi->objects.offsets->size() );
+		page, pi->objects.offsets->size() );
     }
     fseek(pi->out, 0, SEEK_END );
 
@@ -1227,10 +1227,10 @@ static void dump_pdftrailer(PI *pi) {
     fprintf( pi->out, "<<\n" );
     fprintf( pi->out, "  /Type /Pages\n" );
     fprintf( pi->out, "  /Kids [\n" );
-    for ( i=0 ; i<pi->objects.next_page; ++i )
-	fprintf( pi->out, "    %d 0 R\n", pi->objects.pages[i]);
+    for (int page : *(pi->objects.pages))
+	fprintf( pi->out, "    %d 0 R\n", page);
     fprintf( pi->out, "  ]\n" );
-	fprintf( pi->out, "  /Count %d\n", pi->objects.next_page );
+	fprintf( pi->out, "  /Count %lu\n", pi->objects.pages->size() );
 	fprintf( pi->out, "  /MediaBox [0 0 %d %d]\n", pi->pagewidth, pi->pg_state.pageheight );
     fprintf( pi->out, "  /Resources <<\n" );
     /* In case we have a type3 font, include the image procsets */

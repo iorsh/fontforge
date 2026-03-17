@@ -50,12 +50,11 @@ typedef struct PdfObjects {
 // TODO(iorsh): remove hack due to use in C code in displayfonts.c
 #ifdef __cplusplus
     std::vector<int>* offsets;
+    std::vector<int>* pages;
 #else
     void* offsets;
+    void* pages;
 #endif
-    int* pages;
-    int next_page;
-    int max_page;
     long start_cur_page;
 } PdfObjects;
 

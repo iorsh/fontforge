@@ -39,16 +39,9 @@ int pdf_addobject(PdfObjects& objects, FILE* out) {
 }
 
 void pdf_addpage(PdfObjects& objects, FILE* out) {
-    if (objects.next_page == 0) {
-        objects.max_page = 100;
-        objects.pages = (int*)malloc(objects.max_page * sizeof(int));
-    } else if (objects.next_page >= objects.max_page) {
-        objects.max_page += 100;
-        objects.pages =
-            (int*)realloc(objects.pages, objects.max_page * sizeof(int));
-    }
+    if (!objects.pages) objects.pages = new std::vector<int>();
 
-    objects.pages[objects.next_page++] = objects.offsets->size();
+    objects.pages->push_back(objects.offsets->size());
     ::pdf_addobject(objects, out);
     fprintf(out, "<<\n");
     fprintf(out, "  /Parent 00000 0 R\n");
