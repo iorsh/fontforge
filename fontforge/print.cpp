@@ -74,6 +74,7 @@ static void dump_prologue(PI *pi);
 static void dump_trailer(PI *pi);
 static void startpage(PI *pi);
 static void samplestartpage(PI *pi);
+int pdf_addobject(PdfObjects& objects, FILE *out);
 
 static ff::layout::LegacyPrinter MakeLegacyPrinter(
 	PI *pi,
@@ -94,20 +95,6 @@ static ff::layout::LegacyPrinter MakeLegacyPrinter(
 /* ***************************** Printing Stuff ***************************** */
 /* ************************************************************************** */
 
-static int pdf_addobject(PI *pi) {
-    if ( pi->objects.next==0 ) {
-	pi->objects.max = 100;
-	pi->objects.offsets = (int *)malloc(pi->objects.max*sizeof(int));
-	pi->objects.offsets[pi->objects.next++] = 0;	/* Object 0 is magic */
-    } else if ( pi->objects.next>=pi->objects.max ) {
-	pi->objects.max += 100;
-	pi->objects.offsets = (int *)realloc(pi->objects.offsets,pi->objects.max*sizeof(int));
-    }
-    pi->objects.offsets[pi->objects.next] = ftell(pi->out);
-    fprintf( pi->out, "%d 0 obj\n", pi->objects.next++ );
-return( pi->objects.next-1 );
-}
-
 static void pdf_addpage(PI *pi) {
     if ( pi->objects.next_page==0 ) {
 	pi->objects.max_page = 100;
@@ -117,7 +104,7 @@ static void pdf_addpage(PI *pi) {
 	pi->objects.pages = (int *)realloc(pi->objects.pages,pi->objects.max_page*sizeof(int));
     }
 	pi->objects.pages[pi->objects.next_page++] = pi->objects.next;
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
 	/* Each page is its own dictionary */
     fprintf( pi->out, "<<\n" );
     fprintf( pi->out, "  /Parent 00000 0 R\n" );	/* Fixup later */
@@ -126,7 +113,7 @@ static void pdf_addpage(PI *pi) {
     fprintf( pi->out, ">>\n" );
     fprintf( pi->out, "endobj\n" );
 	/* Each page has its own content stream */
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
 	fprintf( pi->out, "<< /Length %d 0 R >>\n", pi->objects.next );
     fprintf( pi->out, "stream\n" );
 	pi->objects.start_cur_page = ftell( pi->out );
@@ -141,7 +128,7 @@ static void pdf_finishpage(PI *pi) {
     fprintf( pi->out, "\nendstream\n" );
     fprintf( pi->out, "endobj\n" );
 
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, " %ld\n", streamlength );
     fprintf( pi->out, "endobj\n\n" );
 }
@@ -299,7 +286,7 @@ static int figure_fontdesc(PI *pi, int sfid, struct fontdesc *fd, int fonttype, 
     if (( i = PSDictFindEntry(sf->private_dict,"StdVW"))!=-1 )
 	fd->stemv = strtod(sf->private_dict->values[i],NULL);
 
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  <<\n" );
     fprintf( pi->out, "    /Type /FontDescriptor\n" );
     fprintf( pi->out, "    /FontName /%s\n", sf->fontname );
@@ -352,7 +339,7 @@ return;			/* Nothing in this range */
 	sfbit->our_font_objs[sfbit->next_font] = pi->objects.next;
     sfbit->fonts[base/256] = sfbit->next_font++;
 
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  <<\n" );
     fprintf( pi->out, "    /Type /Font\n" );
     fprintf( pi->out, "    /Subtype /Type1\n" );
@@ -369,7 +356,7 @@ return;			/* Nothing in this range */
     fprintf( pi->out, "  >>\n" );
     fprintf( pi->out, "endobj\n" );
     /* The width vector is normalized to 1000 unit em from whatever the font really uses */
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  [\n" );
     for ( i=base+first; i<=base+last; ++i ) if ( (gid=map->map[i])!=-1 && SCWorthOutputting(sf->glyphs[gid]))
 	fprintf( pi->out, "    %g\n", sf->glyphs[gid]->width*1000.0/(sf->ascent+sf->descent) );
@@ -378,7 +365,7 @@ return;			/* Nothing in this range */
     fprintf( pi->out, "  ]\n" );
     fprintf( pi->out, "endobj\n" );
     /*if ( base!=0 )*/ {
-	pdf_addobject(pi);
+	pdf_addobject(pi->objects, pi->out);
 	fprintf( pi->out, "  <<\n" );
 	fprintf( pi->out, "    /Type /Encoding\n" );
 	fprintf( pi->out, "    /Differences [ %d\n", first );
@@ -404,7 +391,7 @@ static void pdf_dump_type1(PI *pi,int sfid) {
     length1 = pfb_getsectionlength(sfbit->fontfile,1,true);
     length2 = pfb_getsectionlength(sfbit->fontfile,2,true);
     length3 = pfb_getsectionlength(sfbit->fontfile,1,true);
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "<< /Length %d /Length1 %d /Length2 %d /Length3 %d>>\n",
 	    length1+length2+length3, length1, length2, length3 );
     fprintf( pi->out, "stream\n" );
@@ -491,7 +478,7 @@ static void pdf_BrushCheck(PI *pi,struct glyph_res *gr,struct brush *brush,
     struct pattern *pat;
 
     if ( grad!=NULL ) {
-	function_obj = pdf_addobject(pi);
+	function_obj = pdf_addobject(pi->objects, pi->out);
 	fprintf( pi->out, "<<\n" );
 	fprintf( pi->out, "  /FunctionType 0\n" );	/* Iterpolation between samples */
 	fprintf( pi->out, "  /Domain [%g %g]\n", (double) grad->grad_stops[0].offset,
@@ -549,7 +536,7 @@ static void pdf_BrushCheck(PI *pi,struct glyph_res *gr,struct brush *brush,
 	fprintf( pi->out, "\nendstream\n" );
 	fprintf( pi->out, "endobj\n" );
 
-	shade_obj = pdf_addobject(pi);
+	shade_obj = pdf_addobject(pi->objects, pi->out);
 	fprintf( pi->out, "<<\n" );
 	fprintf( pi->out, "  /ShadingType %d\n", grad->radius==0?2:3 );
 	fprintf( pi->out, "  /ColorSpace /DeviceRGB\n" );
@@ -572,7 +559,7 @@ static void pdf_BrushCheck(PI *pi,struct glyph_res *gr,struct brush *brush,
 	}
 	makePatName(buffer,ref,sc,layer,!isfill,true);
 	gr->pattern_names[gr->pattern_cnt  ] = copy(buffer);
-	gr->pattern_objs [gr->pattern_cnt++] = pdf_addobject(pi);
+	gr->pattern_objs [gr->pattern_cnt++] = pdf_addobject(pi->objects, pi->out);
 	fprintf( pi->out, "<<\n" );
 	fprintf( pi->out, "  /Type /Pattern\n" );
 	fprintf( pi->out, "  /PatternType 2\n" );
@@ -596,7 +583,7 @@ static void pdf_BrushCheck(PI *pi,struct glyph_res *gr,struct brush *brush,
 	}
 	makePatName(buffer,ref,sc,layer,!isfill,false);
 	gr->pattern_names[gr->pattern_cnt  ] = copy(buffer);
-	gr->pattern_objs [gr->pattern_cnt++] = pdf_addobject(pi);
+	gr->pattern_objs [gr->pattern_cnt++] = pdf_addobject(pi->objects, pi->out);
 	fprintf( pi->out, "<<\n" );
 	fprintf( pi->out, "  /Type /Pattern\n" );
 	fprintf( pi->out, "  /PatternType 1\n" );
@@ -643,7 +630,7 @@ static void pdf_BrushCheck(PI *pi,struct glyph_res *gr,struct brush *brush,
 	    }
 	    gr->opac_state[gr->opacity_cnt].opacity = brush->opacity;
 	    gr->opac_state[gr->opacity_cnt].isfill  = isfill;
-	    gr->opac_state[gr->opacity_cnt].obj     = function_obj = pdf_addobject(pi);
+	    gr->opac_state[gr->opacity_cnt].obj     = function_obj = pdf_addobject(pi->objects, pi->out);
 	    ++gr->opacity_cnt;
 	    fprintf( pi->out, "<<\n" );
 	    fprintf( pi->out, "  /Type /ExtGState\n" );
@@ -676,7 +663,7 @@ static void pdf_ImageCheck(PI *pi,struct glyph_res *gr,ImageList *images,
 	}
 	sprintf( buffer, "%s_ly%d_%d_image", sc->name, layer, icnt );
 	gr->image_names[gr->image_cnt  ] = copy(buffer);
-	gr->image_objs [gr->image_cnt++] = pdf_addobject(pi);
+	gr->image_objs [gr->image_cnt++] = pdf_addobject(pi->objects, pi->out);
 	++icnt;
 
 	fprintf( pi->out, "<<\n" );
@@ -748,7 +735,7 @@ int PdfDumpGlyphResources(PI *pi,SplineChar *sc) {
 	    }
 	}
     }
-    resobj = pdf_addobject(pi);
+    resobj = pdf_addobject(pi->objects, pi->out);
     fprintf(pi->out,"<<\n" );
     if ( gr.pattern_cnt!=0 ) {
 	fprintf( pi->out, "  /Pattern <<\n" );
@@ -809,7 +796,7 @@ static int PdfDumpSFResources(PI *pi,SplineFont *sf) {
 	    }
 	}
     }
-    resobj = pdf_addobject(pi);
+    resobj = pdf_addobject(pi->objects, pi->out);
     fprintf(pi->out,"<<\n" );
     if ( gr.pattern_cnt!=0 ) {
 	fprintf( pi->out, "  /Pattern <<\n" );
@@ -849,7 +836,7 @@ static int pdf_charproc(PI *pi, SplineChar *sc) {
     long streamstart, streamlength;
     int i,last;
 
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     /* Now page 96 of the PDFReference.pdf manual claims that Resource dicas */
     /*  for type3 fonts should reside in the content stream dictionary. This */
     /*  isn't very meaningful because type3 fonts are not content streams. I */
@@ -909,7 +896,7 @@ static int pdf_charproc(PI *pi, SplineChar *sc) {
     fprintf( pi->out, "\nendstream\n" );
     fprintf( pi->out, "endobj\n" );
 
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, " %ld\n", streamlength );
     fprintf( pi->out, "endobj\n\n" );
 return( ret );
@@ -941,7 +928,7 @@ return;			/* Nothing in this range */
 	sfbit->our_font_objs[sfbit->next_font] = pi->objects.next;
     sfbit->fonts[base/256] = sfbit->next_font++;
 
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  <<\n" );
     fprintf( pi->out, "    /Type /Font\n" );
     fprintf( pi->out, "    /Subtype /Type3\n" );
@@ -962,7 +949,7 @@ return;			/* Nothing in this range */
     fprintf( pi->out, "endobj\n" );
 
     /* Widths array */
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  [\n" );
     for ( i=base+first; i<=base+last; ++i )
 	if ( (gid=map->map[i])!=-1 && SCWorthOutputting(sf->glyphs[gid]))
@@ -973,7 +960,7 @@ return;			/* Nothing in this range */
     fprintf( pi->out, "endobj\n" );
 
     /* Encoding dictionary */
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  <<\n" );
     fprintf( pi->out, "    /Type /Encoding\n" );
     fprintf( pi->out, "    /Differences [ %d\n", first );
@@ -987,7 +974,7 @@ return;			/* Nothing in this range */
     fprintf( pi->out, "endobj\n" );
 
     /* Char procs dictionary */
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  <<\n" );
     fprintf( pi->out, "\t/.notdef %d 0 R\n", notdefproc );
     for ( i=base+first; i<=base+last; ++i )
@@ -1050,7 +1037,7 @@ static void pdf_build_type0(PI *pi, int sfid) {
     fseek( sfbit->fontfile,0,SEEK_END);
     len = ftell(sfbit->fontfile );
 
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "<< /Length %ld ", len );
     if ( sfbit->istype42cid )
 	fprintf( pi->out, "/Length1 %ld>>\n", len );
@@ -1066,7 +1053,7 @@ static void pdf_build_type0(PI *pi, int sfid) {
     fd_obj = figure_fontdesc(pi, sfid, &fd,sfbit->istype42cid?2:3,font_stream);
 
 	cidfont_ref = pi->objects.next;
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  <<\n" );
     fprintf( pi->out, "    /Type /Font\n" );
     fprintf( pi->out, "    /Subtype /CIDFontType%d\n", sfbit->istype42cid?2:0 );
@@ -1111,7 +1098,7 @@ static void pdf_build_type0(PI *pi, int sfid) {
 	    widths[i] = defwidth;
     }
     /* Width vector */
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  [\n" );
     i=0;
     while ( i<cidmax ) {
@@ -1145,7 +1132,7 @@ static void pdf_build_type0(PI *pi, int sfid) {
     sfbit->our_font_objs = (int *)malloc(sizeof(int));
 	sfbit->our_font_objs[0] = pi->objects.next;
     sfbit->next_font = 1;
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  <<\n" );
     fprintf( pi->out, "    /Type /Font\n" );
     fprintf( pi->out, "    /Subtype /Type0\n" );
@@ -1170,7 +1157,7 @@ static void dump_pdfprologue(PI *pi) {
     fprintf( pi->out, "%%PDF-1.4\n%%\201\342\202\203\n" );	/* Header comment + binary comment */
 
     /* Output metadata */
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "<<\n" );
 	if ( pi->pg_state.pt==pt_fontdisplay ) {
 	fprintf( pi->out, "  /Title (Font Display for %s)\n", pi->mainsf->fullname );
@@ -1217,7 +1204,7 @@ static void dump_pdfprologue(PI *pi) {
     fprintf( pi->out, "endobj\n\n" );
 
     /* Output document catalog */
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "<<\n" );
     fprintf( pi->out, "  /Pages 00000 0 R\n" );		/* Fix this up later */
     fprintf( pi->out, "  /Type /Catalog\n" );
@@ -1261,7 +1248,7 @@ static void dump_pdftrailer(PI *pi) {
     fseek(pi->out, 0, SEEK_END );
 
     /* Now the pages dictionary */
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "<<\n" );
     fprintf( pi->out, "  /Type /Pages\n" );
     fprintf( pi->out, "  /Kids [\n" );
@@ -1287,7 +1274,7 @@ static void dump_pdftrailer(PI *pi) {
 
     /* Now times bold font (which is guarantteed to be present so we don't */
     /* need to include it or much info about it */
-    pdf_addobject(pi);
+    pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "<<\n" );
     fprintf( pi->out, "  /Type /Font\n" );
     fprintf( pi->out, "  /Subtype /Type1\n" );

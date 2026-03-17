@@ -1,8 +1,12 @@
 # Distributed under the original FontForge BSD 3-clause license
 
-add_library(layout INTERFACE
+add_library(layout OBJECT
   i_printer.hpp
   legacy_printer.hpp
+)
+
+target_sources(layout PRIVATE
+  legacy_printer.cpp
 )
 
 if(BUILD_SHARED_LIBS)

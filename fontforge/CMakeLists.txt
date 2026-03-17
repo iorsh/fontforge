@@ -249,6 +249,7 @@ set_target_properties(fontforge PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 target_link_libraries(fontforge
   PUBLIC
     fontforge_common_headers
+    layout
     shapers
     Freetype::Freetype
     LibXml2::LibXml2
