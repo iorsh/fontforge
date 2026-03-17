@@ -99,7 +99,6 @@ typedef struct printinfo {
     /*  be represented by many actual fonts to encode all our glyphs */
     int sfcnt, sfmax, sfid;
     struct sfbits *sfbits;
-    long start_cur_page;
     int intext;
     struct layoutinfo *sample;
     int wassfid, wasfn;

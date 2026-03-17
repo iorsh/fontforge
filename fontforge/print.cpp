@@ -129,7 +129,7 @@ static void pdf_addpage(PI *pi) {
     pdf_addobject(pi);
 	fprintf( pi->out, "<< /Length %d 0 R >>\n", pi->objects.next );
     fprintf( pi->out, "stream\n" );
-    pi->start_cur_page = ftell( pi->out );
+	pi->objects.start_cur_page = ftell( pi->out );
 }
 
 static void pdf_finishpage(PI *pi) {
@@ -137,7 +137,7 @@ static void pdf_finishpage(PI *pi) {
 
 	if ( pi->pg_state.pt!=pt_fontsample )
 	fprintf( pi->out, "Q\n" );
-    streamlength = ftell(pi->out)-pi->start_cur_page;
+	streamlength = ftell(pi->out)-pi->objects.start_cur_page;
     fprintf( pi->out, "\nendstream\n" );
     fprintf( pi->out, "endobj\n" );
 

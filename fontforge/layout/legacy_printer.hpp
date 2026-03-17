@@ -51,6 +51,7 @@ typedef struct PdfObjects {
     int max;
     int next_page;
     int max_page;
+    long start_cur_page;
 } PdfObjects;
 
 #ifdef __cplusplus
