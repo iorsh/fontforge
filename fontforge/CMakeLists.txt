@@ -132,7 +132,7 @@ add_library(fontforge
   bvedit.c
   clipnoui.c
   crctab.cpp
-  cvexport.c
+  cvexport.cpp
   cvimages.c
   cvundoes.c
   dumpbdf.c
