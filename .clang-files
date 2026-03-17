@@ -11,6 +11,7 @@ fontforge/std_maps.hpp
 fontforge/ffglib_compat.cpp
 fontforge/ffprocess.c
 fontforge/glif_name_hash.cpp
+fontforge/layout/*.cpp
 fontforge/layout/*.hpp
 fontforge/shapers/*.cpp
 fontforge/shapers/*.hpp

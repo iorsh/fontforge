@@ -186,8 +186,8 @@ int _ExportPDF(FILE *pdf,SplineChar *sc,int layer) {
     struct tm tm_buf;
     long zoffset;
     int ret;
-    int _objlocs[8], xrefloc, streamstart, streamlength, resid = 0, nextobj;
-    int *objlocs = _objlocs;
+    int xrefloc, streamstart, streamlength, resid = 0;
+    std::vector<int> objlocs = {0};
     const char *author = GetAuthor();
     int i;
 
@@ -198,12 +198,12 @@ int _ExportPDF(FILE *pdf,SplineChar *sc,int layer) {
     fprintf( pdf, "%%PDF-1.4\n%%\201\342\202\203\n" );	/* Header comment + binary comment */
     /* Every document contains a catalog which points to a page tree, which */
     /*  in our case, points to a single page */
-    objlocs[1] = ftell(pdf);
+    objlocs.push_back(ftell(pdf));
     fprintf( pdf, "1 0 obj\n << /Type /Catalog\n    /Pages 2 0 R\n    /PageMode /UseNone\n >>\nendobj\n" );
-    objlocs[2] = ftell(pdf);
+    objlocs.push_back(ftell(pdf));
     fprintf( pdf, "2 0 obj\n << /Type /Pages\n    /Kids [ 3 0 R ]\n    /Count 1\n >>\nendobj\n" );
     /* And our single page points to its contents */
-    objlocs[3] = ftell(pdf);
+    objlocs.push_back(ftell(pdf));
     fprintf( pdf, "3 0 obj\n" );
     fprintf( pdf, " << /Type /Page\n" );
     fprintf( pdf, "    /Parent 2 0 R\n" );
@@ -219,7 +219,7 @@ int _ExportPDF(FILE *pdf,SplineChar *sc,int layer) {
     fprintf( pdf, " >>\n" );
     fprintf( pdf, "endobj\n" );
     /* And the contents are the interesting stuff */
-    objlocs[4] = ftell(pdf);
+    objlocs.push_back(ftell(pdf));
     fprintf( pdf, "4 0 obj\n" );
     fprintf( pdf, " << /Length 5 0 R >> \n" );
     fprintf( pdf, " stream \n" );
@@ -234,13 +234,13 @@ int _ExportPDF(FILE *pdf,SplineChar *sc,int layer) {
     streamlength = ftell(pdf)-streamstart;
     fprintf( pdf, " endstream\n" );
     fprintf( pdf, "endobj\n" );
-    objlocs[5] = ftell(pdf);
+    objlocs.push_back(ftell(pdf));
     fprintf( pdf, "5 0 obj\n" );
     fprintf( pdf, " %d\n", (int) streamlength );
     fprintf( pdf, "endobj\n" );
 
     /* Optional Info dict */
-    objlocs[6] = ftell(pdf);
+    objlocs.push_back(ftell(pdf));
     fprintf( pdf, "6 0 obj\n" );
     fprintf( pdf, " <<\n" );
     fprintf( pdf, "    /Creator (FontForge)\n" );
@@ -278,19 +278,13 @@ int _ExportPDF(FILE *pdf,SplineChar *sc,int layer) {
 	fprintf( pdf, "    /Author (%s)\n", author );
     fprintf( pdf, " >>\n" );
 
-    nextobj = 7;
     if ( sc->parent->multilayer ) {
 	PI pi;
 	int resobj;
 	memset(&pi,0,sizeof(pi));
 	pi.out = pdf;
-	pi.objects.max = 100;
-	pi.objects.offsets = (int*)malloc(pi.objects.max*sizeof(int));
-	memcpy(pi.objects.offsets,objlocs,nextobj*sizeof(int));
-	pi.objects.next = nextobj;
+	pi.objects.offsets = &objlocs;
 	resobj = PdfDumpGlyphResources(&pi,sc);
-	nextobj = pi.objects.next;
-	objlocs = pi.objects.offsets;
 	fseek(pdf,resid,SEEK_SET);
 	fprintf(pdf,"%06d", resobj );
 	fseek(pdf,0,SEEK_END);
@@ -298,22 +292,19 @@ int _ExportPDF(FILE *pdf,SplineChar *sc,int layer) {
 
     xrefloc = ftell(pdf);
     fprintf( pdf, "xref\n" );
-    fprintf( pdf, " 0 %d\n", nextobj );
+    fprintf( pdf, " 0 %lu\n", objlocs.size() );
     fprintf( pdf, "0000000000 65535 f \n" );
-    for ( i=1; i<nextobj; ++i )
-	fprintf( pdf, "%010d %05d n \n", (int) objlocs[i], 0 );
+    for (int objloc : objlocs)
+	fprintf( pdf, "%010d %05d n \n", objloc, 0 );
     fprintf( pdf, "trailer\n" );
     fprintf( pdf, " <<\n" );
-    fprintf( pdf, "    /Size %d\n", nextobj );
+    fprintf( pdf, "    /Size %lu\n", objlocs.size() );
     fprintf( pdf, "    /Root 1 0 R\n" );
     fprintf( pdf, "    /Info 6 0 R\n" );
     fprintf( pdf, " >>\n" );
     fprintf( pdf, "startxref\n" );
     fprintf( pdf, "%d\n", (int) xrefloc );
     fprintf( pdf, "%%%%EOF\n" );
-
-    if ( objlocs!=_objlocs )
-	free(objlocs);
 
     ret = !ferror(pdf);
     switch_to_old_locale(&tmplocale, &oldlocale); // Switch to the cached locale.

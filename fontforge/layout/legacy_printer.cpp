@@ -30,16 +30,11 @@
 #include <stdlib.h>
 #include <cstdio>
 
-int pdf_addobject(PdfObjects& objects, FILE *out) {
-    if ( objects.next==0 ) {
-	objects.max = 100;
-	objects.offsets = (int *)malloc(objects.max*sizeof(int));
-	objects.offsets[objects.next++] = 0;	/* Object 0 is magic */
-    } else if ( objects.next>=objects.max ) {
-	objects.max += 100;
-	objects.offsets = (int *)realloc(objects.offsets,objects.max*sizeof(int));
-    }
-    objects.offsets[objects.next] = ftell(out);
-    fprintf( out, "%d 0 obj\n", objects.next++ );
-return( objects.next-1 );
+int pdf_addobject(PdfObjects& objects, FILE* out) {
+    if (!objects.offsets)
+        objects.offsets = new std::vector<int>({0}); /* Object 0 is magic */
+
+    objects.offsets->push_back(ftell(out));
+    fprintf(out, "%lu 0 obj\n", objects.offsets->size() - 1);
+    return (objects.offsets->size() - 1);
 }

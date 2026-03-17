@@ -28,6 +28,7 @@
 
 #ifdef __cplusplus
 #include <utility>
+#include <vector>
 #include "i_printer.hpp"
 #endif
 
@@ -45,10 +46,13 @@ typedef struct PageState {
 } PageState;
 
 typedef struct PdfObjects {
-    int* offsets;
+// TODO(iorsh): remove hack due to use in C code in displayfonts.c
+#ifdef __cplusplus
+    std::vector<int>* offsets;
+#else
+    void* offsets;
+#endif
     int* pages;
-    int next;
-    int max;
     int next_page;
     int max_page;
     long start_cur_page;
