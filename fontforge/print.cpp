@@ -74,7 +74,6 @@ static void dump_prologue(PI *pi);
 static void dump_trailer(PI *pi);
 static void startpage(PI *pi);
 static void samplestartpage(PI *pi);
-int pdf_addobject(PdfObjects& objects, FILE *out);
 
 static ff::layout::LegacyPrinter MakeLegacyPrinter(
 	PI *pi,
@@ -94,30 +93,6 @@ static ff::layout::LegacyPrinter MakeLegacyPrinter(
 /* ************************************************************************** */
 /* ***************************** Printing Stuff ***************************** */
 /* ************************************************************************** */
-
-static void pdf_addpage(PI *pi) {
-    if ( pi->objects.next_page==0 ) {
-	pi->objects.max_page = 100;
-	pi->objects.pages = (int *)malloc(pi->objects.max_page*sizeof(int));
-    } else if ( pi->objects.next_page>=pi->objects.max_page ) {
-	pi->objects.max_page += 100;
-	pi->objects.pages = (int *)realloc(pi->objects.pages,pi->objects.max_page*sizeof(int));
-    }
-    pi->objects.pages[pi->objects.next_page++] = pi->objects.offsets->size();
-    pdf_addobject(pi->objects, pi->out);
-	/* Each page is its own dictionary */
-    fprintf( pi->out, "<<\n" );
-    fprintf( pi->out, "  /Parent 00000 0 R\n" );	/* Fixup later */
-    fprintf( pi->out, "  /Type /Page\n" );
-    fprintf( pi->out, "  /Contents %lu 0 R\n", pi->objects.offsets->size() );
-    fprintf( pi->out, ">>\n" );
-    fprintf( pi->out, "endobj\n" );
-	/* Each page has its own content stream */
-    pdf_addobject(pi->objects, pi->out);
-    fprintf( pi->out, "<< /Length %lu 0 R >>\n", pi->objects.offsets->size() );
-    fprintf( pi->out, "stream\n" );
-	pi->objects.start_cur_page = ftell( pi->out );
-}
 
 static void pdf_finishpage(PI *pi) {
     long streamlength;
@@ -1607,7 +1582,7 @@ static void startpage(PI *pi ) {
 	pi->pg_state.ypos = -60-.9*pi->pg_state.pointsize;
 
 	if ( pi->pg_state.printtype==pt_pdf ) {
-	pdf_addpage(pi);
+	pdf_addpage(pi->objects, pi->out);
 	if ( pi->pg_state.pt == pt_chars )
 return;
 	fprintf(pi->out,"q 1 0 0 1 40 %d cm\n", pi->pg_state.pageheight-54 );
@@ -1938,7 +1913,7 @@ static void samplestartpage(PI *pi ) {
 	endpage(pi);
 	++pi->pg_state.page;
 	if ( pi->pg_state.printtype==pt_pdf ) {
-	pdf_addpage(pi);
+	pdf_addpage(pi->objects, pi->out);
 	fprintf( pi->out, "BT\n  /FTB 12 Tf\n  80 %d Td\n", pi->pg_state.pageheight-84 );
 	if ( pi->pg_state.pt==pt_fontsample )
 	    fprintf(pi->out,"(Sample Text from %s) Tj\nET\n", sfbit->sf->fullname );

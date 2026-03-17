@@ -28,7 +28,6 @@
 #include "legacy_printer.hpp"
 
 #include <stdlib.h>
-#include <cstdio>
 
 int pdf_addobject(PdfObjects& objects, FILE* out) {
     if (!objects.offsets)
@@ -37,4 +36,29 @@ int pdf_addobject(PdfObjects& objects, FILE* out) {
     objects.offsets->push_back(ftell(out));
     fprintf(out, "%lu 0 obj\n", objects.offsets->size() - 1);
     return (objects.offsets->size() - 1);
+}
+
+void pdf_addpage(PdfObjects& objects, FILE* out) {
+    if (objects.next_page == 0) {
+        objects.max_page = 100;
+        objects.pages = (int*)malloc(objects.max_page * sizeof(int));
+    } else if (objects.next_page >= objects.max_page) {
+        objects.max_page += 100;
+        objects.pages =
+            (int*)realloc(objects.pages, objects.max_page * sizeof(int));
+    }
+
+    objects.pages[objects.next_page++] = objects.offsets->size();
+    ::pdf_addobject(objects, out);
+    fprintf(out, "<<\n");
+    fprintf(out, "  /Parent 00000 0 R\n");
+    fprintf(out, "  /Type /Page\n");
+    fprintf(out, "  /Contents %lu 0 R\n", objects.offsets->size());
+    fprintf(out, ">>\n");
+    fprintf(out, "endobj\n");
+
+    ::pdf_addobject(objects, out);
+    fprintf(out, "<< /Length %lu 0 R >>\n", objects.offsets->size());
+    fprintf(out, "stream\n");
+    objects.start_cur_page = ftell(out);
 }

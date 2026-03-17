@@ -27,6 +27,7 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <stdio.h>
 #include <utility>
 #include <vector>
 #include "i_printer.hpp"
@@ -98,5 +99,8 @@ class LegacyPrinter final : public IPrinter {
 };
 
 }  // namespace ff::layout
+
+int pdf_addobject(PdfObjects& objects, FILE* out);
+void pdf_addpage(PdfObjects& objects, FILE* out);
 
 #endif
