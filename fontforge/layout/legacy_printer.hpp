@@ -101,5 +101,6 @@ class LegacyPrinter final : public IPrinter {
 
 int pdf_addobject(PdfObjects& objects, FILE* out);
 void pdf_addpage(PdfObjects& objects, FILE* out);
+void pdf_finishpage(PdfObjects& objects, FILE* out);
 
 #endif

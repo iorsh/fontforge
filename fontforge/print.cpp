@@ -94,20 +94,6 @@ static ff::layout::LegacyPrinter MakeLegacyPrinter(
 /* ***************************** Printing Stuff ***************************** */
 /* ************************************************************************** */
 
-static void pdf_finishpage(PI *pi) {
-    long streamlength;
-
-	if ( pi->pg_state.pt!=pt_fontsample )
-	fprintf( pi->out, "Q\n" );
-	streamlength = ftell(pi->out)-pi->objects.start_cur_page;
-    fprintf( pi->out, "\nendstream\n" );
-    fprintf( pi->out, "endobj\n" );
-
-    pdf_addobject(pi->objects, pi->out);
-    fprintf( pi->out, " %ld\n", streamlength );
-    fprintf( pi->out, "endobj\n\n" );
-}
-
 static int pfb_getsectionlength(FILE *pfb,int sec_type,int skip_sec) {
     int len=0, sublen, ch;
 
@@ -1551,8 +1537,11 @@ return( true );
 static void endpage(PI *pi ) {
     if ( pi->pg_state.printtype!=pt_pdf )
 	fprintf(pi->out,"showpage cleartomark restore\t\t%%End of Page\n" );
-    else
-	pdf_finishpage(pi);
+    else {
+	if ( pi->pg_state.pt!=pt_fontsample )
+	    fprintf( pi->out, "Q\n" );
+	pdf_finishpage(pi->objects, pi->out);
+    }
 }
 
 static void dump_trailer(PI *pi) {

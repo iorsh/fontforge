@@ -55,3 +55,15 @@ void pdf_addpage(PdfObjects& objects, FILE* out) {
     fprintf(out, "stream\n");
     objects.start_cur_page = ftell(out);
 }
+
+void pdf_finishpage(PdfObjects& objects, FILE* out) {
+    long streamlength;
+
+    streamlength = ftell(out) - objects.start_cur_page;
+    fprintf(out, "\nendstream\n");
+    fprintf(out, "endobj\n");
+
+    ::pdf_addobject(objects, out);
+    fprintf(out, " %ld\n", streamlength);
+    fprintf(out, "endobj\n\n");
+}
