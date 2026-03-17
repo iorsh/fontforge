@@ -44,6 +44,15 @@ typedef struct PageState {
     int wasps;
 } PageState;
 
+typedef struct PdfObjects {
+    int* offsets;
+    int* pages;
+    int next;
+    int max;
+    int next_page;
+    int max_page;
+} PdfObjects;
+
 #ifdef __cplusplus
 struct printinfo;
 

@@ -95,39 +95,39 @@ static ff::layout::LegacyPrinter MakeLegacyPrinter(
 /* ************************************************************************** */
 
 static int pdf_addobject(PI *pi) {
-    if ( pi->next_object==0 ) {
-	pi->max_object = 100;
-	pi->object_offsets = (int *)malloc(pi->max_object*sizeof(int));
-	pi->object_offsets[pi->next_object++] = 0;	/* Object 0 is magic */
-    } else if ( pi->next_object>=pi->max_object ) {
-	pi->max_object += 100;
-	pi->object_offsets = (int *)realloc(pi->object_offsets,pi->max_object*sizeof(int));
+    if ( pi->objects.next==0 ) {
+	pi->objects.max = 100;
+	pi->objects.offsets = (int *)malloc(pi->objects.max*sizeof(int));
+	pi->objects.offsets[pi->objects.next++] = 0;	/* Object 0 is magic */
+    } else if ( pi->objects.next>=pi->objects.max ) {
+	pi->objects.max += 100;
+	pi->objects.offsets = (int *)realloc(pi->objects.offsets,pi->objects.max*sizeof(int));
     }
-    pi->object_offsets[pi->next_object] = ftell(pi->out);
-    fprintf( pi->out, "%d 0 obj\n", pi->next_object++ );
-return( pi->next_object-1 );
+    pi->objects.offsets[pi->objects.next] = ftell(pi->out);
+    fprintf( pi->out, "%d 0 obj\n", pi->objects.next++ );
+return( pi->objects.next-1 );
 }
 
 static void pdf_addpage(PI *pi) {
-    if ( pi->next_page==0 ) {
-	pi->max_page = 100;
-	pi->page_objects = (int *)malloc(pi->max_page*sizeof(int));
-    } else if ( pi->next_page>=pi->max_page ) {
-	pi->max_page += 100;
-	pi->page_objects = (int *)realloc(pi->page_objects,pi->max_page*sizeof(int));
+    if ( pi->objects.next_page==0 ) {
+	pi->objects.max_page = 100;
+	pi->objects.pages = (int *)malloc(pi->objects.max_page*sizeof(int));
+    } else if ( pi->objects.next_page>=pi->objects.max_page ) {
+	pi->objects.max_page += 100;
+	pi->objects.pages = (int *)realloc(pi->objects.pages,pi->objects.max_page*sizeof(int));
     }
-    pi->page_objects[pi->next_page++] = pi->next_object;
+	pi->objects.pages[pi->objects.next_page++] = pi->objects.next;
     pdf_addobject(pi);
 	/* Each page is its own dictionary */
     fprintf( pi->out, "<<\n" );
     fprintf( pi->out, "  /Parent 00000 0 R\n" );	/* Fixup later */
     fprintf( pi->out, "  /Type /Page\n" );
-    fprintf( pi->out, "  /Contents %d 0 R\n", pi->next_object );
+	fprintf( pi->out, "  /Contents %d 0 R\n", pi->objects.next );
     fprintf( pi->out, ">>\n" );
     fprintf( pi->out, "endobj\n" );
 	/* Each page has its own content stream */
     pdf_addobject(pi);
-    fprintf( pi->out, "<< /Length %d 0 R >>\n", pi->next_object );
+	fprintf( pi->out, "<< /Length %d 0 R >>\n", pi->objects.next );
     fprintf( pi->out, "stream\n" );
     pi->start_cur_page = ftell( pi->out );
 }
@@ -194,7 +194,7 @@ static int figure_fontdesc(PI *pi, int sfid, struct fontdesc *fd, int fonttype, 
     int capcnt=0, xhcnt=0, wcnt=0;
     double samewidth = -1;
     int beyond_std = false;
-    int fd_num = pi->next_object;
+	int fd_num = pi->objects.next;
     int cidmax;
     char *stemv;
 
@@ -349,7 +349,7 @@ static void dump_pfb_encoding(PI *pi,int sfid, int base,int font_d_ref) {
     }
     if ( first==-1 )
 return;			/* Nothing in this range */
-    sfbit->our_font_objs[sfbit->next_font] = pi->next_object;
+	sfbit->our_font_objs[sfbit->next_font] = pi->objects.next;
     sfbit->fonts[base/256] = sfbit->next_font++;
 
     pdf_addobject(pi);
@@ -359,13 +359,13 @@ return;			/* Nothing in this range */
     fprintf( pi->out, "    /BaseFont /%s\n", sf->fontname );
     fprintf( pi->out, "    /FirstChar %d\n", first );
     fprintf( pi->out, "    /LastChar %d\n", last );
-    fprintf( pi->out, "    /Widths %d 0 R\n", pi->next_object );
+	fprintf( pi->out, "    /Widths %d 0 R\n", pi->objects.next );
     fprintf( pi->out, "    /FontDescriptor %d 0 R\n", font_d_ref );
     /* Contrary to my reading of the PDF spec, Adobe Acrobat & Apple's Preview*/
     /*  will reencode a font to AdobeStandard if an encoding is omitted */
     /* Ghostview agrees with me, and does not reencode */
     /*if ( base!=0 )*/
-	fprintf( pi->out, "    /Encoding %d 0 R\n", pi->next_object+1 );
+	fprintf( pi->out, "    /Encoding %d 0 R\n", pi->objects.next+1 );
     fprintf( pi->out, "  >>\n" );
     fprintf( pi->out, "endobj\n" );
     /* The width vector is normalized to 1000 unit em from whatever the font really uses */
@@ -395,7 +395,7 @@ return;			/* Nothing in this range */
 
 static void pdf_dump_type1(PI *pi,int sfid) {
     struct sfbits *sfbit = &pi->sfbits[sfid];
-    int font_stream = pi->next_object;
+	int font_stream = pi->objects.next;
     int fd_obj;
     int length1, length2, length3;
     int i;
@@ -845,7 +845,7 @@ return( resobj );
 }
 
 static int pdf_charproc(PI *pi, SplineChar *sc) {
-    int ret = pi->next_object;
+	int ret = pi->objects.next;
     long streamstart, streamlength;
     int i,last;
 
@@ -855,7 +855,7 @@ static int pdf_charproc(PI *pi, SplineChar *sc) {
     /*  isn't very meaningful because type3 fonts are not content streams. I */
     /*  assumed it meant in the stream dictionary for each glyph (which is a */
     /*  content stream) but that is not the case. It's in the font dictionary*/
-    fprintf( pi->out, "<< /Length %d 0 R >>", pi->next_object );
+	fprintf( pi->out, "<< /Length %d 0 R >>", pi->objects.next );
     fprintf( pi->out, "stream\n" );
     streamstart = ftell(pi->out);
 
@@ -938,7 +938,7 @@ return;			/* Nothing in this range */
 	    charprocs[i-base] = pdf_charproc(pi,sf->glyphs[gid]);
     }
 
-    sfbit->our_font_objs[sfbit->next_font] = pi->next_object;
+	sfbit->our_font_objs[sfbit->next_font] = pi->objects.next;
     sfbit->fonts[base/256] = sfbit->next_font++;
 
     pdf_addobject(pi);
@@ -952,9 +952,9 @@ return;			/* Nothing in this range */
 	    1.0/(sf->ascent+sf->descent), 1.0/(sf->ascent+sf->descent));
     fprintf( pi->out, "    /FirstChar %d\n", first );
     fprintf( pi->out, "    /LastChar %d\n", last );
-    fprintf( pi->out, "    /Widths %d 0 R\n", pi->next_object );
-    fprintf( pi->out, "    /Encoding %d 0 R\n", pi->next_object+1 );
-    fprintf( pi->out, "    /CharProcs %d 0 R\n", pi->next_object+2 );
+	fprintf( pi->out, "    /Widths %d 0 R\n", pi->objects.next );
+	fprintf( pi->out, "    /Encoding %d 0 R\n", pi->objects.next+1 );
+	fprintf( pi->out, "    /CharProcs %d 0 R\n", pi->objects.next+2 );
     fprintf( pi->out, "    /Resources " );
     respos = ftell(pi->out);
     fprintf( pi->out, "000000 0 R\n" );
@@ -1037,7 +1037,7 @@ static void pdf_gen_type3(PI *pi,int sfid) {
 }
 
 static void pdf_build_type0(PI *pi, int sfid) {
-    int cidfont_ref, fd_obj, font_stream = pi->next_object;
+	int cidfont_ref, fd_obj, font_stream = pi->objects.next;
     long len;
     int ch, cidmax, i,j;
     struct fontdesc fd;
@@ -1065,7 +1065,7 @@ static void pdf_build_type0(PI *pi, int sfid) {
 
     fd_obj = figure_fontdesc(pi, sfid, &fd,sfbit->istype42cid?2:3,font_stream);
 
-    cidfont_ref = pi->next_object;
+	cidfont_ref = pi->objects.next;
     pdf_addobject(pi);
     fprintf( pi->out, "  <<\n" );
     fprintf( pi->out, "    /Type /Font\n" );
@@ -1077,7 +1077,7 @@ static void pdf_build_type0(PI *pi, int sfid) {
     else
 	fprintf( pi->out, "    /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0>>\n" );
     fprintf( pi->out, "    /DW %d\n", defwidth );
-    fprintf( pi->out, "    /W %d 0 R\n", pi->next_object );
+	fprintf( pi->out, "    /W %d 0 R\n", pi->objects.next );
     fprintf( pi->out, "    /FontDescriptor %d 0 R\n", fd_obj );
     if ( sfbit->istype42cid )
 	fprintf( pi->out, "    /CIDToGIDMap /Identity\n" );
@@ -1143,7 +1143,7 @@ static void pdf_build_type0(PI *pi, int sfid) {
 
     /* OK, now we've dumped up the CID part, we need to create a Type0 Font */
     sfbit->our_font_objs = (int *)malloc(sizeof(int));
-    sfbit->our_font_objs[0] = pi->next_object;
+	sfbit->our_font_objs[0] = pi->objects.next;
     sfbit->next_font = 1;
     pdf_addobject(pi);
     fprintf( pi->out, "  <<\n" );
@@ -1249,14 +1249,14 @@ static void dump_pdftrailer(PI *pi) {
     /* Fix up the document catalog to point to the Pages dictionary */
     /*  which we will now create */
     /* Document catalog is object 2 */
-    fseek(pi->out, pi->object_offsets[2], SEEK_SET );
-    fprintf( pi->out, "2 0 obj\n<<\n  /Pages %05d 0 R\n", pi->next_object );
+	fseek(pi->out, pi->objects.offsets[2], SEEK_SET );
+	fprintf( pi->out, "2 0 obj\n<<\n  /Pages %05d 0 R\n", pi->objects.next );
 
     /* Fix up every page dictionary to point to the Pages dictionary */
-    for ( i=0 ; i<pi->next_page; ++i ) {
-	fseek(pi->out, pi->object_offsets[pi->page_objects[i]], SEEK_SET );
+    for ( i=0 ; i<pi->objects.next_page; ++i ) {
+	fseek(pi->out, pi->objects.offsets[pi->objects.pages[i]], SEEK_SET );
 	fprintf( pi->out, "%d 0 obj\n<<\n  /Parent %05d 0 R\n",
-		pi->page_objects[i], pi->next_object );
+		pi->objects.pages[i], pi->objects.next );
     }
     fseek(pi->out, 0, SEEK_END );
 
@@ -1265,16 +1265,16 @@ static void dump_pdftrailer(PI *pi) {
     fprintf( pi->out, "<<\n" );
     fprintf( pi->out, "  /Type /Pages\n" );
     fprintf( pi->out, "  /Kids [\n" );
-    for ( i=0 ; i<pi->next_page; ++i )
-	fprintf( pi->out, "    %d 0 R\n", pi->page_objects[i]);
+    for ( i=0 ; i<pi->objects.next_page; ++i )
+	fprintf( pi->out, "    %d 0 R\n", pi->objects.pages[i]);
     fprintf( pi->out, "  ]\n" );
-    fprintf( pi->out, "  /Count %d\n", pi->next_page );
+	fprintf( pi->out, "  /Count %d\n", pi->objects.next_page );
 	fprintf( pi->out, "  /MediaBox [0 0 %d %d]\n", pi->pagewidth, pi->pg_state.pageheight );
     fprintf( pi->out, "  /Resources <<\n" );
     /* In case we have a type3 font, include the image procsets */
     fprintf( pi->out, "    /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]\n" );
     fprintf( pi->out, "    /Font <<\n" );
-    fprintf( pi->out, "      /FTB %d 0 R\n", pi->next_object );
+	fprintf( pi->out, "      /FTB %d 0 R\n", pi->objects.next );
     for ( sfid=0; sfid<pi->sfcnt; ++sfid ) {
 	struct sfbits *sfbit = &pi->sfbits[sfid];
 	for ( i=0; i<sfbit->next_font; ++i )
@@ -1299,13 +1299,13 @@ static void dump_pdftrailer(PI *pi) {
 
     xrefloc = ftell(pi->out);
     fprintf( pi->out, "xref\n" );
-    fprintf( pi->out, " 0 %d\n", pi->next_object );
+	fprintf( pi->out, " 0 %d\n", pi->objects.next );
     fprintf( pi->out, "0000000000 65535 f \n" );	/* object 0 is magic */
-    for ( i=1; i<pi->next_object; ++i )
-	fprintf( pi->out, "%010d %05d n \n", pi->object_offsets[i], 0 );
+    for ( i=1; i<pi->objects.next; ++i )
+	fprintf( pi->out, "%010d %05d n \n", pi->objects.offsets[i], 0 );
     fprintf( pi->out, "trailer\n" );
     fprintf( pi->out, " <<\n" );
-    fprintf( pi->out, "    /Size %d\n", pi->next_object );
+	fprintf( pi->out, "    /Size %d\n", pi->objects.next );
     fprintf( pi->out, "    /Root 2 0 R\n" );
     fprintf( pi->out, "    /Info 1 0 R\n" );
     fprintf( pi->out, " >>\n" );
@@ -1317,8 +1317,8 @@ static void dump_pdftrailer(PI *pi) {
 	free(pi->sfbits[i].our_font_objs);
 	free(pi->sfbits[i].fonts);
     }
-    free(pi->object_offsets);
-    free(pi->page_objects);
+	free(pi->objects.offsets);
+	free(pi->objects.pages);
 }
 
 static void DumpIdentCMap(PI *pi, int sfid) {

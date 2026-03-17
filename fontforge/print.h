@@ -93,10 +93,7 @@ typedef struct printinfo {
     int copies;
     int pagewidth;
   /* data for pdf files */
-    int *object_offsets;
-    int *page_objects;
-    int next_object, max_object;
-    int next_page, max_page;
+    PdfObjects objects;
     /* In most print styles sfcnt==1 and we only print one font, but with */
     /*  sample text there may be many logical fonts. And each one may need to */
     /*  be represented by many actual fonts to encode all our glyphs */
