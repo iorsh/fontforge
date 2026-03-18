@@ -164,7 +164,7 @@ return( true );
 	if ( uc_strcmp(ret,"<default>")==0 || *ret=='\0' )
 	    ret = NULL;
 	pi->pi.printer = cu_copy(ret);
-	pi->pi.pagewidth = pgwidth; pi->pi.pg_state.pageheight = pgheight;
+	pi->pi.pg_state.pagewidth = pgwidth; pi->pi.pg_state.pageheight = pgheight;
 	pi->pi.copies = copies;
 
 	if ( GGadgetIsChecked(GWidgetGetControl(pi->setup,CID_lp)))
@@ -409,20 +409,20 @@ static int PageSetup(PD *pi) {
     gcd[7].creator = GLabelCreate;
     txtarray[0][0] = &gcd[7];
 
-	if ( pi->pi.pagewidth==595 && pi->pi.pg_state.pageheight==792 )
+	if ( pi->pi.pg_state.pagewidth==595 && pi->pi.pg_state.pageheight==792 )
 	strcpy(pb,"US Letter");		/* Pick a name, this is the default case */
-	else if ( pi->pi.pagewidth==612 && pi->pi.pg_state.pageheight==792 )
+	else if ( pi->pi.pg_state.pagewidth==612 && pi->pi.pg_state.pageheight==792 )
 	strcpy(pb,"US Letter");
-	else if ( pi->pi.pagewidth==612 && pi->pi.pg_state.pageheight==1008 )
+	else if ( pi->pi.pg_state.pagewidth==612 && pi->pi.pg_state.pageheight==1008 )
 	strcpy(pb,"US Legal");
-	else if ( pi->pi.pagewidth==595 && pi->pi.pg_state.pageheight==842 )
+	else if ( pi->pi.pg_state.pagewidth==595 && pi->pi.pg_state.pageheight==842 )
 	strcpy(pb,"A4");
-	else if ( pi->pi.pagewidth==842 && pi->pi.pg_state.pageheight==1191 )
+	else if ( pi->pi.pg_state.pagewidth==842 && pi->pi.pg_state.pageheight==1191 )
 	strcpy(pb,"A3");
-	else if ( pi->pi.pagewidth==708 && pi->pi.pg_state.pageheight==1000 )
+	else if ( pi->pi.pg_state.pagewidth==708 && pi->pi.pg_state.pageheight==1000 )
 	strcpy(pb,"B4");
     else
-	sprintf(pb,"%dx%d mm", (int) (pi->pi.pagewidth*25.4/72),(int) (pi->pi.pg_state.pageheight*25.4/72));
+	sprintf(pb,"%dx%d mm", (int) (pi->pi.pg_state.pagewidth*25.4/72),(int) (pi->pi.pg_state.pageheight*25.4/72));
     label[8].text = (unichar_t *) pb;
     label[8].text_is_1byte = true;
     gcd[8].gd.label = &label[8];

@@ -1217,7 +1217,7 @@ static void dump_pdftrailer(PI *pi) {
 	fprintf( pi->out, "    %d 0 R\n", page);
     fprintf( pi->out, "  ]\n" );
 	fprintf( pi->out, "  /Count %lu\n", pi->objects.pages->size() );
-	fprintf( pi->out, "  /MediaBox [0 0 %d %d]\n", pi->pagewidth, pi->pg_state.pageheight );
+	fprintf( pi->out, "  /MediaBox [0 0 %d %d]\n", pi->pg_state.pagewidth, pi->pg_state.pageheight );
     fprintf( pi->out, "  /Resources <<\n" );
     /* In case we have a type3 font, include the image procsets */
     fprintf( pi->out, "    /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]\n" );
@@ -1354,7 +1354,7 @@ return;
     }
 
     fprintf( pi->out, "%%!PS-Adobe-3.0\n" );
-	fprintf( pi->out, "%%%%BoundingBox: 20 20 %d %d\n", pi->pagewidth-30, pi->pg_state.pageheight-20 );
+	fprintf( pi->out, "%%%%BoundingBox: 20 20 %d %d\n", pi->pg_state.pagewidth-30, pi->pg_state.pageheight-20 );
     fprintf( pi->out, "%%%%Creator: FontForge\n" );
     now = GetTime();
     fprintf( pi->out, "%%%%CreationDate: %s", ctime(&now) );
@@ -1383,7 +1383,7 @@ return;
 
     fprintf( pi->out, "%%%%BeginSetup\n" );
     if ( pi->hadsize )
-	fprintf( pi->out, "<< /PageSize [%d %d] >> setpagedevice\n", pi->pagewidth, pi->pg_state.pageheight );
+	fprintf( pi->out, "<< /PageSize [%d %d] >> setpagedevice\n", pi->pg_state.pagewidth, pi->pg_state.pageheight );
 
     fprintf( pi->out, "%% <font> <encoding> font_remap <font>	; from the cookbook\n" );
     fprintf( pi->out, "/reencodedict 5 dict def\n" );
@@ -1741,7 +1741,7 @@ return;
 
 	pi->extravspace = pi->pg_state.pointsize/6;
 	pi->pg_state.extrahspace = pi->pg_state.pointsize/3;
-	pi->pg_state.max = (pi->pagewidth-100)/(pi->pg_state.extrahspace+pi->pg_state.pointsize);
+	pi->pg_state.max = (pi->pg_state.pagewidth-100)/(pi->pg_state.extrahspace+pi->pg_state.pointsize);
     pi->sfbits[0].cidcnt = pi->sfbits[0].map->enccount;
     if ( sf->subfontcnt!=0 && pi->sfbits[0].iscid ) {
 	int i,max=0;
@@ -1800,7 +1800,7 @@ static void SCPrintPage(PI *pi,SplineChar *sc, ff::layout::IPrinter &printer) {
     if ( b.maxx<=sc->width+5 ) b.maxx = sc->width+5;
 
     /* From the default bounding box */
-    page.minx = 40; page.maxx = pi->pagewidth-15;
+	page.minx = 40; page.maxx = pi->pg_state.pagewidth-15;
 	page.miny = 20; page.maxy = pi->pg_state.pageheight-20;
 
 	if ( pi->pg_state.printtype!=pt_pdf ) {
@@ -2948,15 +2948,15 @@ void DoPrinting(PI *pi,char *filename) {
 /* ************************************************************************** */
 
 static void PIGetPrinterDefs(PI *pi) {
-    pi->pagewidth = pagewidth;
+	pi->pg_state.pagewidth = pagewidth;
 	pi->pg_state.pageheight = pageheight;
 	pi->pg_state.printtype = printtype;
     pi->printer = copy(printlazyprinter);
     pi->copies = 1;
-	if ( pi->pagewidth!=0 && pi->pg_state.pageheight!=0 )
+	if ( pi->pg_state.pagewidth!=0 && pi->pg_state.pageheight!=0 )
 	pi->hadsize = true;
     else {
-	pi->pagewidth = 595;
+	pi->pg_state.pagewidth = 595;
 	pi->pg_state.pageheight = 792;
 	/* numbers chosen to fit either A4 or US-Letter */
 	pi->hadsize = false;	/* But we don't want to do a setpagedevice on this because then some printers will wait until fed this odd page size */
@@ -3043,7 +3043,7 @@ void ScriptPrint(FontViewBase *fv,int type,int32_t *pointsizes,char *samplefile,
     }
 	pi.pg_state.pt = (enum printtype)type;
     if ( type==pt_fontsample ) {
-	int width = (pi.pagewidth-1*72)*printdpi/72;
+	int width = (pi.pg_state.pagewidth-1*72)*printdpi/72;
 	li = (LayoutInfo *)calloc(1,sizeof(LayoutInfo));
 	temp[0] = 0;
 	li->wrap = true;

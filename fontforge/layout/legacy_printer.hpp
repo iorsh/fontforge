@@ -51,6 +51,7 @@ typedef struct PageState {
     int ypos;
     int max;
     int page;
+    int pagewidth;
     int pageheight;
     int printtype;
     int lastfont;

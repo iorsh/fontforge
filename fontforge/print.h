@@ -88,7 +88,6 @@ typedef struct printinfo {
     real xoff, yoff, scale;
     char *printer;
     int copies;
-    int pagewidth;
   /* data for pdf files */
     PdfObjects objects;
     /* In most print styles sfcnt==1 and we only print one font, but with */
