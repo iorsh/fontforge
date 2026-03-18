@@ -33,6 +33,17 @@
 #include "i_printer.hpp"
 #endif
 
+enum {
+    pt_lp,
+    pt_lpr,
+    pt_ghostview,
+    pt_file,
+    pt_other,
+    pt_pdf,
+    pt_unknown = -1
+};
+enum printtype { pt_fontdisplay, pt_chars, pt_multisize, pt_fontsample };
+
 typedef struct PageState {
     int pt;
     int pointsize;
@@ -102,5 +113,6 @@ class LegacyPrinter final : public IPrinter {
 int pdf_addobject(PdfObjects& objects, FILE* out);
 void pdf_addpage(PdfObjects& objects, FILE* out);
 void pdf_finishpage(PdfObjects& objects, FILE* out);
+void endpage(const PageState& pg_state, PdfObjects& objects, FILE* out);
 
 #endif

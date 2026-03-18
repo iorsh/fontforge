@@ -67,3 +67,12 @@ void pdf_finishpage(PdfObjects& objects, FILE* out) {
     fprintf(out, " %ld\n", streamlength);
     fprintf(out, "endobj\n\n");
 }
+
+void endpage(const PageState& pg_state, PdfObjects& objects, FILE* out) {
+    if (pg_state.printtype != pt_pdf)
+        fprintf(out, "showpage cleartomark restore\t\t%%End of Page\n");
+    else {
+        if (pg_state.pt != pt_fontsample) fprintf(out, "Q\n");
+        pdf_finishpage(objects, out);
+    }
+}

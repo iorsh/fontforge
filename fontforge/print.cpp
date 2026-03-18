@@ -1534,19 +1534,9 @@ return(false);
 return( true );
 }
 
-static void endpage(PI *pi ) {
-    if ( pi->pg_state.printtype!=pt_pdf )
-	fprintf(pi->out,"showpage cleartomark restore\t\t%%End of Page\n" );
-    else {
-	if ( pi->pg_state.pt!=pt_fontsample )
-	    fprintf( pi->out, "Q\n" );
-	pdf_finishpage(pi->objects, pi->out);
-    }
-}
-
 static void dump_trailer(PI *pi) {
 	if ( pi->pg_state.page!=0 )
-	endpage(pi);
+	endpage(pi->pg_state, pi->objects, pi->out);
 	if ( pi->pg_state.printtype==pt_pdf )
 	dump_pdftrailer(pi);
     else {
@@ -1566,7 +1556,7 @@ static void startpage(PI *pi ) {
     /*  by so fast that even for CaslonRoman it was pointless */
 
 	if ( pi->pg_state.page!=0 )
-	endpage(pi);
+	endpage(pi->pg_state, pi->objects, pi->out);
 	++pi->pg_state.page;
 	pi->pg_state.ypos = -60-.9*pi->pg_state.pointsize;
 
@@ -1792,7 +1782,7 @@ static void SCPrintPage(PI *pi,SplineChar *sc, ff::layout::IPrinter &printer) {
     real scalex, scaley;
 
 	if ( pi->pg_state.page!=0 )
-	endpage(pi);
+	endpage(pi->pg_state, pi->objects, pi->out);
 	++pi->pg_state.page;
 	if ( pi->pg_state.printtype!=pt_pdf ) {
 	    fprintf(pi->out,"%%%%Page: %d %d\n", pi->pg_state.page, pi->pg_state.page );
@@ -1899,7 +1889,7 @@ static void samplestartpage(PI *pi ) {
     struct sfbits *sfbit = &pi->sfbits[0];
 
 	if ( pi->pg_state.page!=0 )
-	endpage(pi);
+	endpage(pi->pg_state, pi->objects, pi->out);
 	++pi->pg_state.page;
 	if ( pi->pg_state.printtype==pt_pdf ) {
 	pdf_addpage(pi->objects, pi->out);

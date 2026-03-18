@@ -37,7 +37,6 @@
 extern "C" {
 #endif
 
-enum { pt_lp, pt_lpr, pt_ghostview, pt_file, pt_other, pt_pdf, pt_unknown=-1 };
 extern int pagewidth, pageheight;
 extern char *printlazyprinter;
 extern char *printcommand;
@@ -46,8 +45,6 @@ extern int printtype;
 extern int use_gv;
 
 static const int printdpi = 600;
-
-enum printtype { pt_fontdisplay, pt_chars, pt_multisize, pt_fontsample };
 
 struct sfbits {
     /* If it's a CID font we'll only have one. Otherwise we might have */
