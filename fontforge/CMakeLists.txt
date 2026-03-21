@@ -204,6 +204,7 @@ add_library(fontforge
   stemdb.c
   std_maps.cpp
   svg.c
+  textsamples.cpp
   tottf.c
   tottfaat.c
   tottfgpos.c
