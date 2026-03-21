@@ -31,14 +31,31 @@
 
 namespace ff::widgets {
 
+static constexpr int kHistogramMinWidth = 240;
+static constexpr int kHistogramHeight = 160;
+static constexpr int kBarWidthPx = 10;
+static constexpr int kBarGapPx = 2;
+static constexpr int kOuterMarginPx = 4;
+
 Histogram::Histogram() {
     set_hexpand(true);
     set_vexpand(true);
-    set_size_request(240, 160);
+    set_size_request(kHistogramMinWidth, kHistogramHeight);
 }
 
 void Histogram::set_values(const std::vector<int>& values) {
     values_ = values;
+
+    int content_width = kHistogramMinWidth;
+    if (!values_.empty()) {
+        content_width =
+            std::max(kHistogramMinWidth, 2 * kOuterMarginPx +
+                                             static_cast<int>(values_.size()) *
+                                                 (kBarWidthPx + kBarGapPx) -
+                                             kBarGapPx);
+    }
+    set_size_request(content_width, kHistogramHeight);
+
     queue_draw();
 }
 
@@ -59,16 +76,14 @@ bool Histogram::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         return true;
     }
 
-    const double bar_width = static_cast<double>(width) / values_.size();
-
     cr->set_source_rgb(0.125, 0.125, 1.0);
     for (size_t i = 0; i < values_.size(); ++i) {
         const double norm = static_cast<double>(values_[i]) / max_value;
         const double bar_height = norm * height;
-        const double x = i * bar_width;
+        const double x = kOuterMarginPx + i * (kBarWidthPx + kBarGapPx);
         const double y = height - bar_height;
 
-        cr->rectangle(x, y, std::max(1.0, bar_width - 1.0), bar_height);
+        cr->rectangle(x, y, kBarWidthPx, bar_height);
         cr->fill();
     }
 

@@ -45,7 +45,12 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
         bar_values.push_back(static_cast<int>(bar.value));
     }
     histogram->set_values(bar_values);
-    get_content_area()->pack_start(*histogram, Gtk::PACK_EXPAND_WIDGET);
+
+    auto histogram_scroll = Gtk::make_managed<Gtk::ScrolledWindow>();
+    histogram_scroll->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_NEVER);
+    histogram_scroll->set_overlay_scrolling(false);
+    histogram_scroll->add(*histogram);
+    get_content_area()->pack_start(*histogram_scroll, Gtk::PACK_EXPAND_WIDGET);
 
     auto controls_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
