@@ -34,12 +34,17 @@
 
 namespace ff::dlg {
 
-ShowHistogramDlg::ShowHistogramDlg(GWindow parent) : DialogBase(parent) {
-    set_title(_("[TEMP] Show Histogram"));
+ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
+    : DialogBase(parent) {
+    set_title(data.title);
     set_help_context("ui/dialogs/histogram.html");
 
     auto histogram = Gtk::make_managed<ff::widgets::Histogram>();
-    histogram->set_values({2, 5, 3, 8, 4, 6, 1, 7, 5, 3});
+    std::vector<int> bar_values;
+    for (const auto& bar : data.bars) {
+        bar_values.push_back(static_cast<int>(bar.value));
+    }
+    histogram->set_values(bar_values);
     get_content_area()->pack_start(*histogram, Gtk::PACK_EXPAND_WIDGET);
 
     auto controls_box = Gtk::make_managed<Gtk::Box>(
@@ -76,7 +81,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent) : DialogBase(parent) {
 
     auto primary_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
-    auto primary_label = Gtk::make_managed<Gtk::Label>(_("BlueValues:"));
+    auto primary_label = Gtk::make_managed<Gtk::Label>(data.primary_label);
     auto label_group = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
     primary_label->set_halign(Gtk::ALIGN_START);
     primary_label->set_valign(Gtk::ALIGN_CENTER);
@@ -91,7 +96,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent) : DialogBase(parent) {
 
     auto secondary_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
-    auto secondary_label = Gtk::make_managed<Gtk::Label>(_("OtherBlues:"));
+    auto secondary_label = Gtk::make_managed<Gtk::Label>(data.secondary_label);
     secondary_label->set_halign(Gtk::ALIGN_START);
     secondary_label->set_valign(Gtk::ALIGN_CENTER);
     label_group->add_widget(*secondary_label);
@@ -106,14 +111,14 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent) : DialogBase(parent) {
     show_all();
 }
 
-bool ShowHistogramDlg::show(GWindow parent) {
-    ShowHistogramDlg dialog(parent);
+bool ShowHistogramDlg::show(GWindow parent, const HistogramData& data) {
+    ShowHistogramDlg dialog(parent, data);
     return dialog.run() == Gtk::RESPONSE_OK;
 }
 
-void show_histogram_dialog() {
+void show_histogram_dialog(const HistogramData& data) {
     ff::app::GtkApp();
-    ShowHistogramDlg::show(nullptr);
+    ShowHistogramDlg::show(nullptr, data);
 }
 
 }  // namespace ff::dlg

@@ -26,8 +26,24 @@
  */
 #pragma once
 
+#include <string>
+#include <vector>
+
 namespace ff::dlg {
 
-void show_histogram_dialog();
+struct HistogramBarRecord {
+    unsigned int value;
+    std::vector<std::string> glyph_names;
+};
+
+struct HistogramData {
+    std::string title;
+    std::string primary_label;
+    std::string secondary_label;
+    int lower_bound;
+    std::vector<HistogramBarRecord> bars;
+};
+
+void show_histogram_dialog(const HistogramData& data);
 
 }  // namespace ff::dlg

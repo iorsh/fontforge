@@ -783,8 +783,19 @@ void SFHistogram(SplineFont *sf,int layer, struct psdict *private_dict, uint8_t 
     if ( selected!=NULL )
 	CheckSmallSelection(selected,map,sf);
 
-    if (which==hist_vstem) {
-        ff::dlg::show_histogram_dialog();
+    if (which == hist_vstem) {
+        ff::dlg::HistogramData dlg_data;
+        dlg_data.title = _("VStem");
+        dlg_data.primary_label = _("StdVW:");
+        dlg_data.secondary_label = _("StemSnapV:");
+        dlg_data.lower_bound = hist.h->low;
+
+        for (int v = hist.h->low; v <= hist.h->high; ++v) {
+            const hentry& entry = hist.h->hist[v - hist.h->low];
+            dlg_data.bars.push_back({static_cast<unsigned int>(entry.cnt), {}});
+        }
+
+        ff::dlg::show_histogram_dialog(dlg_data);
         return;
     }
 

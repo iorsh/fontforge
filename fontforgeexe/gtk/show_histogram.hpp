@@ -27,15 +27,16 @@
 #pragma once
 
 #include "dialog_base.hpp"
+#include "show_histogram_shim.hpp"
 
 namespace ff::dlg {
 
 class ShowHistogramDlg final : public DialogBase {
  private:
-    explicit ShowHistogramDlg(GWindow parent);
+    ShowHistogramDlg(GWindow parent, const HistogramData& data);
 
  public:
-    static bool show(GWindow parent);
+    static bool show(GWindow parent, const HistogramData& data);
 };
 
 }  // namespace ff::dlg
