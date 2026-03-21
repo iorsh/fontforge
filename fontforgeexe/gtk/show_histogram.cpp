@@ -30,12 +30,17 @@
 #include "application.hpp"
 #include "utils.hpp"
 #include "intl.h"
+#include "widgets/histogram.hpp"
 
 namespace ff::dlg {
 
 ShowHistogramDlg::ShowHistogramDlg(GWindow parent) : DialogBase(parent) {
     set_title(_("[TEMP] Show Histogram"));
     set_help_context("ui/dialogs/histogram.html");
+
+    auto histogram = Gtk::make_managed<ff::widgets::Histogram>();
+    histogram->set_values({2, 5, 3, 8, 4, 6, 1, 7, 5, 3});
+    get_content_area()->pack_start(*histogram, Gtk::PACK_EXPAND_WIDGET);
 
     auto controls_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
