@@ -407,23 +407,23 @@ struct glyph_res {
 
 
 void makePatName(char *buffer,
-	RefChar *ref,SplineChar *sc,int layer,int isstroke,int isgrad) {
+	real ref_transform[6],const char *sc_name,int layer,int isstroke,int isgrad) {
     /* In PDF patterns (which include gradients) are fixed to the page. They */
     /*  do not alter with the Current Transformation Matrix. So if we have */
     /*  a reference to a glyph, then every reference to the same glyph will */
     /*  need a different pattern description where that description involves */
     /*  the reference's transform matrix */
 
-    if ( ref==NULL )
-	sprintf( buffer,"%s_ly%d_%s_%s", sc->name, layer,
+    if ( ref_transform==NULL )
+	sprintf( buffer,"%s_ly%d_%s_%s", sc_name, layer,
 		    isstroke ? "stroke":"fill", isgrad ? "grad": "pattern" );
     else {
 	/* PDF names are significant up to 127 chars long and can contain */
 	/*  all kinds of odd characters, just no spaces or slashes, so this */
 	/*  name should be legal */
-	sprintf( buffer,"%s_trans_%g,%g,%g,%g,%g,%g_ly%d_%s_%s", sc->name,
-		(double) ref->transform[0], (double) ref->transform[1], (double) ref->transform[2],
-		(double) ref->transform[3], (double) ref->transform[4], (double) ref->transform[5],
+	sprintf( buffer,"%s_trans_%g,%g,%g,%g,%g,%g_ly%d_%s_%s", sc_name,
+		ref_transform[0], ref_transform[1], ref_transform[2],
+		ref_transform[3], ref_transform[4], ref_transform[5],
 		layer,
 		isstroke ? "stroke":"fill", isgrad ? "grad": "pattern" );
     }
@@ -517,7 +517,7 @@ static void pdf_BrushCheck(PI *pi,struct glyph_res *gr,struct brush *brush,
 	    gr->pattern_names = (char **)realloc(gr->pattern_names,(gr->pattern_max+=100)*sizeof(char *));
 	    gr->pattern_objs  = (int *)realloc(gr->pattern_objs ,(gr->pattern_max     )*sizeof(int   ));
 	}
-	makePatName(buffer,ref,sc,layer,!isfill,true);
+	makePatName(buffer,ref==NULL ? NULL : ref->transform,sc->name,layer,!isfill,true);
 	gr->pattern_names[gr->pattern_cnt  ] = copy(buffer);
 	gr->pattern_objs [gr->pattern_cnt++] = pdf_addobject(pi->objects, pi->out);
 	fprintf( pi->out, "<<\n" );
@@ -541,7 +541,7 @@ static void pdf_BrushCheck(PI *pi,struct glyph_res *gr,struct brush *brush,
 	    gr->pattern_names = (char **)realloc(gr->pattern_names,(gr->pattern_max+=100)*sizeof(char *));
 	    gr->pattern_objs  = (int *)realloc(gr->pattern_objs ,(gr->pattern_max     )*sizeof(int   ));
 	}
-	makePatName(buffer,ref,sc,layer,!isfill,false);
+	makePatName(buffer,ref==NULL ? NULL : ref->transform,sc->name,layer,!isfill,false);
 	gr->pattern_names[gr->pattern_cnt  ] = copy(buffer);
 	gr->pattern_objs [gr->pattern_cnt++] = pdf_addobject(pi->objects, pi->out);
 	fprintf( pi->out, "<<\n" );

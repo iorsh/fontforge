@@ -519,7 +519,7 @@ static void dumpGradient(void (*dumpchar)(int ch,void *data), void *data,
     if ( pdfopers ) {
 	char buffer[200];
 	dumpf(dumpchar,data,"/Pattern %s\n", isstroke ? "CS" : "cs" );
-	makePatName(buffer,ref,sc,layer,isstroke,true);
+	makePatName(buffer,ref==NULL ? NULL : ref->transform,sc->name,layer,isstroke,true);
 	dumpf(dumpchar,data,"/%s %s\n", buffer, isstroke ? "SCN" : "scn" );
 	/* PDF output looks much simpler than postscript. It isn't. It's just */
 	/*  that the equivalent pdf dictionaries need to be created as objects*/
@@ -607,7 +607,7 @@ static void dumpPattern(void (*dumpchar)(int ch,void *data), void *data,
     if ( pdfopers ) {
 	char buffer[200];
 	dumpf(dumpchar,data,"/Pattern %s\n", isstroke ? "CS" : "cs" );
-	makePatName(buffer,ref,sc,layer,isstroke,false);
+	makePatName(buffer,ref==NULL ? NULL : ref->transform,sc->name,layer,isstroke,false);
 	dumpf(dumpchar,data,"/%s %s\n", buffer, isstroke ? "SCN" : "scn" );
 	/* PDF output looks much simpler than postscript. It isn't. It's just */
 	/*  that the equivalent pdf dictionaries need to be created as objects*/
