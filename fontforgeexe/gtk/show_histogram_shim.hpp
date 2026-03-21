@@ -24,29 +24,10 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include "show_histogram.hpp"
-
-#include "application.hpp"
-#include "intl.h"
+#pragma once
 
 namespace ff::dlg {
 
-ShowHistogramDlg::ShowHistogramDlg(GWindow parent) : DialogBase(parent) {
-    set_title(_("[TEMP] Show Histogram"));
-    set_help_context("ui/dialogs/histogram.html");
-
-    show_all();
-}
-
-bool ShowHistogramDlg::show(GWindow parent) {
-    ShowHistogramDlg dialog(parent);
-    return dialog.run() == Gtk::RESPONSE_OK;
-}
-
-void show_histogram_dialog() {
-    ff::app::GtkApp();
-    ShowHistogramDlg::show(nullptr);
-}
+void show_histogram_dialog();
 
 }  // namespace ff::dlg

@@ -42,6 +42,8 @@ extern "C" {
 
 #include <math.h>
 
+#include "gtk/show_histogram_shim.hpp"
+
 /* This operations are designed to work on a single font. NOT a CID collection*/
 /*  A CID collection must be treated one sub-font at a time */
 
@@ -780,6 +782,11 @@ void SFHistogram(SplineFont *sf,int layer, struct psdict *private_dict, uint8_t 
 
     if ( selected!=NULL )
 	CheckSmallSelection(selected,map,sf);
+
+    if (which==hist_vstem) {
+        ff::dlg::show_histogram_dialog();
+        return;
+    }
 
     memset(&wattrs,0,sizeof(wattrs));
     wattrs.mask = wam_events|wam_cursor|wam_utf8_wtitle|wam_undercursor|wam_isdlg|wam_restrict;
