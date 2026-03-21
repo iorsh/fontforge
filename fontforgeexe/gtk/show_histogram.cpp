@@ -28,6 +28,7 @@
 #include "show_histogram.hpp"
 
 #include "application.hpp"
+#include "utils.hpp"
 #include "intl.h"
 
 namespace ff::dlg {
@@ -35,6 +36,38 @@ namespace ff::dlg {
 ShowHistogramDlg::ShowHistogramDlg(GWindow parent) : DialogBase(parent) {
     set_title(_("[TEMP] Show Histogram"));
     set_help_context("ui/dialogs/histogram.html");
+
+    auto controls_box = Gtk::make_managed<Gtk::Box>(
+        Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
+    auto average_label =
+        Gtk::make_managed<Gtk::Label>(_("Moving average window:"));
+    average_label->set_halign(Gtk::ALIGN_START);
+    average_label->set_valign(Gtk::ALIGN_CENTER);
+    controls_box->pack_start(*average_label, Gtk::PACK_SHRINK);
+
+    auto average_entry = Gtk::make_managed<Gtk::SpinButton>(
+        Gtk::Adjustment::create(1, 1, 99, 2, 10, 0), 1, 0);
+    average_entry->set_numeric(true);
+    average_entry->set_snap_to_ticks(true);
+    average_entry->set_width_chars(4);
+    average_entry->set_valign(Gtk::ALIGN_CENTER);
+    average_entry->set_activates_default();
+    controls_box->pack_start(*average_entry, Gtk::PACK_SHRINK);
+
+    auto bar_width_label = Gtk::make_managed<Gtk::Label>(_("Bar width:"));
+    bar_width_label->set_halign(Gtk::ALIGN_START);
+    bar_width_label->set_valign(Gtk::ALIGN_CENTER);
+    controls_box->pack_start(*bar_width_label, Gtk::PACK_SHRINK);
+
+    auto bar_width_entry = Gtk::make_managed<Gtk::SpinButton>(
+        Gtk::Adjustment::create(6, 1, 100, 1, 5, 0), 1, 0);
+    bar_width_entry->set_numeric(true);
+    bar_width_entry->set_width_chars(4);
+    bar_width_entry->set_valign(Gtk::ALIGN_CENTER);
+    bar_width_entry->set_activates_default();
+    controls_box->pack_start(*bar_width_entry, Gtk::PACK_SHRINK);
+
+    get_content_area()->pack_start(*controls_box, Gtk::PACK_SHRINK);
 
     show_all();
 }
