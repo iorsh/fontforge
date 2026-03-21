@@ -605,23 +605,31 @@ static void pdf_BrushCheck(PI *pi,struct glyph_res *gr,struct brush *brush,
     }
 }
 
-static void pdf_ImageCheck(PI *pi,struct glyph_res *gr,ImageList *images,
-	int layer,SplineChar *sc) {
+static std::vector<GImage*> ImageListToVector(ImageList *images) {
+    std::vector<GImage*> result;
+
+    while ( images!=NULL ) {
+	result.push_back(images->image);
+	images = images->next;
+    }
+return( result );
+}
+
+static void pdf_ImageCheck(PI *pi,struct glyph_res *gr,std::vector<GImage*> images,
+	int layer,const char *name) {
     char buffer[400];
     int icnt=0;
-    GImage *img;
     struct _GImage *base;
     int i;
 
-    while ( images!=NULL ) {
-	img = images->image;
+    for ( GImage* img : images ) {
 	base = img->list_len==0 ? img->u.image : img->u.images[1];
 
 	if ( gr->image_cnt>=gr->image_max ) {
 	    gr->image_names = (char **)realloc(gr->image_names,(gr->image_max+=100)*sizeof(char *));
 	    gr->image_objs  = (int *)realloc(gr->image_objs ,(gr->image_max     )*sizeof(int   ));
 	}
-	sprintf( buffer, "%s_ly%d_%d_image", sc->name, layer, icnt );
+	sprintf( buffer, "%s_ly%d_%d_image", name, layer, icnt );
 	gr->image_names[gr->image_cnt  ] = copy(buffer);
 	gr->image_objs [gr->image_cnt++] = pdf_addobject(pi->objects, pi->out);
 	++icnt;
@@ -666,7 +674,6 @@ static void pdf_ImageCheck(PI *pi,struct glyph_res *gr,ImageList *images,
 	}
 	fprintf( pi->out, "\nendstream\n" );
 	fprintf( pi->out, "endobj\n" );
-	images = images->next;
     }
 }
 
@@ -684,14 +691,14 @@ int PdfDumpGlyphResources(PI *pi,SplineChar *sc) {
 	    pdf_BrushCheck(pi,&gr,&sc->layers[layer].fill_brush,true,layer,sc,NULL);
 	if ( sc->layers[layer].dostroke )
 	    pdf_BrushCheck(pi,&gr,&sc->layers[layer].stroke_pen.brush,false,layer,sc,NULL);
-	pdf_ImageCheck(pi,&gr,sc->layers[layer].images,layer,sc);
+	pdf_ImageCheck(pi,&gr,ImageListToVector(sc->layers[layer].images),layer,sc->name);
 	for ( ref=sc->layers[layer].refs; ref!=NULL; ref=ref->next ) {
 	    for ( i=0; i<ref->layer_cnt; ++i ) {
 		if ( ref->layers[i].dofill )
 		    pdf_BrushCheck(pi,&gr,&ref->layers[i].fill_brush,true,i,ref->sc,ref);
 		if ( ref->layers[i].dostroke )
 		    pdf_BrushCheck(pi,&gr,&ref->layers[i].stroke_pen.brush,false,i,ref->sc,ref);
-		pdf_ImageCheck(pi,&gr,ref->layers[i].images,i,ref->sc);
+		pdf_ImageCheck(pi,&gr,ImageListToVector(ref->layers[i].images),i,ref->sc->name);
 	    }
 	}
     }
@@ -744,14 +751,14 @@ static int PdfDumpSFResources(PI *pi,SplineFont *sf) {
 		pdf_BrushCheck(pi,&gr,&sc->layers[layer].fill_brush,true,layer,sc,NULL);
 	    if ( sc->layers[layer].dostroke )
 		pdf_BrushCheck(pi,&gr,&sc->layers[layer].stroke_pen.brush,false,layer,sc,NULL);
-	    pdf_ImageCheck(pi,&gr,sc->layers[layer].images,layer,sc);
+	    pdf_ImageCheck(pi,&gr,ImageListToVector(sc->layers[layer].images),layer,sc->name);
 	    for ( ref=sc->layers[layer].refs; ref!=NULL; ref=ref->next ) {
 		for ( i=0; i<ref->layer_cnt; ++i ) {
 		    if ( ref->layers[i].dofill )
 			pdf_BrushCheck(pi,&gr,&ref->layers[i].fill_brush,true,i,ref->sc,ref);
 		    if ( ref->layers[i].dostroke )
 			pdf_BrushCheck(pi,&gr,&ref->layers[i].stroke_pen.brush,false,i,ref->sc,ref);
-		    pdf_ImageCheck(pi,&gr,ref->layers[layer].images,i,ref->sc);
+		    pdf_ImageCheck(pi,&gr,ImageListToVector(ref->layers[layer].images),i,ref->sc->name);
 		}
 	    }
 	}
