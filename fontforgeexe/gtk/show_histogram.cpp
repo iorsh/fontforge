@@ -34,6 +34,11 @@
 
 namespace ff::dlg {
 
+namespace {
+int s_bar_width = 6;
+int s_moving_average = 1;
+}  // namespace
+
 ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     : DialogBase(parent) {
     set_title(data.title);
@@ -45,7 +50,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
         bar_values.push_back(static_cast<int>(bar.value));
     }
     histogram->set_values(bar_values);
-    histogram->set_bar_width(6);
+    histogram->set_bar_width(s_bar_width);
 
     auto histogram_scroll = Gtk::make_managed<Gtk::ScrolledWindow>();
     histogram_scroll->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_NEVER);
@@ -62,12 +67,15 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     controls_box->pack_start(*average_label, Gtk::PACK_SHRINK);
 
     auto average_entry = Gtk::make_managed<Gtk::SpinButton>(
-        Gtk::Adjustment::create(1, 1, 99, 2, 10, 0), 1, 0);
+        Gtk::Adjustment::create(s_moving_average, 1, 99, 2, 10, 0), 1, 0);
     average_entry->set_numeric(true);
     average_entry->set_snap_to_ticks(true);
     average_entry->set_width_chars(4);
     average_entry->set_valign(Gtk::ALIGN_CENTER);
     average_entry->set_activates_default();
+    average_entry->signal_value_changed().connect([average_entry]() {
+        s_moving_average = average_entry->get_value_as_int();
+    });
     controls_box->pack_start(*average_entry, Gtk::PACK_SHRINK);
 
     auto bar_width_label = Gtk::make_managed<Gtk::Label>(_("Bar width:"));
@@ -76,14 +84,15 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     controls_box->pack_start(*bar_width_label, Gtk::PACK_SHRINK);
 
     auto bar_width_entry = Gtk::make_managed<Gtk::SpinButton>(
-        Gtk::Adjustment::create(6, 1, 100, 1, 5, 0), 1, 0);
+        Gtk::Adjustment::create(s_bar_width, 1, 100, 1, 5, 0), 1, 0);
     bar_width_entry->set_numeric(true);
     bar_width_entry->set_width_chars(4);
     bar_width_entry->set_valign(Gtk::ALIGN_CENTER);
     bar_width_entry->set_activates_default();
     bar_width_entry->signal_value_changed().connect(
         [bar_width_entry, histogram]() {
-            histogram->set_bar_width(bar_width_entry->get_value_as_int());
+            s_bar_width = bar_width_entry->get_value_as_int();
+            histogram->set_bar_width(s_bar_width);
         });
     controls_box->pack_start(*bar_width_entry, Gtk::PACK_SHRINK);
 
