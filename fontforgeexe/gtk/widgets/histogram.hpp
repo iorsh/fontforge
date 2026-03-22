@@ -36,12 +36,16 @@ class Histogram : public Gtk::DrawingArea {
     Histogram();
 
     void set_values(const std::vector<int>& values);
+    void set_bar_width(int width_px);
 
  protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
  private:
+    void update_size_request();
+
     std::vector<int> values_;
+    int bar_width_px_ = 10;
 };
 
 }  // namespace ff::widgets
