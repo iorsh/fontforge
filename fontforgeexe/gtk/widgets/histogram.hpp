@@ -43,6 +43,10 @@ class Histogram : public Gtk::DrawingArea {
 
  private:
     void update_size_request();
+    double draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
+                     int height);
+    void draw_axis_tick(const Cairo::RefPtr<Cairo::Context>& cr, double axis_y,
+                        size_t index);
 
     std::vector<int> values_;
     int bar_width_px_ = 10;

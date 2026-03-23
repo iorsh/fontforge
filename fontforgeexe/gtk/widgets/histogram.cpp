@@ -32,9 +32,12 @@
 namespace ff::widgets {
 
 static constexpr int kHistogramMinWidth = 240;
-static constexpr int kHistogramHeight = 160;
+static constexpr int kHistogramHeight = 180;
 static constexpr int kBarGapPx = 1;
 static constexpr int kOuterMarginPx = 4;
+static constexpr int kAxisTickPx = 4;
+static constexpr int kAxisLabelGapPx = 2;
+static constexpr int kAxisLabelBottomPx = 2;
 
 Histogram::Histogram() {
     set_hexpand(true);
@@ -65,6 +68,61 @@ void Histogram::update_size_request() {
     queue_draw();
 }
 
+void Histogram::draw_axis_tick(const Cairo::RefPtr<Cairo::Context>& cr,
+                               double axis_y, size_t index) {
+    const double tick_x = kOuterMarginPx + index * (bar_width_px_ + kBarGapPx) +
+                          bar_width_px_ / 2.0;
+    const double tick_y1 = axis_y + kAxisTickPx;
+    cr->move_to(tick_x, axis_y);
+    cr->line_to(tick_x, tick_y1);
+    cr->stroke();
+
+    const std::string label = std::to_string(index);
+    auto label_layout = create_pango_layout(label);
+    int label_width = 0;
+    int label_height = 0;
+    label_layout->get_pixel_size(label_width, label_height);
+
+    const double label_x = tick_x - label_width / 2.0;
+    const double label_y = tick_y1 + kAxisLabelGapPx;
+    cr->move_to(label_x, label_y);
+    label_layout->show_in_cairo_context(cr);
+}
+
+double Histogram::draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
+                            int height) {
+    int axis_label_height = 0;
+    if (!values_.empty()) {
+        auto sample_layout = create_pango_layout("0");
+        int sample_width = 0;
+        sample_layout->get_pixel_size(sample_width, axis_label_height);
+    }
+
+    const double axis_x0 = kOuterMarginPx;
+    const double axis_x1 =
+        std::max(axis_x0, static_cast<double>(width - kOuterMarginPx));
+    const double axis_height = kAxisTickPx + kAxisLabelGapPx +
+                               axis_label_height + kAxisLabelBottomPx + 0.5;
+    const double axis_y = height - axis_height;
+
+    cr->set_source_rgb(0.0, 0.0, 0.0);
+    cr->set_line_width(1.0);
+    cr->move_to(axis_x0, axis_y);
+    cr->line_to(axis_x1, axis_y);
+    cr->stroke();
+
+    if (!values_.empty()) {
+        const int tick_step =
+            std::max(1, static_cast<int>(values_.size()) / 10);
+
+        for (size_t i = 0; i < values_.size(); i += tick_step) {
+            draw_axis_tick(cr, axis_y, i);
+        }
+    }
+
+    return axis_height;
+}
+
 bool Histogram::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     Gtk::Allocation allocation = get_allocation();
     const int width = allocation.get_width();
@@ -73,24 +131,30 @@ bool Histogram::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     cr->set_source_rgb(1.0, 1.0, 1.0);
     cr->paint();
 
-    if (values_.empty() || width <= 0 || height <= 0) {
+    if (width <= 0 || height <= 0) {
         return true;
     }
 
-    const int max_value = *std::max_element(values_.cbegin(), values_.cend());
-    if (max_value <= 0) {
-        return true;
-    }
+    const double axis_height = draw_axis(cr, width, height);
+    const double bar_base = height - axis_height;
+    const double bar_max_height = std::max(1.0, bar_base - kOuterMarginPx);
 
-    cr->set_source_rgb(0.125, 0.125, 1.0);
-    for (size_t i = 0; i < values_.size(); ++i) {
-        const double norm = static_cast<double>(values_[i]) / max_value;
-        const double bar_height = norm * height;
-        const double x = kOuterMarginPx + i * (bar_width_px_ + kBarGapPx);
-        const double y = height - bar_height;
+    if (!values_.empty()) {
+        const int max_value =
+            *std::max_element(values_.cbegin(), values_.cend());
+        if (max_value > 0) {
+            cr->set_source_rgb(0.125, 0.125, 1.0);
+            for (size_t i = 0; i < values_.size(); ++i) {
+                const double norm = static_cast<double>(values_[i]) / max_value;
+                const double bar_height = norm * bar_max_height;
+                const double x =
+                    kOuterMarginPx + i * (bar_width_px_ + kBarGapPx);
+                const double y = bar_base - bar_height;
 
-        cr->rectangle(x, y, bar_width_px_, bar_height);
-        cr->fill();
+                cr->rectangle(x, y, bar_width_px_, bar_height);
+                cr->fill();
+            }
+        }
     }
 
     return true;
