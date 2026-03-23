@@ -30,7 +30,6 @@
 #include "application.hpp"
 #include "utils.hpp"
 #include "intl.h"
-#include "widgets/histogram.hpp"
 
 namespace ff::dlg {
 
@@ -57,9 +56,46 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     histogram_scroll->set_overlay_scrolling(false);
     histogram_scroll->add(*histogram);
     get_content_area()->pack_start(*histogram_scroll, Gtk::PACK_EXPAND_WIDGET);
+    get_content_area()->pack_start(*build_control_box(histogram),
+                                   Gtk::PACK_SHRINK);
 
+    auto primary_box = Gtk::make_managed<Gtk::Box>(
+        Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
+    auto primary_label = Gtk::make_managed<Gtk::Label>(data.primary_label);
+    auto label_group = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
+    primary_label->set_halign(Gtk::ALIGN_START);
+    primary_label->set_valign(Gtk::ALIGN_CENTER);
+    label_group->add_widget(*primary_label);
+    primary_box->pack_start(*primary_label, Gtk::PACK_SHRINK);
+
+    auto primary_entry = Gtk::make_managed<Gtk::Entry>();
+    primary_entry->set_hexpand(true);
+    primary_entry->set_activates_default();
+    primary_box->pack_start(*primary_entry, Gtk::PACK_EXPAND_WIDGET);
+    get_content_area()->pack_start(*primary_box, Gtk::PACK_SHRINK);
+
+    auto secondary_box = Gtk::make_managed<Gtk::Box>(
+        Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
+    auto secondary_label = Gtk::make_managed<Gtk::Label>(data.secondary_label);
+    secondary_label->set_halign(Gtk::ALIGN_START);
+    secondary_label->set_valign(Gtk::ALIGN_CENTER);
+    label_group->add_widget(*secondary_label);
+    secondary_box->pack_start(*secondary_label, Gtk::PACK_SHRINK);
+
+    auto secondary_entry = Gtk::make_managed<Gtk::Entry>();
+    secondary_entry->set_hexpand(true);
+    secondary_entry->set_activates_default();
+    secondary_box->pack_start(*secondary_entry, Gtk::PACK_EXPAND_WIDGET);
+    get_content_area()->pack_start(*secondary_box, Gtk::PACK_SHRINK);
+
+    show_all();
+}
+
+Gtk::Box* ShowHistogramDlg::build_control_box(
+    ff::widgets::Histogram* histogram) {
     auto controls_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
+
     auto average_label =
         Gtk::make_managed<Gtk::Label>(_("Moving average window:"));
     average_label->set_halign(Gtk::ALIGN_START);
@@ -96,38 +132,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
         });
     controls_box->pack_start(*bar_width_entry, Gtk::PACK_SHRINK);
 
-    get_content_area()->pack_start(*controls_box, Gtk::PACK_SHRINK);
-
-    auto primary_box = Gtk::make_managed<Gtk::Box>(
-        Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
-    auto primary_label = Gtk::make_managed<Gtk::Label>(data.primary_label);
-    auto label_group = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
-    primary_label->set_halign(Gtk::ALIGN_START);
-    primary_label->set_valign(Gtk::ALIGN_CENTER);
-    label_group->add_widget(*primary_label);
-    primary_box->pack_start(*primary_label, Gtk::PACK_SHRINK);
-
-    auto primary_entry = Gtk::make_managed<Gtk::Entry>();
-    primary_entry->set_hexpand(true);
-    primary_entry->set_activates_default();
-    primary_box->pack_start(*primary_entry, Gtk::PACK_EXPAND_WIDGET);
-    get_content_area()->pack_start(*primary_box, Gtk::PACK_SHRINK);
-
-    auto secondary_box = Gtk::make_managed<Gtk::Box>(
-        Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
-    auto secondary_label = Gtk::make_managed<Gtk::Label>(data.secondary_label);
-    secondary_label->set_halign(Gtk::ALIGN_START);
-    secondary_label->set_valign(Gtk::ALIGN_CENTER);
-    label_group->add_widget(*secondary_label);
-    secondary_box->pack_start(*secondary_label, Gtk::PACK_SHRINK);
-
-    auto secondary_entry = Gtk::make_managed<Gtk::Entry>();
-    secondary_entry->set_hexpand(true);
-    secondary_entry->set_activates_default();
-    secondary_box->pack_start(*secondary_entry, Gtk::PACK_EXPAND_WIDGET);
-    get_content_area()->pack_start(*secondary_box, Gtk::PACK_SHRINK);
-
-    show_all();
+    return controls_box;
 }
 
 bool ShowHistogramDlg::show(GWindow parent, const HistogramData& data) {

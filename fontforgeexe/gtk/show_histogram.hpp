@@ -28,12 +28,15 @@
 
 #include "dialog_base.hpp"
 #include "show_histogram_shim.hpp"
+#include "widgets/histogram.hpp"
 
 namespace ff::dlg {
 
 class ShowHistogramDlg final : public DialogBase {
  private:
     ShowHistogramDlg(GWindow parent, const HistogramData& data);
+
+    Gtk::Box* build_control_box(ff::widgets::Histogram* histogram);
 
  public:
     static bool show(GWindow parent, const HistogramData& data);
