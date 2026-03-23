@@ -92,10 +92,20 @@ void Histogram::draw_axis_tick(const Cairo::RefPtr<Cairo::Context>& cr,
 double Histogram::draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
                             int height) {
     int axis_label_height = 0;
+    int tick_step = 1000;
     if (!values_.empty()) {
-        auto sample_layout = create_pango_layout("0");
+        auto sample_layout =
+            create_pango_layout(std::to_string(values_.size() - 1));
         int sample_width = 0;
         sample_layout->get_pixel_size(sample_width, axis_label_height);
+
+        // Select sufficiently wide tick step
+        for (int step : {1, 2, 5, 10, 20, 50, 100, 500, 1000}) {
+            if (step * (bar_width_px_ + kBarGapPx) >= sample_width * 3 / 2) {
+                tick_step = step;
+                break;
+            }
+        }
     }
 
     const double axis_x0 = kOuterMarginPx;
@@ -111,13 +121,8 @@ double Histogram::draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
     cr->line_to(axis_x1, axis_y);
     cr->stroke();
 
-    if (!values_.empty()) {
-        const int tick_step =
-            std::max(1, static_cast<int>(values_.size()) / 10);
-
-        for (size_t i = 0; i < values_.size(); i += tick_step) {
-            draw_axis_tick(cr, axis_y, i);
-        }
+    for (size_t i = 0; i < values_.size(); i += tick_step) {
+        draw_axis_tick(cr, axis_y, i);
     }
 
     return axis_height;
