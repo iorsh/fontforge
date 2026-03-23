@@ -123,20 +123,8 @@ double Histogram::draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
     return axis_height;
 }
 
-bool Histogram::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
-    Gtk::Allocation allocation = get_allocation();
-    const int width = allocation.get_width();
-    const int height = allocation.get_height();
-
-    cr->set_source_rgb(1.0, 1.0, 1.0);
-    cr->paint();
-
-    if (width <= 0 || height <= 0) {
-        return true;
-    }
-
-    const double axis_height = draw_axis(cr, width, height);
-    const double bar_base = height - axis_height;
+void Histogram::draw_bars(const Cairo::RefPtr<Cairo::Context>& cr,
+                          double bar_base) {
     const double bar_max_height = std::max(1.0, bar_base - kOuterMarginPx);
 
     if (!values_.empty()) {
@@ -156,6 +144,23 @@ bool Histogram::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
             }
         }
     }
+}
+
+bool Histogram::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
+    Gtk::Allocation allocation = get_allocation();
+    const int width = allocation.get_width();
+    const int height = allocation.get_height();
+
+    cr->set_source_rgb(1.0, 1.0, 1.0);
+    cr->paint();
+
+    if (width <= 0 || height <= 0) {
+        return true;
+    }
+
+    const double axis_height = draw_axis(cr, width, height);
+    const double bar_base = height - axis_height;
+    draw_bars(cr, bar_base);
 
     return true;
 }
