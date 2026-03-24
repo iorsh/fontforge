@@ -43,6 +43,9 @@ class Histogram : public Gtk::DrawingArea {
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
  private:
+    bool get_bar_index(int x, size_t& index) const;
+    bool on_query_tooltip_event(int x, int y, bool keyboard_tooltip,
+                                const Glib::RefPtr<Gtk::Tooltip>& tooltip);
     void update_size_request();
     double draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
                      int height);

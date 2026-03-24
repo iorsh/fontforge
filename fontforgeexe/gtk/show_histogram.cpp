@@ -97,8 +97,7 @@ Gtk::Box* ShowHistogramDlg::build_control_box(
     auto controls_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
 
-    auto average_label =
-        Gtk::make_managed<Gtk::Label>(_("Moving average window:"));
+    auto average_label = Gtk::make_managed<Gtk::Label>(_("Smoothing window:"));
     average_label->set_halign(Gtk::ALIGN_START);
     average_label->set_valign(Gtk::ALIGN_CENTER);
     controls_box->pack_start(*average_label, Gtk::PACK_SHRINK);

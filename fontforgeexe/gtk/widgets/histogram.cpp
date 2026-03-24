@@ -62,6 +62,9 @@ static constexpr int kAxisLabelBottomPx = 2;
 Histogram::Histogram() {
     set_hexpand(true);
     set_vexpand(true);
+    set_has_tooltip(true);
+    signal_query_tooltip().connect(
+        sigc::mem_fun(*this, &Histogram::on_query_tooltip_event));
     set_size_request(kHistogramMinWidth, kHistogramHeight);
 }
 
@@ -231,6 +234,61 @@ bool Histogram::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     draw_bars(cr, bar_base);
     draw_moving_average(cr, bar_base);
 
+    return true;
+}
+
+bool Histogram::get_bar_index(int x, size_t& index) const {
+    const int pitch = bar_width_px_ + kBarGapPx;
+    if (pitch <= 0) {
+        return false;
+    }
+
+    const int relative_x = x - kOuterMarginPx;
+    if (relative_x < 0) {
+        return false;
+    }
+
+    const size_t candidate = static_cast<size_t>(relative_x / pitch);
+    if (candidate >= values_.size()) {
+        return false;
+    }
+
+    index = candidate;
+    return true;
+}
+
+bool Histogram::on_query_tooltip_event(
+    int x, int y, bool keyboard_tooltip,
+    const Glib::RefPtr<Gtk::Tooltip>& tooltip) {
+    if (keyboard_tooltip || values_.empty()) {
+        return false;
+    }
+
+    size_t index = 0;
+    if (!get_bar_index(x, index)) {
+        return false;
+    }
+
+    const Gtk::Allocation allocation = get_allocation();
+    const int height = allocation.get_height();
+    if (height <= 0) {
+        return false;
+    }
+
+    int axis_label_height = 0;
+    auto sample_layout =
+        create_pango_layout(std::to_string(values_.size() - 1));
+    int sample_width = 0;
+    sample_layout->get_pixel_size(sample_width, axis_label_height);
+
+    const double axis_height = kAxisTickPx + kAxisLabelGapPx +
+                               axis_label_height + kAxisLabelBottomPx + 0.5;
+    const double bar_base = height - axis_height;
+    if (y < 0 || y > bar_base) {
+        return false;
+    }
+
+    tooltip->set_text(std::to_string(values_[index]));
     return true;
 }
 
