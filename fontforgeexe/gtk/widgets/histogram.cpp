@@ -31,6 +31,26 @@
 
 namespace ff::widgets {
 
+std::vector<double> moving_average(const std::vector<int>& series,
+                                   size_t window_size) {
+    const size_t safe_window = std::max((size_t)1, window_size);
+    const size_t half_window = safe_window / 2;
+
+    std::vector<double> smoothed(series.size(), 0);
+    for (size_t i = 0; i < series.size(); ++i) {
+        const size_t from = i < half_window ? 0 : i - half_window;
+        const size_t to = std::min(series.size() - 1, i + half_window);
+
+        double sum = 0;
+        for (size_t j = from; j <= to; ++j) {
+            sum += series[j];
+        }
+        smoothed[i] = sum / (to - from + 1);
+    }
+
+    return smoothed;
+}
+
 static constexpr int kHistogramMinWidth = 240;
 static constexpr int kHistogramHeight = 180;
 static constexpr int kBarGapPx = 1;
