@@ -64,7 +64,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
     auto primary_label = Gtk::make_managed<Gtk::Label>(data.primary_label);
     auto label_group = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
-    primary_label->set_halign(Gtk::ALIGN_START);
+    primary_label->set_xalign(0.0);
     primary_label->set_valign(Gtk::ALIGN_CENTER);
     label_group->add_widget(*primary_label);
     primary_box->pack_start(*primary_label, Gtk::PACK_SHRINK);
@@ -78,7 +78,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     auto secondary_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
     auto secondary_label = Gtk::make_managed<Gtk::Label>(data.secondary_label);
-    secondary_label->set_halign(Gtk::ALIGN_START);
+    secondary_label->set_xalign(0.0);
     secondary_label->set_valign(Gtk::ALIGN_CENTER);
     label_group->add_widget(*secondary_label);
     secondary_box->pack_start(*secondary_label, Gtk::PACK_SHRINK);
