@@ -44,6 +44,6 @@ struct HistogramData {
     std::vector<HistogramBarRecord> bars;
 };
 
-void show_histogram_dialog(const HistogramData& data);
+void show_histogram_dialog(GWindow parent, const HistogramData& data);
 
 }  // namespace ff::dlg

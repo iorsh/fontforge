@@ -744,7 +744,7 @@ static void CheckSmallSelection(uint8_t *selected,EncMap *map,SplineFont *sf) {
 	ff_post_notice(_("Tiny Selection"),_("There are so few glyphs selected that it seems unlikely to me that you will get a representative sample of this aspect of your font. If you deselect everything the command will apply to all glyphs in the font"));
 }
 
-void SFHistogram(SplineFont *sf,int layer, struct psdict *private_dict, uint8_t *selected,
+void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *private_dict, uint8_t *selected,
 	EncMap *map,enum hist_type which) {
     struct hist_dlg hist;
     GWindow gw;
@@ -795,7 +795,7 @@ void SFHistogram(SplineFont *sf,int layer, struct psdict *private_dict, uint8_t 
             dlg_data.bars.push_back({static_cast<unsigned int>(entry.cnt), {}});
         }
 
-        ff::dlg::show_histogram_dialog(dlg_data);
+        ff::dlg::show_histogram_dialog(parent, dlg_data);
         return;
     }
 

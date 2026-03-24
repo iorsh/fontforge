@@ -142,9 +142,9 @@ bool ShowHistogramDlg::show(GWindow parent, const HistogramData& data) {
     return dialog.run() == Gtk::RESPONSE_OK;
 }
 
-void show_histogram_dialog(const HistogramData& data) {
+void show_histogram_dialog(GWindow parent, const HistogramData& data) {
     ff::app::GtkApp();
-    ShowHistogramDlg::show(nullptr, data);
+    ShowHistogramDlg::show(parent, data);
 }
 
 }  // namespace ff::dlg
