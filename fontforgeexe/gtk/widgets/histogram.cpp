@@ -180,7 +180,8 @@ void Histogram::draw_bars(const Cairo::RefPtr<Cairo::Context>& cr,
 
 void Histogram::draw_moving_average(const Cairo::RefPtr<Cairo::Context>& cr,
                                     double bar_base) {
-    if (values_.empty()) {
+    // For window size 1 the moving average is the same as the original values.
+    if (values_.empty() || moving_average_window_ <= 1) {
         return;
     }
 
