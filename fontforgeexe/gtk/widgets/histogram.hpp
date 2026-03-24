@@ -37,6 +37,7 @@ class Histogram : public Gtk::DrawingArea {
 
     void set_values(const std::vector<int>& values);
     void set_bar_width(int width_px);
+    void set_moving_average_window(int window_size);
 
  protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
@@ -48,9 +49,12 @@ class Histogram : public Gtk::DrawingArea {
     void draw_axis_tick(const Cairo::RefPtr<Cairo::Context>& cr, double axis_y,
                         size_t index);
     void draw_bars(const Cairo::RefPtr<Cairo::Context>& cr, double bar_base);
+    void draw_moving_average(const Cairo::RefPtr<Cairo::Context>& cr,
+                             double bar_base);
 
     std::vector<int> values_;
     int bar_width_px_ = 10;
+    int moving_average_window_ = 1;
 };
 
 }  // namespace ff::widgets

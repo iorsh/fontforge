@@ -75,6 +75,11 @@ void Histogram::set_bar_width(int width_px) {
     update_size_request();
 }
 
+void Histogram::set_moving_average_window(int window_size) {
+    moving_average_window_ = std::max(1, window_size);
+    queue_draw();
+}
+
 void Histogram::update_size_request() {
     int content_width = kHistogramMinWidth;
     if (!values_.empty()) {
@@ -150,25 +155,62 @@ double Histogram::draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
 
 void Histogram::draw_bars(const Cairo::RefPtr<Cairo::Context>& cr,
                           double bar_base) {
+    if (values_.empty()) {
+        return;
+    }
+
+    const int max_value = *std::max_element(values_.cbegin(), values_.cend());
+    if (max_value <= 0) {
+        return;
+    }
+
     const double bar_max_height = std::max(1.0, bar_base - kOuterMarginPx);
 
-    if (!values_.empty()) {
-        const int max_value =
-            *std::max_element(values_.cbegin(), values_.cend());
-        if (max_value > 0) {
-            cr->set_source_rgb(0.125, 0.125, 1.0);
-            for (size_t i = 0; i < values_.size(); ++i) {
-                const double norm = static_cast<double>(values_[i]) / max_value;
-                const double bar_height = norm * bar_max_height;
-                const double x =
-                    kOuterMarginPx + i * (bar_width_px_ + kBarGapPx);
-                const double y = bar_base - bar_height;
+    cr->set_source_rgb(0.125, 0.125, 1.0);
+    for (size_t i = 0; i < values_.size(); ++i) {
+        const double norm = static_cast<double>(values_[i]) / max_value;
+        const double bar_height = norm * bar_max_height;
+        const double x = kOuterMarginPx + i * (bar_width_px_ + kBarGapPx);
+        const double y = bar_base - bar_height;
 
-                cr->rectangle(x, y, bar_width_px_, bar_height);
-                cr->fill();
-            }
+        cr->rectangle(x, y, bar_width_px_, bar_height);
+        cr->fill();
+    }
+}
+
+void Histogram::draw_moving_average(const Cairo::RefPtr<Cairo::Context>& cr,
+                                    double bar_base) {
+    if (values_.empty()) {
+        return;
+    }
+
+    const int max_value = *std::max_element(values_.cbegin(), values_.cend());
+    if (max_value <= 0) {
+        return;
+    }
+    const double bar_max_height = std::max(1.0, bar_base - kOuterMarginPx);
+
+    const std::vector<double> avg_values =
+        moving_average(values_, moving_average_window_);
+
+    cr->set_source_rgb(1.0, 0.0, 0.0);
+    cr->set_line_width(1.5);
+
+    bool started = false;
+    for (size_t i = 0; i < avg_values.size(); ++i) {
+        const double norm = avg_values[i] / max_value;
+        const double x = kOuterMarginPx + i * (bar_width_px_ + kBarGapPx) +
+                         bar_width_px_ / 2.0;
+        const double y = bar_base - norm * bar_max_height;
+
+        if (!started) {
+            cr->move_to(x, y);
+            started = true;
+        } else {
+            cr->line_to(x, y);
         }
     }
+    cr->stroke();
 }
 
 bool Histogram::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
@@ -186,6 +228,7 @@ bool Histogram::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     const double axis_height = draw_axis(cr, width, height);
     const double bar_base = height - axis_height;
     draw_bars(cr, bar_base);
+    draw_moving_average(cr, bar_base);
 
     return true;
 }

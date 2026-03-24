@@ -50,6 +50,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     }
     histogram->set_values(bar_values);
     histogram->set_bar_width(s_bar_width);
+    histogram->set_moving_average_window(s_moving_average);
 
     auto histogram_scroll = Gtk::make_managed<Gtk::ScrolledWindow>();
     histogram_scroll->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_NEVER);
@@ -109,8 +110,9 @@ Gtk::Box* ShowHistogramDlg::build_control_box(
     average_entry->set_width_chars(4);
     average_entry->set_valign(Gtk::ALIGN_CENTER);
     average_entry->set_activates_default();
-    average_entry->signal_value_changed().connect([average_entry]() {
+    average_entry->signal_value_changed().connect([average_entry, histogram]() {
         s_moving_average = average_entry->get_value_as_int();
+        histogram->set_moving_average_window(s_moving_average);
     });
     controls_box->pack_start(*average_entry, Gtk::PACK_SHRINK);
 
