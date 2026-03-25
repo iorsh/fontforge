@@ -43,12 +43,15 @@ class Histogram : public Gtk::DrawingArea {
     void set_lower_bound(int lower_bound);
     void set_tooltip_text_callback(
         std::function<std::string(size_t)> tooltip_text_callback);
+    void set_bar_click_callback(
+        std::function<void(int, bool)> bar_click_callback);
 
  protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
  private:
     bool get_bar_index(int x, size_t& index) const;
+    bool on_button_press_event(GdkEventButton* event);
     bool on_query_tooltip_event(int x, int y, bool keyboard_tooltip,
                                 const Glib::RefPtr<Gtk::Tooltip>& tooltip);
     void update_size_request();
@@ -65,6 +68,7 @@ class Histogram : public Gtk::DrawingArea {
     int moving_average_window_ = 1;
     int lower_bound_ = 0;
     std::function<std::string(size_t)> tooltip_text_cb_;
+    std::function<void(int, bool)> bar_click_cb_;
 };
 
 }  // namespace ff::widgets

@@ -66,6 +66,9 @@ Histogram::Histogram() {
     set_has_tooltip(true);
     signal_query_tooltip().connect(
         sigc::mem_fun(*this, &Histogram::on_query_tooltip_event));
+    add_events(Gdk::BUTTON_PRESS_MASK);
+    signal_button_press_event().connect(
+        sigc::mem_fun(*this, &Histogram::on_button_press_event));
     set_size_request(kHistogramMinWidth, kHistogramHeight);
 }
 
@@ -92,6 +95,11 @@ void Histogram::set_lower_bound(int lower_bound) {
 void Histogram::set_tooltip_text_callback(
     std::function<std::string(size_t)> tooltip_text_callback) {
     tooltip_text_cb_ = std::move(tooltip_text_callback);
+}
+
+void Histogram::set_bar_click_callback(
+    std::function<void(int, bool)> bar_click_callback) {
+    bar_click_cb_ = std::move(bar_click_callback);
 }
 
 void Histogram::update_size_request() {
@@ -311,6 +319,43 @@ bool Histogram::on_query_tooltip_event(
     if (tooltip_text_cb_) {
         tooltip->set_text(tooltip_text_cb_(index));
     }
+    return true;
+}
+
+bool Histogram::on_button_press_event(GdkEventButton* event) {
+    if (!bar_click_cb_ || values_.empty()) {
+        return false;
+    }
+
+    const int x = static_cast<int>(event->x);
+    const int y = static_cast<int>(event->y);
+    const bool shift_pressed = (event->state & GDK_SHIFT_MASK) != 0;
+
+    size_t index = 0;
+    if (!get_bar_index(x, index)) {
+        return false;
+    }
+
+    const Gtk::Allocation allocation = get_allocation();
+    const int height = allocation.get_height();
+    if (height <= 0) {
+        return false;
+    }
+
+    int axis_label_height = 0;
+    auto sample_layout =
+        create_pango_layout(std::to_string(values_.size() - 1 + lower_bound_));
+    int sample_width = 0;
+    sample_layout->get_pixel_size(sample_width, axis_label_height);
+
+    const double axis_height = kAxisTickPx + kAxisLabelGapPx +
+                               axis_label_height + kAxisLabelBottomPx + 0.5;
+    const double bar_base = height - axis_height;
+    if (y < 0 || y > bar_base) {
+        return false;
+    }
+
+    bar_click_cb_(static_cast<int>(index) + lower_bound_, shift_pressed);
     return true;
 }
 
