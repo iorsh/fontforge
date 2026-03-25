@@ -28,6 +28,7 @@
 #include "histogram.hpp"
 
 #include <algorithm>
+#include <utility>
 
 namespace ff::widgets {
 
@@ -81,6 +82,11 @@ void Histogram::set_bar_width(int width_px) {
 void Histogram::set_moving_average_window(int window_size) {
     moving_average_window_ = std::max(1, window_size);
     queue_draw();
+}
+
+void Histogram::set_tooltip_text_callback(
+    std::function<std::string(size_t)> tooltip_text_callback) {
+    tooltip_text_cb_ = std::move(tooltip_text_callback);
 }
 
 void Histogram::update_size_request() {
@@ -288,7 +294,15 @@ bool Histogram::on_query_tooltip_event(
         return false;
     }
 
-    tooltip->set_text(std::to_string(values_[index]));
+    // Make tooltip follow the mouse (the normal GTK behavior is to anchor the
+    // tooltip once shown).
+    const int bar_x =
+        kOuterMarginPx + static_cast<int>(index) * (bar_width_px_ + kBarGapPx);
+    tooltip->set_tip_area(
+        Gdk::Rectangle(bar_x, 0, bar_width_px_, static_cast<int>(height)));
+    if (tooltip_text_cb_) {
+        tooltip->set_text(tooltip_text_cb_(index));
+    }
     return true;
 }
 

@@ -37,6 +37,9 @@ class ShowHistogramDlg final : public DialogBase {
     ShowHistogramDlg(GWindow parent, const HistogramData& data);
 
     Gtk::Box* build_control_box(ff::widgets::Histogram* histogram);
+    std::string get_tooltip_text(size_t bar_index) const;
+
+    HistogramData data_;
 
  public:
     static bool show(GWindow parent, const HistogramData& data);

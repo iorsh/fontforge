@@ -793,6 +793,9 @@ void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *privat
         for (int v = hist.h->low; v <= hist.h->high; ++v) {
             const hentry& entry = hist.h->hist[v - hist.h->low];
             dlg_data.bars.push_back({static_cast<unsigned int>(entry.cnt), {}});
+	    for (int i = 0; i < entry.char_cnt; ++i) {
+		dlg_data.bars.back().glyph_names.push_back(entry.chars[i]->name);
+	    }
         }
 
         ff::dlg::show_histogram_dialog(parent, dlg_data);

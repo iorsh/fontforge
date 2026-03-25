@@ -31,6 +31,10 @@
 #include "utils.hpp"
 #include "intl.h"
 
+extern "C" {
+#include "ustring.h"
+}
+
 namespace ff::dlg {
 
 namespace {
@@ -39,7 +43,7 @@ int s_moving_average = 1;
 }  // namespace
 
 ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
-    : DialogBase(parent) {
+    : DialogBase(parent), data_(data) {
     set_title(data.title);
     set_help_context("ui/dialogs/histogram.html");
 
@@ -49,6 +53,8 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
         bar_values.push_back(static_cast<int>(bar.value));
     }
     histogram->set_values(bar_values);
+    histogram->set_tooltip_text_callback(
+        [this](size_t index) { return get_tooltip_text(index); });
     histogram->set_bar_width(s_bar_width);
     histogram->set_moving_average_window(s_moving_average);
 
@@ -134,6 +140,35 @@ Gtk::Box* ShowHistogramDlg::build_control_box(
     controls_box->pack_start(*bar_width_entry, Gtk::PACK_SHRINK);
 
     return controls_box;
+}
+
+std::string ShowHistogramDlg::get_tooltip_text(size_t bar_index) const {
+    if (bar_index >= data_.bars.size()) {
+        return "";
+    }
+
+    const int label = static_cast<int>(bar_index) + data_.lower_bound;
+    const auto& bar = data_.bars[bar_index];
+    
+    char* p_width_label = smprintf(_("Width: %d"), label);
+    char* p_count_label = smprintf(_("Count: %u"), bar.value);
+    std::string tooltip_text(p_width_label);
+    tooltip_text += "\n" + std::string(p_count_label);
+    free(p_width_label);
+    free(p_count_label);
+
+    if (!bar.glyph_names.empty()) {
+        tooltip_text += "\n";
+    }
+
+    for (const auto& name : bar.glyph_names) {
+        if (tooltip_text.back() != '\n') {
+            tooltip_text += " ";
+        }
+        tooltip_text += name;
+    }
+
+    return tooltip_text;
 }
 
 bool ShowHistogramDlg::show(GWindow parent, const HistogramData& data) {
