@@ -27,6 +27,9 @@
 
 #include "show_histogram.hpp"
 
+#include <sstream>
+#include <set>
+
 #include "application.hpp"
 #include "utils.hpp"
 #include "intl.h"
@@ -40,6 +43,39 @@ namespace ff::dlg {
 namespace {
 int s_bar_width = 6;
 int s_moving_average = 1;
+
+std::set<int> parse_values(std::string current) {
+    std::set<int> values;
+    if (current.empty()) {
+        return values;
+    }
+
+    if (current.front() == '[' && current.back() == ']') {
+        current = current.substr(1, current.size() - 2);
+    }
+
+    std::istringstream in(current);
+    int value = 0;
+    while (in >> value) {
+        values.insert(value);
+    }
+    return values;
+}
+
+std::string combine_values(const std::set<int>& values) {
+    std::ostringstream out;
+    out << '[';
+    bool first = true;
+    for (int value : values) {
+        if (!first) {
+            out << ' ';
+        }
+        out << value;
+        first = false;
+    }
+    out << ']';
+    return out.str();
+}
 }  // namespace
 
 ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
@@ -174,9 +210,16 @@ std::string ShowHistogramDlg::get_tooltip_text(size_t bar_index) const {
 }
 
 void ShowHistogramDlg::on_bar_click(int bar_index, bool shift_pressed) {
-    const std::string clicked = "[" + std::to_string(bar_index) + "]";
-    primary_entry_.set_text(clicked);
-    secondary_entry_.set_text(clicked);
+    if (!shift_pressed) {
+        const std::string clicked = combine_values({bar_index});
+        primary_entry_.set_text(clicked);
+        secondary_entry_.set_text(clicked);
+        return;
+    }
+
+    std::set<int> values = parse_values(secondary_entry_.get_text());
+    values.insert(bar_index);
+    secondary_entry_.set_text(combine_values(values));
 }
 
 bool ShowHistogramDlg::show(GWindow parent, const HistogramData& data) {
