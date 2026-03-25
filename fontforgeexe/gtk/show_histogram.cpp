@@ -53,6 +53,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
         bar_values.push_back(static_cast<int>(bar.value));
     }
     histogram->set_values(bar_values);
+    histogram->set_lower_bound(data.lower_bound);
     histogram->set_tooltip_text_callback(
         [this](size_t index) { return get_tooltip_text(index); });
     histogram->set_bar_width(s_bar_width);
@@ -149,7 +150,7 @@ std::string ShowHistogramDlg::get_tooltip_text(size_t bar_index) const {
 
     const int label = static_cast<int>(bar_index) + data_.lower_bound;
     const auto& bar = data_.bars[bar_index];
-    
+
     char* p_width_label = smprintf(_("Width: %d"), label);
     char* p_count_label = smprintf(_("Count: %u"), bar.value);
     std::string tooltip_text(p_width_label);

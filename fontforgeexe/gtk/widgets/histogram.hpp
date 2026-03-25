@@ -40,6 +40,7 @@ class Histogram : public Gtk::DrawingArea {
     void set_values(const std::vector<int>& values);
     void set_bar_width(int width_px);
     void set_moving_average_window(int window_size);
+    void set_lower_bound(int lower_bound);
     void set_tooltip_text_callback(
         std::function<std::string(size_t)> tooltip_text_callback);
 
@@ -62,6 +63,7 @@ class Histogram : public Gtk::DrawingArea {
     std::vector<int> values_;
     int bar_width_px_ = 10;
     int moving_average_window_ = 1;
+    int lower_bound_ = 0;
     std::function<std::string(size_t)> tooltip_text_cb_;
 };
 

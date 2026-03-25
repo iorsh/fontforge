@@ -84,6 +84,11 @@ void Histogram::set_moving_average_window(int window_size) {
     queue_draw();
 }
 
+void Histogram::set_lower_bound(int lower_bound) {
+    lower_bound_ = lower_bound;
+    queue_draw();
+}
+
 void Histogram::set_tooltip_text_callback(
     std::function<std::string(size_t)> tooltip_text_callback) {
     tooltip_text_cb_ = std::move(tooltip_text_callback);
@@ -111,7 +116,7 @@ void Histogram::draw_axis_tick(const Cairo::RefPtr<Cairo::Context>& cr,
     cr->line_to(tick_x, tick_y1);
     cr->stroke();
 
-    const std::string label = std::to_string(index);
+    const std::string label = std::to_string(index + lower_bound_);
     auto label_layout = create_pango_layout(label);
     int label_width = 0;
     int label_height = 0;
@@ -128,8 +133,9 @@ double Histogram::draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
     int axis_label_height = 0;
     int tick_step = 1000;
     if (!values_.empty()) {
-        auto sample_layout =
-            create_pango_layout(std::to_string(values_.size() - 1));
+        // Use the last (widest) label value to compute tick spacing.
+        auto sample_layout = create_pango_layout(
+            std::to_string(values_.size() - 1 + lower_bound_));
         int sample_width = 0;
         sample_layout->get_pixel_size(sample_width, axis_label_height);
 
@@ -155,7 +161,9 @@ double Histogram::draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
     cr->line_to(axis_x1, axis_y);
     cr->stroke();
 
-    for (size_t i = 0; i < values_.size(); i += tick_step) {
+    // Ticks at round values.
+    size_t i = (lower_bound_ / tick_step + 1) * tick_step - lower_bound_;
+    for (; i < values_.size(); i += tick_step) {
         draw_axis_tick(cr, axis_y, i);
     }
 
