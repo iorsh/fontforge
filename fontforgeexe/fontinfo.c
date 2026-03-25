@@ -55,6 +55,8 @@
 #include "ustring.h"
 #include "utype.h"
 
+#include "gtk/show_histogram_shim.hpp"
+
 #include <locale.h>
 #include <math.h>
 #include <time.h>

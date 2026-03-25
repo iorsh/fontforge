@@ -26,6 +26,21 @@
  */
 #pragma once
 
+enum hist_type { hist_hstem, hist_vstem, hist_blues };
+typedef struct splinefont SplineFont;
+struct psdict;
+typedef struct encmap EncMap;
+#ifdef __cplusplus
+extern "C" {
+#endif
+void SFHistogram(GWindow parent, SplineFont* sf, int layer,
+                 struct psdict* private_dict, uint8_t* selected, EncMap* map,
+                 enum hist_type which);
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
 #include <string>
 #include <vector>
 
@@ -47,3 +62,5 @@ struct HistogramData {
 void show_histogram_dialog(GWindow parent, const HistogramData& data);
 
 }  // namespace ff::dlg
+
+#endif  // __cplusplus
