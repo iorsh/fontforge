@@ -101,4 +101,30 @@ void post_error(const char* title, const char* statement, ...) {
     va_end(ap);
 }
 
+Glib::RefPtr<Gdk::Cursor> set_cursor(Gtk::Widget* widget,
+                                     const Glib::ustring& name) {
+    if (widget == nullptr) return {};
+
+    Glib::RefPtr<Gdk::Window> gdk_window = widget->get_window();
+    if (!gdk_window) return {};
+
+    auto old_cursor = gdk_window->get_cursor();
+
+    Glib::RefPtr<Gdk::Cursor> new_cursor =
+        Gdk::Cursor::create(gdk_window->get_display(), name);
+    gdk_window->set_cursor(new_cursor);
+
+    return old_cursor;
+}
+
+void unset_cursor(Gtk::Widget* widget, Glib::RefPtr<Gdk::Cursor> old_cursor) {
+    if (widget == nullptr) return;
+
+    Glib::RefPtr<Gdk::Window> gdk_window = widget->get_window();
+    if (!gdk_window) return;
+
+    // old_cursor is allowed to be NULL
+    gdk_window->set_cursor(old_cursor);
+}
+
 }  // namespace ff::ui_utils
