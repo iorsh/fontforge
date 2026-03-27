@@ -52,9 +52,7 @@ struct HistogramBarRecord {
 };
 
 struct HistogramData {
-    std::string title;
-    std::string primary_label;
-    std::string secondary_label;
+    enum hist_type type;
     int lower_bound;
     std::vector<HistogramBarRecord> bars;
 };

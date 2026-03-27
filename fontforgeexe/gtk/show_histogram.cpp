@@ -33,6 +33,7 @@
 #include "application.hpp"
 #include "utils.hpp"
 #include "intl.h"
+#include "l10n_text.hpp"
 
 extern "C" {
 #include "ustring.h"
@@ -43,6 +44,17 @@ namespace ff::dlg {
 namespace {
 int s_bar_width = 6;
 int s_moving_average = 1;
+
+struct UiStrings {
+    L10nText title;
+    std::string primary_label;
+    std::string secondary_label;
+};
+const std::map<hist_type, UiStrings> s_ui_strings = {
+    {hist_hstem, {_("Horizontal Stem Hints"), "StdHW:", "StemSnapH:"}},
+    {hist_vstem, {_("Vertical Stem Hints"), "StdVW:", "StemSnapV:"}},
+    {hist_blues, {_("Blues"), "BlueValues:", "OtherBlues:"}},
+};
 
 std::set<int> parse_values(std::string current) {
     std::set<int> values;
@@ -80,7 +92,8 @@ std::string combine_values(const std::set<int>& values) {
 
 ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     : DialogBase(parent), data_(data) {
-    set_title(data.title);
+    const UiStrings& ui_strings = s_ui_strings.at(data.type);
+    set_title(ui_strings.title);
     set_help_context("ui/dialogs/histogram.html");
 
     auto histogram = Gtk::make_managed<ff::widgets::Histogram>();
@@ -108,7 +121,8 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
 
     auto primary_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
-    auto primary_label = Gtk::make_managed<Gtk::Label>(data.primary_label);
+    auto primary_label =
+        Gtk::make_managed<Gtk::Label>(ui_strings.primary_label);
     auto label_group = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
     primary_label->set_xalign(0.0);
     primary_label->set_valign(Gtk::ALIGN_CENTER);
@@ -122,7 +136,8 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
 
     auto secondary_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
-    auto secondary_label = Gtk::make_managed<Gtk::Label>(data.secondary_label);
+    auto secondary_label =
+        Gtk::make_managed<Gtk::Label>(ui_strings.secondary_label);
     secondary_label->set_xalign(0.0);
     secondary_label->set_valign(Gtk::ALIGN_CENTER);
     label_group->add_widget(*secondary_label);
@@ -188,7 +203,9 @@ std::string ShowHistogramDlg::get_tooltip_text(size_t bar_index) const {
     const int label = static_cast<int>(bar_index) + data_.lower_bound;
     const auto& bar = data_.bars[bar_index];
 
-    char* p_width_label = smprintf(_("Width: %d"), label);
+    const char* label_fmt =
+        (data_.type == hist_blues) ? _("Position: %d") : _("Width: %d");
+    char* p_width_label = smprintf(label_fmt, label);
     char* p_count_label = smprintf(_("Count: %u"), bar.value);
     std::string tooltip_text(p_width_label);
     tooltip_text += "\n" + std::string(p_count_label);

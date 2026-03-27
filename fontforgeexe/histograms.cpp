@@ -785,9 +785,7 @@ void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *privat
 
     if (which == hist_vstem) {
         ff::dlg::HistogramData dlg_data;
-        dlg_data.title = _("VStem");
-        dlg_data.primary_label = _("StdVW:");
-        dlg_data.secondary_label = _("StemSnapV:");
+        dlg_data.type = which;
         dlg_data.lower_bound = hist.h->low;
 
         for (int v = hist.h->low; v <= hist.h->high; ++v) {
