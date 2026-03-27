@@ -42,6 +42,7 @@ class ShowHistogramDlg final : public DialogBase {
     void on_blues_bar_click(int bar_index, bool /*shift_pressed*/);
 
     HistogramData data_;
+    unsigned int max_value_ = 0;
     Gtk::Entry primary_entry_;
     Gtk::Entry secondary_entry_;
 

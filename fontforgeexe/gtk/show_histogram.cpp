@@ -105,6 +105,9 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     for (const auto& bar : data.bars) {
         bar_values.push_back(static_cast<int>(bar.value));
     }
+    if (!bar_values.empty()) {
+        max_value_ = *std::max_element(bar_values.cbegin(), bar_values.cend());
+    }
     histogram->set_values(bar_values);
     histogram->set_lower_bound(data.lower_bound);
     histogram->set_tooltip_text_callback(
@@ -240,6 +243,14 @@ std::string ShowHistogramDlg::get_tooltip_text(size_t bar_index) const {
     free(p_width_label);
     free(p_count_label);
 
+    if (data_.type != hist_blues && max_value_ > 0) {
+        char* p_percentage_label =
+            smprintf(_("Percentage of Max: %d%%"),
+                     static_cast<int>(rint(bar.value * 100.0 / max_value_)));
+        tooltip_text += "\n" + std::string(p_percentage_label);
+        free(p_percentage_label);
+    }
+
     if (!bar.glyph_names.empty()) {
         tooltip_text += "\n";
     }
@@ -249,6 +260,12 @@ std::string ShowHistogramDlg::get_tooltip_text(size_t bar_index) const {
             tooltip_text += " ";
         }
         tooltip_text += name;
+        // Limit tooltip length to prevent it from growing too big if there are
+        // many glyphs.
+        if (tooltip_text.size() > 300) {
+            tooltip_text += " ...";
+            break;
+        }
     }
 
     return tooltip_text;
