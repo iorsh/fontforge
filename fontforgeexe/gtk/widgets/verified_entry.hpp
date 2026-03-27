@@ -56,6 +56,7 @@ class VerifiedEntry : public Gtk::Entry {
     Verifier verifier_;
 
     bool focus_in_event_slot(GdkEventFocus*);
+    void changed_slot();
 };
 
 }  // namespace ff::widgets

@@ -38,6 +38,10 @@ VerifiedEntry::VerifiedEntry() {
     // prevent visual annoyance during the edit.
     signal_focus_in_event().connect(
         sigc::mem_fun(*this, &VerifiedEntry::focus_in_event_slot));
+
+    // Also remove the error highlight when contents change.
+    signal_changed().connect(
+        sigc::mem_fun(*this, &VerifiedEntry::changed_slot));
 }
 
 bool VerifiedEntry::verify() {
@@ -64,6 +68,10 @@ bool VerifiedEntry::verify() {
 bool VerifiedEntry::focus_in_event_slot(GdkEventFocus*) {
     get_style_context()->remove_provider(error_css_provider_);
     return false;
+}
+
+void VerifiedEntry::changed_slot() {
+    get_style_context()->remove_provider(error_css_provider_);
 }
 
 }  // namespace ff::widgets
