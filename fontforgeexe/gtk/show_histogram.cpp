@@ -88,6 +88,17 @@ std::string combine_values(const std::set<int>& values) {
     out << ']';
     return out.str();
 }
+
+class ErrorLabel : public Gtk::Label {
+ public:
+    ErrorLabel() {
+        auto error_css_provider = Gtk::CssProvider::create();
+        error_css_provider->load_from_data("label { color: @error_color; }");
+        get_style_context()->add_provider(error_css_provider,
+                                          GTK_STYLE_PROVIDER_PRIORITY_USER - 1);
+    }
+};
+
 }  // namespace
 
 ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
@@ -147,6 +158,20 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     secondary_entry_.set_activates_default();
     secondary_box->pack_start(secondary_entry_, Gtk::PACK_EXPAND_WIDGET);
     get_content_area()->pack_start(*secondary_box, Gtk::PACK_SHRINK);
+
+    if (data.small_selection_warning) {
+        auto warning_label = Gtk::make_managed<ErrorLabel>();
+        warning_label->set_text(
+            _("There are so few glyphs selected that it seems unlikely to me "
+              "that you will get a representative sample of this aspect of "
+              "your font. If you deselect everything the command will apply to "
+              "all glyphs in the font"));
+        warning_label->set_line_wrap();
+        // Prevent label from asking for a lot of horizontal space.
+        warning_label->set_max_width_chars(1);
+        warning_label->set_xalign(0.0);
+        get_content_area()->pack_start(*warning_label, Gtk::PACK_SHRINK);
+    }
 
     show_all();
 }

@@ -54,6 +54,7 @@ struct HistogramBarRecord {
 struct HistogramData {
     enum hist_type type;
     int lower_bound;
+    bool small_selection_warning;
     std::vector<HistogramBarRecord> bars;
 };
 

@@ -729,8 +729,12 @@ return( false );
 return( true );
 }
 
-static void CheckSmallSelection(uint8_t *selected,EncMap *map,SplineFont *sf) {
+static bool CheckSmallSelection(uint8_t *selected,EncMap *map,SplineFont *sf) {
     int i, cnt, tot;
+
+    if ( selected==NULL )
+        // All glyphs are considered selected, so no "small selection" warning.
+        return( false );
 
     for ( i=cnt=tot=0; i<map->enccount; ++i ) {
 	int gid = map->map[i];
@@ -740,8 +744,7 @@ static void CheckSmallSelection(uint8_t *selected,EncMap *map,SplineFont *sf) {
 		++cnt;
 	}
     }
-    if ( (cnt==1 && tot>1) || (cnt<8 && tot>30) )
-	ff_post_notice(_("Tiny Selection"),_("There are so few glyphs selected that it seems unlikely to me that you will get a representative sample of this aspect of your font. If you deselect everything the command will apply to all glyphs in the font"));
+    return ( (cnt==1 && tot>1) || (cnt<8 && tot>30) );
 }
 
 void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *private_dict, uint8_t *selected,
@@ -780,13 +783,11 @@ void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *privat
     }
     HistFindMax(hist.h,hist.sum_around);
 
-    if ( selected!=NULL )
-	CheckSmallSelection(selected,map,sf);
-
     if (which == hist_vstem) {
         ff::dlg::HistogramData dlg_data;
         dlg_data.type = which;
         dlg_data.lower_bound = hist.h->low;
+	dlg_data.small_selection_warning = CheckSmallSelection(selected,map,sf);
 
         for (int v = hist.h->low; v <= hist.h->high; ++v) {
             const hentry& entry = hist.h->hist[v - hist.h->low];
