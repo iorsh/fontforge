@@ -32,8 +32,6 @@
 
 #include "application.hpp"
 #include "utils.hpp"
-#include "intl.h"
-#include "l10n_text.hpp"
 
 extern "C" {
 #include "ustring.h"
@@ -44,17 +42,6 @@ namespace ff::dlg {
 namespace {
 int s_bar_width = 6;
 int s_moving_average = 1;
-
-struct UiStrings {
-    L10nText title;
-    std::string primary_label;
-    std::string secondary_label;
-};
-const std::map<hist_type, UiStrings> s_ui_strings = {
-    {hist_hstem, {_("Horizontal Stem Hints"), "StdHW:", "StemSnapH:"}},
-    {hist_vstem, {_("Vertical Stem Hints"), "StdVW:", "StemSnapV:"}},
-    {hist_blues, {_("Blues"), "BlueValues:", "OtherBlues:"}},
-};
 
 std::set<int> parse_values(std::string current) {
     std::set<int> values;
@@ -103,7 +90,7 @@ class ErrorLabel : public Gtk::Label {
 
 ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     : DialogBase(parent), data_(data) {
-    const UiStrings& ui_strings = s_ui_strings.at(data.type);
+    const UiStrings& ui_strings = kHistogramUiStrings.at(data.type);
     set_title(ui_strings.title);
     set_help_context("ui/dialogs/histogram.html");
 
@@ -133,13 +120,14 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     auto primary_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
     auto primary_label =
-        Gtk::make_managed<Gtk::Label>(ui_strings.primary_label);
+        Gtk::make_managed<Gtk::Label>(ui_strings.primary_label + ":");
     auto label_group = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
     primary_label->set_xalign(0.0);
     primary_label->set_valign(Gtk::ALIGN_CENTER);
     label_group->add_widget(*primary_label);
     primary_box->pack_start(*primary_label, Gtk::PACK_SHRINK);
 
+    primary_entry_.set_text(data_.initial_values.primary);
     primary_entry_.set_hexpand(true);
     primary_entry_.set_activates_default();
     primary_box->pack_start(primary_entry_, Gtk::PACK_EXPAND_WIDGET);
@@ -148,12 +136,13 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     auto secondary_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
     auto secondary_label =
-        Gtk::make_managed<Gtk::Label>(ui_strings.secondary_label);
+        Gtk::make_managed<Gtk::Label>(ui_strings.secondary_label + ":");
     secondary_label->set_xalign(0.0);
     secondary_label->set_valign(Gtk::ALIGN_CENTER);
     label_group->add_widget(*secondary_label);
     secondary_box->pack_start(*secondary_label, Gtk::PACK_SHRINK);
 
+    secondary_entry_.set_text(data_.initial_values.secondary);
     secondary_entry_.set_hexpand(true);
     secondary_entry_.set_activates_default();
     secondary_box->pack_start(secondary_entry_, Gtk::PACK_EXPAND_WIDGET);
@@ -264,14 +253,24 @@ void ShowHistogramDlg::on_bar_click(int bar_index, bool shift_pressed) {
     secondary_entry_.set_text(combine_values(values));
 }
 
-bool ShowHistogramDlg::show(GWindow parent, const HistogramData& data) {
+PrivateDictValues ShowHistogramDlg::show(GWindow parent,
+                                         const HistogramData& data) {
     ShowHistogramDlg dialog(parent, data);
-    return dialog.run() == Gtk::RESPONSE_OK;
+
+    if (dialog.run() == Gtk::RESPONSE_OK) {
+        PrivateDictValues result;
+        result.primary = dialog.primary_entry_.get_text();
+        result.secondary = dialog.secondary_entry_.get_text();
+        return result;
+    } else {
+        return {};
+    }
 }
 
-void show_histogram_dialog(GWindow parent, const HistogramData& data) {
+PrivateDictValues show_histogram_dialog(GWindow parent,
+                                        const HistogramData& data) {
     ff::app::GtkApp();
-    ShowHistogramDlg::show(parent, data);
+    return ShowHistogramDlg::show(parent, data);
 }
 
 }  // namespace ff::dlg

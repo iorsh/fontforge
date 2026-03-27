@@ -45,7 +45,7 @@ class ShowHistogramDlg final : public DialogBase {
     Gtk::Entry secondary_entry_;
 
  public:
-    static bool show(GWindow parent, const HistogramData& data);
+    static PrivateDictValues show(GWindow parent, const HistogramData& data);
 };
 
 }  // namespace ff::dlg

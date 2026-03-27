@@ -789,6 +789,13 @@ void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *privat
         dlg_data.lower_bound = hist.h->low;
 	dlg_data.small_selection_warning = CheckSmallSelection(selected,map,sf);
 
+	    const ff::dlg::UiStrings& ui_strings = ff::dlg::kHistogramUiStrings.at(dlg_data.type);
+
+	if ( (j=PSDictFindEntry(private_dict,ui_strings.primary_label.c_str()))!=-1 )
+	    dlg_data.initial_values.primary = private_dict->values[j];
+	if ( (j=PSDictFindEntry(private_dict,ui_strings.secondary_label.c_str()))!=-1 )
+	    dlg_data.initial_values.secondary = private_dict->values[j];
+
         for (int v = hist.h->low; v <= hist.h->high; ++v) {
             const hentry& entry = hist.h->hist[v - hist.h->low];
             dlg_data.bars.push_back({static_cast<unsigned int>(entry.cnt), {}});

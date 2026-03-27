@@ -41,8 +41,12 @@ void SFHistogram(GWindow parent, SplineFont* sf, int layer,
 #endif
 
 #ifdef __cplusplus
+#include <map>
 #include <string>
 #include <vector>
+
+#include "l10n_text.hpp"
+#include "intl.h"
 
 namespace ff::dlg {
 
@@ -51,14 +55,33 @@ struct HistogramBarRecord {
     std::vector<std::string> glyph_names;
 };
 
+struct PrivateDictValues {
+    std::string primary;
+    std::string secondary;
+};
+
 struct HistogramData {
     enum hist_type type;
     int lower_bound;
     bool small_selection_warning;
     std::vector<HistogramBarRecord> bars;
+    PrivateDictValues initial_values;
 };
 
-void show_histogram_dialog(GWindow parent, const HistogramData& data);
+struct UiStrings {
+    L10nText title;
+    std::string primary_label;
+    std::string secondary_label;
+};
+
+const std::map<hist_type, UiStrings> kHistogramUiStrings = {
+    {hist_hstem, {_("Horizontal Stem Hints"), "StdHW", "StemSnapH"}},
+    {hist_vstem, {_("Vertical Stem Hints"), "StdVW", "StemSnapV"}},
+    {hist_blues, {_("Blues"), "BlueValues", "OtherBlues"}},
+};
+
+PrivateDictValues show_histogram_dialog(GWindow parent,
+                                        const HistogramData& data);
 
 }  // namespace ff::dlg
 
