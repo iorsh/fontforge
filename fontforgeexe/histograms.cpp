@@ -783,7 +783,7 @@ void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *privat
     }
     HistFindMax(hist.h,hist.sum_around);
 
-    if (which == hist_vstem) {
+    if (which == hist_vstem || which == hist_blues) {
         ff::dlg::HistogramData dlg_data;
         dlg_data.type = which;
         dlg_data.lower_bound = hist.h->low;

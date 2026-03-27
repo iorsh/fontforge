@@ -38,7 +38,8 @@ class ShowHistogramDlg final : public DialogBase {
 
     Gtk::Box* build_control_box(ff::widgets::Histogram* histogram);
     std::string get_tooltip_text(size_t bar_index) const;
-    void on_bar_click(int bar_index, bool shift_pressed);
+    void on_stem_bar_click(int bar_index, bool shift_pressed);
+    void on_blues_bar_click(int bar_index, bool /*shift_pressed*/);
 
     HistogramData data_;
     Gtk::Entry primary_entry_;

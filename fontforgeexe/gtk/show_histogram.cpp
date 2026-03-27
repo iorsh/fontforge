@@ -61,7 +61,8 @@ std::set<int> parse_values(std::string current) {
     return values;
 }
 
-std::string combine_values(const std::set<int>& values) {
+std::string combine_values(const std::set<int>& values,
+                           int* latest_value = nullptr) {
     std::ostringstream out;
     out << '[';
     bool first = true;
@@ -71,6 +72,11 @@ std::string combine_values(const std::set<int>& values) {
         }
         out << value;
         first = false;
+
+        // Add a placeholder after the most recent value.
+        if (latest_value && value == *latest_value) {
+            out << " ?";
+        }
     }
     out << ']';
     return out.str();
@@ -103,9 +109,17 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     histogram->set_lower_bound(data.lower_bound);
     histogram->set_tooltip_text_callback(
         [this](size_t index) { return get_tooltip_text(index); });
-    histogram->set_bar_click_callback([this](int index, bool shift_pressed) {
-        on_bar_click(index, shift_pressed);
-    });
+    if (data.type == hist_blues) {
+        histogram->set_bar_click_callback(
+            [this](int index, bool shift_pressed) {
+                on_blues_bar_click(index, shift_pressed);
+            });
+    } else {
+        histogram->set_bar_click_callback(
+            [this](int index, bool shift_pressed) {
+                on_stem_bar_click(index, shift_pressed);
+            });
+    }
     histogram->set_bar_width(s_bar_width);
     histogram->set_moving_average_window(s_moving_average);
 
@@ -240,7 +254,7 @@ std::string ShowHistogramDlg::get_tooltip_text(size_t bar_index) const {
     return tooltip_text;
 }
 
-void ShowHistogramDlg::on_bar_click(int bar_index, bool shift_pressed) {
+void ShowHistogramDlg::on_stem_bar_click(int bar_index, bool shift_pressed) {
     if (!shift_pressed) {
         const std::string clicked = combine_values({bar_index});
         primary_entry_.set_text(clicked);
@@ -251,6 +265,46 @@ void ShowHistogramDlg::on_bar_click(int bar_index, bool shift_pressed) {
     std::set<int> values = parse_values(secondary_entry_.get_text());
     values.insert(bar_index);
     secondary_entry_.set_text(combine_values(values));
+}
+
+void ShowHistogramDlg::on_blues_bar_click(int bar_index,
+                                          bool /*shift_pressed*/) {
+    static const std::string placeholder = "?";
+    size_t primary_placeholder = primary_entry_.get_text().find(placeholder);
+    size_t secondary_placeholder =
+        secondary_entry_.get_text().find(placeholder);
+    // If some entry has a placeholder, the click should replace that
+    // placeholder. Otherwise we consider the value sign (positive to
+    // BlueValues, negative to OtherBlues).
+    bool is_primary =
+        primary_placeholder != std::string::npos ||
+        (secondary_placeholder == std::string::npos && bar_index >= 0);
+
+    Gtk::Entry* target_entry = is_primary ? &primary_entry_ : &secondary_entry_;
+    size_t placeholder_pos =
+        is_primary ? primary_placeholder : secondary_placeholder;
+
+    primary_entry_.set_has_tooltip(false);
+    secondary_entry_.set_has_tooltip(false);
+
+    // Strip placeholder before parsing
+    std::string current_text = target_entry->get_text();
+    if (placeholder_pos != std::string::npos) {
+        current_text.erase(placeholder_pos, placeholder.size());
+    }
+    std::set<int> values = parse_values(current_text);
+    values.insert(bar_index);
+    bool need_placeholder = values.size() % 2 == 1;
+    target_entry->set_text(
+        combine_values(values, need_placeholder ? &bar_index : nullptr));
+
+    // Highlight the placeholder if it was added.
+    int error_start = target_entry->get_text().find(placeholder);
+    if (error_start != std::string::npos) {
+        target_entry->select_region(error_start, error_start + 1);
+        target_entry->set_tooltip_text(
+            _("BlueValues come in pairs. Select another."));
+    }
 }
 
 PrivateDictValues ShowHistogramDlg::show(GWindow parent,
