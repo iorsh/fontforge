@@ -43,14 +43,17 @@ namespace {
 int s_bar_width = 6;
 int s_moving_average = 1;
 
-std::set<int> parse_values(std::string current) {
+std::set<int> parse_values(std::string current, int* error_pos_start = nullptr,
+                           int* error_pos_end = nullptr) {
     std::set<int> values;
+    bool substring = false;
     if (current.empty()) {
         return values;
     }
 
     if (current.front() == '[' && current.back() == ']') {
         current = current.substr(1, current.size() - 2);
+        substring = true;
     }
 
     std::istringstream in(current);
@@ -58,6 +61,25 @@ std::set<int> parse_values(std::string current) {
     while (in >> value) {
         values.insert(value);
     }
+
+    if (error_pos_start && error_pos_end) {
+        if (in.fail() && !in.eof()) {
+            in.clear();
+            std::string token;
+            *error_pos_start = static_cast<int>(in.tellg());
+            in >> token;
+            *error_pos_end = *error_pos_start + token.size();
+            if (substring) {
+                // Adjust error positions to account for removed brackets.
+                *error_pos_start += 1;
+                *error_pos_end += 1;
+            }
+        } else {
+            *error_pos_start = -1;
+            *error_pos_end = -1;
+        }
+    }
+
     return values;
 }
 
@@ -147,6 +169,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     primary_entry_.set_text(data_.initial_values.primary);
     primary_entry_.set_hexpand(true);
     primary_entry_.set_activates_default();
+    primary_entry_.set_verifier(dict_value_verifier);
     primary_box->pack_start(primary_entry_, Gtk::PACK_EXPAND_WIDGET);
     get_content_area()->pack_start(*primary_box, Gtk::PACK_SHRINK);
 
@@ -162,6 +185,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     secondary_entry_.set_text(data_.initial_values.secondary);
     secondary_entry_.set_hexpand(true);
     secondary_entry_.set_activates_default();
+    secondary_entry_.set_verifier(dict_value_verifier);
     secondary_box->pack_start(secondary_entry_, Gtk::PACK_EXPAND_WIDGET);
     get_content_area()->pack_start(*secondary_box, Gtk::PACK_SHRINK);
 
@@ -178,6 +202,15 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
         warning_label->set_xalign(0.0);
         get_content_area()->pack_start(*warning_label, Gtk::PACK_SHRINK);
     }
+
+    signal_response().connect(
+        [this](int response_id) {
+            if (response_id == Gtk::RESPONSE_OK &&
+                (!primary_entry_.verify() || !secondary_entry_.verify())) {
+                signal_response().emission_stop();
+            }
+        },
+        false);
 
     show_all();
 }
@@ -322,6 +355,12 @@ void ShowHistogramDlg::on_blues_bar_click(int bar_index,
         target_entry->set_tooltip_text(
             _("BlueValues come in pairs. Select another."));
     }
+}
+
+bool ShowHistogramDlg::dict_value_verifier(const Glib::ustring& text,
+                                           int& start_pos, int& end_pos) {
+    parse_values(text, &start_pos, &end_pos);
+    return start_pos == -1 && end_pos == -1;
 }
 
 PrivateDictValues ShowHistogramDlg::show(GWindow parent,

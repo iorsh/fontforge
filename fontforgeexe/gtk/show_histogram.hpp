@@ -29,6 +29,7 @@
 #include "dialog_base.hpp"
 #include "show_histogram_shim.hpp"
 #include "widgets/histogram.hpp"
+#include "widgets/verified_entry.hpp"
 
 namespace ff::dlg {
 
@@ -43,8 +44,11 @@ class ShowHistogramDlg final : public DialogBase {
 
     HistogramData data_;
     unsigned int max_value_ = 0;
-    Gtk::Entry primary_entry_;
-    Gtk::Entry secondary_entry_;
+    widgets::VerifiedEntry primary_entry_;
+    widgets::VerifiedEntry secondary_entry_;
+
+    static bool dict_value_verifier(const Glib::ustring& text, int& start_pos,
+                                    int& end_pos);
 
  public:
     static PrivateDictValues show(GWindow parent, const HistogramData& data);
