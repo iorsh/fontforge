@@ -804,8 +804,22 @@ void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *privat
 	    }
         }
 
-        ff::dlg::show_histogram_dialog(parent, dlg_data);
-        return;
+        std::optional<ff::dlg::PrivateDictValues> result = ff::dlg::show_histogram_dialog(parent, dlg_data);
+
+	if (!result.has_value() || ((result->primary.empty() || result->primary == "[]") && 
+	    (result->secondary.empty() || result->secondary == "[]") &&
+	    private_dict == NULL))
+            return;
+
+        if ( private_dict==NULL ) {
+	    sf->private_dict = private_dict = (psdict *)calloc(1,sizeof(struct psdict));
+	    private_dict->cnt = 10;
+	    private_dict->keys = (char **)calloc(10,sizeof(char *));
+	    private_dict->values = (char **)calloc(10,sizeof(char *));
+        }
+        PSDictChangeEntry(private_dict,ui_strings.primary_label.c_str(),result->primary.c_str());
+        PSDictChangeEntry(private_dict,ui_strings.secondary_label.c_str(),result->secondary.c_str());
+	return;
     }
 
     memset(&wattrs,0,sizeof(wattrs));

@@ -48,6 +48,8 @@ std::set<int> parse_values(std::string current, int* error_pos_start = nullptr,
     std::set<int> values;
     bool substring = false;
     if (current.empty()) {
+        if (error_pos_start) *error_pos_start = -1;
+        if (error_pos_end) *error_pos_end = -1;
         return values;
     }
 
@@ -363,8 +365,8 @@ bool ShowHistogramDlg::dict_value_verifier(const Glib::ustring& text,
     return start_pos == -1 && end_pos == -1;
 }
 
-PrivateDictValues ShowHistogramDlg::show(GWindow parent,
-                                         const HistogramData& data) {
+std::optional<PrivateDictValues> ShowHistogramDlg::show(
+    GWindow parent, const HistogramData& data) {
     ShowHistogramDlg dialog(parent, data);
 
     if (dialog.run() == Gtk::RESPONSE_OK) {
@@ -377,8 +379,8 @@ PrivateDictValues ShowHistogramDlg::show(GWindow parent,
     }
 }
 
-PrivateDictValues show_histogram_dialog(GWindow parent,
-                                        const HistogramData& data) {
+std::optional<PrivateDictValues> show_histogram_dialog(
+    GWindow parent, const HistogramData& data) {
     ff::app::GtkApp();
     return ShowHistogramDlg::show(parent, data);
 }

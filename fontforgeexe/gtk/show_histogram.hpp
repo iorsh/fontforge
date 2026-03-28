@@ -51,7 +51,8 @@ class ShowHistogramDlg final : public DialogBase {
                                     int& end_pos);
 
  public:
-    static PrivateDictValues show(GWindow parent, const HistogramData& data);
+    static std::optional<PrivateDictValues> show(GWindow parent,
+                                                 const HistogramData& data);
 };
 
 }  // namespace ff::dlg

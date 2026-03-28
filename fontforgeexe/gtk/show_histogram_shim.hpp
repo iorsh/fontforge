@@ -42,6 +42,7 @@ void SFHistogram(GWindow parent, SplineFont* sf, int layer,
 
 #ifdef __cplusplus
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -80,8 +81,8 @@ const std::map<hist_type, UiStrings> kHistogramUiStrings = {
     {hist_blues, {_("Blues"), "BlueValues", "OtherBlues"}},
 };
 
-PrivateDictValues show_histogram_dialog(GWindow parent,
-                                        const HistogramData& data);
+std::optional<PrivateDictValues> show_histogram_dialog(
+    GWindow parent, const HistogramData& data);
 
 }  // namespace ff::dlg
 
