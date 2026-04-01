@@ -143,7 +143,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     histogram->set_values(bar_values);
     histogram->set_lower_bound(data.lower_bound);
     histogram->set_tooltip_text_callback(
-        [this](size_t index) { return get_tooltip_text(index); });
+        [this](int index) { return get_tooltip_text(index); });
     if (data.type == hist_blues) {
         histogram->set_bar_click_callback(
             [this](int index, bool shift_pressed) {
@@ -269,17 +269,15 @@ Gtk::Box* ShowHistogramDlg::build_control_box(
     return controls_box;
 }
 
-std::string ShowHistogramDlg::get_tooltip_text(size_t bar_index) const {
-    if (bar_index >= data_.bars.size()) {
+std::string ShowHistogramDlg::get_tooltip_text(int bar_index) const {
+    if (bar_index >= (int)data_.bars.size() + data_.lower_bound) {
         return "";
     }
-
-    const int label = static_cast<int>(bar_index) + data_.lower_bound;
-    const auto& bar = data_.bars[bar_index];
+    const auto& bar = data_.bars[bar_index - data_.lower_bound];
 
     const char* label_fmt =
         (data_.type == hist_blues) ? _("Position: %d") : _("Width: %d");
-    char* p_width_label = smprintf(label_fmt, label);
+    char* p_width_label = smprintf(label_fmt, bar_index);
     char* p_count_label = smprintf(_("Count: %u"), bar.value);
     std::string tooltip_text(p_width_label);
     tooltip_text += "\n" + std::string(p_count_label);

@@ -43,16 +43,22 @@ class Histogram : public Gtk::DrawingArea {
     void set_bar_width(int width_px);
     void set_moving_average_window(int window_size);
     void set_lower_bound(int lower_bound);
+
+    // int bar_index argument is the actual bar X-value, not the index in the
+    // bars vector.
     void set_tooltip_text_callback(
-        std::function<std::string(size_t)> tooltip_text_callback);
+        std::function<std::string(int bar_index)> tooltip_text_callback);
     void set_bar_click_callback(
-        std::function<void(int, bool)> bar_click_callback);
+        std::function<void(int bar_index, bool shift_pressed)>
+            bar_click_callback);
 
  protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
  private:
-    bool get_bar_index(int x, size_t& index) const;
+    // Retrieve the actual bar X-value, which may be negative.
+    bool get_bar_index(int x, int& index) const;
+
     bool on_button_press_event(GdkEventButton* event);
     bool on_query_tooltip_event(int x, int y, bool keyboard_tooltip,
                                 const Glib::RefPtr<Gtk::Tooltip>& tooltip);
@@ -60,7 +66,7 @@ class Histogram : public Gtk::DrawingArea {
     double draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
                      int height);
     void draw_axis_tick(const Cairo::RefPtr<Cairo::Context>& cr, double axis_y,
-                        size_t index);
+                        int index);
     void draw_bars(const Cairo::RefPtr<Cairo::Context>& cr, double bar_base);
     void draw_moving_average(const Cairo::RefPtr<Cairo::Context>& cr,
                              double bar_base);
@@ -69,8 +75,8 @@ class Histogram : public Gtk::DrawingArea {
     int bar_width_px_ = 10;
     int moving_average_window_ = 1;
     int lower_bound_ = 0;
-    std::function<std::string(size_t)> tooltip_text_cb_;
-    std::function<void(int, bool)> bar_click_cb_;
+    std::function<std::string(int bar_index)> tooltip_text_cb_;
+    std::function<void(int bar_index, bool shift_pressed)> bar_click_cb_;
 
     // Needed for CSS color management.
     // TODO(iorsh): move color management to Gtk::Application level.

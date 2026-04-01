@@ -93,7 +93,7 @@ void Histogram::set_lower_bound(int lower_bound) {
 }
 
 void Histogram::set_tooltip_text_callback(
-    std::function<std::string(size_t)> tooltip_text_callback) {
+    std::function<std::string(int)> tooltip_text_callback) {
     tooltip_text_cb_ = std::move(tooltip_text_callback);
 }
 
@@ -116,15 +116,16 @@ void Histogram::update_size_request() {
 }
 
 void Histogram::draw_axis_tick(const Cairo::RefPtr<Cairo::Context>& cr,
-                               double axis_y, size_t index) {
-    const double tick_x = kOuterMarginPx + index * (bar_width_px_ + kBarGapPx) +
+                               double axis_y, int index) {
+    const double tick_x = kOuterMarginPx +
+                          (index - lower_bound_) * (bar_width_px_ + kBarGapPx) +
                           bar_width_px_ / 2.0;
     const double tick_y1 = axis_y + kAxisTickPx;
     cr->move_to(tick_x, axis_y);
     cr->line_to(tick_x, tick_y1);
     cr->stroke();
 
-    const std::string label = std::to_string(index + lower_bound_);
+    const std::string label = std::to_string(index);
     auto label_layout = create_pango_layout(label);
     int label_width = 0;
     int label_height = 0;
@@ -169,9 +170,11 @@ double Histogram::draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
     cr->line_to(axis_x1, axis_y);
     cr->stroke();
 
-    // Ticks at round values.
-    size_t i = (lower_bound_ / tick_step + 1) * tick_step - lower_bound_;
-    for (; i < values_.size(); i += tick_step) {
+    // Ticks at round values. Fix for rounding towards zero for integer division
+    // of negative values.
+    int i = (lower_bound_ > 0) ? ((lower_bound_ / tick_step + 1) * tick_step)
+                               : (lower_bound_ / tick_step * tick_step);
+    for (; i < (int)values_.size() + lower_bound_; i += tick_step) {
         draw_axis_tick(cr, axis_y, i);
     }
 
@@ -259,7 +262,7 @@ bool Histogram::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     return true;
 }
 
-bool Histogram::get_bar_index(int x, size_t& index) const {
+bool Histogram::get_bar_index(int x, int& index) const {
     const int pitch = bar_width_px_ + kBarGapPx;
     if (pitch <= 0) {
         return false;
@@ -275,7 +278,8 @@ bool Histogram::get_bar_index(int x, size_t& index) const {
         return false;
     }
 
-    index = candidate;
+    // Convert from index in the vector of values to actual bar X-value.
+    index = candidate + lower_bound_;
     return true;
 }
 
@@ -286,7 +290,7 @@ bool Histogram::on_query_tooltip_event(
         return false;
     }
 
-    size_t index = 0;
+    int index = 0;
     if (!get_bar_index(x, index)) {
         return false;
     }
@@ -312,8 +316,8 @@ bool Histogram::on_query_tooltip_event(
 
     // Make tooltip follow the mouse (the normal GTK behavior is to anchor the
     // tooltip once shown).
-    const int bar_x =
-        kOuterMarginPx + static_cast<int>(index) * (bar_width_px_ + kBarGapPx);
+    const int bar_x = kOuterMarginPx + static_cast<int>(index - lower_bound_) *
+                                           (bar_width_px_ + kBarGapPx);
     tooltip->set_tip_area(
         Gdk::Rectangle(bar_x, 0, bar_width_px_, static_cast<int>(height)));
     if (tooltip_text_cb_) {
@@ -331,7 +335,7 @@ bool Histogram::on_button_press_event(GdkEventButton* event) {
     const int y = static_cast<int>(event->y);
     const bool shift_pressed = (event->state & GDK_SHIFT_MASK) != 0;
 
-    size_t index = 0;
+    int index = 0;
     if (!get_bar_index(x, index)) {
         return false;
     }
@@ -355,7 +359,7 @@ bool Histogram::on_button_press_event(GdkEventButton* event) {
         return false;
     }
 
-    bar_click_cb_(static_cast<int>(index) + lower_bound_, shift_pressed);
+    bar_click_cb_(index, shift_pressed);
     return true;
 }
 
