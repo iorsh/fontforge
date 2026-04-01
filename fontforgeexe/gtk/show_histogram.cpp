@@ -121,10 +121,18 @@ class ErrorLabel : public Gtk::Label {
 ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     : DialogBase(parent), data_(data) {
     const UiStrings& ui_strings = kHistogramUiStrings.at(data.type);
+
+    register_colors({
+        {"ff_histogram_bg", {"theme_base_color", Gdk::RGBA("white")}},
+        {"ff_histogram_axis", {"theme_fg_color", Gdk::RGBA("black")}},
+        {"ff_histogram_bars", {"theme_selected_bg_color", Gdk::RGBA("blue")}},
+        {"ff_histogram_moving_average", {"error_color", Gdk::RGBA("red")}},
+    });
+
     set_title(ui_strings.title);
     set_help_context("ui/dialogs/histogram.html");
 
-    auto histogram = Gtk::make_managed<ff::widgets::Histogram>();
+    auto histogram = Gtk::make_managed<ff::widgets::Histogram>(this);
     std::vector<int> bar_values;
     for (const auto& bar : data.bars) {
         bar_values.push_back(static_cast<int>(bar.value));

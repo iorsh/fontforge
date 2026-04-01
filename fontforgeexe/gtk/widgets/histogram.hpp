@@ -31,11 +31,13 @@
 #include <string>
 #include <vector>
 
+#include "../dialog_base.hpp"
+
 namespace ff::widgets {
 
 class Histogram : public Gtk::DrawingArea {
  public:
-    Histogram();
+    Histogram(dlg::DialogBase* dialog);
 
     void set_values(const std::vector<int>& values);
     void set_bar_width(int width_px);
@@ -69,6 +71,10 @@ class Histogram : public Gtk::DrawingArea {
     int lower_bound_ = 0;
     std::function<std::string(size_t)> tooltip_text_cb_;
     std::function<void(int, bool)> bar_click_cb_;
+
+    // Needed for CSS color management.
+    // TODO(iorsh): move color management to Gtk::Application level.
+    dlg::DialogBase* dialog_ = nullptr;
 };
 
 }  // namespace ff::widgets

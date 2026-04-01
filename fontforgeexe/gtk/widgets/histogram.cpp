@@ -60,7 +60,7 @@ static constexpr int kAxisTickPx = 4;
 static constexpr int kAxisLabelGapPx = 2;
 static constexpr int kAxisLabelBottomPx = 2;
 
-Histogram::Histogram() {
+Histogram::Histogram(dlg::DialogBase* dialog) : dialog_(dialog) {
     set_hexpand(true);
     set_vexpand(true);
     set_has_tooltip(true);
@@ -163,7 +163,7 @@ double Histogram::draw_axis(const Cairo::RefPtr<Cairo::Context>& cr, int width,
                                axis_label_height + kAxisLabelBottomPx + 0.5;
     const double axis_y = height - axis_height;
 
-    cr->set_source_rgb(0.0, 0.0, 0.0);
+    dialog_->set_color_in_context(cr, "ff_histogram_axis");
     cr->set_line_width(1.0);
     cr->move_to(axis_x0, axis_y);
     cr->line_to(axis_x1, axis_y);
@@ -191,7 +191,7 @@ void Histogram::draw_bars(const Cairo::RefPtr<Cairo::Context>& cr,
 
     const double bar_max_height = std::max(1.0, bar_base - kOuterMarginPx);
 
-    cr->set_source_rgb(0.125, 0.125, 1.0);
+    dialog_->set_color_in_context(cr, "ff_histogram_bars");
     for (size_t i = 0; i < values_.size(); ++i) {
         const double norm = static_cast<double>(values_[i]) / max_value;
         const double bar_height = norm * bar_max_height;
@@ -219,7 +219,7 @@ void Histogram::draw_moving_average(const Cairo::RefPtr<Cairo::Context>& cr,
     const std::vector<double> avg_values =
         moving_average(values_, moving_average_window_);
 
-    cr->set_source_rgb(1.0, 0.0, 0.0);
+    dialog_->set_color_in_context(cr, "ff_histogram_moving_average");
     cr->set_line_width(1.5);
 
     bool started = false;
@@ -244,7 +244,7 @@ bool Histogram::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     const int width = allocation.get_width();
     const int height = allocation.get_height();
 
-    cr->set_source_rgb(1.0, 1.0, 1.0);
+    dialog_->set_color_in_context(cr, "ff_histogram_bg");
     cr->paint();
 
     if (width <= 0 || height <= 0) {
