@@ -7109,8 +7109,7 @@ extern GResFont fontinfo_font;
 extern Color fi_originlinescol;
 extern GResFont glyphinfo_font;
 extern GResFont groups_font;
-extern Color histogram_graphcol;
-extern GResFont histogram_font;
+Color histogram_graphcol = 0x2020ff;
 extern GResFont kernclass_font;
 extern Color kernclass_classfgcol;
 extern GResFont kernformat_font;
@@ -7152,7 +7151,6 @@ static struct resed miscwin_re[] = {
     {N_("GlyphInfo.Font"), "GlyphInfo.Font", rt_font, &glyphinfo_font, N_("Font used in the Glyph Info dialog"), NULL, { 0 }, 0, 0 },
     {N_("Groups.Font"), "Groups.Font", rt_font, &groups_font, N_("Font used in the Define Encoding Groups dialog"), NULL, { 0 }, 0, 0 },
     {N_("Histogram Graph Color"), "Histogram.GraphColor", rt_color, &histogram_graphcol, N_("Color used for the hint histogram graphs"), NULL, { 0 }, 0, 0 },
-    {N_("Histogram.Font"), "Histogram.Font", rt_font, &histogram_font, N_("Font used in the Histogram dialog"), NULL, { 0 }, 0, 0 },
     {N_("Kern Class Text Color"), "KernClass.TextColor", rt_color, &kernclass_classfgcol, N_("Color for kerning class names"), NULL, { 0 }, 0, 0 },
     {N_("KernClass.Font"), "KernClass.Font", rt_font, &kernclass_font, N_("Font used in the Kerning Classes dialog"), NULL, { 0 }, 0, 0 },
     {N_("KernFormat.Font"), "KernFormat.Font", rt_font, &kernformat_font, N_("Normal font used in the Kerning Format dialog"), NULL, { 0 }, 0, 0 },

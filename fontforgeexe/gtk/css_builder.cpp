@@ -33,6 +33,8 @@
 #include <map>
 #include <vector>
 
+extern Color histogram_graphcol;
+
 namespace ff::app {
 
 using CssPropertyEvalCB =
@@ -365,6 +367,8 @@ std::string build_styles(const GResInfo* gdraw_ri) {
 
     styles += build_color_only_styles(gdraw_ri);
     styles += "tab { margin-bottom: 1px; }\n";
+
+    styles += "@define-color ff_histogram_bars " + css_color(histogram_graphcol) + ";\n";
 
     return styles;
 }
