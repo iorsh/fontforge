@@ -32,7 +32,6 @@
 #include "dumppfa.h"
 #include "splineutil.h"
 
-
 #include "gtk/show_histogram_shim.hpp"
 
 /* This operations are designed to work on a single font. NOT a CID collection*/
@@ -40,148 +39,166 @@
 
 using HistogramMap = std::map<int, ff::dlg::HistogramBarRecord>;
 
-static HistogramMap HistFindBlues(SplineFont *sf,int layer, uint8_t *selected, EncMap *map) {
-	HistogramMap blues_map;
+static HistogramMap HistFindBlues(SplineFont* sf, int layer, uint8_t* selected,
+                                  EncMap* map) {
+    HistogramMap blues_map;
 
-    for (int i=0; i<(selected==NULL?sf->glyphcnt:map->enccount); ++i ) {
-    int top,bottom;
-    SplineChar *sc;
-    DBounds b;
+    for (int i = 0; i < (selected == NULL ? sf->glyphcnt : map->enccount);
+         ++i) {
+        int top, bottom;
+        SplineChar* sc;
+        DBounds b;
 
-    int gid = selected==NULL ? i : map->map[i];
-	if ( gid!=-1 && (sc = sf->glyphs[gid])!=NULL &&
-		sc->layers[ly_fore].splines!=NULL &&
-		sc->layers[ly_fore].refs==NULL &&
-		(selected==NULL || selected[i])) {
-	    SplineCharLayerFindBounds(sc,layer,&b);
-	    bottom = rint(b.miny);
-	    top = rint(b.maxy);
-	    if ( top==bottom )
-	continue;
+        int gid = selected == NULL ? i : map->map[i];
+        if (gid != -1 && (sc = sf->glyphs[gid]) != NULL &&
+            sc->layers[ly_fore].splines != NULL &&
+            sc->layers[ly_fore].refs == NULL &&
+            (selected == NULL || selected[i])) {
+            SplineCharLayerFindBounds(sc, layer, &b);
+            bottom = rint(b.miny);
+            top = rint(b.maxy);
+            if (top == bottom) continue;
 
-	blues_map[top].count++;
-	blues_map[top].glyph_names.push_back(sc->name);
+            blues_map[top].count++;
+            blues_map[top].glyph_names.push_back(sc->name);
 
-	blues_map[bottom].count++;
-	blues_map[bottom].glyph_names.push_back(sc->name);
-	}
+            blues_map[bottom].count++;
+            blues_map[bottom].glyph_names.push_back(sc->name);
+        }
     }
     return blues_map;
 }
 
-static HistogramMap HistFindStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map,int hor) {
-	HistogramMap stems_map;
+static HistogramMap HistFindStemWidths(SplineFont* sf, int layer,
+                                       uint8_t* selected, EncMap* map,
+                                       int hor) {
+    HistogramMap stems_map;
     int i, gid, val;
-    SplineChar *sc;
-    StemInfo *stem;
+    SplineChar* sc;
+    StemInfo* stem;
 
-    for ( i=0; i<(selected==NULL?sf->glyphcnt:map->enccount); ++i ) {
-	gid = selected==NULL ? i : map->map[i];
-	if ( gid!=-1 && (sc = sf->glyphs[gid])!=NULL &&
-		sc->layers[ly_fore].splines!=NULL &&
-		sc->layers[ly_fore].refs==NULL &&
-		(selected==NULL || selected[i])) {
-	    if ( autohint_before_generate && sc->changedsincelasthinted && !sc->manualhints )
-		SplineCharAutoHint(sc,layer,NULL);
-	    for ( stem = hor ? sc->hstem : sc->vstem ; stem!=NULL; stem = stem->next ) {
-		if ( stem->ghost )
-	    continue;
-		val = rint(stem->width);
-		if ( val<=0 )
-		    val = -val;
+    for (i = 0; i < (selected == NULL ? sf->glyphcnt : map->enccount); ++i) {
+        gid = selected == NULL ? i : map->map[i];
+        if (gid != -1 && (sc = sf->glyphs[gid]) != NULL &&
+            sc->layers[ly_fore].splines != NULL &&
+            sc->layers[ly_fore].refs == NULL &&
+            (selected == NULL || selected[i])) {
+            if (autohint_before_generate && sc->changedsincelasthinted &&
+                !sc->manualhints)
+                SplineCharAutoHint(sc, layer, NULL);
+            for (stem = hor ? sc->hstem : sc->vstem; stem != NULL;
+                 stem = stem->next) {
+                if (stem->ghost) continue;
+                val = rint(stem->width);
+                if (val <= 0) val = -val;
 
-	stems_map[val].count++;
-	stems_map[val].glyph_names.push_back(sc->name);
-    }}}
+                stems_map[val].count++;
+                stems_map[val].glyph_names.push_back(sc->name);
+            }
+        }
+    }
     return stems_map;
 }
 
-static HistogramMap HistFindHStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map) {
-return HistFindStemWidths(sf,layer,selected,map,true);
+static HistogramMap HistFindHStemWidths(SplineFont* sf, int layer,
+                                        uint8_t* selected, EncMap* map) {
+    return HistFindStemWidths(sf, layer, selected, map, true);
 }
 
-static HistogramMap HistFindVStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map) {
-return HistFindStemWidths(sf,layer,selected,map,false);
-}
-	
-static void HistSet(SplineFont *sf, struct psdict *private_dict, const ff::dlg::UiStrings& ui_strings, const ff::dlg::PrivateDictValues& result) {
-	if ((result.primary.empty() || result.primary == "[]") && 
-	    (result.secondary.empty() || result.secondary == "[]") &&
-	    private_dict == NULL)
-            return;
-
-        if ( private_dict==NULL ) {
-	    sf->private_dict = private_dict = (psdict *)calloc(1,sizeof(struct psdict));
-	    private_dict->cnt = 10;
-	    private_dict->keys = (char **)calloc(10,sizeof(char *));
-	    private_dict->values = (char **)calloc(10,sizeof(char *));
-        }
-        PSDictChangeEntry(private_dict,ui_strings.primary_label.c_str(),result.primary.c_str());
-        PSDictChangeEntry(private_dict,ui_strings.secondary_label.c_str(),result.secondary.c_str());
+static HistogramMap HistFindVStemWidths(SplineFont* sf, int layer,
+                                        uint8_t* selected, EncMap* map) {
+    return HistFindStemWidths(sf, layer, selected, map, false);
 }
 
-static bool CheckSmallSelection(uint8_t *selected,EncMap *map,SplineFont *sf) {
+static void HistSet(SplineFont* sf, struct psdict* private_dict,
+                    const ff::dlg::UiStrings& ui_strings,
+                    const ff::dlg::PrivateDictValues& result) {
+    if ((result.primary.empty() || result.primary == "[]") &&
+        (result.secondary.empty() || result.secondary == "[]") &&
+        private_dict == NULL)
+        return;
+
+    if (private_dict == NULL) {
+        sf->private_dict = private_dict =
+            (psdict*)calloc(1, sizeof(struct psdict));
+        private_dict->cnt = 10;
+        private_dict->keys = (char**)calloc(10, sizeof(char*));
+        private_dict->values = (char**)calloc(10, sizeof(char*));
+    }
+    PSDictChangeEntry(private_dict, ui_strings.primary_label.c_str(),
+                      result.primary.c_str());
+    PSDictChangeEntry(private_dict, ui_strings.secondary_label.c_str(),
+                      result.secondary.c_str());
+}
+
+static bool CheckSmallSelection(uint8_t* selected, EncMap* map,
+                                SplineFont* sf) {
     int i, cnt, tot;
 
-    if ( selected==NULL )
+    if (selected == NULL)
         // All glyphs are considered selected, so no "small selection" warning.
-        return( false );
+        return (false);
 
-    for ( i=cnt=tot=0; i<map->enccount; ++i ) {
-	int gid = map->map[i];
-	if ( gid!=-1 && sf->glyphs[gid]!=NULL ) {
-	    ++tot;
-	    if ( selected[i] )
-		++cnt;
-	}
+    for (i = cnt = tot = 0; i < map->enccount; ++i) {
+        int gid = map->map[i];
+        if (gid != -1 && sf->glyphs[gid] != NULL) {
+            ++tot;
+            if (selected[i]) ++cnt;
+        }
     }
-    return ( (cnt==1 && tot>1) || (cnt<8 && tot>30) );
+    return ((cnt == 1 && tot > 1) || (cnt < 8 && tot > 30));
 }
 
-void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *private_dict, uint8_t *selected,
-	EncMap *map,enum hist_type which) {
-    int i,j, upper_bound;
+void SFHistogram(GWindow parent, SplineFont* sf, int layer,
+                 struct psdict* private_dict, uint8_t* selected, EncMap* map,
+                 enum hist_type which) {
+    int i, j, upper_bound;
     const char *primary, *secondary;
     HistogramMap values_map;
     ff::dlg::HistogramData dlg_data;
 
-    if ( private_dict==NULL ) private_dict = sf->private_dict;
-    switch ( which ) {
-      case hist_hstem:
-	values_map = HistFindHStemWidths(sf,layer,selected,map);
-      break;
-      case hist_vstem:
-	values_map = HistFindVStemWidths(sf,layer,selected,map);
-      break;
-      case hist_blues:
-	values_map = HistFindBlues(sf,layer,selected,map);
-      break;
+    if (private_dict == NULL) private_dict = sf->private_dict;
+    switch (which) {
+        case hist_hstem:
+            values_map = HistFindHStemWidths(sf, layer, selected, map);
+            break;
+        case hist_vstem:
+            values_map = HistFindVStemWidths(sf, layer, selected, map);
+            break;
+        case hist_blues:
+            values_map = HistFindBlues(sf, layer, selected, map);
+            break;
     }
 
-    if ( values_map.empty() ) {		/* Found nothing */
-	dlg_data.lower_bound = upper_bound = 0;
+    if (values_map.empty()) { /* Found nothing */
+        dlg_data.lower_bound = upper_bound = 0;
     } else {
         dlg_data.lower_bound = values_map.begin()->first;
         upper_bound = values_map.rbegin()->first;
     }
 
-    // Convert map to array for use in the histogram. Array of bars is initialized with zeros.
+    // Convert map to array for use in the histogram. Array of bars is
+    // initialized with zeros.
     dlg_data.bars.resize(upper_bound - dlg_data.lower_bound + 1);
     for (const auto& [key, value] : values_map)
         dlg_data.bars[key - dlg_data.lower_bound] = value;
 
-        dlg_data.type = which;
-	dlg_data.small_selection_warning = CheckSmallSelection(selected,map,sf);
+    dlg_data.type = which;
+    dlg_data.small_selection_warning = CheckSmallSelection(selected, map, sf);
 
-	    const ff::dlg::UiStrings& ui_strings = ff::dlg::kHistogramUiStrings.at(dlg_data.type);
+    const ff::dlg::UiStrings& ui_strings =
+        ff::dlg::kHistogramUiStrings.at(dlg_data.type);
 
-	if ( (j=PSDictFindEntry(private_dict,ui_strings.primary_label.c_str()))!=-1 )
-	    dlg_data.initial_values.primary = private_dict->values[j];
-	if ( (j=PSDictFindEntry(private_dict,ui_strings.secondary_label.c_str()))!=-1 )
-	    dlg_data.initial_values.secondary = private_dict->values[j];
+    if ((j = PSDictFindEntry(private_dict, ui_strings.primary_label.c_str())) !=
+        -1)
+        dlg_data.initial_values.primary = private_dict->values[j];
+    if ((j = PSDictFindEntry(private_dict,
+                             ui_strings.secondary_label.c_str())) != -1)
+        dlg_data.initial_values.secondary = private_dict->values[j];
 
-        std::optional<ff::dlg::PrivateDictValues> result = ff::dlg::show_histogram_dialog(parent, dlg_data);
+    std::optional<ff::dlg::PrivateDictValues> result =
+        ff::dlg::show_histogram_dialog(parent, dlg_data);
 
-	if (result.has_value())
-	HistSet(sf, private_dict, ui_strings, result.value());
+    if (result.has_value())
+        HistSet(sf, private_dict, ui_strings, result.value());
 }
