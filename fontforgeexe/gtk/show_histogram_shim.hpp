@@ -27,12 +27,14 @@
 #pragma once
 
 enum hist_type { hist_hstem, hist_vstem, hist_blues };
+typedef struct gwindow* GWindow;
 typedef struct splinefont SplineFont;
 struct psdict;
 typedef struct encmap EncMap;
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include <stdint.h>
 void SFHistogram(GWindow parent, SplineFont* sf, int layer,
                  struct psdict* private_dict, uint8_t* selected, EncMap* map,
                  enum hist_type which);

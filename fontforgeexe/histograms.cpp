@@ -25,23 +25,13 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fontforge-config.h>
+#include <math.h>
 
+#include "fontforge.h"
 #include "autohint.h"
 #include "dumppfa.h"
-#include "ffglib.h"
-extern "C" {
-#include "fontforgeui.h"
-}
-#include "gkeysym.h"
-#include "gresedit.h"
-#include "psfont.h"
 #include "splineutil.h"
-#include "ustring.h"
-#include "utype.h"
 
-#include <math.h>
-#include <cassert>
 
 #include "gtk/show_histogram_shim.hpp"
 
