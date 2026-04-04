@@ -48,15 +48,10 @@ extern "C" {
 /* This operations are designed to work on a single font. NOT a CID collection*/
 /*  A CID collection must be treated one sub-font at a time */
 
+using HistogramMap = std::map<int, ff::dlg::HistogramBarRecord>;
 
-typedef struct histdata {
-    int low, high;
-    std::vector<ff::dlg::HistogramBarRecord> hist;	/* array of high-low+1 elements */
-} HistData;
-
-static HistData HistFindBlues(SplineFont *sf,int layer, uint8_t *selected, EncMap *map) {
-	std::map<int, ff::dlg::HistogramBarRecord> blues_map;
-    HistData hist;
+static HistogramMap HistFindBlues(SplineFont *sf,int layer, uint8_t *selected, EncMap *map) {
+	HistogramMap blues_map;
 
     for (int i=0; i<(selected==NULL?sf->glyphcnt:map->enccount); ++i ) {
     int top,bottom;
@@ -81,26 +76,13 @@ static HistData HistFindBlues(SplineFont *sf,int layer, uint8_t *selected, EncMa
 	blues_map[bottom].glyph_names.push_back(sc->name);
 	}
     }
-    if ( blues_map.empty() ) {		/* Found nothing */
-	hist.low = hist.high = 0;
-    }
-
-    // Convert map to array for use in the histogram.
-    hist.low = blues_map.begin()->first;
-    hist.high = blues_map.rbegin()->first;
-    hist.hist.resize(hist.high - hist.low + 1);
-    for (const auto& [key, value] : blues_map) {
-        hist.hist[key - hist.low] = value;
-    }
-return  hist ;
+    return blues_map;
 }
 
-static HistData HistFindStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map,int hor) {
-	std::map<int, ff::dlg::HistogramBarRecord> blues_map;
-    int i, gid, low,high, val;
+static HistogramMap HistFindStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map,int hor) {
+	HistogramMap stems_map;
+    int i, gid, val;
     SplineChar *sc;
-    HistData hist;
-    struct hentry *h;
     StemInfo *stem;
 
     for ( i=0; i<(selected==NULL?sf->glyphcnt:map->enccount); ++i ) {
@@ -118,30 +100,18 @@ static HistData HistFindStemWidths(SplineFont *sf,int layer, uint8_t *selected,E
 		if ( val<=0 )
 		    val = -val;
 
-	blues_map[val].count++;
-	blues_map[val].glyph_names.push_back(sc->name);
+	stems_map[val].count++;
+	stems_map[val].glyph_names.push_back(sc->name);
     }}}
-
-    if ( blues_map.empty() ) {		/* Found nothing */
-	hist.low = hist.high = 0;
-    }
-
-    // Convert map to array for use in the histogram.
-    hist.low = blues_map.begin()->first;
-    hist.high = blues_map.rbegin()->first;
-    hist.hist.resize(hist.high - hist.low + 1);
-    for (const auto& [key, value] : blues_map)
-        hist.hist[key - hist.low] = value;
-
-return  hist ;
+    return stems_map;
 }
 
-static HistData HistFindHStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map) {
-return( HistFindStemWidths(sf,layer,selected,map,true) );
+static HistogramMap HistFindHStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map) {
+return HistFindStemWidths(sf,layer,selected,map,true);
 }
 
-static HistData HistFindVStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map) {
-return( HistFindStemWidths(sf,layer,selected,map,false) );
+static HistogramMap HistFindVStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map) {
+return HistFindStemWidths(sf,layer,selected,map,false);
 }
 	
 static void HistSet(SplineFont *sf, struct psdict *private_dict, const ff::dlg::UiStrings& ui_strings, const ff::dlg::PrivateDictValues& result) {
@@ -180,26 +150,37 @@ static bool CheckSmallSelection(uint8_t *selected,EncMap *map,SplineFont *sf) {
 
 void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *private_dict, uint8_t *selected,
 	EncMap *map,enum hist_type which) {
-    int i,j;
+    int i,j, upper_bound;
     const char *primary, *secondary;
-    HistData hist;
+    HistogramMap values_map;
+    ff::dlg::HistogramData dlg_data;
 
     if ( private_dict==NULL ) private_dict = sf->private_dict;
     switch ( which ) {
       case hist_hstem:
-	hist = HistFindHStemWidths(sf,layer,selected,map);
+	values_map = HistFindHStemWidths(sf,layer,selected,map);
       break;
       case hist_vstem:
-	hist = HistFindVStemWidths(sf,layer,selected,map);
+	values_map = HistFindVStemWidths(sf,layer,selected,map);
       break;
       case hist_blues:
-	hist = HistFindBlues(sf,layer,selected,map);
+	values_map = HistFindBlues(sf,layer,selected,map);
       break;
     }
 
-        ff::dlg::HistogramData dlg_data;
+    if ( values_map.empty() ) {		/* Found nothing */
+	dlg_data.lower_bound = upper_bound = 0;
+    } else {
+        dlg_data.lower_bound = values_map.begin()->first;
+        upper_bound = values_map.rbegin()->first;
+    }
+
+    // Convert map to array for use in the histogram. Array of bars is initialized with zeros.
+    dlg_data.bars.resize(upper_bound - dlg_data.lower_bound + 1);
+    for (const auto& [key, value] : values_map)
+        dlg_data.bars[key - dlg_data.lower_bound] = value;
+
         dlg_data.type = which;
-        dlg_data.lower_bound = hist.low;
 	dlg_data.small_selection_warning = CheckSmallSelection(selected,map,sf);
 
 	    const ff::dlg::UiStrings& ui_strings = ff::dlg::kHistogramUiStrings.at(dlg_data.type);
@@ -208,11 +189,6 @@ void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *privat
 	    dlg_data.initial_values.primary = private_dict->values[j];
 	if ( (j=PSDictFindEntry(private_dict,ui_strings.secondary_label.c_str()))!=-1 )
 	    dlg_data.initial_values.secondary = private_dict->values[j];
-
-        for (int v = hist.low; v <= hist.high; ++v) {
-            const ff::dlg::HistogramBarRecord& entry = hist.hist[v - hist.low];
-            dlg_data.bars.push_back(entry);
-        }
 
         std::optional<ff::dlg::PrivateDictValues> result = ff::dlg::show_histogram_dialog(parent, dlg_data);
 
