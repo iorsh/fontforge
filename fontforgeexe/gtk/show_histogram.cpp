@@ -135,7 +135,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     auto histogram = Gtk::make_managed<ff::widgets::Histogram>(this);
     std::vector<int> bar_values;
     for (const auto& bar : data.bars) {
-        bar_values.push_back(static_cast<int>(bar.value));
+        bar_values.push_back(static_cast<int>(bar.count));
     }
     if (!bar_values.empty()) {
         max_value_ = *std::max_element(bar_values.cbegin(), bar_values.cend());
@@ -278,7 +278,7 @@ std::string ShowHistogramDlg::get_tooltip_text(int bar_index) const {
     const char* label_fmt =
         (data_.type == hist_blues) ? _("Position: %d") : _("Width: %d");
     char* p_width_label = smprintf(label_fmt, bar_index);
-    char* p_count_label = smprintf(_("Count: %u"), bar.value);
+    char* p_count_label = smprintf(_("Count: %u"), bar.count);
     std::string tooltip_text(p_width_label);
     tooltip_text += "\n" + std::string(p_count_label);
     free(p_width_label);
@@ -287,7 +287,7 @@ std::string ShowHistogramDlg::get_tooltip_text(int bar_index) const {
     if (data_.type != hist_blues && max_value_ > 0) {
         char* p_percentage_label =
             smprintf(_("Percentage of Max: %d%%"),
-                     static_cast<int>(rint(bar.value * 100.0 / max_value_)));
+                     static_cast<int>(rint(bar.count * 100.0 / max_value_)));
         tooltip_text += "\n" + std::string(p_percentage_label);
         free(p_percentage_label);
     }

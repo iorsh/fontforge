@@ -41,50 +41,29 @@ extern "C" {
 #include "utype.h"
 
 #include <math.h>
+#include <cassert>
 
 #include "gtk/show_histogram_shim.hpp"
 
 /* This operations are designed to work on a single font. NOT a CID collection*/
 /*  A CID collection must be treated one sub-font at a time */
 
-GResFont histogram_font = GRESFONT_INIT("400 10pt " SANS_UI_FAMILIES);
-Color histogram_graphcol = 0x2020ff;
-
-struct hentry {
-    int cnt, sum;
-    int char_cnt, max;
-    SplineChar **chars;
-};
 
 typedef struct histdata {
     int low, high;
-    struct hentry *hist;	/* array of high-low+1 elements */
-    int tot, max;
+    std::vector<ff::dlg::HistogramBarRecord> hist;	/* array of high-low+1 elements */
 } HistData;
 
-static void HistDataFree(HistData *h) {
-    int i;
+static HistData HistFindBlues(SplineFont *sf,int layer, uint8_t *selected, EncMap *map) {
+	std::map<int, ff::dlg::HistogramBarRecord> blues_map;
+    HistData hist;
 
-    for ( i=h->low; i<=h->high; ++i )
-	free(h->hist[i-h->low].chars);
-    free(h->hist);
-    free(h);
-}
-
-static HistData *HistFindBlues(SplineFont *sf,int layer, uint8_t *selected, EncMap *map) {
-    int i, gid, low,high, top,bottom;
+    for (int i=0; i<(selected==NULL?sf->glyphcnt:map->enccount); ++i ) {
+    int top,bottom;
     SplineChar *sc;
     DBounds b;
-    HistData *hist;
-    struct hentry *h;
 
-    hist = (HistData *)calloc(1,sizeof(HistData));
-    hist->hist = (struct hentry *)calloc(sf->ascent+sf->descent+1,sizeof(struct hentry));
-    hist->low = sf->ascent; hist->high = -sf->descent;
-    low = -sf->descent; high = sf->ascent;
-
-    for ( i=0; i<(selected==NULL?sf->glyphcnt:map->enccount); ++i ) {
-	gid = selected==NULL ? i : map->map[i];
+    int gid = selected==NULL ? i : map->map[i];
 	if ( gid!=-1 && (sc = sf->glyphs[gid])!=NULL &&
 		sc->layers[ly_fore].splines!=NULL &&
 		sc->layers[ly_fore].refs==NULL &&
@@ -94,69 +73,35 @@ static HistData *HistFindBlues(SplineFont *sf,int layer, uint8_t *selected, EncM
 	    top = rint(b.maxy);
 	    if ( top==bottom )
 	continue;
-	    if ( top>hist->high ) {
-		hist->high = top;
-		if ( top>high ) {
-		    hist->hist = (struct hentry *)realloc(hist->hist,(top+10-low)*sizeof(struct hentry));
-		    memset(hist->hist + high-low+1,0,(top+10-high-1)*sizeof(struct hentry));
-		    high = top+10 -1;
-		}
-	    }
-	    ++ hist->hist[top-low].cnt;
-	    if ( hist->hist[top-low].char_cnt >= hist->hist[top-low].max ) {
-		if ( hist->hist[top-low].max==0 )
-		    hist->hist[top-low].chars = (SplineChar **)malloc(10*sizeof(SplineChar *));
-		else
-		    hist->hist[top-low].chars = (SplineChar **)realloc(hist->hist[top-low].chars,(hist->hist[top-low].max+10)*sizeof(SplineChar *));
-		hist->hist[top-low].max += 10;
-	    }
-	    hist->hist[top-low].chars[hist->hist[top-low].char_cnt++] = sc;
 
-	    if ( bottom<hist->low ) {
-		hist->low = bottom;
-		if ( bottom<low ) {
-		    h = (struct hentry *)calloc((high-bottom+10),sizeof( struct hentry ));
-		    memcpy(h+low-(bottom-10+1),hist->hist,(high+1-low)*sizeof(struct hentry));
-		    low = bottom-10+1;
-		    free( hist->hist );
-		    hist->hist = h;
-		}
-	    }
-	    ++ hist->hist[bottom-low].cnt;
-	    if ( hist->hist[bottom-low].char_cnt >= hist->hist[bottom-low].max ) {
-		if ( hist->hist[bottom-low].max==0 )
-		    hist->hist[bottom-low].chars = (SplineChar **)malloc(10*sizeof(SplineChar *));
-		else
-		    hist->hist[bottom-low].chars = (SplineChar **)realloc(hist->hist[bottom-low].chars,(hist->hist[bottom-low].max+10)*sizeof(SplineChar *));
-		hist->hist[bottom-low].max += 10;
-	    }
-	    hist->hist[bottom-low].chars[hist->hist[bottom-low].char_cnt++] = sc;
+	blues_map[top].count++;
+	blues_map[top].glyph_names.push_back(sc->name);
+
+	blues_map[bottom].count++;
+	blues_map[bottom].glyph_names.push_back(sc->name);
 	}
-	hist->tot += 2;
     }
-    if ( hist->low>hist->high ) {		/* Found nothing */
-	hist->low = hist->high = 0;
+    if ( blues_map.empty() ) {		/* Found nothing */
+	hist.low = hist.high = 0;
     }
-    if ( low!=hist->low || high!=hist->high ) {
-	h = (struct hentry *)malloc((hist->high-hist->low+1)*sizeof(struct hentry));
-	memcpy(h,hist->hist + hist->low-low,(hist->high-hist->low+1)*sizeof(struct hentry));
-	free(hist->hist);
-	hist->hist = h;
+
+    // Convert map to array for use in the histogram.
+    hist.low = blues_map.begin()->first;
+    hist.high = blues_map.rbegin()->first;
+    hist.hist.resize(hist.high - hist.low + 1);
+    for (const auto& [key, value] : blues_map) {
+        hist.hist[key - hist.low] = value;
     }
-return( hist );
+return  hist ;
 }
 
-static HistData *HistFindStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map,int hor) {
+static HistData HistFindStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map,int hor) {
+	std::map<int, ff::dlg::HistogramBarRecord> blues_map;
     int i, gid, low,high, val;
     SplineChar *sc;
-    HistData *hist;
+    HistData hist;
     struct hentry *h;
     StemInfo *stem;
-
-    hist = (HistData *)calloc(1,sizeof(HistData));
-    hist->hist = (struct hentry *)calloc(sf->ascent+sf->descent+1,sizeof(struct hentry));
-    hist->low = sf->ascent+sf->descent;
-    low = 0; high = sf->ascent+sf->descent;
 
     for ( i=0; i<(selected==NULL?sf->glyphcnt:map->enccount); ++i ) {
 	gid = selected==NULL ? i : map->map[i];
@@ -172,49 +117,30 @@ static HistData *HistFindStemWidths(SplineFont *sf,int layer, uint8_t *selected,
 		val = rint(stem->width);
 		if ( val<=0 )
 		    val = -val;
-		if ( val>hist->high ) {
-		    hist->high = val;
-		    if ( val>high ) {
-			hist->hist = (struct hentry *)realloc(hist->hist,(val+10-low)*sizeof(struct hentry));
-			memset(hist->hist + high-low+1,0,(val+10-high-1)*sizeof(struct hentry));
-			high = val+10 -1;
-		    }
-		}
-		if ( val<hist->low )
-		    hist->low = val;
-		++ hist->hist[val-low].cnt;
-		if ( hist->hist[val-low].char_cnt==0 ||
-			hist->hist[val-low].chars[hist->hist[val-low].char_cnt-1]!=sc ) {
-		    if ( hist->hist[val-low].char_cnt >= hist->hist[val-low].max ) {
-			if ( hist->hist[val-low].max==0 )
-			    hist->hist[val-low].chars = (SplineChar **)malloc(10*sizeof(SplineChar *));
-			else
-			    hist->hist[val-low].chars = (SplineChar **)realloc(hist->hist[val-low].chars,(hist->hist[val-low].max+10)*sizeof(SplineChar *));
-			hist->hist[val-low].max += 10;
-		    }
-		    hist->hist[val-low].chars[hist->hist[val-low].char_cnt++] = sc;
-		}
-		++ hist->tot;
-	    }
-	}
+
+	blues_map[val].count++;
+	blues_map[val].glyph_names.push_back(sc->name);
+    }}}
+
+    if ( blues_map.empty() ) {		/* Found nothing */
+	hist.low = hist.high = 0;
     }
-    if ( hist->low>hist->high ) {		/* Found nothing */
-	hist->low = hist->high = 0;
-    }
-    if ( low!=hist->low || high!=hist->high ) {
-	h = (struct hentry *)malloc((hist->high-hist->low+1)*sizeof(struct hentry));
-	memcpy(h,hist->hist + hist->low-low,(hist->high-hist->low+1)*sizeof(struct hentry));
-	free(hist->hist);
-	hist->hist = h;
-    }
-return( hist );
+
+    // Convert map to array for use in the histogram.
+    hist.low = blues_map.begin()->first;
+    hist.high = blues_map.rbegin()->first;
+    hist.hist.resize(hist.high - hist.low + 1);
+    for (const auto& [key, value] : blues_map)
+        hist.hist[key - hist.low] = value;
+
+return  hist ;
 }
 
-static HistData *HistFindHStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map) {
+static HistData HistFindHStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map) {
 return( HistFindStemWidths(sf,layer,selected,map,true) );
 }
 
-static HistData *HistFindVStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map) {
+static HistData HistFindVStemWidths(SplineFont *sf,int layer, uint8_t *selected,EncMap *map) {
 return( HistFindStemWidths(sf,layer,selected,map,false) );
 }
 	
@@ -256,7 +182,7 @@ void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *privat
 	EncMap *map,enum hist_type which) {
     int i,j;
     const char *primary, *secondary;
-    HistData *hist;
+    HistData hist;
 
     if ( private_dict==NULL ) private_dict = sf->private_dict;
     switch ( which ) {
@@ -273,7 +199,7 @@ void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *privat
 
         ff::dlg::HistogramData dlg_data;
         dlg_data.type = which;
-        dlg_data.lower_bound = hist->low;
+        dlg_data.lower_bound = hist.low;
 	dlg_data.small_selection_warning = CheckSmallSelection(selected,map,sf);
 
 	    const ff::dlg::UiStrings& ui_strings = ff::dlg::kHistogramUiStrings.at(dlg_data.type);
@@ -283,18 +209,13 @@ void SFHistogram(GWindow parent, SplineFont *sf,int layer, struct psdict *privat
 	if ( (j=PSDictFindEntry(private_dict,ui_strings.secondary_label.c_str()))!=-1 )
 	    dlg_data.initial_values.secondary = private_dict->values[j];
 
-        for (int v = hist->low; v <= hist->high; ++v) {
-            const hentry& entry = hist->hist[v - hist->low];
-            dlg_data.bars.push_back({static_cast<unsigned int>(entry.cnt), {}});
-	    for (int i = 0; i < entry.char_cnt; ++i) {
-		dlg_data.bars.back().glyph_names.push_back(entry.chars[i]->name);
-	    }
+        for (int v = hist.low; v <= hist.high; ++v) {
+            const ff::dlg::HistogramBarRecord& entry = hist.hist[v - hist.low];
+            dlg_data.bars.push_back(entry);
         }
 
         std::optional<ff::dlg::PrivateDictValues> result = ff::dlg::show_histogram_dialog(parent, dlg_data);
 
 	if (result.has_value())
 	HistSet(sf, private_dict, ui_strings, result.value());
-
-    HistDataFree(hist);
 }

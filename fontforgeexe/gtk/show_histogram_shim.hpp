@@ -52,7 +52,12 @@ void SFHistogram(GWindow parent, SplineFont* sf, int layer,
 namespace ff::dlg {
 
 struct HistogramBarRecord {
-    unsigned int value;
+    // Total count of hints or blues with this value.
+    unsigned int count;
+
+    // List of characters with this hint or blue value. The number of characters
+    // may be smaller than cnt, because the same character may have multiple
+    // hints or blues with the same value.
     std::vector<std::string> glyph_names;
 };
 
