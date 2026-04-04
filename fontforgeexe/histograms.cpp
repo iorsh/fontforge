@@ -73,12 +73,11 @@ static HistogramMap HistFindStemWidths(SplineFont* sf, int layer,
                                        uint8_t* selected, EncMap* map,
                                        int hor) {
     HistogramMap stems_map;
-    int i, gid, val;
-    SplineChar* sc;
-    StemInfo* stem;
 
-    for (i = 0; i < (selected == NULL ? sf->glyphcnt : map->enccount); ++i) {
-        gid = selected == NULL ? i : map->map[i];
+    for (int i = 0; i < (selected == NULL ? sf->glyphcnt : map->enccount);
+         ++i) {
+        int gid = selected == NULL ? i : map->map[i];
+        SplineChar* sc;
         if (gid != -1 && (sc = sf->glyphs[gid]) != NULL &&
             sc->layers[ly_fore].splines != NULL &&
             sc->layers[ly_fore].refs == NULL &&
@@ -86,10 +85,10 @@ static HistogramMap HistFindStemWidths(SplineFont* sf, int layer,
             if (autohint_before_generate && sc->changedsincelasthinted &&
                 !sc->manualhints)
                 SplineCharAutoHint(sc, layer, NULL);
-            for (stem = hor ? sc->hstem : sc->vstem; stem != NULL;
+            for (StemInfo* stem = hor ? sc->hstem : sc->vstem; stem != NULL;
                  stem = stem->next) {
                 if (stem->ghost) continue;
-                val = rint(stem->width);
+                int val = rint(stem->width);
                 if (val <= 0) val = -val;
 
                 stems_map[val].count++;
@@ -133,13 +132,13 @@ static void HistSet(SplineFont* sf, struct psdict* private_dict,
 
 static bool CheckSmallSelection(uint8_t* selected, EncMap* map,
                                 SplineFont* sf) {
-    int i, cnt, tot;
+    int cnt, tot;
 
     if (selected == NULL)
         // All glyphs are considered selected, so no "small selection" warning.
         return (false);
 
-    for (i = cnt = tot = 0; i < map->enccount; ++i) {
+    for (int i = cnt = tot = 0; i < map->enccount; ++i) {
         int gid = map->map[i];
         if (gid != -1 && sf->glyphs[gid] != NULL) {
             ++tot;
@@ -152,8 +151,7 @@ static bool CheckSmallSelection(uint8_t* selected, EncMap* map,
 void SFHistogram(GWindow parent, SplineFont* sf, int layer,
                  struct psdict* private_dict, uint8_t* selected, EncMap* map,
                  enum hist_type which) {
-    int i, j, upper_bound;
-    const char *primary, *secondary;
+    int j, upper_bound;
     HistogramMap values_map;
     ff::dlg::HistogramData dlg_data;
 
