@@ -80,18 +80,15 @@ struct problems {
     SplineChar *msc;
     int layer;
     std::map<int, bool> selected_records;
+    std::map<int, ff::dlg::NumericalValue> record_values;
     unsigned int explain: 1;
     unsigned int doneexplain: 1;
     unsigned int finish: 1;
     unsigned int ignorethis: 1;
-    double near, xval, yval, widthval;
+    double near;
     char *explaining;
     double found, expected;
     double xheight, caph, ascent, descent;
-    double irrelevantfactor;
-    int advancewidthval, vadvancewidthval;
-    int bbymax_val, bbymin_val, bbxmax_val, bbxmin_val;
-    int pointsmax, hintsmax, refdepthmax;
     GWindow explainw;
     GGadget *explaintext, *explainvals, *ignoregadg, *topbox;
     SplineChar *lastcharopened;
@@ -204,10 +201,10 @@ static void FixIt(struct problems *p) {
 	    IError("Could not find reference");
 return;
     } else if ( p->explaining==_("This glyph's advance width is different from the standard width") ) {
-	SCSynchronizeWidth(p->sc,p->advancewidthval,p->sc->width,NULL);
+	SCSynchronizeWidth(p->sc,std::get<int>(p->record_values[CID_AdvanceWidth]),p->sc->width,NULL);
 return;
     } else if ( p->explaining==_("This glyph's vertical advance is different from the standard width") ) {
-	p->sc->vwidth=p->vadvancewidthval;
+	p->sc->vwidth=std::get<int>(p->record_values[CID_VAdvanceWidth]);
 return;
     }
 
@@ -358,12 +355,13 @@ return;
     } else if ( p->explaining==_("This path should have been drawn in a counter-clockwise direction") || p->explaining==_("This path should have been drawn in a clockwise direction") ) {
 	SplineSetReverse(spl);
     } else if ( p->explaining==_("This glyph contains control points which are probably too close to the main points to alter the look of the spline") ) {
+	double irrelevantfactor = std::get<double>(p->record_values[CID_IrrelevantCP]) / 100.0;
 	if ( sp->next!=NULL ) {
 	    double len = sqrt((sp->me.x-sp->next->to->me.x)*(sp->me.x-sp->next->to->me.x) +
 		    (sp->me.y-sp->next->to->me.y)*(sp->me.y-sp->next->to->me.y));
 	    double cplen = sqrt((sp->me.x-sp->nextcp.x)*(sp->me.x-sp->nextcp.x) +
 		    (sp->me.y-sp->nextcp.y)*(sp->me.y-sp->nextcp.y));
-	    if ( cplen!=0 && cplen<p->irrelevantfactor*len ) {
+	    if ( cplen!=0 && cplen<irrelevantfactor*len ) {
 		sp->nextcp = sp->me;
 		ncp_changed = true;
 	    }
@@ -373,7 +371,7 @@ return;
 		    (sp->me.y-sp->prev->from->me.y)*(sp->me.y-sp->prev->from->me.y));
 	    double cplen = sqrt((sp->me.x-sp->prevcp.x)*(sp->me.x-sp->prevcp.x) +
 		    (sp->me.y-sp->prevcp.y)*(sp->me.y-sp->prevcp.y));
-	    if ( cplen!=0 && cplen<p->irrelevantfactor*len ) {
+	    if ( cplen!=0 && cplen<irrelevantfactor*len ) {
 		sp->prevcp = sp->me;
 		pcp_changed = true;
 	    }
@@ -1148,14 +1146,15 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
     }
 
     if ( p->selected_records[CID_XNear] && !p->finish ) {
+	double xval = std::get<double>(p->record_values[CID_XNear]);
 	for ( test=spl; test!=NULL && !p->finish && p->selected_records[CID_XNear]; test=test->next ) {
 	    sp = test->first;
 	    do {
-		if ( sp->me.x-p->xval<p->near && p->xval-sp->me.x<p->near &&
-			sp->me.x!=p->xval ) {
+		if ( sp->me.x-xval<p->near && xval-sp->me.x<p->near &&
+			sp->me.x!=xval ) {
 		    changed = true;
 		    sp->selected = true;
-		    ExplainIt(p,sc,_("The x coord of the selected point is near the specified value"),sp->me.x,p->xval);
+		    ExplainIt(p,sc,_("The x coord of the selected point is near the specified value"),sp->me.x,xval);
 		    if ( p->ignorethis ) {
 			p->selected_records[CID_XNear] = false;
 	    break;
@@ -1173,14 +1172,15 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
     }
 
     if ( p->selected_records[CID_YNear] && !p->finish ) {
+	double yval = std::get<double>(p->record_values[CID_YNear]);
 	for ( test=spl; test!=NULL && !p->finish && p->selected_records[CID_YNear]; test=test->next ) {
 	    sp = test->first;
 	    do {
-		if ( sp->me.y-p->yval<p->near && p->yval-sp->me.y<p->near &&
-			sp->me.y != p->yval ) {
+		if ( sp->me.y-yval<p->near && yval-sp->me.y<p->near &&
+			sp->me.y != yval ) {
 		    changed = true;
 		    sp->selected = true;
-		    ExplainIt(p,sc,_("The y coord of the selected point is near the specified value"),sp->me.y,p->yval);
+		    ExplainIt(p,sc,_("The y coord of the selected point is near the specified value"),sp->me.y,yval);
 		    if ( p->ignorethis ) {
 			p->selected_records[CID_YNear] = false;
 	    break;
@@ -1346,6 +1346,7 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
     }
 
     if ( p->selected_records[CID_IrrelevantCP] && !p->finish ) {
+	double irrelevantfactor = std::get<double>(p->record_values[CID_IrrelevantCP]) / 100.0;
 	for ( test=spl; test!=NULL && !p->finish && p->selected_records[CID_IrrelevantCP]; test = test->next ) {
 	    for ( sp=test->first; !p->finish && p->selected_records[CID_IrrelevantCP]; ) {
 		int either = false;
@@ -1354,7 +1355,7 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
 			    (sp->me.y-sp->prev->from->me.y)*(sp->me.y-sp->prev->from->me.y));
 		    double cplen = sqrt((sp->me.x-sp->prevcp.x)*(sp->me.x-sp->prevcp.x) +
 			    (sp->me.y-sp->prevcp.y)*(sp->me.y-sp->prevcp.y));
-		    if ( cplen!=0 && cplen<p->irrelevantfactor*len )
+		    if ( cplen!=0 && cplen<irrelevantfactor*len )
 			either = true;
 		}
 		if ( sp->next!=NULL ) {
@@ -1362,7 +1363,7 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
 			    (sp->me.y-sp->next->to->me.y)*(sp->me.y-sp->next->to->me.y));
 		    double cplen = sqrt((sp->me.x-sp->nextcp.x)*(sp->me.x-sp->nextcp.x) +
 			    (sp->me.y-sp->nextcp.y)*(sp->me.y-sp->nextcp.y));
-		    if ( cplen!=0 && cplen<p->irrelevantfactor*len )
+		    if ( cplen!=0 && cplen<irrelevantfactor*len )
 			either = true;
 		}
 		if ( either ) {
@@ -1552,18 +1553,19 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
     }
 
     if ( p->selected_records[CID_HintWidthNear] && !p->finish ) {
+	double widthval = std::get<double>(p->record_values[CID_HintWidthNear]);
 	StemInfo *hs = NULL, *vs = NULL;
 	for ( h=sc->hstem; h!=NULL; h=h->next ) {
-	    if ( h->width-p->widthval<p->near && p->widthval-h->width<p->near &&
-		    h->width!=p->widthval ) {
+	    if ( h->width-widthval<p->near && widthval-h->width<p->near &&
+		    h->width!=widthval ) {
 		h->active = true;
 		hs = h;
 	break;
 	    }
 	}
 	for ( h=sc->vstem; h!=NULL; h=h->next ) {
-	    if ( h->width-p->widthval<p->near && p->widthval-h->width<p->near &&
-		    h->width!=p->widthval ) {
+	    if ( h->width-widthval<p->near && widthval-h->width<p->near &&
+		    h->width!=widthval ) {
 		h->active = true;
 		vs = h;
 	break;
@@ -1572,7 +1574,7 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
 	if ( hs || vs ) {
 	    changed = true;
 	    ExplainIt(p,sc,hs?_("This glyph contains a horizontal hint near the specified width"):_("This glyph contains a vertical hint near the specified width"),
-		    hs?hs->width:vs->width,p->widthval);
+		    hs?hs->width:vs->width,widthval);
 	    if ( hs!=NULL && !missinghint(sc->hstem,hs)) hs->active = false;
 	    if ( vs!=NULL && !missinghint(sc->vstem,vs)) vs->active = false;
 	    if ( p->ignorethis )
@@ -1814,38 +1816,41 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
     }
 
     if ( p->selected_records[CID_TooDeepRefs] && !p->finish ) {
+	int refdepthmax = std::get<int>(p->record_values[CID_TooDeepRefs]);
 	int cnt=SCRefDepth(sc,p->layer);
-	if ( cnt>p->refdepthmax ) {
+	if ( cnt>refdepthmax ) {
 	    changed = true;
-	    ExplainIt(p,sc,_("References are nested more deeply in this glyph than the maximum allowed"),cnt,p->refdepthmax);
+	    ExplainIt(p,sc,_("References are nested more deeply in this glyph than the maximum allowed"),cnt,refdepthmax);
 	    if ( p->ignorethis )
 		p->selected_records[CID_TooDeepRefs] = false;
 	}
     }
 
     if ( p->selected_records[CID_TooManyPoints] && !p->finish ) {
+	int pointsmax = std::get<int>(p->record_values[CID_TooManyPoints]);
 	int cnt=0;
 	RefChar *r;
 	cnt = SPLPointCnt(sc->layers[p->layer].splines);
 	for ( r=sc->layers[p->layer].refs; r!=NULL ; r=r->next )
 	    cnt += SPLPointCnt(r->layers[0].splines);
-	if ( cnt>p->pointsmax ) {
+	if ( cnt>pointsmax ) {
 	    changed = true;
-	    ExplainIt(p,sc,_("There are more points in this glyph than the maximum allowed"),cnt,p->pointsmax);
+	    ExplainIt(p,sc,_("There are more points in this glyph than the maximum allowed"),cnt,pointsmax);
 	    if ( p->ignorethis )
 		p->selected_records[CID_TooManyPoints] = false;
 	}
     }
 
     if ( p->selected_records[CID_TooManyHints] && !p->finish ) {
+	int hintsmax = std::get<int>(p->record_values[CID_TooManyHints]);
 	int cnt=0;
 	for ( h=sc->hstem; h!=NULL; h=h->next )
 	    ++cnt;
 	for ( h=sc->vstem; h!=NULL; h=h->next )
 	    ++cnt;
-	if ( cnt>p->hintsmax ) {
+	if ( cnt>hintsmax ) {
 	    changed = true;
-	    ExplainIt(p,sc,_("There are more hints in this glyph than the maximum allowed"),cnt,p->hintsmax);
+	    ExplainIt(p,sc,_("There are more hints in this glyph than the maximum allowed"),cnt,hintsmax);
 	    if ( p->ignorethis )
 		p->selected_records[CID_TooManyHints] = false;
 	}
@@ -1885,18 +1890,20 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
     }
 
     if ( p->selected_records[CID_AdvanceWidth] && !p->finish && SCWorthOutputting(sc)) {
-	if ( sc->width!=p->advancewidthval ) {
+	int advancewidthval = std::get<int>(p->record_values[CID_AdvanceWidth]);
+	if ( sc->width!=advancewidthval ) {
 	    changed = true;
-	    ExplainIt(p,sc,_("This glyph's advance width is different from the standard width"),sc->width,p->advancewidthval);
+	    ExplainIt(p,sc,_("This glyph's advance width is different from the standard width"),sc->width,advancewidthval);
 	    if ( p->ignorethis )
 		p->selected_records[CID_AdvanceWidth] = false;
 	}
     }
 
-    if ( p->selected_records[CID_VAdvanceWidth] && !p->finish && SCWorthOutputting(sc)) {
-	if ( sc->vwidth!=p->vadvancewidthval ) {
+    if ( p->selected_records[CID_VAdvanceWidth] && p->fv->b.sf->hasvmetrics && !p->finish && SCWorthOutputting(sc)) {
+	int vadvancewidthval = std::get<int>(p->record_values[CID_VAdvanceWidth]);
+	if ( sc->vwidth!=vadvancewidthval ) {
 	    changed = true;
-	    ExplainIt(p,sc,_("This glyph's vertical advance is different from the standard width"),sc->vwidth,p->vadvancewidthval);
+	    ExplainIt(p,sc,_("This glyph's vertical advance is different from the standard width"),sc->vwidth,vadvancewidthval);
 	    if ( p->ignorethis )
 		p->selected_records[CID_VAdvanceWidth] = false;
 	}
@@ -1904,28 +1911,32 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
 
     if ( (p->selected_records[CID_BBYMax] || p->selected_records[CID_BBXMax] || p->selected_records[CID_BBYMin] || p->selected_records[CID_BBXMin]) && !p->finish &&
 	    SCWorthOutputting(sc)) {
+	int bbymax_val = std::get<int>(p->record_values[CID_BBYMax]);
+	int bbymin_val = std::get<int>(p->record_values[CID_BBYMin]);
+	int bbxmax_val = std::get<int>(p->record_values[CID_BBXMax]);
+	int bbxmin_val = std::get<int>(p->record_values[CID_BBXMin]);
 	SplineCharFindBounds(sc,&bb);
-	if ( p->selected_records[CID_BBYMax] && bb.maxy > p->bbymax_val ) {
+	if ( p->selected_records[CID_BBYMax] && bb.maxy > bbymax_val ) {
 	    changed = true;
-	    ExplainIt(p,sc,_("This glyph is taller than desired"),bb.maxy,p->bbymax_val);
+	    ExplainIt(p,sc,_("This glyph is taller than desired"),bb.maxy,bbymax_val);
 	    if ( p->ignorethis )
 		p->selected_records[CID_BBYMax] = false;
 	}
-	if ( p->selected_records[CID_BBYMin] && bb.miny < p->bbymin_val ) {
+	if ( p->selected_records[CID_BBYMin] && bb.miny < bbymin_val ) {
 	    changed = true;
-	    ExplainIt(p,sc,_("This glyph extends further below the baseline than desired"),bb.miny,p->bbymin_val);
+	    ExplainIt(p,sc,_("This glyph extends further below the baseline than desired"),bb.miny,bbymin_val);
 	    if ( p->ignorethis )
 		p->selected_records[CID_BBYMin] = false;
 	}
-	if ( p->selected_records[CID_BBXMax] && bb.maxx > p->bbxmax_val ) {
+	if ( p->selected_records[CID_BBXMax] && bb.maxx > bbxmax_val ) {
 	    changed = true;
-	    ExplainIt(p,sc,_("This glyph is wider than desired"),bb.maxx,p->bbxmax_val);
+	    ExplainIt(p,sc,_("This glyph is wider than desired"),bb.maxx,bbxmax_val);
 	    if ( p->ignorethis )
 		p->selected_records[CID_BBXMax] = false;
 	}
-	if ( p->selected_records[CID_BBXMin] && bb.minx < p->bbxmin_val ) {
+	if ( p->selected_records[CID_BBXMin] && bb.minx < bbxmin_val ) {
 	    changed = true;
-	    ExplainIt(p,sc,_("This glyph extends left further than desired"),bb.minx,p->bbxmin_val);
+	    ExplainIt(p,sc,_("This glyph extends left further than desired"),bb.minx,bbxmin_val);
 	    if ( p->ignorethis )
 		p->selected_records[CID_BBXMin] = false;
 	}
@@ -2032,6 +2043,8 @@ return( changed );
 
 static int CIDCheck(struct problems *p,int cid) {
     int found = false;
+    if (p->fv->b.cidmaster == NULL)
+        return found;
 
     if ( (p->selected_records[CID_CIDMultiple] || p->selected_records[CID_CIDBlank]) && !p->finish ) {
 	SplineFont *csf = p->fv->b.cidmaster;
@@ -2826,9 +2839,6 @@ static void DummyFindProblems(CharView *cv) {
     p.selected_records[CID_MissingAnchor] = true;
     p.selected_records[CID_OverlappedHints] = true;
 
-    p.pointsmax = 1500;
-    p.hintsmax = 96;
-
     p.explain = true;
 
     DoProbs(&p);
@@ -3112,154 +3122,9 @@ static void apply_dialog_results(const std::vector<ProblemTab>& problem_tabs,
 
     for (const ProblemTab& tab : problem_tabs) {
         for (const ProblemRecord& rec : tab.records) {
-            /* Points */
-            if (rec.cid == CID_NonIntegral)
-                p.selected_records[CID_NonIntegral] = rec.active;
-            if (rec.cid == CID_XNear) {
-                p.selected_records[CID_XNear] = rec.active;
-                if (p.selected_records[CID_XNear])
-                    p.xval = std::get<double>(rec.value);
-            }
-            if (rec.cid == CID_YNear) {
-                p.selected_records[CID_YNear] = rec.active;
-                if (p.selected_records[CID_YNear])
-                    p.yval = std::get<double>(rec.value);
-            }
-            if (rec.cid == CID_YNearStd)
-                p.selected_records[CID_YNearStd] = rec.active;
-            if (rec.cid == CID_CpStd)
-                p.selected_records[CID_CpStd] = rec.active;
-            if (rec.cid == CID_CpOdd)
-                p.selected_records[CID_CpOdd] = rec.active;
-            if (rec.cid == CID_IrrelevantCP) {
-                p.selected_records[CID_IrrelevantCP] = rec.active;
-                if (p.selected_records[CID_IrrelevantCP])
-                    p.irrelevantfactor = std::get<double>(rec.value) / 100.0;
-            }
-            if (rec.cid == CID_PointsTooClose)
-                p.selected_records[CID_PointsTooClose] = rec.active;
-            if (rec.cid == CID_PointsTooFar)
-                p.selected_records[CID_PointsTooFar] = rec.active;
-
-            /* Paths */
-            if (rec.cid == CID_OpenPaths)
-                p.selected_records[CID_OpenPaths] = rec.active;
-            if (rec.cid == CID_IntersectingPaths)
-                p.selected_records[CID_IntersectingPaths] = rec.active;
-            if (rec.cid == CID_LineStd)
-                p.selected_records[CID_LineStd] = rec.active;
-            if (rec.cid == CID_Direction)
-                p.selected_records[CID_Direction] = rec.active;
-            if (rec.cid == CID_MissingExtrema)
-                p.selected_records[CID_MissingExtrema] = rec.active;
-            if (rec.cid == CID_TooManyPoints) {
-                p.selected_records[CID_TooManyPoints] = rec.active;
-                if (p.selected_records[CID_TooManyPoints])
-                    p.pointsmax = std::get<int>(rec.value);
-            }
-
-            /* Refs */
-            if (rec.cid == CID_FlippedRefs)
-                p.selected_records[CID_FlippedRefs] = rec.active;
-            if (rec.cid == CID_RefBadTransformTTF)
-                p.selected_records[CID_RefBadTransformTTF] = rec.active;
-            if (rec.cid == CID_MixedContoursRefs)
-                p.selected_records[CID_MixedContoursRefs] = rec.active;
-            if (rec.cid == CID_RefBadTransformPS)
-                p.selected_records[CID_RefBadTransformPS] = rec.active;
-            if (rec.cid == CID_TooDeepRefs) {
-                p.selected_records[CID_TooDeepRefs] = rec.active;
-                if (p.selected_records[CID_TooDeepRefs])
-                    p.refdepthmax = std::get<int>(rec.value);
-            }
-            if (rec.cid == CID_PtMatchRefsOutOfDate)
-                p.selected_records[CID_PtMatchRefsOutOfDate] = rec.active;
-            if (rec.cid == CID_MultUseMyMetrics)
-                p.selected_records[CID_MultUseMyMetrics] = rec.active;
-
-            /* Hints */
-            if (rec.cid == CID_HintNoPt)
-                p.selected_records[CID_HintNoPt] = rec.active;
-            if (rec.cid == CID_PtNearHint)
-                p.selected_records[CID_PtNearHint] = rec.active;
-            if (rec.cid == CID_HintWidthNear) {
-                p.selected_records[CID_HintWidthNear] = rec.active;
-                if (p.selected_records[CID_HintWidthNear])
-                    p.widthval = std::get<double>(rec.value);
-            }
-            if (rec.cid == CID_Stem3)
-                p.selected_records[CID_Stem3] = rec.active;
-            if (rec.cid == CID_ShowExactStem3 && p.selected_records[CID_Stem3])
-                p.selected_records[CID_ShowExactStem3] = rec.active;
-            if (rec.cid == CID_TooManyHints) {
-                p.selected_records[CID_TooManyHints] = rec.active;
-                if (p.selected_records[CID_TooManyHints])
-                    p.hintsmax = std::get<int>(rec.value);
-            }
-            if (rec.cid == CID_OverlappedHints)
-                p.selected_records[CID_OverlappedHints] = rec.active;
-
-            /* ATT */
-            if (rec.cid == CID_MissingGlyph)
-                p.selected_records[CID_MissingGlyph] = rec.active;
-            if (rec.cid == CID_MissingScriptInFeature)
-                p.selected_records[CID_MissingScriptInFeature] = rec.active;
-            if (rec.cid == CID_BadSubs)
-                p.selected_records[CID_BadSubs] = rec.active;
-            if (rec.cid == CID_MissingAnchor)
-                p.selected_records[CID_MissingAnchor] = rec.active;
-
-            /* CID */
-            if (p.fv->b.cidmaster != NULL) {
-                if (rec.cid == CID_CIDMultiple)
-                    p.selected_records[CID_CIDMultiple] = rec.active;
-                if (rec.cid == CID_CIDBlank)
-                    p.selected_records[CID_CIDBlank] = rec.active;
-            }
-
-            /* Bounding Box */
-            if (rec.cid == CID_BBYMax) {
-                p.selected_records[CID_BBYMax] = rec.active;
-                if (p.selected_records[CID_BBYMax])
-                    p.bbymax_val = std::get<int>(rec.value);
-            }
-            if (rec.cid == CID_BBYMin) {
-                p.selected_records[CID_BBYMin] = rec.active;
-                if (p.selected_records[CID_BBYMin])
-                    p.bbymin_val = std::get<int>(rec.value);
-            }
-            if (rec.cid == CID_BBXMax) {
-                p.selected_records[CID_BBXMax] = rec.active;
-                if (p.selected_records[CID_BBXMax])
-                    p.bbxmax_val = std::get<int>(rec.value);
-            }
-            if (rec.cid == CID_BBXMin) {
-                p.selected_records[CID_BBXMin] = rec.active;
-                if (p.selected_records[CID_BBXMin])
-                    p.bbxmin_val = std::get<int>(rec.value);
-            }
-            if (rec.cid == CID_AdvanceWidth) {
-                p.selected_records[CID_AdvanceWidth] = rec.active;
-                if (p.selected_records[CID_AdvanceWidth])
-                    p.advancewidthval = std::get<int>(rec.value);
-            }
-            if (p.fv->b.sf->hasvmetrics && rec.cid == CID_VAdvanceWidth) {
-                p.selected_records[CID_VAdvanceWidth] = rec.active;
-                if (p.selected_records[CID_VAdvanceWidth])
-                    p.vadvancewidthval = std::get<int>(rec.value);
-            }
-
-            /* Random */
-            if (rec.cid == CID_Bitmaps)
-                p.selected_records[CID_Bitmaps] = rec.active;
-            if (rec.cid == CID_BitmapWidths)
-                p.selected_records[CID_BitmapWidths] = rec.active;
-            if (rec.cid == CID_MultUni)
-                p.selected_records[CID_MultUni] = rec.active;
-            if (rec.cid == CID_MultName)
-                p.selected_records[CID_MultName] = rec.active;
-            if (rec.cid == CID_UniNameMisMatch)
-                p.selected_records[CID_UniNameMisMatch] = rec.active;
+            p.selected_records[rec.cid] = rec.active;
+            if (!std::holds_alternative<std::monostate>(rec.value))
+                p.record_values[rec.cid] = rec.value;
         }
     }
 }
