@@ -121,10 +121,6 @@ static double near=3;
 #define CID_HintNoPt		1007
 #define CID_PtNearHint		1008
 #define CID_HintWidthNear	1009
-#define CID_HintWidth		1010
-#define CID_Near		1011
-#define CID_XNearVal		1012
-#define CID_YNearVal		1013
 #define CID_LineStd		1014
 #define CID_Direction		1015
 #define CID_CpStd		1016
@@ -134,22 +130,16 @@ static double near=3;
 #define CID_FlippedRefs		1020
 #define CID_Bitmaps		1021
 #define CID_AdvanceWidth	1022
-#define CID_AdvanceWidthVal	1023
 #define CID_VAdvanceWidth	1024
-#define CID_VAdvanceWidthVal	1025
 #define CID_Stem3		1026
 #define CID_ShowExactStem3	1027
 #define CID_IrrelevantCP	1028
-#define CID_IrrelevantFactor	1029
 #define CID_BadSubs		1030
 #define CID_MissingGlyph	1031
 #define CID_MissingScriptInFeature 1032
 #define CID_TooManyPoints	1033
-#define CID_PointsMax		1034
 #define CID_TooManyHints	1035
-#define CID_HintsMax		1036
 #define CID_TooDeepRefs		1037
-#define CID_RefDepthMax		1038
 #define CID_MultUni		1040
 #define CID_MultName		1041
 #define CID_PtMatchRefsOutOfDate 1042
@@ -162,10 +152,6 @@ static double near=3;
 #define CID_BBYMin		1049
 #define CID_BBXMax		1050
 #define CID_BBXMin		1051
-#define CID_BBYMaxVal		1052
-#define CID_BBYMinVal		1053
-#define CID_BBXMaxVal		1054
-#define CID_BBXMinVal		1055
 #define CID_NonIntegral		1056
 #define CID_PointsTooFar	1057
 #define CID_BitmapWidths	1058
@@ -966,6 +952,16 @@ return( r );
 return( NULL );
 }
 
+static void FigureStandardHeights(struct problems *p) {
+    BlueData bd;
+
+    QuickBlues(p->fv->b.sf,p->layer,&bd);
+    p->xheight = bd.xheight;
+    p->caph = bd.caph;
+    p->ascent = bd.ascent;
+    p->descent = bd.descent;
+}
+
 static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
     SplineSet *spl, *test;
     Spline *spline, *first;
@@ -1200,6 +1196,7 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
     if ( p->selected_records[CID_YNearStd] && !p->finish ) {
 	real expected;
 	char *msg;
+	FigureStandardHeights(p);
 	for ( test=spl; test!=NULL && !p->finish && p->selected_records[CID_YNearStd]; test=test->next ) {
 	    sp = test->first;
 	    do {
@@ -2749,6 +2746,7 @@ static void DoProbs(struct problems *p) {
     SplineChar *sc;
     BDFFont *bdf;
 
+    p->explain = true;
     ret = CheckForATT(p);
     if ( p->cv!=NULL ) {
 	ret |= SCProblems(p->cv,NULL,p);
@@ -2785,38 +2783,8 @@ static void DoProbs(struct problems *p) {
     }
     if ( !ret )
 	ff_post_error(_("No problems found"),_("No problems found"));
-}
-
-static void FigureStandardHeights(struct problems *p) {
-    BlueData bd;
-
-    QuickBlues(p->fv->b.sf,p->layer,&bd);
-    p->xheight = bd.xheight;
-    p->caph = bd.caph;
-    p->ascent = bd.ascent;
-    p->descent = bd.descent;
-}
-
-static void show_selected_problems(struct problems *p) {
-	p->explain = true;
-	if ( p->selected_records[CID_YNearStd] )
-	    FigureStandardHeights(p);
-	if ( p->selected_records[CID_OpenPaths] || p->selected_records[CID_IntersectingPaths] || p->selected_records[CID_PointsTooClose]  || p->selected_records[CID_XNear] || p->selected_records[CID_YNear] ||
-		p->selected_records[CID_YNearStd] || p->selected_records[CID_LineStd] || p->selected_records[CID_HintNoPt] || p->selected_records[CID_PtNearHint] || p->selected_records[CID_HintWidthNear] ||
-		p->selected_records[CID_CpOdd] || p->selected_records[CID_CpStd] ||
-		p->selected_records[CID_Direction] || p->selected_records[CID_CIDMultiple] || p->selected_records[CID_CIDBlank] || p->selected_records[CID_FlippedRefs] ||
-		p->selected_records[CID_Bitmaps] || p->selected_records[CID_AdvanceWidth] || p->selected_records[CID_VAdvanceWidth] || p->selected_records[CID_Stem3] ||
-		p->selected_records[CID_BitmapWidths] || p->selected_records[CID_MissingAnchor] ||
-		p->selected_records[CID_IrrelevantCP] || p->selected_records[CID_BadSubs] || p->selected_records[CID_MissingGlyph] ||
-		p->selected_records[CID_MissingScriptInFeature] || p->selected_records[CID_NonIntegral] || p->selected_records[CID_PointsTooFar] ||
-		p->selected_records[CID_TooManyPoints] || p->selected_records[CID_TooManyHints] || p->selected_records[CID_MissingExtrema] ||
-		p->selected_records[CID_TooDeepRefs] || p->selected_records[CID_MultUni] || p->selected_records[CID_MultName] || p->selected_records[CID_UniNameMisMatch] ||
-		p->selected_records[CID_PtMatchRefsOutOfDate] || p->selected_records[CID_RefBadTransformTTF] ||
-		p->selected_records[CID_MultUseMyMetrics] || p->selected_records[CID_OverlappedHints] ||
-		p->selected_records[CID_MixedContoursRefs] || p->selected_records[CID_RefBadTransformPS] ||
-		p->selected_records[CID_BBYMax] || p->selected_records[CID_BBXMax] || p->selected_records[CID_BBYMin] || p->selected_records[CID_BBXMin] ) {
-	    DoProbs(p);
-	}
+    if ( p->explainw!=NULL )
+	GDrawDestroyWindow(p->explainw);
 }
 
 static void DummyFindProblems(CharView *cv) {
@@ -2840,11 +2808,7 @@ static void DummyFindProblems(CharView *cv) {
     p.selected_records[CID_MissingAnchor] = true;
     p.selected_records[CID_OverlappedHints] = true;
 
-    p.explain = true;
-
     DoProbs(&p);
-    if ( p.explainw!=NULL )
-	GDrawDestroyWindow(p.explainw);
 }
 
 static std::vector<ProblemRecord> pr_points = {
@@ -3155,11 +3119,8 @@ void FindProblems(FontView *fv,CharView *cv, SplineChar *sc) {
 
     if (do_apply) {
 	apply_dialog_results(pr_tabs, p);
-	show_selected_problems(&p);
+	DoProbs(&p);
     }
-
-    if ( p.explainw!=NULL )
-	GDrawDestroyWindow(p.explainw);
 }
 
 /* ************************************************************************** */
