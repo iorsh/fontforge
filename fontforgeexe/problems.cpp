@@ -1271,7 +1271,7 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
     if ( p->selected_records[CID_CpStd] && !p->finish ) {
 	real ia = (90-p->fv->b.sf->italicangle)*(FF_PI/180);
 	int hasia = p->fv->b.sf->italicangle!=0;
-	for ( test=spl; test!=NULL && !p->finish && p->selected_records[CID_LineStd]; test = test->next ) {
+	for ( test=spl; test!=NULL && !p->finish && p->selected_records[CID_CpStd]; test = test->next ) {
 	    first = NULL;
 	    for ( spline = test->first->next; spline!=NULL && spline!=first && !p->finish; spline=spline->to->next ) {
 		if ( !spline->knownlinear ) {
@@ -1306,7 +1306,7 @@ static int SCProblems(CharView *cv,SplineChar *sc,struct problems *p) {
     }
 
     if ( p->selected_records[CID_CpOdd] && !p->finish ) {
-	for ( test=spl; test!=NULL && !p->finish && p->selected_records[CID_LineStd]; test = test->next ) {
+	for ( test=spl; test!=NULL && !p->finish && p->selected_records[CID_CpOdd]; test = test->next ) {
 	    first = NULL;
 	    for ( spline = test->first->next; spline!=NULL && spline!=first && !p->finish; spline=spline->to->next ) {
 		if ( !spline->knownlinear ) {
@@ -2803,6 +2803,7 @@ static void show_selected_problems(struct problems *p) {
 	    FigureStandardHeights(p);
 	if ( p->selected_records[CID_OpenPaths] || p->selected_records[CID_IntersectingPaths] || p->selected_records[CID_PointsTooClose]  || p->selected_records[CID_XNear] || p->selected_records[CID_YNear] ||
 		p->selected_records[CID_YNearStd] || p->selected_records[CID_LineStd] || p->selected_records[CID_HintNoPt] || p->selected_records[CID_PtNearHint] || p->selected_records[CID_HintWidthNear] ||
+		p->selected_records[CID_CpOdd] || p->selected_records[CID_CpStd] ||
 		p->selected_records[CID_Direction] || p->selected_records[CID_CIDMultiple] || p->selected_records[CID_CIDBlank] || p->selected_records[CID_FlippedRefs] ||
 		p->selected_records[CID_Bitmaps] || p->selected_records[CID_AdvanceWidth] || p->selected_records[CID_VAdvanceWidth] || p->selected_records[CID_Stem3] ||
 		p->selected_records[CID_BitmapWidths] || p->selected_records[CID_MissingAnchor] ||
