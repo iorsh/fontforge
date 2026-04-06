@@ -32,6 +32,7 @@
 #include "css_builder.hpp"
 
 extern GResInfo gdraw_ri;
+extern "C" void GResEditDoInit(GResInfo* ri);
 
 namespace ff::app {
 
@@ -72,6 +73,8 @@ void load_legacy_style() {
         initialized = true;
     }
 
+    for (GResInfo* re = &gdraw_ri; re != NULL; re = re->next)
+        GResEditDoInit(re);
     std::string style = build_styles(&gdraw_ri);
 
     // Load CSS styles
