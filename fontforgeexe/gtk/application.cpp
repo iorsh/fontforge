@@ -46,7 +46,7 @@ Glib::RefPtr<Gtk::Application> GtkApp() {
 
     if (!initialized) {
         app->register_application();
-        load_legacy_style();
+        // load_legacy_style();
 
         initialized = true;
     }
@@ -83,6 +83,25 @@ void load_legacy_style() {
     } catch (...) {
         std::cerr << "Unknown error occurred while loading CSS." << std::endl;
     }
+}
+
+ColorManager::ColorManager() {
+    style_ctx_ = Gtk::StyleContext::create();
+
+    Gtk::WidgetPath path;
+    path.path_append_type(GTK_TYPE_WINDOW);
+    style_ctx_->set_path(path);
+    style_ctx_->set_screen(Gdk::Screen::get_default());
+}
+
+ColorManager& ColorManager::instance() {
+    static ColorManager manager;
+    return manager;
+}
+
+bool ColorManager::lookup_color(const Glib::ustring& color_name,
+                                Gdk::RGBA& color) const {
+    return style_ctx_->lookup_color(color_name, color);
 }
 
 }  // namespace ff::app

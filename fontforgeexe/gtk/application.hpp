@@ -34,4 +34,17 @@ Glib::RefPtr<Gtk::Application> GtkApp();
 
 void load_legacy_style();
 
+class ColorManager {
+ public:
+    static ColorManager& instance();
+
+    // Returns false if color name is not found in the current theme.
+    bool lookup_color(const Glib::ustring& color_name, Gdk::RGBA& color) const;
+
+ private:
+    ColorManager();
+
+    Glib::RefPtr<Gtk::StyleContext> style_ctx_;
+};
+
 }  // namespace ff::app
