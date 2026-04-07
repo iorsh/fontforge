@@ -3115,7 +3115,9 @@ void FindProblems(FontView *fv,CharView *cv, SplineChar *sc) {
     }
 
     adjust_problem_records(fv, pr_tabs);
-    do_apply = find_problems_dialog(fv->gw, pr_tabs, p.near);
+
+    GWindow parent = (cv != NULL) ? cv->gw : fv->gw;
+    do_apply = find_problems_dialog(parent, pr_tabs, p.near);
 
     if (do_apply) {
 	apply_dialog_results(pr_tabs, p);
