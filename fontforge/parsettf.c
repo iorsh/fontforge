@@ -3698,10 +3698,7 @@ static SplineFont *cffsffillup(struct topdicts *subdict, char **strings,
 	sf->fontname = copy(buffer);
     }
 
-    if ( subdict->fontmatrix[0]==0 )
-	emsize = 1000;
-    else
-	emsize = rint( 1/subdict->fontmatrix[0] );
+    emsize = PSEmsizeFromFontMatrix(subdict->fontmatrix);
     sf->ascent = .8*emsize;
     sf->descent = emsize - sf->ascent;
     if ( subdict->copyright!=-1 )
@@ -3733,10 +3730,7 @@ static void cffinfofillup(struct ttfinfo *info, struct topdicts *dict,
     info->glyph_cnt = dict->glyphs.cnt;
     if ( info->glyph_cnt<0 ) info->glyph_cnt = 0;
 
-    if ( dict->fontmatrix[0]==0 )
-	info->emsize = 1000;
-    else
-	info->emsize = rint( 1/dict->fontmatrix[0] );
+    info->emsize = PSEmsizeFromFontMatrix(dict->fontmatrix);
     info->ascent = .8*info->emsize;
     info->descent = info->emsize - info->ascent;
     if ( dict->copyright!=-1 || dict->notice!=-1 )

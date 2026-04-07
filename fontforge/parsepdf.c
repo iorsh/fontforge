@@ -1840,9 +1840,11 @@ return;
 		    }
 
 		    for (gid=start; gid<=end; gid++) {
-			mappings[cur] = uvals[0] = uni++;
-			add_mapping(basesf, mappings, uvals, 1, gid, pc->cmap_from_cid[font_num], cur);
-			cur++;
+			if (cur < mappings_length) {
+			    mappings[cur] = uvals[0] = uni++;
+			    add_mapping(basesf, mappings, uvals, 1, gid, pc->cmap_from_cid[font_num], cur);
+			    cur++;
+			}
 		    }
 		    free(uvals);
 		} else
@@ -1894,8 +1896,8 @@ return( ret );
 }
 
 static SplineFont *pdf_loadtype3(struct pdfcontext *pc) {
-    char *enc, *cp, *fontmatrix, *name;
-    double emsize;
+    char *enc, *cp, *s_fontmatrix, *name;
+    double fontmatrix[6], emsize;
     SplineFont *sf;
     int flags = -1;
     int i;
@@ -1910,14 +1912,16 @@ static SplineFont *pdf_loadtype3(struct pdfcontext *pc) {
   goto fail;
     if ( (cp=PSDictHasEntry(&pc->pdfdict,"CharProcs"))==NULL )
   goto fail;
-    if ( (fontmatrix=PSDictHasEntry(&pc->pdfdict,"FontMatrix"))==NULL )
+    if ( (s_fontmatrix=PSDictHasEntry(&pc->pdfdict,"FontMatrix"))==NULL )
   goto fail;
-    if ( sscanf(fontmatrix,"[%lg",&emsize)!=1 || emsize==0 )
+    if ( sscanf(s_fontmatrix,"[%lg %lg %lg %lg %lg %lg]", 
+                &fontmatrix[0], &fontmatrix[1], &fontmatrix[2],
+                &fontmatrix[3], &fontmatrix[4], &fontmatrix[5])!=6 )
   goto fail;
     if ( !pdf_getcharprocs(pc,cp))
   goto fail;
 
-    emsize = 1.0/emsize;
+    emsize = PSEmsizeFromFontMatrix(fontmatrix);
     charprocdict = PSDictCopy(&pc->pdfdict);
 
     sf = SplineFontBlank(charprocdict->next);

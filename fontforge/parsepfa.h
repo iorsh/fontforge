@@ -15,6 +15,7 @@ extern FontDict *_ReadPSFont(FILE *in);
 extern void PSCharsFree(struct pschars *chrs);
 extern void PSDictFree(struct psdict *dict);
 extern void PSFontFree(FontDict *fd);
+extern double PSEmsizeFromFontMatrix(double fontmatrix[6]);
 
 #ifdef __cplusplus
 }

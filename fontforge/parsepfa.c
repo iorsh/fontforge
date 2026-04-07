@@ -39,6 +39,7 @@
 #include "utype.h"
 
 #include <locale.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2760,6 +2761,23 @@ void PSFontFree(FontDict *fd) {
     PSDictFree(fd->blendfontinfo);
 
     free(fd);
+}
+
+double PSEmsizeFromFontMatrix(double fontmatrix[6]) {
+    /* NOTE(iorsh): I have a strong suspicion that emsize should not be derived
+     * from FontMatrix at all. In PDF files the font matrix serves to relate the
+     * glyphs to their parent font or to the document or the parent resource
+     * etc. All this has nothing to do with the emsize, which is a property of
+     * the font itself. I'm keeping mostly intact as a legacy capability for
+     * now, but eventually it could be removed. */
+    double emsize;
+    if (fontmatrix[0] == 0 || fontmatrix[0] == 1)
+        /* Zero or identity font matrix should be ignored */
+        emsize = 1000;
+    else
+        emsize = rint(1 / fontmatrix[0]);
+
+    return emsize;
 }
 
 char **_NamesReadPostScript(FILE *ps) {

@@ -2433,10 +2433,7 @@ static void SplineFontMetaData(SplineFont *sf,struct fontdict *fd) {
     sf->cidversion = fd->cidversion;
     sf->xuid = XUIDFromFD(fd->xuid);
     /*sf->wasbinary = fd->wasbinary;*/
-    if ( fd->fontmatrix[0]==0 )
-	em = 1000;
-    else
-	em = rint(1/fd->fontmatrix[0]);
+    em = PSEmsizeFromFontMatrix(fd->fontmatrix);
     if ( sf->ascent==0 && sf->descent!=0 )
 	sf->ascent = em-sf->descent;
     else if ( fd->fontbb[3]-fd->fontbb[1]==em ) {
