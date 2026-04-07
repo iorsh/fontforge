@@ -338,6 +338,7 @@ void ShowHistogramDlg::on_blues_bar_click(int bar_index,
     size_t placeholder_pos =
         is_primary ? primary_placeholder : secondary_placeholder;
 
+    histogram_.get_window()->set_cursor();
     primary_entry_.set_has_tooltip(false);
     secondary_entry_.set_has_tooltip(false);
 
@@ -358,6 +359,9 @@ void ShowHistogramDlg::on_blues_bar_click(int bar_index,
         target_entry->select_region(error_start, error_start + 1);
         target_entry->set_tooltip_text(
             _("BlueValues come in pairs. Select another."));
+
+        histogram_.get_window()->set_cursor(
+            Gdk::Cursor::create(histogram_.get_display(), "crosshair"));
     }
 }
 
