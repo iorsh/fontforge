@@ -225,7 +225,7 @@ return;
     break;
     }
     if ( sp==NULL ) {
-	IError("Nothing selected");
+	IError("FixIt(): Nothing selected");
 return;
     }
 
@@ -562,7 +562,7 @@ return;
     p->ignorethis = false;
 
     if ( sc!=p->lastcharopened || (CharView *) (sc->views)==NULL ) {
-	if ( p->cvopened!=NULL && CVValid(p->fv->b.sf,p->lastcharopened,p->cvopened) )
+	if ( CVValid(p->fv->b.sf,p->lastcharopened,p->cvopened) )
 	    GDrawDestroyWindow(p->cvopened->gw);
 	p->cvopened = NULL;
 	if ( (CharView *) (sc->views)!=NULL )
@@ -590,7 +590,7 @@ return;
 	GDrawProcessOneEvent(NULL);
     /*GDrawSetVisible(p->explainw,false);*/		/* KDE gets unhappy about this and refuses to show the window later. I don't know why */
 
-    if ( p->cv!=NULL ) {
+    if ( CVValid(p->fv->b.sf,p->sc,p->cv) ) {
 	CVClearSel(p->cv);
     } else {
 	for ( spl = p->sc->layers[p->layer].splines; spl!=NULL; spl = spl->next ) {
@@ -619,7 +619,7 @@ static int missing(struct problems *p,SplineSet *test, SplinePoint *sp) {
     if ( !p->explain )
 return( false );
 
-    if ( p->cv!=NULL )
+    if ( CVValid(p->fv->b.sf,p->sc,p->cv) )
 	spl = p->cv->b.layerheads[p->cv->b.drawmode]->splines;
     else
 	spl = p->sc->layers[p->layer].splines;
@@ -646,7 +646,7 @@ static int missingspline(struct problems *p,SplineSet *test, Spline *spline) {
     if ( !p->explain )
 return( false );
 
-    if ( p->cv!=NULL )
+    if ( CVValid(p->fv->b.sf,p->sc,p->cv) )
 	spl = p->cv->b.layerheads[p->cv->b.drawmode]->splines;
     else
 	spl = p->sc->layers[p->layer].splines;
@@ -2386,7 +2386,7 @@ static int StrMissingGlyph(struct problems *p,char **_str,SplineChar *sc,enum mi
     char *end, ch, *str = *_str, *new_str;
     int off;
     int found = false;
-    SplineFont *sf = p->fv!=NULL ? p->fv->b.sf : p->cv!=NULL ? p->cv->b.sc->parent : p->msc->parent;
+    SplineFont *sf = p->fv!=NULL ? p->fv->b.sf : CVValid(p->fv->b.sf,p->sc,p->cv) ? p->cv->b.sc->parent : p->msc->parent;
     SplineChar *ssc;
     int changed=false;
 
@@ -2690,7 +2690,7 @@ static int CheckForATT(struct problems *p) {
     if ( _sf->cidmaster ) _sf = _sf->cidmaster;
 
     if ( p->selected_records[CID_MissingGlyph] && !p->finish ) {
-	if ( p->cv!=NULL )
+	if ( CVValid(p->fv->b.sf,p->sc,p->cv) )
 	    found = SCMissingGlyph(p,p->cv->b.sc);
 	else if ( p->msc!=NULL )
 	    found = SCMissingGlyph(p,p->msc);
@@ -2715,7 +2715,7 @@ static int CheckForATT(struct problems *p) {
     }
 
     if ( p->selected_records[CID_MissingScriptInFeature] && !p->finish ) {
-	if ( p->cv!=NULL )
+	if ( CVValid(p->fv->b.sf,p->sc,p->cv) )
 	    found = SCMissingScriptFeat(p,_sf,p->cv->b.sc);
 	else if ( p->msc!=NULL )
 	    found = SCMissingScriptFeat(p,_sf,p->msc);
@@ -2748,7 +2748,7 @@ static void DoProbs(struct problems *p) {
 
     p->explain = true;
     ret = CheckForATT(p);
-    if ( p->cv!=NULL ) {
+    if ( CVValid(p->fv->b.sf,p->sc,p->cv) ) {
 	ret |= SCProblems(p->cv,NULL,p);
 	ret |= CIDCheck(p,p->cv->b.sc->orig_pos);
     } else if ( p->msc!=NULL ) {
