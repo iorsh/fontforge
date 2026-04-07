@@ -28,6 +28,8 @@
 #include "application.hpp"
 
 #include <iostream>
+#include <sstream>
+
 #include "gresource.h"
 #include "css_builder.hpp"
 
@@ -46,7 +48,7 @@ Glib::RefPtr<Gtk::Application> GtkApp() {
 
     if (!initialized) {
         app->register_application();
-        // load_legacy_style();
+        load_legacy_style();
 
         initialized = true;
     }
@@ -92,6 +94,10 @@ ColorManager::ColorManager() {
     path.path_append_type(GTK_TYPE_WINDOW);
     style_ctx_->set_path(path);
     style_ctx_->set_screen(Gdk::Screen::get_default());
+
+    custom_color_provider_ = Gtk::CssProvider::create();
+    style_ctx_->add_provider(custom_color_provider_,
+                             GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 }
 
 ColorManager& ColorManager::instance() {
@@ -99,9 +105,39 @@ ColorManager& ColorManager::instance() {
     return manager;
 }
 
-bool ColorManager::lookup_color(const Glib::ustring& color_name,
-                                Gdk::RGBA& color) const {
-    return style_ctx_->lookup_color(color_name, color);
+void ColorManager::register_colors(const ColorMap& colors) {
+    std::ostringstream css;
+    for (const auto& [ff_color_name, theme_color_pair] : colors) {
+        const std::string& theme_color_name = theme_color_pair.first;
+        Gdk::RGBA resolved;
+        if (!style_ctx_->lookup_color(theme_color_name, resolved)) {
+            // Fallback to hardcoded color if the theme color is not found.
+            resolved = theme_color_pair.second;
+            std::cerr << "In the declaration of \"" << ff_color_name
+                      << "\": GTK theme color " << theme_color_name
+                      << " not found, using fallback." << std::endl;
+        }
+        css << "@define-color " << ff_color_name << " " << resolved.to_string()
+            << ";\n";
+    }
+
+    custom_color_provider_->load_from_data(css.str());
+}
+
+void ColorManager::set_color_in_context(const Cairo::RefPtr<Cairo::Context>& cr,
+                                        const std::string& color_name) const {
+    Gdk::RGBA color;
+    // Fallback to Pantone 448 C, the ugliest color in the world.
+    color.set_rgba_u(0x4A00, 0x4100, 0x2A00, 0xFFFF);
+
+    bool result = style_ctx_->lookup_color(color_name, color);
+    if (!result) {
+        std::cerr << "CSS color " << color_name
+                  << " not registered, using fallback." << std::endl;
+    }
+
+    cr->set_source_rgba(color.get_red(), color.get_green(), color.get_blue(),
+                        color.get_alpha());
 }
 
 }  // namespace ff::app

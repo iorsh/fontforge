@@ -26,6 +26,9 @@
  */
 #pragma once
 
+#include <map>
+#include <string>
+
 #include <gtkmm.h>
 
 namespace ff::app {
@@ -34,17 +37,27 @@ Glib::RefPtr<Gtk::Application> GtkApp();
 
 void load_legacy_style();
 
+using ColorMap = std::map<
+    std::string /*fontforge color name*/,
+    std::pair<std::string /*GTK theme color name*/, Gdk::RGBA /*fallback*/>>;
+
 class ColorManager {
  public:
     static ColorManager& instance();
 
-    // Returns false if color name is not found in the current theme.
-    bool lookup_color(const Glib::ustring& color_name, Gdk::RGBA& color) const;
+    // Register custom colors for the dialog, which can be used in CSS. The
+    // colors are inherited from the parent window.
+    void register_colors(const ColorMap& colors);
+
+    // Helper utility to set a registered or standard CSS color in Cairo.
+    void set_color_in_context(const Cairo::RefPtr<Cairo::Context>& cr,
+                              const std::string& color_name) const;
 
  private:
     ColorManager();
 
     Glib::RefPtr<Gtk::StyleContext> style_ctx_;
+    Glib::RefPtr<Gtk::CssProvider> custom_color_provider_;
 };
 
 }  // namespace ff::app

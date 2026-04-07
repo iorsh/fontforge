@@ -26,18 +26,11 @@
  */
 #pragma once
 
-#include <map>
-#include <string>
-
 #include <gtkmm.h>
 
 typedef struct gwindow* GWindow;
 
 namespace ff::dlg {
-
-using ColorMap = std::map<
-    std::string /*fontforge color name*/,
-    std::pair<std::string /*GTK theme color name*/, Gdk::RGBA /*fallback*/>>;
 
 // Modal dialog
 class DialogBase : public Gtk::Dialog {
@@ -50,14 +43,6 @@ class DialogBase : public Gtk::Dialog {
 
     Gtk::ResponseType run();
 
-    // Register custom colors for the dialog, which can be used in CSS. The
-    // colors are inherited from the parent window.
-    void register_colors(const ColorMap& colors);
-
-    void set_color_in_context(const Cairo::RefPtr<Cairo::Context>& cr,
-                              const std::string& color_name) const;
-
- protected:
     // Add Help context to be opened if the user presses "F1".
     void set_help_context(const std::string& file,
                           const std::string& section = "");
@@ -72,7 +57,6 @@ class DialogBase : public Gtk::Dialog {
 
  private:
     GWindow parent_gwindow_ = nullptr;
-    Glib::RefPtr<Gtk::CssProvider> custom_color_provider_;
 
     std::string help_file_, help_section_;
 

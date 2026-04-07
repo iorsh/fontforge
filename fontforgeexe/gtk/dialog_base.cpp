@@ -27,9 +27,6 @@
 
 #include "dialog_base.hpp"
 
-#include <iostream>
-#include <sstream>
-
 extern "C" {
 #include "gutils.h"
 }
@@ -96,54 +93,6 @@ Gtk::ResponseType DialogBase::run() {
     }
 
     return (Gtk::ResponseType)Gtk::Dialog::run();
-}
-
-void DialogBase::register_colors(const ColorMap& colors) {
-    auto style_context = get_style_context();
-    if (!style_context) {
-        return;
-    }
-
-    std::ostringstream css;
-    for (const auto& [ff_color_name, theme_color_pair] : colors) {
-        const std::string& theme_color_name = theme_color_pair.first;
-        Gdk::RGBA resolved;
-        if (!style_context->lookup_color(theme_color_name, resolved)) {
-            // Fallback to hardcoded color if the theme color is not found.
-            resolved = theme_color_pair.second;
-            std::cerr << "In the declaration of \"" << ff_color_name
-                      << "\": GTK theme color " << theme_color_name
-                      << " not found, using fallback." << std::endl;
-        }
-        css << "@define-color " << ff_color_name << " " << resolved.to_string()
-            << ";\n";
-    }
-
-    if (!custom_color_provider_) {
-        custom_color_provider_ = Gtk::CssProvider::create();
-        style_context->add_provider(custom_color_provider_,
-                                    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-    }
-    custom_color_provider_->load_from_data(css.str());
-}
-
-void DialogBase::set_color_in_context(const Cairo::RefPtr<Cairo::Context>& cr,
-                                      const std::string& color_name) const {
-    Gdk::RGBA color;
-    // Fallback to Pantone 448 C, the ugliest color in the world.
-    color.set_rgba_u(0x4A00, 0x4100, 0x2A00, 0xFFFF);
-
-    auto style_context = get_style_context();
-    if (style_context) {
-        bool result = style_context->lookup_color(color_name, color);
-        if (!result) {
-            std::cerr << "CSS color " << color_name
-                      << " not registered, using fallback." << std::endl;
-        }
-    }
-
-    cr->set_source_rgba(color.get_red(), color.get_green(), color.get_blue(),
-                        color.get_alpha());
 }
 
 void DialogBase::set_help_context(const std::string& file,
