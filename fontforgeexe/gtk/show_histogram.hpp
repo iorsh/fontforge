@@ -37,7 +37,7 @@ class ShowHistogramDlg final : public DialogBase {
  private:
     ShowHistogramDlg(GWindow parent, const HistogramData& data);
 
-    Gtk::Box* build_control_box(ff::widgets::Histogram* histogram);
+    Gtk::Box* build_control_box();
 
     // bar_index is the actual bar X-value, not the index in the bars vector.
     std::string get_tooltip_text(int bar_index) const;
@@ -46,6 +46,8 @@ class ShowHistogramDlg final : public DialogBase {
 
     HistogramData data_;
     unsigned int max_value_ = 0;
+
+    widgets::Histogram histogram_;
     widgets::VerifiedEntry primary_entry_;
     widgets::VerifiedEntry secondary_entry_;
 

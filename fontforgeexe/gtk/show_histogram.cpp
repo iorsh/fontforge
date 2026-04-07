@@ -119,7 +119,7 @@ class ErrorLabel : public Gtk::Label {
 }  // namespace
 
 ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
-    : DialogBase(parent), data_(data) {
+    : DialogBase(parent), data_(data), histogram_(this) {
     const UiStrings& ui_strings = kHistogramUiStrings.at(data.type);
 
     register_colors({
@@ -132,7 +132,6 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     set_title(ui_strings.title);
     set_help_context("ui/dialogs/histogram.html");
 
-    auto histogram = Gtk::make_managed<ff::widgets::Histogram>(this);
     std::vector<int> bar_values;
     for (const auto& bar : data.bars) {
         bar_values.push_back(static_cast<int>(bar.count));
@@ -140,31 +139,30 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     if (!bar_values.empty()) {
         max_value_ = *std::max_element(bar_values.cbegin(), bar_values.cend());
     }
-    histogram->set_values(bar_values);
-    histogram->set_lower_bound(data.lower_bound);
-    histogram->set_tooltip_text_callback(
+    histogram_.set_values(bar_values);
+    histogram_.set_lower_bound(data.lower_bound);
+    histogram_.set_tooltip_text_callback(
         [this](int index) { return get_tooltip_text(index); });
     if (data.type == hist_blues) {
-        histogram->set_bar_click_callback(
+        histogram_.set_bar_click_callback(
             [this](int index, bool shift_pressed) {
                 on_blues_bar_click(index, shift_pressed);
             });
     } else {
-        histogram->set_bar_click_callback(
+        histogram_.set_bar_click_callback(
             [this](int index, bool shift_pressed) {
                 on_stem_bar_click(index, shift_pressed);
             });
     }
-    histogram->set_bar_width(s_bar_width);
-    histogram->set_moving_average_window(s_moving_average);
+    histogram_.set_bar_width(s_bar_width);
+    histogram_.set_moving_average_window(s_moving_average);
 
     auto histogram_scroll = Gtk::make_managed<Gtk::ScrolledWindow>();
     histogram_scroll->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_NEVER);
     histogram_scroll->set_overlay_scrolling(false);
-    histogram_scroll->add(*histogram);
+    histogram_scroll->add(histogram_);
     get_content_area()->pack_start(*histogram_scroll, Gtk::PACK_EXPAND_WIDGET);
-    get_content_area()->pack_start(*build_control_box(histogram),
-                                   Gtk::PACK_SHRINK);
+    get_content_area()->pack_start(*build_control_box(), Gtk::PACK_SHRINK);
 
     auto primary_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
@@ -225,8 +223,7 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     show_all();
 }
 
-Gtk::Box* ShowHistogramDlg::build_control_box(
-    ff::widgets::Histogram* histogram) {
+Gtk::Box* ShowHistogramDlg::build_control_box() {
     auto controls_box = Gtk::make_managed<Gtk::Box>(
         Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
 
@@ -242,9 +239,9 @@ Gtk::Box* ShowHistogramDlg::build_control_box(
     average_entry->set_width_chars(4);
     average_entry->set_valign(Gtk::ALIGN_CENTER);
     average_entry->set_activates_default();
-    average_entry->signal_value_changed().connect([average_entry, histogram]() {
+    average_entry->signal_value_changed().connect([average_entry, this]() {
         s_moving_average = average_entry->get_value_as_int();
-        histogram->set_moving_average_window(s_moving_average);
+        histogram_.set_moving_average_window(s_moving_average);
     });
     controls_box->pack_start(*average_entry, Gtk::PACK_SHRINK);
 
@@ -259,11 +256,10 @@ Gtk::Box* ShowHistogramDlg::build_control_box(
     bar_width_entry->set_width_chars(4);
     bar_width_entry->set_valign(Gtk::ALIGN_CENTER);
     bar_width_entry->set_activates_default();
-    bar_width_entry->signal_value_changed().connect(
-        [bar_width_entry, histogram]() {
-            s_bar_width = bar_width_entry->get_value_as_int();
-            histogram->set_bar_width(s_bar_width);
-        });
+    bar_width_entry->signal_value_changed().connect([bar_width_entry, this]() {
+        s_bar_width = bar_width_entry->get_value_as_int();
+        histogram_.set_bar_width(s_bar_width);
+    });
     controls_box->pack_start(*bar_width_entry, Gtk::PACK_SHRINK);
 
     return controls_box;
