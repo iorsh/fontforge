@@ -2811,6 +2811,23 @@ static void DummyFindProblems(CharView *cv) {
     DoProbs(&p);
 }
 
+static int SFGetRepresentativeWidth(SplineFont* sf, bool vertical) {
+    // Retrieve ideographic space character for vertical fonts.
+    SplineChar* sc = SFGetChar(sf, vertical ? 0x3000 : ' ', NULL);
+    if (SCWorthOutputting(sc)) {
+        return vertical ? sc->vwidth : sc->width;
+    }
+
+    // Try to find some non-trivial glyph
+    for (int i = 0; i < sf->glyphcnt; ++i)
+        if (SCWorthOutputting(sf->glyphs[i])) {
+            int width = vertical ? sf->glyphs[i]->vwidth : sf->glyphs[i]->width;
+            if (width != 0) return width;
+        }
+
+    return 0;
+}
+
 static std::vector<ProblemRecord> pr_points = {
     {CID_NonIntegral, N_("Non-_integral coordinates"),
      N_("The coordinates of all points and control points in truetype "
@@ -3040,8 +3057,6 @@ static void adjust_problem_records(FontView* fv,
     SplineFont* sf = fv->b.sf;
 
     if (lastsf != sf) {
-        SplineChar* ssc = SFGetChar(sf, ' ', NULL);
-
         assert(problem_tabs[6].records[0].cid == CID_BBYMax);
         problem_tabs[6].records[0].value = sf->ascent;
 
@@ -3052,10 +3067,10 @@ static void adjust_problem_records(FontView* fv,
         problem_tabs[6].records[2].value = sf->ascent + sf->descent;
 
         assert(problem_tabs[6].records[4].cid == CID_AdvanceWidth);
-        problem_tabs[6].records[4].value = ssc ? ssc->width : 0;
+        problem_tabs[6].records[4].value = SFGetRepresentativeWidth(sf, false);
 
         assert(problem_tabs[6].records[5].cid == CID_VAdvanceWidth);
-        problem_tabs[6].records[5].value = sf->ascent + sf->descent;
+        problem_tabs[6].records[5].value = SFGetRepresentativeWidth(sf, true);
 
         lastsf = sf;
     }
