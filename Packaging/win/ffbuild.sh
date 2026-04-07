@@ -549,8 +549,10 @@ fi
 
 
 printf "FontForge Windows build ($ARCHNUM-bit)\r\n$current_date\r\n$actual_hash [$actual_branch]\r\nBased on master: $version_hash\r\n\r\n" > $RELEASE/VERSION.txt
-printf "A copy of the changelog follows.\r\n\r\n" >> $RELEASE/VERSION.txt
-cat $RELEASE/CHANGELOG.txt >> $RELEASE/VERSION.txt
+printf "Latest changes:\r\n\r\n" >> $RELEASE/VERSION.txt
+git -C "$FFPATH" log -n 100 --date=short \
+    --pretty=format:'%ad [%an] %s%n%b%n' | sed 's/$/\r/' >> $RELEASE/VERSION.txt
+printf "\r\n" >> $RELEASE/VERSION.txt
 
 if (($makedebug)); then
     log_note "Adding in debugging utilities..."
