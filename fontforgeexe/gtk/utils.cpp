@@ -30,15 +30,17 @@
 #include <glib/gprintf.h>
 #include <iostream>
 
+#include "application.hpp"
+
 namespace ff::ui_utils {
 
 static Cairo::TextExtents ui_font_extents(const std::string& sample_text) {
     Cairo::RefPtr<Cairo::ImageSurface> srf =
         Cairo::ImageSurface::create(Cairo::Format::FORMAT_RGB24, 100, 100);
     Cairo::RefPtr<Cairo::Context> cairo_context = Cairo::Context::create(srf);
-    Glib::RefPtr<Gtk::StyleContext> style_context = Gtk::StyleContext::create();
+    Pango::FontDescription font =
+        ff::app::ColorManager::instance().style_context()->get_font();
 
-    Pango::FontDescription font = style_context->get_font();
     cairo_context->select_font_face(font.get_family(),
                                     Cairo::FontSlant::FONT_SLANT_NORMAL,
                                     Cairo::FontWeight::FONT_WEIGHT_NORMAL);

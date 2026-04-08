@@ -45,6 +45,8 @@ class ColorManager {
  public:
     static ColorManager& instance();
 
+    Glib::RefPtr<Gtk::StyleContext> style_context() const { return style_ctx_; }
+
     // Register custom colors for the dialog, which can be used in CSS. The
     // colors are inherited from the parent window.
     void register_colors(const ColorMap& colors);
