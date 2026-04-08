@@ -76,6 +76,7 @@ Histogram::Histogram(dlg::DialogBase* dialog) : dialog_(dialog) {
 
 void Histogram::set_values(const std::vector<int>& values) {
     values_ = values;
+    avg_values_ = moving_average(values_, moving_average_window_);
     update_size_request();
 }
 
@@ -86,6 +87,7 @@ void Histogram::set_bar_width(int width_px) {
 
 void Histogram::set_moving_average_window(int window_size) {
     moving_average_window_ = std::max(1, window_size);
+    avg_values_ = moving_average(values_, moving_average_window_);
     queue_draw();
 }
 
@@ -95,7 +97,7 @@ void Histogram::set_lower_bound(int lower_bound) {
 }
 
 void Histogram::set_tooltip_text_callback(
-    std::function<std::string(int)> tooltip_text_callback) {
+    std::function<std::string(int, double)> tooltip_text_callback) {
     tooltip_text_cb_ = std::move(tooltip_text_callback);
 }
 
@@ -221,16 +223,13 @@ void Histogram::draw_moving_average(const Cairo::RefPtr<Cairo::Context>& cr,
     }
     const double bar_max_height = std::max(1.0, bar_base - kOuterMarginPx);
 
-    const std::vector<double> avg_values =
-        moving_average(values_, moving_average_window_);
-
     app::ColorManager::instance().set_color_in_context(
         cr, "ff_histogram_moving_average");
     cr->set_line_width(1.5);
 
     bool started = false;
-    for (size_t i = 0; i < avg_values.size(); ++i) {
-        const double norm = avg_values[i] / max_value;
+    for (size_t i = 0; i < avg_values_.size(); ++i) {
+        const double norm = avg_values_[i] / max_value;
         const double x = kOuterMarginPx + i * (bar_width_px_ + kBarGapPx) +
                          bar_width_px_ / 2.0;
         const double y = bar_base - norm * bar_max_height;
@@ -324,7 +323,8 @@ bool Histogram::on_query_tooltip_event(
     tooltip->set_tip_area(
         Gdk::Rectangle(bar_x, 0, bar_width_px_, static_cast<int>(height)));
     if (tooltip_text_cb_) {
-        tooltip->set_text(tooltip_text_cb_(index));
+        tooltip->set_text(
+            tooltip_text_cb_(index, avg_values_[index - lower_bound_]));
     }
     return true;
 }

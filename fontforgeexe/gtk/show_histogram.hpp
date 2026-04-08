@@ -40,7 +40,7 @@ class ShowHistogramDlg final : public DialogBase {
     Gtk::Box* build_control_box();
 
     // bar_index is the actual bar X-value, not the index in the bars vector.
-    std::string get_tooltip_text(int bar_index) const;
+    std::string get_tooltip_text(int bar_index, double average) const;
     void on_stem_bar_click(int bar_index, bool shift_pressed);
     void on_blues_bar_click(int bar_index, bool /*shift_pressed*/);
 
@@ -48,6 +48,7 @@ class ShowHistogramDlg final : public DialogBase {
     unsigned int max_value_ = 0;
 
     widgets::Histogram histogram_;
+    Gtk::SpinButton average_entry_;
     widgets::VerifiedEntry primary_entry_;
     widgets::VerifiedEntry secondary_entry_;
 

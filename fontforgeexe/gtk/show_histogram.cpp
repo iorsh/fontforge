@@ -141,8 +141,9 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     }
     histogram_.set_values(bar_values);
     histogram_.set_lower_bound(data.lower_bound);
-    histogram_.set_tooltip_text_callback(
-        [this](int index) { return get_tooltip_text(index); });
+    histogram_.set_tooltip_text_callback([this](int index, double average) {
+        return get_tooltip_text(index, average);
+    });
     if (data.type == hist_blues) {
         histogram_.set_bar_click_callback(
             [this](int index, bool shift_pressed) {
@@ -232,18 +233,18 @@ Gtk::Box* ShowHistogramDlg::build_control_box() {
     average_label->set_valign(Gtk::ALIGN_CENTER);
     controls_box->pack_start(*average_label, Gtk::PACK_SHRINK);
 
-    auto average_entry = Gtk::make_managed<Gtk::SpinButton>(
+    average_entry_.configure(
         Gtk::Adjustment::create(s_moving_average, 1, 99, 2, 10, 0), 1, 0);
-    average_entry->set_numeric(true);
-    average_entry->set_snap_to_ticks(true);
-    average_entry->set_width_chars(4);
-    average_entry->set_valign(Gtk::ALIGN_CENTER);
-    average_entry->set_activates_default();
-    average_entry->signal_value_changed().connect([average_entry, this]() {
-        s_moving_average = average_entry->get_value_as_int();
+    average_entry_.set_numeric(true);
+    average_entry_.set_snap_to_ticks(true);
+    average_entry_.set_width_chars(4);
+    average_entry_.set_valign(Gtk::ALIGN_CENTER);
+    average_entry_.set_activates_default();
+    average_entry_.signal_value_changed().connect([this]() {
+        s_moving_average = average_entry_.get_value_as_int();
         histogram_.set_moving_average_window(s_moving_average);
     });
-    controls_box->pack_start(*average_entry, Gtk::PACK_SHRINK);
+    controls_box->pack_start(average_entry_, Gtk::PACK_SHRINK);
 
     auto bar_width_label = Gtk::make_managed<Gtk::Label>(_("Bar width:"));
     bar_width_label->set_halign(Gtk::ALIGN_START);
@@ -265,7 +266,8 @@ Gtk::Box* ShowHistogramDlg::build_control_box() {
     return controls_box;
 }
 
-std::string ShowHistogramDlg::get_tooltip_text(int bar_index) const {
+std::string ShowHistogramDlg::get_tooltip_text(int bar_index,
+                                               double average) const {
     if (bar_index >= (int)data_.bars.size() + data_.lower_bound) {
         return "";
     }
@@ -274,7 +276,13 @@ std::string ShowHistogramDlg::get_tooltip_text(int bar_index) const {
     const char* label_fmt =
         (data_.type == hist_blues) ? _("Position: %d") : _("Width: %d");
     char* p_width_label = smprintf(label_fmt, bar_index);
-    char* p_count_label = smprintf(_("Count: %u"), bar.count);
+    char* p_count_label;
+    if (average_entry_.get_value_as_int() > 1) {
+        p_count_label =
+            smprintf(_("Count: %u (average: %.2f)"), bar.count, average);
+    } else {
+        p_count_label = smprintf(_("Count: %u"), bar.count);
+    }
     std::string tooltip_text(p_width_label);
     tooltip_text += "\n" + std::string(p_count_label);
     free(p_width_label);

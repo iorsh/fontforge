@@ -47,7 +47,8 @@ class Histogram : public Gtk::DrawingArea {
     // int bar_index argument is the actual bar X-value, not the index in the
     // bars vector.
     void set_tooltip_text_callback(
-        std::function<std::string(int bar_index)> tooltip_text_callback);
+        std::function<std::string(int bar_index, double average)>
+            tooltip_text_callback);
     void set_bar_click_callback(
         std::function<void(int bar_index, bool shift_pressed)>
             bar_click_callback);
@@ -72,10 +73,11 @@ class Histogram : public Gtk::DrawingArea {
                              double bar_base);
 
     std::vector<int> values_;
+    std::vector<double> avg_values_;
     int bar_width_px_ = 10;
     int moving_average_window_ = 1;
     int lower_bound_ = 0;
-    std::function<std::string(int bar_index)> tooltip_text_cb_;
+    std::function<std::string(int bar_index, double average)> tooltip_text_cb_;
     std::function<void(int bar_index, bool shift_pressed)> bar_click_cb_;
 
     // Needed for CSS color management.
