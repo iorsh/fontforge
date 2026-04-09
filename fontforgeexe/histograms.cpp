@@ -26,6 +26,7 @@
  */
 
 #include <math.h>
+#include <algorithm>
 
 #include "fontforge.h"
 #include "autohint.h"
@@ -178,8 +179,14 @@ void SFHistogram(GWindow parent, SplineFont* sf, int layer,
     // Convert map to array for use in the histogram. Array of bars is
     // initialized with zeros.
     dlg_data.bars.resize(upper_bound - dlg_data.lower_bound + 1);
-    for (const auto& [key, value] : values_map)
+    for (auto& [key, value] : values_map) {
+        // Purge duplicate glyph names from glyph list.
+        auto last =
+            std::unique(value.glyph_names.begin(), value.glyph_names.end());
+        value.glyph_names.erase(last, value.glyph_names.end());
+
         dlg_data.bars[key - dlg_data.lower_bound] = value;
+    }
 
     dlg_data.type = which;
     dlg_data.small_selection_warning = CheckSmallSelection(selected, map, sf);
