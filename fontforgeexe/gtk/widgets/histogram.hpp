@@ -27,17 +27,16 @@
 #pragma once
 
 #include <functional>
-#include <gtkmm.h>
 #include <string>
 #include <vector>
 
-#include "../dialog_base.hpp"
+#include <gtkmm.h>
 
 namespace ff::widgets {
 
 class Histogram : public Gtk::DrawingArea {
  public:
-    Histogram(dlg::DialogBase* dialog);
+    Histogram();
 
     void set_values(const std::vector<int>& values);
     void set_bar_width(int width_px);
@@ -79,10 +78,6 @@ class Histogram : public Gtk::DrawingArea {
     int lower_bound_ = 0;
     std::function<std::string(int bar_index, double average)> tooltip_text_cb_;
     std::function<void(int bar_index, bool shift_pressed)> bar_click_cb_;
-
-    // Needed for CSS color management.
-    // TODO(iorsh): move color management to Gtk::Application level.
-    dlg::DialogBase* dialog_ = nullptr;
 };
 
 }  // namespace ff::widgets

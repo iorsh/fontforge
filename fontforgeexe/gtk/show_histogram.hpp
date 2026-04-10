@@ -38,6 +38,10 @@ class ShowHistogramDlg final : public DialogBase {
     ShowHistogramDlg(GWindow parent, const HistogramData& data);
 
     Gtk::Box* build_control_box();
+    Gtk::Box* build_entry_box(const Glib::ustring& label,
+                              const Glib::ustring& value,
+                              widgets::VerifiedEntry& entry,
+                              Glib::RefPtr<Gtk::SizeGroup> label_group);
 
     // bar_index is the actual bar X-value, not the index in the bars vector.
     std::string get_tooltip_text(int bar_index, double average) const;

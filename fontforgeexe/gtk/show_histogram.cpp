@@ -119,7 +119,7 @@ class ErrorLabel : public Gtk::Label {
 }  // namespace
 
 ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
-    : DialogBase(parent), data_(data), histogram_(this) {
+    : DialogBase(parent), data_(data) {
     const UiStrings& ui_strings = kHistogramUiStrings.at(data.type);
 
     app::ColorManager::instance().register_colors({
@@ -165,37 +165,15 @@ ShowHistogramDlg::ShowHistogramDlg(GWindow parent, const HistogramData& data)
     get_content_area()->pack_start(*histogram_scroll, Gtk::PACK_EXPAND_WIDGET);
     get_content_area()->pack_start(*build_control_box(), Gtk::PACK_SHRINK);
 
-    auto primary_box = Gtk::make_managed<Gtk::Box>(
-        Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
-    auto primary_label =
-        Gtk::make_managed<Gtk::Label>(ui_strings.primary_label + ":");
     auto label_group = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
-    primary_label->set_xalign(0.0);
-    primary_label->set_valign(Gtk::ALIGN_CENTER);
-    label_group->add_widget(*primary_label);
-    primary_box->pack_start(*primary_label, Gtk::PACK_SHRINK);
-
-    primary_entry_.set_text(data_.initial_values.primary);
-    primary_entry_.set_hexpand(true);
-    primary_entry_.set_activates_default();
-    primary_entry_.set_verifier(dict_value_verifier);
-    primary_box->pack_start(primary_entry_, Gtk::PACK_EXPAND_WIDGET);
+    auto primary_box =
+        build_entry_box(ui_strings.primary_label, data_.initial_values.primary,
+                        primary_entry_, label_group);
     get_content_area()->pack_start(*primary_box, Gtk::PACK_SHRINK);
 
-    auto secondary_box = Gtk::make_managed<Gtk::Box>(
-        Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
-    auto secondary_label =
-        Gtk::make_managed<Gtk::Label>(ui_strings.secondary_label + ":");
-    secondary_label->set_xalign(0.0);
-    secondary_label->set_valign(Gtk::ALIGN_CENTER);
-    label_group->add_widget(*secondary_label);
-    secondary_box->pack_start(*secondary_label, Gtk::PACK_SHRINK);
-
-    secondary_entry_.set_text(data_.initial_values.secondary);
-    secondary_entry_.set_hexpand(true);
-    secondary_entry_.set_activates_default();
-    secondary_entry_.set_verifier(dict_value_verifier);
-    secondary_box->pack_start(secondary_entry_, Gtk::PACK_EXPAND_WIDGET);
+    auto secondary_box = build_entry_box(ui_strings.secondary_label,
+                                         data_.initial_values.secondary,
+                                         secondary_entry_, label_group);
     get_content_area()->pack_start(*secondary_box, Gtk::PACK_SHRINK);
 
     if (data.small_selection_warning) {
@@ -237,7 +215,7 @@ Gtk::Box* ShowHistogramDlg::build_control_box() {
         Gtk::Adjustment::create(s_moving_average, 1, 99, 2, 10, 0), 1, 0);
     average_entry_.set_numeric(true);
     average_entry_.set_snap_to_ticks(true);
-    average_entry_.set_width_chars(4);
+    average_entry_.set_width_chars(2);
     average_entry_.set_valign(Gtk::ALIGN_CENTER);
     average_entry_.set_activates_default();
     average_entry_.signal_value_changed().connect([this]() {
@@ -254,7 +232,7 @@ Gtk::Box* ShowHistogramDlg::build_control_box() {
     auto bar_width_entry = Gtk::make_managed<Gtk::SpinButton>(
         Gtk::Adjustment::create(s_bar_width, 1, 100, 1, 5, 0), 1, 0);
     bar_width_entry->set_numeric(true);
-    bar_width_entry->set_width_chars(4);
+    bar_width_entry->set_width_chars(2);
     bar_width_entry->set_valign(Gtk::ALIGN_CENTER);
     bar_width_entry->set_activates_default();
     bar_width_entry->signal_value_changed().connect([bar_width_entry, this]() {
@@ -264,6 +242,26 @@ Gtk::Box* ShowHistogramDlg::build_control_box() {
     controls_box->pack_start(*bar_width_entry, Gtk::PACK_SHRINK);
 
     return controls_box;
+}
+
+Gtk::Box* ShowHistogramDlg::build_entry_box(
+    const Glib::ustring& label, const Glib::ustring& value,
+    widgets::VerifiedEntry& entry, Glib::RefPtr<Gtk::SizeGroup> label_group) {
+    auto entry_box = Gtk::make_managed<Gtk::Box>(
+        Gtk::ORIENTATION_HORIZONTAL, 0.5 * ff::ui_utils::ui_font_em_size());
+    auto label_widget = Gtk::make_managed<Gtk::Label>(label + ":");
+    label_widget->set_xalign(0.0);
+    label_widget->set_valign(Gtk::ALIGN_CENTER);
+    label_group->add_widget(*label_widget);
+    entry_box->pack_start(*label_widget, Gtk::PACK_SHRINK);
+
+    entry.set_text(value);
+    entry.set_hexpand(true);
+    entry.set_activates_default();
+    entry.set_verifier(dict_value_verifier);
+    entry_box->pack_start(entry, Gtk::PACK_EXPAND_WIDGET);
+
+    return entry_box;
 }
 
 std::string ShowHistogramDlg::get_tooltip_text(int bar_index,

@@ -62,7 +62,7 @@ static constexpr int kAxisTickPx = 4;
 static constexpr int kAxisLabelGapPx = 2;
 static constexpr int kAxisLabelBottomPx = 2;
 
-Histogram::Histogram(dlg::DialogBase* dialog) : dialog_(dialog) {
+Histogram::Histogram() {
     set_hexpand(true);
     set_vexpand(true);
     set_has_tooltip(true);
