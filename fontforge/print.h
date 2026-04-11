@@ -93,8 +93,12 @@ typedef struct printinfo {
     /* In most print styles sfcnt==1 and we only print one font, but with */
     /*  sample text there may be many logical fonts. And each one may need to */
     /*  be represented by many actual fonts to encode all our glyphs */
-    int sfcnt, sfmax, sfid;
-    struct sfbits *sfbits;
+    int sfid;
+#ifdef __cplusplus
+    std::vector<struct sfbits>* sfbits = nullptr;
+#else
+    void* sfbits;
+#endif
     int intext;
     struct layoutinfo *sample;
     int wassfid, wasfn;

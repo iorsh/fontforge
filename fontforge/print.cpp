@@ -133,10 +133,10 @@ struct fontdesc {
     int flags;
 };
 
-static int figure_fontdesc(PI *pi, int sfid, struct fontdesc *fd, int fonttype, int fontstream) {
+static int figure_fontdesc(PI *pi, sfbits& sfbit, struct fontdesc *fd, int fonttype, int fontstream) {
     int i, j, first = true;
-    SplineFont *sf = pi->sfbits[sfid].sf;
-    EncMap *map = pi->sfbits[sfid].map;
+    SplineFont *sf = sfbit.sf;
+    EncMap *map = sfbit.map;
     DBounds b;
     int capcnt=0, xhcnt=0, wcnt=0;
     double samewidth = -1;
@@ -281,11 +281,10 @@ static int figure_fontdesc(PI *pi, int sfid, struct fontdesc *fd, int fonttype, 
 return( fd_num );
 }
 
-static void dump_pfb_encoding(PI *pi,int sfid, int base,int font_d_ref) {
+static void dump_pfb_encoding(PI *pi, sfbits& sfbit, int base,int font_d_ref) {
     int i, first=-1, last, gid;
-    struct sfbits *sfbit = &pi->sfbits[sfid];
-    SplineFont *sf = sfbit->sf;
-    EncMap *map = sfbit->map;
+    SplineFont *sf = sfbit.sf;
+    EncMap *map = sfbit.map;
 
     for ( i=base; i<base+256 && i<map->enccount; ++i ) {
 	gid = map->map[i];
@@ -296,8 +295,8 @@ static void dump_pfb_encoding(PI *pi,int sfid, int base,int font_d_ref) {
     }
     if ( first==-1 )
 return;			/* Nothing in this range */
-    sfbit->our_font_objs[sfbit->next_font] = pi->objects.offsets->size();
-    sfbit->fonts[base/256] = sfbit->next_font++;
+    sfbit.our_font_objs[sfbit.next_font] = pi->objects.offsets->size();
+    sfbit.fonts[base/256] = sfbit.next_font++;
 
     pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  <<\n" );
@@ -340,50 +339,49 @@ return;			/* Nothing in this range */
     }
 }
 
-static void pdf_dump_type1(PI *pi,int sfid) {
-    struct sfbits *sfbit = &pi->sfbits[sfid];
+static void pdf_dump_type1(PI *pi, sfbits& sfbit) {
     int font_stream = pi->objects.offsets->size();
     int fd_obj;
     int length1, length2, length3;
     int i;
     struct fontdesc fd;
 
-    length1 = pfb_getsectionlength(sfbit->fontfile,1,true);
-    length2 = pfb_getsectionlength(sfbit->fontfile,2,true);
-    length3 = pfb_getsectionlength(sfbit->fontfile,1,true);
+    length1 = pfb_getsectionlength(sfbit.fontfile,1,true);
+    length2 = pfb_getsectionlength(sfbit.fontfile,2,true);
+    length3 = pfb_getsectionlength(sfbit.fontfile,1,true);
     pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "<< /Length %d /Length1 %d /Length2 %d /Length3 %d>>\n",
 	    length1+length2+length3, length1, length2, length3 );
     fprintf( pi->out, "stream\n" );
-    rewind(sfbit->fontfile);
-    length1 = pfb_getsectionlength(sfbit->fontfile,1,false);
+    rewind(sfbit.fontfile);
+    length1 = pfb_getsectionlength(sfbit.fontfile,1,false);
     for ( i=0; i<length1; ++i ) {
-	int ch = getc(sfbit->fontfile);
+	int ch = getc(sfbit.fontfile);
 	putc(ch,pi->out);
     }
-    while ( (length2 = pfb_getsectionlength(sfbit->fontfile,2,false))!= -1 ) {
+    while ( (length2 = pfb_getsectionlength(sfbit.fontfile,2,false))!= -1 ) {
 	for ( i=0; i<length2; ++i ) {
-	    int ch = getc(sfbit->fontfile);
+	    int ch = getc(sfbit.fontfile);
 	    putc(ch,pi->out);
 	}
     }
-    length3 = pfb_getsectionlength(sfbit->fontfile,1,false);
+    length3 = pfb_getsectionlength(sfbit.fontfile,1,false);
     for ( i=0; i<length3; ++i ) {
-	int ch = getc(sfbit->fontfile);
+	int ch = getc(sfbit.fontfile);
 	putc(ch,pi->out);
     }
     fprintf( pi->out, "\nendstream\n" );
     fprintf( pi->out, "endobj\n\n" );
 
-    fd_obj = figure_fontdesc(pi, sfid, &fd,1,font_stream);
+    fd_obj = figure_fontdesc(pi, sfbit, &fd,1,font_stream);
 
-    sfbit->our_font_objs = (int *)malloc((sfbit->map->enccount/256+1)*sizeof(int));
-    sfbit->fonts = (int *)malloc((sfbit->map->enccount/256+1)*sizeof(int));
-    for ( i=0; i<sfbit->map->enccount; i += 256 ) {
-	sfbit->fonts[i/256] = -1;
-	dump_pfb_encoding(pi,sfid,i,fd_obj);
+    sfbit.our_font_objs = (int *)malloc((sfbit.map->enccount/256+1)*sizeof(int));
+    sfbit.fonts = (int *)malloc((sfbit.map->enccount/256+1)*sizeof(int));
+    for ( i=0; i<sfbit.map->enccount; i += 256 ) {
+	sfbit.fonts[i/256] = -1;
+	dump_pfb_encoding(pi, sfbit,i,fd_obj);
     }
-    sfbit->twobyte = false;
+    sfbit.twobyte = false;
 }
 
 struct opac_state {
@@ -869,12 +867,11 @@ static int pdf_charproc(PI *pi, SplineChar *sc) {
 return( ret );
 }
 
-static void dump_pdf3_encoding(PI *pi,int sfid, int base,DBounds *bb, int notdefproc) {
+static void dump_pdf3_encoding(PI *pi, sfbits& sfbit, int base,DBounds *bb, int notdefproc) {
     int i, first=-1, last, gid;
     int charprocs[256];
-    struct sfbits *sfbit = &pi->sfbits[sfid];
-    SplineFont *sf = sfbit->sf;
-    EncMap *map = sfbit->map;
+    SplineFont *sf = sfbit.sf;
+    EncMap *map = sfbit.map;
     int respos, resobj;
 
     for ( i=base; i<base+256 && i<map->enccount; ++i ) if ( (gid=map->map[i])!=-1 ) {
@@ -892,8 +889,8 @@ return;			/* Nothing in this range */
 	    charprocs[i-base] = pdf_charproc(pi,sf->glyphs[gid]);
     }
 
-    sfbit->our_font_objs[sfbit->next_font] = pi->objects.offsets->size();
-    sfbit->fonts[base/256] = sfbit->next_font++;
+    sfbit.our_font_objs[sfbit.next_font] = pi->objects.offsets->size();
+    sfbit.fonts[base/256] = sfbit.next_font++;
 
     pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  <<\n" );
@@ -957,14 +954,13 @@ return;			/* Nothing in this range */
     fseek(pi->out,0,SEEK_END);
 }
 
-static void pdf_gen_type3(PI *pi,int sfid) {
+static void pdf_gen_type3(PI *pi, sfbits& sfbit) {
     int i, notdefproc;
     DBounds bb;
     SplineChar sc;
     Layer layers[2];
-    struct sfbits *sfbit = &pi->sfbits[sfid];
-    SplineFont *sf = sfbit->sf;
-    EncMap *map = sfbit->map;
+    SplineFont *sf = sfbit.sf;
+    EncMap *map = sfbit.map;
     int notdefpos = SFFindNotdef(sf,-2);
 
     if ( notdefpos!=-1 )
@@ -981,49 +977,48 @@ static void pdf_gen_type3(PI *pi,int sfid) {
     }
 
     SplineFontFindBounds(sf,&bb);
-    sfbit->our_font_objs = (int *)malloc((map->enccount/256+1)*sizeof(int *));
-    sfbit->fonts = (int *)malloc((map->enccount/256+1)*sizeof(int *));
+    sfbit.our_font_objs = (int *)malloc((map->enccount/256+1)*sizeof(int *));
+    sfbit.fonts = (int *)malloc((map->enccount/256+1)*sizeof(int *));
     for ( i=0; i<map->enccount; i += 256 ) {
-	sfbit->fonts[i/256] = -1;
-	dump_pdf3_encoding(pi,sfid,i,&bb,notdefproc);
+	sfbit.fonts[i/256] = -1;
+	dump_pdf3_encoding(pi,sfbit,i,&bb,notdefproc);
     }
-    sfbit->twobyte = false;
+    sfbit.twobyte = false;
 }
 
-static void pdf_build_type0(PI *pi, int sfid) {
+static void pdf_build_type0(PI *pi, sfbits& sfbit) {
     int cidfont_ref, fd_obj, font_stream = pi->objects.offsets->size();
     long len;
     int ch, cidmax, i,j;
     struct fontdesc fd;
-    struct sfbits *sfbit = &pi->sfbits[sfid];
-    SplineFont *sf = sfbit->sf;
+    SplineFont *sf = sfbit.sf;
     SplineFont *cidmaster = sf->cidmaster!=NULL?sf->cidmaster:sf;
     uint16_t *widths;
     int defwidth = sf->ascent+sf->descent;
 
-    fseek( sfbit->fontfile,0,SEEK_END);
-    len = ftell(sfbit->fontfile );
+    fseek( sfbit.fontfile,0,SEEK_END);
+    len = ftell(sfbit.fontfile );
 
     pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "<< /Length %ld ", len );
-    if ( sfbit->istype42cid )
+    if ( sfbit.istype42cid )
 	fprintf( pi->out, "/Length1 %ld>>\n", len );
     else
 	fprintf( pi->out, "/Subtype /CIDFontType0C>>\n" );
     fprintf( pi->out, "stream\n" );
-    rewind(sfbit->fontfile);
-    while ( (ch=getc(sfbit->fontfile))!=EOF )
+    rewind(sfbit.fontfile);
+    while ( (ch=getc(sfbit.fontfile))!=EOF )
 	putc(ch,pi->out);
     fprintf( pi->out, "\nendstream\n" );
     fprintf( pi->out, "endobj\n\n" );
 
-    fd_obj = figure_fontdesc(pi, sfid, &fd,sfbit->istype42cid?2:3,font_stream);
+    fd_obj = figure_fontdesc(pi, sfbit, &fd,sfbit.istype42cid?2:3,font_stream);
 
     cidfont_ref = pi->objects.offsets->size();
     pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  <<\n" );
     fprintf( pi->out, "    /Type /Font\n" );
-    fprintf( pi->out, "    /Subtype /CIDFontType%d\n", sfbit->istype42cid?2:0 );
+    fprintf( pi->out, "    /Subtype /CIDFontType%d\n", sfbit.istype42cid?2:0 );
     fprintf( pi->out, "    /BaseFont /%s\n", cidmaster->fontname);
     if ( cidmaster->cidregistry!=NULL && strmatch(cidmaster->cidregistry,"Adobe")==0 )
 	fprintf( pi->out, "    /CIDSystemInfo << /Registry (%s) /Ordering (%s) /Supplement %d >>\n",
@@ -1033,7 +1028,7 @@ static void pdf_build_type0(PI *pi, int sfid) {
     fprintf( pi->out, "    /DW %d\n", defwidth );
     fprintf( pi->out, "    /W %lu 0 R\n", pi->objects.offsets->size() );
     fprintf( pi->out, "    /FontDescriptor %d 0 R\n", fd_obj );
-    if ( sfbit->istype42cid )
+    if ( sfbit.istype42cid )
 	fprintf( pi->out, "    /CIDToGIDMap /Identity\n" );
     fprintf( pi->out, "  >>\n" );
     fprintf( pi->out, "endobj\n" );
@@ -1096,15 +1091,15 @@ static void pdf_build_type0(PI *pi, int sfid) {
     fprintf( pi->out, "\n" );
 
     /* OK, now we've dumped up the CID part, we need to create a Type0 Font */
-    sfbit->our_font_objs = (int *)malloc(sizeof(int));
-    sfbit->our_font_objs[0] = pi->objects.offsets->size();
-    sfbit->next_font = 1;
+    sfbit.our_font_objs = (int *)malloc(sizeof(int));
+    sfbit.our_font_objs[0] = pi->objects.offsets->size();
+    sfbit.next_font = 1;
     pdf_addobject(pi->objects, pi->out);
     fprintf( pi->out, "  <<\n" );
     fprintf( pi->out, "    /Type /Font\n" );
     fprintf( pi->out, "    /Subtype /Type0\n" );
-    if ( sfbit->istype42cid )
-	fprintf( pi->out, "    /BaseFont /%s\n", sfbit->sf->fontname );
+    if ( sfbit.istype42cid )
+	fprintf( pi->out, "    /BaseFont /%s\n", sfbit.sf->fontname );
     else
 	fprintf( pi->out, "    /BaseFont /%s-Identity-H\n", cidmaster->fontname);
     fprintf( pi->out, "    /Encoding /Identity-H\n" );
@@ -1178,19 +1173,18 @@ static void dump_pdfprologue(PI *pi) {
     fprintf( pi->out, ">>\n" );
     fprintf( pi->out, "endobj\n\n" );
 
-    for ( sfid=0; sfid<pi->sfcnt; ++sfid ) {
-	struct sfbits *sfbit = &pi->sfbits[sfid];
-	if ( sfbit->fontfile!=NULL ) {
-	    if ( sfbit->sf->multilayer )
+    for (sfbits& sfbit : *pi->sfbits) {
+	if ( sfbit.fontfile!=NULL ) {
+	    if ( sfbit.sf->multilayer )
 		/* We can't use a postscript type3 font, we have to build up a  */
 		/* pdf font out of pdf graphics. Should be a one to one mapping */
 		/* but syntax is a little different. Hence we don't generate a  */
 		/* postscript type3 we do this instead */
-		pdf_gen_type3(pi,sfid);
-	    else if ( sfbit->iscid )
-		pdf_build_type0(pi,sfid);
+		pdf_gen_type3(pi, sfbit);
+	    else if ( sfbit.iscid )
+		pdf_build_type0(pi, sfbit);
 	    else
-		pdf_dump_type1(pi,sfid);
+		pdf_dump_type1(pi, sfbit);
 	}
     }
 }
@@ -1229,8 +1223,8 @@ static void dump_pdftrailer(PI *pi) {
     fprintf( pi->out, "    /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]\n" );
     fprintf( pi->out, "    /Font <<\n" );
     fprintf( pi->out, "      /FTB %lu 0 R\n", pi->objects.offsets->size() );
-    for ( sfid=0; sfid<pi->sfcnt; ++sfid ) {
-	struct sfbits *sfbit = &pi->sfbits[sfid];
+    for ( sfid=0; sfid<pi->sfbits->size(); ++sfid ) {
+	struct sfbits *sfbit = &pi->sfbits->at(sfid);
 	for ( i=0; i<sfbit->next_font; ++i )
 	    fprintf( pi->out, "      /F%d-%d %d 0 R\n", sfid, i, sfbit->our_font_objs[i] );
     }
@@ -1267,16 +1261,18 @@ static void dump_pdftrailer(PI *pi) {
     fprintf( pi->out, "%d\n",xrefloc );
     fprintf( pi->out, "%%%%EOF\n" );
 
-    for ( i=0; i<pi->sfcnt; ++i ) {
-	free(pi->sfbits[i].our_font_objs);
-	free(pi->sfbits[i].fonts);
+    for (auto& sfbit : *pi->sfbits) {
+	free(sfbit.our_font_objs);
+	free(sfbit.fonts);
     }
+    delete pi->sfbits;
+    pi->sfbits = nullptr;
 	free(pi->objects.offsets);
 	free(pi->objects.pages);
 }
 
 static void DumpIdentCMap(PI *pi, int sfid) {
-    struct sfbits *sfbit = &pi->sfbits[pi->sfid];
+    struct sfbits *sfbit = &(*pi->sfbits)[pi->sfid];
     SplineFont *sf = sfbit->sf;
     SplineFont *master;
     int i, j, k, max;
@@ -1414,8 +1410,8 @@ return;
 
     if ( pi->showvm )
 	fprintf( pi->out, " vmstatus pop /VM1 exch def pop\n" );
-    for ( sfid=0; sfid<pi->sfcnt; ++sfid ) {
-	struct sfbits *sfbit = &pi->sfbits[pi->sfid];
+    for ( sfid=0; sfid<pi->sfbits->size(); ++sfid ) {
+	struct sfbits *sfbit = &pi->sfbits->at(sfid);
 	if ( sfbit->fontfile!=NULL ) {
 	    fprintf( pi->out, "%%%%BeginResource: font %s\n", sfbit->sf->fontname );
 	    while ( (ch=getc(sfbit->fontfile))!=EOF )
@@ -1483,23 +1479,23 @@ return;
 static int PIDownloadFont(PI *pi, SplineFont *sf, EncMap *map) {
     int is_mm = sf->mm!=NULL && MMValid(sf->mm,false);
     int error = false;
-    struct sfbits *sfbit = &pi->sfbits[pi->sfid];
+    struct sfbits sfbit{};
 
     if ( sf->cidmaster!=NULL ) sf = sf->cidmaster;
 
-    sfbit->sf = sf;
-    sfbit->map = map;
-    sfbit->twobyte = map->enc->has_2byte;
-    sfbit->wastwobyte = sfbit->twobyte;
-    sfbit->isunicode = map->enc->is_unicodebmp;
-    sfbit->isunicodefull = map->enc->is_unicodefull;
-    sfbit->istype42cid = sf->layers[ly_fore].order2;
-    sfbit->iscid = sf->subfontcnt!=0 || sfbit->istype42cid;
+    sfbit.sf = sf;
+    sfbit.map = map;
+    sfbit.twobyte = map->enc->has_2byte;
+    sfbit.wastwobyte = sfbit.twobyte;
+    sfbit.isunicode = map->enc->is_unicodebmp;
+    sfbit.isunicodefull = map->enc->is_unicodefull;
+    sfbit.istype42cid = sf->layers[ly_fore].order2;
+    sfbit.iscid = sf->subfontcnt!=0 || sfbit.istype42cid;
     if ( pi->pg_state.pointsize==0 )
-	pi->pg_state.pointsize = sfbit->iscid && !sfbit->istype42cid?18:20;		/* 18 fits 20 across, 20 fits 16 */
+	pi->pg_state.pointsize = sfbit.iscid && !sfbit.istype42cid?18:20;		/* 18 fits 20 across, 20 fits 16 */
 
-    sfbit->fontfile = GFileTmpfile();
-    if ( sfbit->fontfile==NULL ) {
+    sfbit.fontfile = GFileTmpfile();
+    if ( sfbit.fontfile==NULL ) {
 	ff_post_error(_("Failed to open temporary output file"),_("Failed to open temporary output file"));
 return(false);
     }
@@ -1512,18 +1508,18 @@ return(false);
     if ( pi->pg_state.printtype==pt_pdf && sf->multilayer ) {
 	/* These need to be done in line as pdf objects */
 	/* I leave fontfile open as a flag, even though we don't use it */
-    } else if ( pi->pg_state.printtype==pt_pdf && sfbit->iscid ) {
-	if ( !_WriteTTFFont(sfbit->fontfile,sf,
-		sfbit->istype42cid?ff_type42cid:ff_cffcid,NULL,bf_none,
+    } else if ( pi->pg_state.printtype==pt_pdf && sfbit.iscid ) {
+	if ( !_WriteTTFFont(sfbit.fontfile,sf,
+		sfbit.istype42cid?ff_type42cid:ff_cffcid,NULL,bf_none,
 		ps_flag_nocffsugar,map,ly_fore))
 	    error = true;
-    } else if ( !_WritePSFont(sfbit->fontfile,sf,
+    } else if ( !_WritePSFont(sfbit.fontfile,sf,
 		pi->pg_state.printtype==pt_pdf ? ff_pfb :
 		sf->multilayer?ff_ptype3:
 		is_mm?ff_mma:
-		sfbit->istype42cid?ff_type42cid:
-		sfbit->iscid?ff_cid:
-		sfbit->twobyte?ff_ptype0:
+		sfbit.istype42cid?ff_type42cid:
+		sfbit.iscid?ff_cid:
+		sfbit.twobyte?ff_ptype0:
 		ff_pfa,ps_flag_identitycidmap,map,NULL,ly_fore))
 	error = true;
 
@@ -1531,12 +1527,12 @@ return(false);
 
     if ( error ) {
 	ff_post_error(_("Failed to generate postscript font"),_("Failed to generate postscript font") );
-	fclose(sfbit->fontfile);
+	fclose(sfbit.fontfile);
 return(false);
     }
 
-    rewind(sfbit->fontfile);
-    ++ pi->sfcnt;
+    rewind(sfbit.fontfile);
+    pi->sfbits->push_back(sfbit);
 return( true );
 }
 
@@ -1574,7 +1570,7 @@ return;
 	fprintf( pi->out, "BT\n  /FTB 12 Tf\n  193.2 -10.92 Td\n" );
 	fprintf(pi->out,"(Font Display for %s) Tj\n", pi->mainsf->fontname );
 	fprintf( pi->out, "-159.8 -43.98 Td\n" );
-	if ( pi->sfbits[0].iscid && !pi->sfbits[0].istype42cid)
+	if ( pi->sfbits->front().iscid && !pi->sfbits->front().istype42cid)
 	    for ( i=0; i<pi->pg_state.max; ++i )
 		fprintf(pi->out,"%d 0 Td (%d) Tj\n", (pi->pg_state.pointsize+pi->pg_state.extrahspace), i );
 	else
@@ -1591,7 +1587,7 @@ return;
     fprintf(pi->out,"Times-Bold__12 setfont\n" );
     fprintf(pi->out,"(Font Display for %s) 193.2 -10.92 n_show\n", pi->mainsf->fontname);
 
-    if ( pi->sfbits[0].iscid && !pi->sfbits[0].istype42cid )
+    if ( pi->sfbits->front().iscid && !pi->sfbits->front().istype42cid )
 	for ( i=0; i<pi->pg_state.max; ++i )
 	    fprintf(pi->out,"(%d) %d -54.84 n_show\n", i, 60+(pi->pg_state.pointsize+pi->pg_state.extrahspace)*i );
     else
@@ -1601,7 +1597,7 @@ return;
 
 static int DumpLine(PI *pi, ff::layout::IPrinter &printer) {
     int i=0, line, gid;
-    struct sfbits *sfbit = &pi->sfbits[0];
+    struct sfbits *sfbit = &pi->sfbits->front();
 
     /* First find the next line with stuff on it */
     if ( !sfbit->iscid || sfbit->istype42cid ) {
@@ -1748,16 +1744,16 @@ return;
 	pi->extravspace = pi->pg_state.pointsize/6;
 	pi->pg_state.extrahspace = pi->pg_state.pointsize/3;
 	pi->pg_state.max = (pi->pg_state.pagewidth-100)/(pi->pg_state.extrahspace+pi->pg_state.pointsize);
-    pi->sfbits[0].cidcnt = pi->sfbits[0].map->enccount;
-    if ( sf->subfontcnt!=0 && pi->sfbits[0].iscid ) {
+    pi->sfbits->front().cidcnt = pi->sfbits->front().map->enccount;
+    if ( sf->subfontcnt!=0 && pi->sfbits->front().iscid ) {
 	int i,max=0;
 	for ( i=0; i<sf->subfontcnt; ++i )
 	    if ( sf->subfonts[i]->glyphcnt>max )
 		max = sf->subfonts[i]->glyphcnt;
-	pi->sfbits[0].cidcnt = max;
+	pi->sfbits->front().cidcnt = max;
     }
 
-    if ( pi->sfbits[0].iscid && !pi->sfbits[0].istype42cid ) {
+    if ( pi->sfbits->front().iscid && !pi->sfbits->front().istype42cid ) {
 	if ( pi->pg_state.max>=20 ) pi->pg_state.max = 20;
 	else if ( pi->pg_state.max>=10 ) pi->pg_state.max = 10;
 	else if ( pi->pg_state.max >= 5 ) pi->pg_state.max = 5;
@@ -1892,7 +1888,7 @@ static void PIChars(PI *pi) {
 /* ************************************************************************** */
 
 static void samplestartpage(PI *pi ) {
-    struct sfbits *sfbit = &pi->sfbits[0];
+    struct sfbits *sfbit = &pi->sfbits->front();
 
 	if ( pi->pg_state.page!=0 )
 	endpage(pi->pg_state, pi->objects, pi->out);
@@ -1932,24 +1928,24 @@ static void samplestartpage(PI *pi ) {
 	pi->pg_state.ypos = -30;
 }
 
-static void outputchar(PI *pi, int sfid, SplineChar *sc) {
+static void outputchar(FILE* out, const sfbits& sfbit, SplineChar *sc) {
     int enc;
 
     if ( sc==NULL )
 return;
     /* type42cid output uses a CIDMap indexed by GID */
-    if ( pi->sfbits[sfid].istype42cid ) {
- 	fprintf( pi->out, "%04X", sc->ttf_glyph );
+    if ( sfbit.istype42cid ) {
+ 	fprintf( out, "%04X", sc->ttf_glyph );
     } else {
-	enc = pi->sfbits[sfid].map->backmap[sc->orig_pos];
+	enc = sfbit.map->backmap[sc->orig_pos];
 	if ( enc==-1 )
 return;
-	if ( pi->sfbits[sfid].iscid ) {
-	    fprintf( pi->out, "%04X", enc );
-	} else if ( pi->sfbits[sfid].twobyte && enc<=0xffff ) {
-	    fprintf( pi->out, "%04X", enc );
+	if ( sfbit.iscid ) {
+	    fprintf( out, "%04X", enc );
+	} else if ( sfbit.twobyte && enc<=0xffff ) {
+	    fprintf( out, "%04X", enc );
 	} else {
-	    fprintf( pi->out, "%02X", enc&0xff );
+	    fprintf( out, "%02X", enc&0xff );
 	}
     }
 }
@@ -1959,12 +1955,12 @@ static void outputotchar(PI *pi,struct opentype_str *osc,int x,int baseline) {
     FontData *fd = fl->fd;
     struct sfmaps *sfmap = fd->sfmap;
     int sfid = sfmap->sfbit_id;
-    struct sfbits *sfbit = &pi->sfbits[sfid];
+    const struct sfbits& sfbit = pi->sfbits->at(sfid);
     SplineChar *sc = osc->sc;
-    int enc = sfbit->map->backmap[sc->orig_pos];
+    int enc = sfbit.map->backmap[sc->orig_pos];
 
 	if ( pi->pg_state.printtype==pt_pdf ) {
-	int fn = sfbit->iscid?0:sfbit->fonts[enc/256];
+	int fn = sfbit.iscid?0:sfbit.fonts[enc/256];
 	if ( pi->wassfid!=sfid || fn!=pi->wasfn || fd->pointsize!=pi->pg_state.wasps ) {
 	    fprintf(pi->out,"/F%d-%d %d Tf\n ", sfid, fn, fd->pointsize);
 	    pi->wassfid = sfid; pi->wasfn = fn; pi->pg_state.wasps = fd->pointsize;
@@ -1974,29 +1970,29 @@ static void outputotchar(PI *pi,struct opentype_str *osc,int x,int baseline) {
 		(double) ((baseline+osc->vr.yoff+osc->bsln_off-pi->lasty)*pi->scale) );
 	pi->lastx = x+osc->vr.xoff; pi->lasty = baseline+osc->vr.yoff+osc->bsln_off;
 	putc('<',pi->out);
-	outputchar(pi,sfid,sc);
+	outputchar(pi->out, sfbit, sc);
 	fprintf( pi->out, "> Tj\n" );
     } else {
 	int fn = 0;
 	fprintf(pi->out, "%g %g moveto ",
 		(double) ((x+osc->vr.xoff)*pi->scale),
 		(double) ((baseline+osc->vr.yoff+osc->bsln_off)*pi->scale) );
-	if ( (sfbit->twobyte && enc>0xffff) || (!sfbit->twobyte && enc>0xff) )
+	if ( (sfbit.twobyte && enc>0xffff) || (!sfbit.twobyte && enc>0xff) )
 	    fn = enc>>8;
 	if ( pi->wassfid!=sfid || fn!=pi->wasfn || fd->pointsize!=pi->pg_state.wasps ) {
-	    if ( sfbit->iscid )
+	    if ( sfbit.iscid )
 		putc('<',pi->out);
-	    else if ( (sfbit->twobyte && enc>0xffff) || (!sfbit->twobyte && enc>0xff) )
+	    else if ( (sfbit.twobyte && enc>0xffff) || (!sfbit.twobyte && enc>0xff) )
 		fprintf(pi->out,"/%s-%x findfont %d scalefont setfont\n  <",
-			sfbit->sf->fontname, enc>>8,
+			sfbit.sf->fontname, enc>>8,
 			fd->pointsize);
 	    else
-		fprintf(pi->out,"/%s findfont %d scalefont setfont\n  <", sfbit->sf->fontname,
+		fprintf(pi->out,"/%s findfont %d scalefont setfont\n  <", sfbit.sf->fontname,
 			fd->pointsize);
 	    pi->wassfid = sfid; pi->wasfn = fn; pi->pg_state.wasps = fd->pointsize;
 	} else
 	    putc('<',pi->out);
-	outputchar(pi,sfid,sc);
+	outputchar(pi->out, sfbit, sc);
 	fprintf( pi->out, "> show\n" );
     }
 }
@@ -2020,9 +2016,9 @@ static void PIFontSample(PI *pi) {
     for ( cnt=0, sfmaps = li->sfmaps; sfmaps!=NULL; sfmaps = sfmaps->next, ++cnt ) {
 	pi->sfid = cnt;
 	sfmaps->sfbit_id = cnt;
-	pi->sfbits[cnt].sfmap = sfmaps;
 	if ( !PIDownloadFont(pi,sfmaps->sf,sfmaps->map))
 return;
+	pi->sfbits->back().sfmap = sfmaps;
     }
 	printer.start_document();
 
@@ -2067,11 +2063,11 @@ static double pointsizes[] = { 72, 48, 36, 24, 20, 18, 16, 15, 14, 13, 12, 11, 1
 static void SCPrintSizes(PI *pi,SplineChar *sc, ff::layout::IPrinter &printer) {
     int xstart = 10, i;
     int enc;
-    struct sfbits *sfbit = &pi->sfbits[0];
+    const struct sfbits& sfbit = pi->sfbits->front();
 
     if ( !SCWorthOutputting(sc))
 return;
-    enc = sfbit->map->backmap[sc->orig_pos];
+    enc = sfbit.map->backmap[sc->orig_pos];
 	if ( pi->pg_state.ypos - pi->pg_state.pointsize < -(pi->pg_state.pageheight-90) && pi->pg_state.ypos!=-30 ) {
 	printer.add_page();
     }
@@ -2082,19 +2078,19 @@ return;
     }
     for ( i=0; pointsizes[i]!=0; ++i ) {
 	if ( pi->pg_state.printtype==pt_pdf ) {
-	    fprintf(pi->out,"/F%d-%d %g Tf\n  <", pi->sfid, sfbit->iscid?0:sfbit->fonts[enc/256], pointsizes[i]);
-	    outputchar(pi,0,sc);
+	    fprintf(pi->out,"/F%d-%d %g Tf\n  <", pi->sfid, sfbit.iscid?0:sfbit.fonts[enc/256], pointsizes[i]);
+	    outputchar(pi->out,sfbit,sc);
 	    fprintf( pi->out, "> Tj\n" );
 	    /* Don't need to use TJ here, no possibility of kerning */
 	} else {
-	    if ( (sfbit->twobyte && enc>0xffff) || (!sfbit->twobyte && enc>0xff) )
+	    if ( (sfbit.twobyte && enc>0xffff) || (!sfbit.twobyte && enc>0xff) )
 		fprintf(pi->out,"/%s-%x findfont %g scalefont setfont\n  <",
-			sfbit->sf->fontname, enc>>8,
+			sfbit.sf->fontname, enc>>8,
 			pointsizes[i]);
 	    else
-		fprintf(pi->out,"/%s findfont %g scalefont setfont\n  <", sfbit->sf->fontname,
+		fprintf(pi->out,"/%s findfont %g scalefont setfont\n  <", sfbit.sf->fontname,
 			pointsizes[i]);
-	    outputchar(pi,0,sc);
+	    outputchar(pi->out,sfbit,sc);
 	    fprintf( pi->out, "> show\n" );
 	}
     }
@@ -2105,7 +2101,6 @@ return;
 
 static void PIMultiSize(PI *pi) {
     int i, gid;
-    struct sfbits *sfbit = &pi->sfbits[0];
 	ff::layout::LegacyPrinter printer =
 		MakeLegacyPrinter(pi, ff::layout::PrintPageStyle::sample);
 
@@ -2113,6 +2108,7 @@ static void PIMultiSize(PI *pi) {
 	pi->extravspace = pi->pg_state.pointsize/6;
     if ( !PIDownloadFont(pi,pi->mainsf,pi->mainmap))
 return;
+    struct sfbits *sfbit = &pi->sfbits->front();
 	printer.start_document();
 
 	printer.add_page();
@@ -2232,16 +2228,7 @@ static void QueueIt(PI *pi) {
 }
 
 void DoPrinting(PI *pi,char *filename) {
-    int sfmax=1;
-
-    if ( pi->pg_state.pt==pt_fontsample ) {
-	struct sfmaps *sfmap;
-	for ( sfmap=pi->sample->sfmaps, sfmax=0; sfmap!=NULL; sfmap=sfmap->next, ++sfmax );
-	if ( sfmax==0 ) sfmax=1;
-    }
-    pi->sfmax = sfmax;
-    pi->sfbits = (struct sfbits *)calloc(sfmax,sizeof(struct sfbits));
-    pi->sfcnt = 0;
+    pi->sfbits = new std::vector<struct sfbits>();
 
 	if ( pi->pg_state.pt==pt_fontdisplay )
 	PIFontDisplay(pi);
@@ -2260,7 +2247,15 @@ void DoPrinting(PI *pi,char *filename) {
     if ( fclose(pi->out)!=0 )
 	ff_post_error(_("Print Failed"),_("Failed to generate postscript in file %s"),
 		filename==NULL?"temporary":filename );
-    free(pi->sfbits);
+    // sfbits vector is deleted in dump_pdftrailer for pdf, or here for ps:
+    if ( pi->sfbits ) {
+	for (auto& sfbit : *pi->sfbits) {
+	    free(sfbit.our_font_objs);
+	    free(sfbit.fonts);
+	}
+	delete pi->sfbits;
+	pi->sfbits = nullptr;
+    }
 }
 
 /* ************************************************************************** */
