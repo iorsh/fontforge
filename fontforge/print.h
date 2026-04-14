@@ -90,7 +90,6 @@ typedef struct printinfo {
     int chline;		/* High order bits of characters we're outputting */
     int page;
     int lastbase;
-    real xoff, yoff, scale;
     char *printer;
     int copies;
     int pagewidth, pageheight, printtype;

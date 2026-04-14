@@ -1816,6 +1816,7 @@ return;
 static void SCPrintPage(PI *pi,SplineChar *sc) {
     DBounds b, page;
     real scalex, scaley;
+    real xoff, yoff, scale;
 
     if ( pi->page!=0 )
 	endpage(pi);
@@ -1853,20 +1854,20 @@ static void SCPrintPage(PI *pi,SplineChar *sc) {
 
     scalex = (page.maxx-page.minx)/(b.maxx-b.minx);
     scaley = (page.maxy-page.miny)/(b.maxy-b.miny);
-    pi->scale = (scalex<scaley)?scalex:scaley;
-    pi->xoff = page.minx - b.minx*pi->scale;
-    pi->yoff = page.miny - b.miny*pi->scale;
+    scale = (scalex<scaley)?scalex:scaley;
+    xoff = page.minx - b.minx*scale;
+    yoff = page.miny - b.miny*scale;
 
     if ( pi->printtype!=pt_pdf ) {
 	fprintf(pi->out,"gsave .2 setlinewidth\n" );
-	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) page.minx, (double) pi->yoff, (double) page.maxx, (double) pi->yoff );
-	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) pi->xoff, (double) page.miny, (double) pi->xoff, (double) page.maxy );
-	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) page.minx, (double) (sc->parent->ascent*pi->scale+pi->yoff), (double) page.maxx, (double) (sc->parent->ascent*pi->scale+pi->yoff) );
-	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) page.minx, (double) (-sc->parent->descent*pi->scale+pi->yoff), (double) page.maxx, (double) (-sc->parent->descent*pi->scale+pi->yoff) );
-	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) (pi->xoff+sc->width*pi->scale), (double) page.miny, (double) (pi->xoff+sc->width*pi->scale), (double) page.maxy );
+	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) page.minx, (double) yoff, (double) page.maxx, (double) yoff );
+	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) xoff, (double) page.miny, (double) xoff, (double) page.maxy );
+	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) page.minx, (double) (sc->parent->ascent*scale+yoff), (double) page.maxx, (double) (sc->parent->ascent*scale+yoff) );
+	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) page.minx, (double) (-sc->parent->descent*scale+yoff), (double) page.maxx, (double) (-sc->parent->descent*scale+yoff) );
+	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) (xoff+sc->width*scale), (double) page.miny, (double) (xoff+sc->width*scale), (double) page.maxy );
 	fprintf(pi->out,"grestore\n" );
-	fprintf(pi->out,"gsave\n %g %g translate\n", (double) pi->xoff, (double) pi->yoff );
-	fprintf(pi->out," %g %g scale\n", (double) pi->scale, (double) pi->scale );
+	fprintf(pi->out,"gsave\n %g %g translate\n", (double) xoff, (double) yoff );
+	fprintf(pi->out," %g %g scale\n", (double) scale, (double) scale );
 	SC_PSDump((void (*)(int,void *)) fputc,pi->out,sc,true,false,ly_fore);
 	if ( sc->parent->multilayer )
 	    /* All done */;
@@ -1877,14 +1878,14 @@ static void SCPrintPage(PI *pi,SplineChar *sc) {
 	fprintf(pi->out,"grestore\n" );
     } else {
 	fprintf(pi->out,"q .2 w\n" );
-	fprintf(pi->out,"%g %g m %g %g l S\n", (double) page.minx, (double) pi->yoff, (double) page.maxx, (double) pi->yoff );
-	fprintf(pi->out,"%g %g m %g %g l S\n", (double) pi->xoff, (double) page.miny, (double) pi->xoff, (double) page.maxy );
-	fprintf(pi->out,"%g %g m %g %g l S\n", (double) page.minx, (double) (sc->parent->ascent*pi->scale+pi->yoff), (double) page.maxx, (double) (sc->parent->ascent*pi->scale+pi->yoff) );
-	fprintf(pi->out,"%g %g m %g %g l S\n", (double) page.minx, (double) (-sc->parent->descent*pi->scale+pi->yoff), (double) page.maxx, (double) (-sc->parent->descent*pi->scale+pi->yoff) );
-	fprintf(pi->out,"%g %g m %g %g l S\n", (double) (pi->xoff+sc->width*pi->scale), (double) page.miny, (double) (pi->xoff+sc->width*pi->scale), (double) page.maxy );
+	fprintf(pi->out,"%g %g m %g %g l S\n", (double) page.minx, (double) yoff, (double) page.maxx, (double) yoff );
+	fprintf(pi->out,"%g %g m %g %g l S\n", (double) xoff, (double) page.miny, (double) xoff, (double) page.maxy );
+	fprintf(pi->out,"%g %g m %g %g l S\n", (double) page.minx, (double) (sc->parent->ascent*scale+yoff), (double) page.maxx, (double) (sc->parent->ascent*scale+yoff) );
+	fprintf(pi->out,"%g %g m %g %g l S\n", (double) page.minx, (double) (-sc->parent->descent*scale+yoff), (double) page.maxx, (double) (-sc->parent->descent*scale+yoff) );
+	fprintf(pi->out,"%g %g m %g %g l S\n", (double) (xoff+sc->width*scale), (double) page.miny, (double) (xoff+sc->width*scale), (double) page.maxy );
 	fprintf(pi->out,"Q\n" );
-	fprintf(pi->out,"q \n %g 0 0 %g %g %g cm\n", (double) pi->scale, (double) pi->scale,
-		(double) pi->xoff, (double) pi->yoff );
+	fprintf(pi->out,"q \n %g 0 0 %g %g %g cm\n", (double) scale, (double) scale,
+		(double) xoff, (double) yoff );
 	SC_PSDump((void (*)(int,void *)) fputc,pi->out,sc,true,true,ly_fore);
 	if ( sc->parent->multilayer )
 	    /* All done */;
@@ -1982,7 +1983,7 @@ return;
     }
 }
 
-static void outputotchar(PI *pi,struct opentype_str *osc,int x,int baseline) {
+static void outputotchar(PI *pi,struct opentype_str *osc,int x,int baseline, real scale) {
     struct fontlist *fl = (struct fontlist *)osc->fl;
     FontData *fd = fl->fd;
     struct sfmaps *sfmap = fd->sfmap;
@@ -1998,8 +1999,8 @@ static void outputotchar(PI *pi,struct opentype_str *osc,int x,int baseline) {
 	    pi->wassfid = sfid; pi->wasfn = fn; pi->wasps = fd->pointsize;
 	}
 	fprintf(pi->out, "%g %g Td ",
-		(double) ((x+osc->vr.xoff-pi->lastx)*pi->scale),
-		(double) ((baseline+osc->vr.yoff+osc->bsln_off-pi->lasty)*pi->scale) );
+		(double) ((x+osc->vr.xoff-pi->lastx)*scale),
+		(double) ((baseline+osc->vr.yoff+osc->bsln_off-pi->lasty)*scale) );
 	pi->lastx = x+osc->vr.xoff; pi->lasty = baseline+osc->vr.yoff+osc->bsln_off;
 	putc('<',pi->out);
 	outputchar(pi,sfid,sc);
@@ -2007,8 +2008,8 @@ static void outputotchar(PI *pi,struct opentype_str *osc,int x,int baseline) {
     } else {
 	int fn = 0;
 	fprintf(pi->out, "%g %g moveto ",
-		(double) ((x+osc->vr.xoff)*pi->scale),
-		(double) ((baseline+osc->vr.yoff+osc->bsln_off)*pi->scale) );
+		(double) ((x+osc->vr.xoff)*scale),
+		(double) ((baseline+osc->vr.yoff+osc->bsln_off)*scale) );
 	if ( (sfbit->twobyte && enc>0xffff) || (!sfbit->twobyte && enc>0xff) )
 	    fn = enc>>8;
 	if ( pi->wassfid!=sfid || fn!=pi->wasfn || fd->pointsize!=pi->wasps ) {
@@ -2036,10 +2037,11 @@ static void PIFontSample(PI *pi) {
     LayoutInfo *li = pi->sample;
     struct opentype_str **line;
     int i,j;
+    real scale;
 
     pi->pointsize = 12;		/* no longer meaningful */
     pi->extravspace = pi->pointsize/6;
-    pi->scale = 72.0/li->dpi;
+    scale = 72.0/li->dpi;
     pi->lastfont = -1; pi->intext = false;
     pi->wassfid = -1;
 
@@ -2057,8 +2059,8 @@ return;
 	fprintf(pi->out, "BT\n" );
 	pi->lastx = pi->lasty = 0;
     }
-    y = top = rint((pi->pageheight - 96)/pi->scale);	/* In dpi units */
-    bottom = rint(36/pi->scale);			/* multiply by scale to get ps points */
+    y = top = rint((pi->pageheight - 96)/scale);	/* In dpi units */
+    bottom = rint(36/scale);			/* multiply by scale to get ps points */
 
     for ( i=0; i<li->lcnt; ++i ) {
 	if ( y - li->lineheights[i].fh < bottom ) {
@@ -2071,12 +2073,12 @@ return;
 	    }
 	    y = top;
 	}
-	x = rint(36/pi->scale);
+	x = rint(36/scale);
 	baseline = y - li->lineheights[i].as;
 	y -= li->lineheights[i].fh;
 	line = li->lines[i];
 	for ( j=0; line[j]!=NULL; ++j ) {
-	    outputotchar(pi,line[j],x,baseline);
+	    outputotchar(pi,line[j],x,baseline, scale);
 	    x += line[j]->advance_width + line[j]->vr.h_adv_off;
 	}
     }
