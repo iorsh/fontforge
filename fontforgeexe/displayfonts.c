@@ -1592,11 +1592,13 @@ return;
 	printwindow = active;
     active->fv = fv;
 
+    /* TODO(iorsh): PI_Init() currently produces incorrect document title.
+     *              Replace it altogether with modern Print dialog */
     if ( mv!=NULL ) {
-	PI_Init(&active->pi,(FontViewBase *) mv->fv,sc);
+	PI_Init(&active->pi,pt_fontdisplay,(FontViewBase *) mv->fv,sc);
 	active->pi.mv = mv;
     } else
-	PI_Init(&active->pi,(FontViewBase *) fv,sc);
+	PI_Init(&active->pi,pt_fontdisplay,(FontViewBase *) fv,sc);
     active->cv = cv;
     active->fit_to_path = fit_to_path;
     active->insert_text = !isprint;

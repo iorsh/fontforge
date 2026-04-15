@@ -77,6 +77,7 @@ typedef struct printinfo {
     SplineFont *mainsf;
     EncMap *mainmap;
     enum printtype pt;
+    char *title;
     int pointsize;
     int32_t *pointsizes;
     int extrahspace, extravspace;
@@ -118,7 +119,7 @@ extern struct printdefaults {
 } pdefs[];
 /* defaults for print from fontview, charview, metricsview */
 
-extern void PI_Init(PI *pi,FontViewBase *fv,SplineChar *sc);
+extern void PI_Init(PI *pi,enum printtype pt,FontViewBase *fv,SplineChar *sc);
 extern void DoPrinting(PI *pi,char *filename);
 extern int PdfDumpGlyphResources(PI *pi,SplineChar *sc);
 extern void makePatName(char *buffer,

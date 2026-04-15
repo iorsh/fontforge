@@ -1151,14 +1151,7 @@ static void dump_pdfprologue(PI *pi) {
     /* Output metadata */
     pdf_addobject(pi);
     fprintf( pi->out, "<<\n" );
-    if ( pi->pt==pt_fontdisplay ) {
-	fprintf( pi->out, "  /Title (Font Display for %s)\n", pi->mainsf->fullname );
-    } else if ( pi->pt==pt_fontsample ) {
-	fprintf( pi->out, "  /Title (Text Sample of %s)\n", pi->mainsf->fullname );
-    } else if ( pi->sc!=NULL )
-	fprintf( pi->out, "  /Title (Character Display for %s from %s)\n", pi->sc->name, pi->mainsf->fullname );
-    else
-	fprintf( pi->out, "  /Title (Character Displays from %s)\n", pi->mainsf->fullname );
+    fprintf( pi->out, "  /Title (%s)\n", pi->title );
     fprintf( pi->out, "  /Creator (FontForge)\n" );
     fprintf( pi->out, "  /Producer (FontForge)\n" );
     now = GetTime();
@@ -1395,16 +1388,9 @@ return;
     fprintf( pi->out, "%%%%LanguageLevel: %d\n", 3 );
     fprintf( pi->out, "%%%%Orientation: Portrait\n" );
     fprintf( pi->out, "%%%%Pages: (atend)\n" );
-    if ( pi->pt==pt_fontdisplay ) {
-	fprintf( pi->out, "%%%%Title: Font Display for %s\n", pi->mainsf->fullname );
+    fprintf( pi->out, "%%%%Title: %s\n", pi->title );
+    if ( pi->pt==pt_fontdisplay || pi->pt==pt_fontsample )
 	fprintf( pi->out, "%%%%DocumentSuppliedResources: font %s\n", pi->mainsf->fontname );
-    } else if ( pi->pt==pt_fontsample ) {
-	fprintf( pi->out, "%%%%Title: Text Sample of %s\n", pi->mainsf->fullname );
-	fprintf( pi->out, "%%%%DocumentSuppliedResources: font %s\n", pi->mainsf->fontname );
-    } else if ( pi->sc!=NULL )
-	fprintf( pi->out, "%%%%Title: Character Display for %s from %s\n", pi->sc->name, pi->mainsf->fullname );
-    else
-	fprintf( pi->out, "%%%%Title: Character Displays from %s\n", pi->mainsf->fullname );
     fprintf( pi->out, "%%%%DocumentNeededResources: font Times-Bold\n" );
     /* Just in case they have a unicode font without dingbats */
     fprintf( pi->out, "%%%%DocumentNeededResources: font ZapfDingbats\n" );
@@ -2995,10 +2981,27 @@ static void PIGetPrinterDefs(PI *pi) {
     }
 }
 
-void PI_Init(PI *pi,FontViewBase *fv,SplineChar *sc) {
+char* document_title(enum printtype pt, SplineFont* sf, SplineChar* sc) {
+    char* title = NULL;
+
+    if (pt == pt_fontdisplay)
+        title = smprintf("Font Display for %s", sf->fullname);
+    else if (pt == pt_fontsample)
+        title = smprintf("Text Sample of %s", sf->fullname);
+    else if (sc != NULL)
+        title = smprintf("Character Display for %s from %s", sc->name,
+                         sf->fullname);
+    else
+        title = smprintf("Character Displays from %s", sf->fullname);
+
+    return title;
+}
+
+void PI_Init(PI *pi,enum printtype pt,FontViewBase *fv,SplineChar *sc) {
     int di = fv!=NULL?0:sc!=NULL?1:2;
 
     memset(pi,'\0',sizeof(*pi));
+    pi->pt = pt;
     pi->fv = fv;
     pi->sc = sc;
     if ( fv!=NULL ) {
@@ -3014,6 +3017,7 @@ void PI_Init(PI *pi,FontViewBase *fv,SplineChar *sc) {
     pi->pointsize = pdefs[di].pointsize;
     if ( pi->pointsize==0 )
 	pi->pointsize = pi->mainsf->subfontcnt!=0?18:20;		/* 18 fits 20 across, 20 fits 16 */
+    pi->title = document_title(pi->pt, pi->mainsf, sc);
 }
 
 
@@ -3068,12 +3072,11 @@ void ScriptPrint(FontViewBase *fv,int type,int32_t *pointsizes,char *samplefile,
     LayoutInfo *li;
     unichar_t temp[2];
 
-    PI_Init(&pi,fv,NULL);
+    PI_Init(&pi, (enum printtype)type, fv,NULL);
     if ( pointsizes!=NULL ) {
 	pi.pointsizes = pointsizes;
 	pi.pointsize = pointsizes[0];
     }
-    pi.pt = (enum printtype)type;
     if ( type==pt_fontsample ) {
 	int width = (pi.pagewidth-1*72)*printdpi/72;
 	li = (LayoutInfo *)calloc(1,sizeof(LayoutInfo));
@@ -3121,4 +3124,5 @@ return;
 	LayoutInfo_Destroy(pi.sample);
 	free(pi.sample);
     }
+    free(pi.title);
 }
