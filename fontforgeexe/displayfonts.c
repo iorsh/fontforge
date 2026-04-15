@@ -61,6 +61,7 @@ typedef struct printffdlg {
     GTextInfo *scriptlangs;
     FontView *fv;
     CharView *cv;
+    MetricsView *mv;
     SplineSet *fit_to_path;
     uint8_t script_unknown;
     uint8_t insert_text;
@@ -616,7 +617,7 @@ static int PRT_OK(GGadget *g, GEvent *e) {
     if ( e->type==et_controlevent && e->u.control.subtype == et_buttonactivate ) {
 	PD *pi = GDrawGetUserData(GGadgetGetWindow(g));
 	int err = false;
-	int di = pi->pi.fv!=NULL?0:pi->pi.mv!=NULL?2:1;
+	int di = pi->fv!=NULL?0:pi->mv!=NULL?2:1;
 	char *ret;
 	char *file;
 	char buf[100];
@@ -720,7 +721,7 @@ return(true);
 			printdpi);
 	    }
 
-	    DoPrinting(&pi->pi,file);
+	    DoPrinting(&pi->pi,file, (FontViewBase *)pi->fv, pi->cv->b.sc, pi->mv);
 	    free(file);
 	    if ( pi->pi.pt==pt_fontsample ) {
 		LayoutInfo_Destroy(pi->pi.sample);
@@ -1596,10 +1597,10 @@ return;
      *              Replace it altogether with modern Print dialog */
     if ( mv!=NULL ) {
 	PI_Init(&active->pi,pt_fontdisplay,(FontViewBase *) mv->fv,sc);
-	active->pi.mv = mv;
     } else
 	PI_Init(&active->pi,pt_fontdisplay,(FontViewBase *) fv,sc);
     active->cv = cv;
+    active->mv = mv;
     active->fit_to_path = fit_to_path;
     active->insert_text = !isprint;
     active->done = isprint ? NULL : &done;

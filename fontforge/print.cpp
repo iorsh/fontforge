@@ -46,6 +46,7 @@
 #include "tottf.h"
 #include "ustring.h"
 #include "utype.h"
+#include "layout/legacy_printer.hpp"
 
 #include <math.h>
 #include <stdlib.h>
@@ -1883,22 +1884,35 @@ static void SCPrintPage(PI *pi,SplineChar *sc) {
     }
 }
 
-static void PIChars(PI *pi) {
+static std::vector<SplineChar*> collect_chars(FontViewBase* fv, SplineChar* sc,
+                                              struct metricsview* mv) {
+    std::vector<SplineChar*> chars;
+    if (fv != NULL) {
+        SplineFont* mainsf = fv->sf;
+        EncMap* mainmap = fv->map;
+
+        for (int i = 0; i < mainmap->enccount; ++i) {
+            int gid;
+            if (fv->selected[i] && (gid = mainmap->map[i]) != -1 &&
+                SCWorthOutputting(mainsf->glyphs[gid]))
+                chars.push_back(mainsf->glyphs[gid]);
+        }
+    } else if (sc != NULL) {
+        chars.push_back(sc);
+    } else if (mv != NULL) {
+        for (int i = 0; i < MVGlyphCount(mv); ++i) {
+            SplineChar* char_i = MVGlyphIndex(mv, i);
+            if (SCWorthOutputting(char_i)) chars.push_back(char_i);
+        }
+    }
+    return chars;
+}
+
+static void PIChars(PI* pi, const std::vector<SplineChar*>& chars) {
     int i, gid;
 
     dump_prologue(pi);
-    if ( pi->fv!=NULL )
-	for ( i=0; i<pi->mainmap->enccount; ++i ) {
-	    if ( pi->fv->selected[i] && (gid=pi->mainmap->map[i])!=-1 &&
-		    SCWorthOutputting(pi->mainsf->glyphs[gid]) )
-		SCPrintPage(pi,pi->mainsf->glyphs[gid]);
-    } else if ( pi->sc!=NULL )
-	SCPrintPage(pi,pi->sc);
-    else {
-	for ( i=0; i<MVGlyphCount(pi->mv); ++i )
-	    if ( SCWorthOutputting(MVGlyphIndex(pi->mv,i)))
-		SCPrintPage(pi,MVGlyphIndex(pi->mv,i));
-    }
+    for (SplineChar* sc : chars) SCPrintPage(pi, sc);
     dump_trailer(pi);
 }
 
@@ -2117,7 +2131,7 @@ return;
     pi->ypos -= pi->pointsize+pi->extravspace;
 }
 
-static void PIMultiSize(PI *pi) {
+static void PIMultiSize(PI *pi, const std::vector<SplineChar*>& chars) {
     int i, gid;
     struct sfbits *sfbit = &pi->sfbits[0];
 
@@ -2129,18 +2143,8 @@ return;
 
     samplestartpage(pi);
 
-    if ( pi->fv!=NULL ) {
-	for ( i=0; i<sfbit->map->enccount; ++i )
-	    if ( pi->fv->selected[i] && (gid=sfbit->map->map[i])!=-1 &&
-		    SCWorthOutputting(sfbit->sf->glyphs[gid]) )
-		SCPrintSizes(pi,sfbit->sf->glyphs[gid]);
-    } else if ( pi->sc!=NULL )
-	SCPrintSizes(pi,pi->sc);
-    else {
-	for ( i=0; i<MVGlyphCount(pi->mv); ++i )
-	    if ( SCWorthOutputting(MVGlyphIndex(pi->mv,i)))
-		SCPrintSizes(pi,MVGlyphIndex(pi->mv,i));
-    }
+    for ( SplineChar* sc : chars )
+	SCPrintSizes(pi, sc);
 
     dump_trailer(pi);
 }
@@ -2929,7 +2933,7 @@ static void QueueIt(PI *pi) {
     #endif
 }
 
-void DoPrinting(PI *pi,char *filename) {
+void DoPrinting(PI *pi,char *filename, FontViewBase* fv, SplineChar* sc, struct metricsview *mv) {
     int sfmax=1;
 
     if ( pi->pt==pt_fontsample ) {
@@ -2945,10 +2949,13 @@ void DoPrinting(PI *pi,char *filename) {
 	PIFontDisplay(pi);
     else if ( pi->pt==pt_fontsample )
 	PIFontSample(pi);
-    else if ( pi->pt==pt_multisize )
-	PIMultiSize(pi);
-    else
-	PIChars(pi);
+    else {
+	std::vector<SplineChar*> chars = collect_chars(fv, sc, mv);
+	if ( pi->pt==pt_multisize )
+	    PIMultiSize(pi, chars);
+	else
+	    PIChars(pi, chars);
+    }
     rewind(pi->out);
     if ( ferror(pi->out) )
 	ff_post_error(_("Print Failed"),_("Failed to generate postscript in file %s"),
@@ -3002,8 +3009,6 @@ void PI_Init(PI *pi,enum printtype pt,FontViewBase *fv,SplineChar *sc) {
 
     memset(pi,'\0',sizeof(*pi));
     pi->pt = pt;
-    pi->fv = fv;
-    pi->sc = sc;
     if ( fv!=NULL ) {
 	pi->mainsf = fv->sf;
 	pi->mainmap = fv->map;
@@ -3118,7 +3123,7 @@ return;
 	}
     }
 
-    DoPrinting(&pi,outputfile);
+    DoPrinting(&pi,outputfile, fv, NULL, NULL);
 
     if ( pi.pt==pt_fontsample ) {
 	LayoutInfo_Destroy(pi.sample);

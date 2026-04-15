@@ -71,9 +71,6 @@ struct sfbits {
 };
 
 typedef struct printinfo {
-    FontViewBase *fv;
-    struct metricsview *mv;
-    SplineChar *sc;
     SplineFont *mainsf;
     EncMap *mainmap;
     enum printtype pt;
@@ -120,7 +117,7 @@ extern struct printdefaults {
 /* defaults for print from fontview, charview, metricsview */
 
 extern void PI_Init(PI *pi,enum printtype pt,FontViewBase *fv,SplineChar *sc);
-extern void DoPrinting(PI *pi,char *filename);
+extern void DoPrinting(PI *pi,char *filename, FontViewBase* fv, SplineChar* sc, struct metricsview *mv);
 extern int PdfDumpGlyphResources(PI *pi,SplineChar *sc);
 extern void makePatName(char *buffer,
 	RefChar *ref,SplineChar *sc,int layer,int isstroke,int isgrad);
