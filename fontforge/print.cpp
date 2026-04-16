@@ -1800,11 +1800,61 @@ return;
 /* ********************* Code for single character dump ********************* */
 /* ************************************************************************** */
 
-static void SCPrintPage(PI *pi,SplineChar *sc) {
+struct LinePlacement {
+    real x1, y1, x2, y2;
+};
+
+struct GlyphPlacement {
+    real xoff, yoff, scalex, scaley;
+};
+
+struct PageLayout {
+    real title_y;
+    std::vector<LinePlacement> lines;
+    GlyphPlacement glyph;
+};
+
+static PageLayout SCCalculateLayout(PI* pi, SplineChar* sc) {
+    PageLayout layout;
     DBounds b, page;
     real scalex, scaley;
     real xoff, yoff, scale;
 
+    SplineCharFindBounds(sc, &b);
+    if (b.maxy < sc->parent->ascent + 5) b.maxy = sc->parent->ascent + 5;
+    if (b.miny > -sc->parent->descent) b.miny = -sc->parent->descent - 5;
+    if (b.minx > 00) b.minx = -5;
+    if (b.maxx <= 0) b.maxx = 5;
+    if (b.maxx <= sc->width + 5) b.maxx = sc->width + 5;
+
+    /* From the default bounding box */
+    page.minx = 40;
+    page.maxx = pi->pagewidth - 15;
+    page.miny = 20;
+    page.maxy = pi->pageheight - 40;
+
+    scalex = (page.maxx - page.minx) / (b.maxx - b.minx);
+    scaley = (page.maxy - page.miny) / (b.maxy - b.miny);
+    scale = (scalex < scaley) ? scalex : scaley;
+    xoff = page.minx - b.minx * scale;
+    yoff = page.miny - b.miny * scale;
+
+    layout.title_y = page.maxy + 8;
+    layout.glyph = {xoff, yoff, scale, scale};
+
+    layout.lines.push_back({page.minx, yoff, page.maxx, yoff});
+    layout.lines.push_back({xoff, page.miny, xoff, page.maxy});
+    layout.lines.push_back({page.minx, sc->parent->ascent * scale + yoff,
+                            page.maxx, sc->parent->ascent * scale + yoff});
+    layout.lines.push_back({page.minx, -sc->parent->descent * scale + yoff,
+                            page.maxx, -sc->parent->descent * scale + yoff});
+    layout.lines.push_back({xoff + sc->width * scale, page.miny,
+                            xoff + sc->width * scale, page.maxy});
+
+    return layout;
+}
+
+static void SCPrintPage(PI *pi,SplineChar *sc) {
     if ( pi->page!=0 )
 	endpage(pi);
     ++pi->page;
@@ -1816,45 +1866,27 @@ static void SCPrintPage(PI *pi,SplineChar *sc) {
 	startpage(pi);
     }
 
-    SplineCharFindBounds(sc,&b);
-    if ( b.maxy<sc->parent->ascent+5 ) b.maxy = sc->parent->ascent + 5;
-    if ( b.miny>-sc->parent->descent ) b.miny =-sc->parent->descent - 5;
-    if ( b.minx>00 ) b.minx = -5;
-    if ( b.maxx<=0 ) b.maxx = 5;
-    if ( b.maxx<=sc->width+5 ) b.maxx = sc->width+5;
-
-    /* From the default bounding box */
-    page.minx = 40; page.maxx = pi->pagewidth-15;
-    page.miny = 20; page.maxy = pi->pageheight-20;
+    PageLayout layout = SCCalculateLayout(pi, sc);
 
     if ( pi->printtype!=pt_pdf ) {
 	fprintf(pi->out,"Times-Bold__12 setfont\n" );
-	fprintf(pi->out,"(%s from %s) 80 %g n_show\n", sc->name, sc->parent->fullname, (double) (page.maxy-12) );
+	fprintf(pi->out,"(%s from %s) 80 %g n_show\n", sc->name, sc->parent->fullname, (double) layout.title_y );
     } else {
 	fprintf( pi->out, "BT\n" );
 	fprintf( pi->out, "  /FTB 12 Tf\n" );
-	fprintf( pi->out, "  80 %g Td\n", (double) (page.maxy-12) );
+	fprintf( pi->out, "  80 %g Td\n", (double) layout.title_y );
 	fprintf( pi->out, "  (%s from %s) Tj\n", sc->name, sc->parent->fullname );
 	fprintf( pi->out, "ET\n" );
     }
-    page.maxy -= 20;
-
-    scalex = (page.maxx-page.minx)/(b.maxx-b.minx);
-    scaley = (page.maxy-page.miny)/(b.maxy-b.miny);
-    scale = (scalex<scaley)?scalex:scaley;
-    xoff = page.minx - b.minx*scale;
-    yoff = page.miny - b.miny*scale;
 
     if ( pi->printtype!=pt_pdf ) {
 	fprintf(pi->out,"gsave .2 setlinewidth\n" );
-	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) page.minx, (double) yoff, (double) page.maxx, (double) yoff );
-	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) xoff, (double) page.miny, (double) xoff, (double) page.maxy );
-	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) page.minx, (double) (sc->parent->ascent*scale+yoff), (double) page.maxx, (double) (sc->parent->ascent*scale+yoff) );
-	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) page.minx, (double) (-sc->parent->descent*scale+yoff), (double) page.maxx, (double) (-sc->parent->descent*scale+yoff) );
-	fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) (xoff+sc->width*scale), (double) page.miny, (double) (xoff+sc->width*scale), (double) page.maxy );
+	for ( const LinePlacement& line : layout.lines ) {
+	    fprintf(pi->out,"%g %g moveto %g %g lineto stroke\n", (double) line.x1, (double) line.y1, (double) line.x2, (double) line.y2 );
+	}
 	fprintf(pi->out,"grestore\n" );
-	fprintf(pi->out,"gsave\n %g %g translate\n", (double) xoff, (double) yoff );
-	fprintf(pi->out," %g %g scale\n", (double) scale, (double) scale );
+	fprintf(pi->out,"gsave\n %g %g translate\n", (double) layout.glyph.xoff, (double) layout.glyph.yoff );
+	fprintf(pi->out," %g %g scale\n", (double) layout.glyph.scalex, (double) layout.glyph.scaley );
 	SC_PSDump((void (*)(int,void *)) fputc,pi->out,sc,true,false,ly_fore);
 	if ( sc->parent->multilayer )
 	    /* All done */;
@@ -1865,14 +1897,12 @@ static void SCPrintPage(PI *pi,SplineChar *sc) {
 	fprintf(pi->out,"grestore\n" );
     } else {
 	fprintf(pi->out,"q .2 w\n" );
-	fprintf(pi->out,"%g %g m %g %g l S\n", (double) page.minx, (double) yoff, (double) page.maxx, (double) yoff );
-	fprintf(pi->out,"%g %g m %g %g l S\n", (double) xoff, (double) page.miny, (double) xoff, (double) page.maxy );
-	fprintf(pi->out,"%g %g m %g %g l S\n", (double) page.minx, (double) (sc->parent->ascent*scale+yoff), (double) page.maxx, (double) (sc->parent->ascent*scale+yoff) );
-	fprintf(pi->out,"%g %g m %g %g l S\n", (double) page.minx, (double) (-sc->parent->descent*scale+yoff), (double) page.maxx, (double) (-sc->parent->descent*scale+yoff) );
-	fprintf(pi->out,"%g %g m %g %g l S\n", (double) (xoff+sc->width*scale), (double) page.miny, (double) (xoff+sc->width*scale), (double) page.maxy );
+	for ( const LinePlacement& line : layout.lines ) {
+	    fprintf(pi->out,"%g %g m %g %g l S\n", (double) line.x1, (double) line.y1, (double) line.x2, (double) line.y2 );
+	}
 	fprintf(pi->out,"Q\n" );
-	fprintf(pi->out,"q \n %g 0 0 %g %g %g cm\n", (double) scale, (double) scale,
-		(double) xoff, (double) yoff );
+	fprintf(pi->out,"q \n %g 0 0 %g %g %g cm\n", (double) layout.glyph.scalex, (double) layout.glyph.scaley,
+		(double) layout.glyph.xoff, (double) layout.glyph.yoff );
 	SC_PSDump((void (*)(int,void *)) fputc,pi->out,sc,true,true,ly_fore);
 	if ( sc->parent->multilayer )
 	    /* All done */;
