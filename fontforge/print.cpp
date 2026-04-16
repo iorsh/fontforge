@@ -1814,7 +1814,8 @@ struct PageLayout {
     GlyphPlacement glyph;
 };
 
-static PageLayout SCCalculateLayout(PI* pi, SplineChar* sc) {
+static PageLayout SCCalculateLayout(int pagewidth, int pageheight,
+                                    SplineChar* sc) {
     PageLayout layout;
     DBounds b, page;
     real scalex, scaley;
@@ -1829,9 +1830,9 @@ static PageLayout SCCalculateLayout(PI* pi, SplineChar* sc) {
 
     /* From the default bounding box */
     page.minx = 40;
-    page.maxx = pi->pagewidth - 15;
+    page.maxx = pagewidth - 15;
     page.miny = 20;
-    page.maxy = pi->pageheight - 40;
+    page.maxy = pageheight - 40;
 
     scalex = (page.maxx - page.minx) / (b.maxx - b.minx);
     scaley = (page.maxy - page.miny) / (b.maxy - b.miny);
@@ -1854,7 +1855,7 @@ static PageLayout SCCalculateLayout(PI* pi, SplineChar* sc) {
     return layout;
 }
 
-static void SCPrintPage(PI *pi,SplineChar *sc) {
+static void SCPrintPage(PI *pi, SplineChar *sc, const PageLayout& layout) {
     if ( pi->page!=0 )
 	endpage(pi);
     ++pi->page;
@@ -1865,8 +1866,6 @@ static void SCPrintPage(PI *pi,SplineChar *sc) {
     } else {
 	startpage(pi);
     }
-
-    PageLayout layout = SCCalculateLayout(pi, sc);
 
     if ( pi->printtype!=pt_pdf ) {
 	fprintf(pi->out,"Times-Bold__12 setfont\n" );
@@ -3135,7 +3134,11 @@ class CharsPrinter : public ff::layout::IPrinter {
 
     void end_document() override { dump_trailer(&pi); }
 
-    void add_page() override { SCPrintPage(&pi, current_char); }
+    void add_page() override {
+        PageLayout layout =
+            SCCalculateLayout(pi.pagewidth, pi.pageheight, current_char);
+        SCPrintPage(&pi, current_char, layout);
+    }
 
     void print_char(SplineChar* sc) {
         current_char = sc;
