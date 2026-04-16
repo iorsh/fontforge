@@ -1938,14 +1938,6 @@ static std::vector<SplineChar*> collect_chars(FontViewBase* fv, SplineChar* sc,
     return chars;
 }
 
-static void PIChars(PI* pi, const std::vector<SplineChar*>& chars) {
-    int i, gid;
-
-    dump_prologue(pi);
-    for (SplineChar* sc : chars) SCPrintPage(pi, sc);
-    dump_trailer(pi);
-}
-
 /* ************************************************************************** */
 /* ************************** Code for sample text ************************** */
 /* ************************************************************************** */
@@ -2980,11 +2972,9 @@ void DoPrinting(PI *pi,char *filename, FontViewBase* fv, SplineChar* sc, struct 
     else if ( pi->pt==pt_fontsample )
 	PIFontSample(pi);
     else {
+	/* pi->pt==pt_multisize */
 	std::vector<SplineChar*> chars = collect_chars(fv, sc, mv);
-	if ( pi->pt==pt_multisize )
-	    PIMultiSize(pi, chars);
-	else
-	    PIChars(pi, chars);
+	PIMultiSize(pi, chars);
     }
     rewind(pi->out);
     if ( ferror(pi->out) )
@@ -3100,8 +3090,80 @@ return( NULL );
 return( space );
 }
 
+class CharsPrinter : public ff::layout::IPrinter {
+ public:
+    CharsPrinter(FontViewBase* fv, char* outputfile) : outputfile_(outputfile) {
+        PI_Init(&pi, pt_chars, fv, NULL);
+
+        if (outputfile == NULL) {
+            char buf[100];
+            sprintf(buf, "pr-%.90s.%s", pi.mainsf->fontname,
+                    pi.printtype == pt_file ? "ps" : "pdf");
+            outputfile = buf;
+        }
+        pi.out = fopen(outputfile, "wb");
+        if (pi.out == NULL) {
+            ff_post_error(_("Print Failed"),
+                          _("Failed to open file %s for output"), outputfile);
+            return;
+        }
+
+        int sfmax = 1;
+
+        pi.sfmax = sfmax;
+        pi.sfbits = (struct sfbits*)calloc(sfmax, sizeof(struct sfbits));
+        pi.sfcnt = 0;
+    }
+
+    ~CharsPrinter() {
+        rewind(pi.out);
+
+        if (ferror(pi.out))
+            ff_post_error(_("Print Failed"),
+                          _("Failed to generate postscript in file %s"),
+                          outputfile_ == NULL ? "temporary" : outputfile_);
+
+        if (fclose(pi.out) != 0)
+            ff_post_error(_("Print Failed"),
+                          _("Failed to generate postscript in file %s"),
+                          outputfile_ == NULL ? "temporary" : outputfile_);
+        free(pi.sfbits);
+        free(pi.title);
+    }
+
+    void start_document() override { dump_prologue(&pi); }
+
+    void end_document() override { dump_trailer(&pi); }
+
+    void add_page() override { SCPrintPage(&pi, current_char); }
+
+    void print_char(SplineChar* sc) {
+        current_char = sc;
+        add_page();
+    }
+
+ private:
+    PI pi;
+    char* outputfile_;
+    SplineChar* current_char;
+};
+
+void ScriptPrintChars(FontViewBase* fv, char* outputfile) {
+    CharsPrinter printer(fv, outputfile);
+    int i, gid;
+    std::vector<SplineChar*> chars = collect_chars(fv, NULL, NULL);
+
+    printer.start_document();
+    for (SplineChar* sc : chars) printer.print_char(sc);
+    printer.end_document();
+}
+
 void ScriptPrint(FontViewBase *fv,int type,int32_t *pointsizes,char *samplefile,
 	unichar_t *sample, char *outputfile) {
+    if (type == pt_chars) {
+	return ScriptPrintChars(fv, outputfile);
+    }
+
     PI pi;
     char buf[100];
     LayoutInfo *li;
