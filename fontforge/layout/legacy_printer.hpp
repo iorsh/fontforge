@@ -31,41 +31,23 @@
 #include "i_printer.hpp"
 
 struct printinfo;
+typedef struct fontviewbase FontViewBase;
+typedef struct printinfo PI;
 
 namespace ff::layout {
 
-enum class PrintPageStyle {
-    regular,
-    sample,
-};
-
-struct PrinterContext {
-    ::printinfo* pi;
-    void (*start_document_cb)(::printinfo*);
-    void (*end_document_cb)(::printinfo*);
-    void (*add_regular_page_cb)(::printinfo*);
-    void (*add_sample_page_cb)(::printinfo*);
-};
-
-class LegacyPrinter final : public IPrinter {
+class LegacyPrinter : public IPrinter {
  public:
-    LegacyPrinter(PrintPageStyle page_style, PrinterContext context)
-        : page_style_(page_style), context_(std::move(context)) {}
+    LegacyPrinter(FontViewBase* fv, char* outputfile);
+    ~LegacyPrinter() override;
 
-    void start_document() override { context_.start_document_cb(context_.pi); }
+    void start_document() override;
 
-    void end_document() override { context_.end_document_cb(context_.pi); }
+    void end_document() override;
 
-    void add_page() override {
-        if (page_style_ == PrintPageStyle::sample)
-            context_.add_sample_page_cb(context_.pi);
-        else
-            context_.add_regular_page_cb(context_.pi);
-    }
-
- private:
-    PrintPageStyle page_style_;
-    PrinterContext context_;
+ protected:
+    PI* pi = nullptr;
+    char* outputfile_;
 };
 
 }  // namespace ff::layout

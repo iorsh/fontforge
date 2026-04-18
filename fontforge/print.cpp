@@ -3064,173 +3064,131 @@ return( NULL );
 return( space );
 }
 
-class CharsPrinter : public ff::layout::IPrinter {
+ff::layout::LegacyPrinter::LegacyPrinter(FontViewBase* fv, char* outputfile)
+    : outputfile_(outputfile) {
+    pi = new PI{};
+    PI_Init(pi, pt_chars, fv, NULL);
+
+    if (outputfile == NULL) {
+        char buf[100];
+        sprintf(buf, "pr-%.90s.%s", pi->mainsf->fontname,
+                pi->printtype == pt_file ? "ps" : "pdf");
+        outputfile = buf;
+    }
+    pi->out = fopen(outputfile, "wb");
+    if (pi->out == NULL) {
+        ff_post_error(_("Print Failed"), _("Failed to open file %s for output"),
+                      outputfile);
+        return;
+    }
+
+    int sfmax = 1;
+
+    pi->sfmax = sfmax;
+    pi->sfbits = (struct sfbits*)calloc(sfmax, sizeof(struct sfbits));
+    pi->sfcnt = 0;
+}
+
+ff::layout::LegacyPrinter::~LegacyPrinter() {
+    rewind(pi->out);
+
+    if (ferror(pi->out))
+        ff_post_error(_("Print Failed"),
+                      _("Failed to generate postscript in file %s"),
+                      outputfile_ == NULL ? "temporary" : outputfile_);
+
+    if (fclose(pi->out) != 0)
+        ff_post_error(_("Print Failed"),
+                      _("Failed to generate postscript in file %s"),
+                      outputfile_ == NULL ? "temporary" : outputfile_);
+    free(pi->sfbits);
+    free(pi->title);
+    delete pi;
+}
+
+void ff::layout::LegacyPrinter::start_document() { dump_prologue(pi); }
+
+void ff::layout::LegacyPrinter::end_document() { dump_trailer(pi); }
+
+class CharsPrinter : public ff::layout::LegacyPrinter {
  public:
-    CharsPrinter(FontViewBase* fv, char* outputfile) : outputfile_(outputfile) {
-        PI_Init(&pi, pt_chars, fv, NULL);
-
-        if (outputfile == NULL) {
-            char buf[100];
-            sprintf(buf, "pr-%.90s.%s", pi.mainsf->fontname,
-                    pi.printtype == pt_file ? "ps" : "pdf");
-            outputfile = buf;
-        }
-        pi.out = fopen(outputfile, "wb");
-        if (pi.out == NULL) {
-            ff_post_error(_("Print Failed"),
-                          _("Failed to open file %s for output"), outputfile);
-            return;
-        }
-
-        int sfmax = 1;
-
-        pi.sfmax = sfmax;
-        pi.sfbits = (struct sfbits*)calloc(sfmax, sizeof(struct sfbits));
-        pi.sfcnt = 0;
+    CharsPrinter(FontViewBase* fv, char* outputfile)
+        : LegacyPrinter(fv, outputfile) {
+        chars = collect_chars(fv, NULL, NULL);
     }
 
-    ~CharsPrinter() {
-        rewind(pi.out);
+    size_t page_count() const override { return chars.size(); }
 
-        if (ferror(pi.out))
-            ff_post_error(_("Print Failed"),
-                          _("Failed to generate postscript in file %s"),
-                          outputfile_ == NULL ? "temporary" : outputfile_);
-
-        if (fclose(pi.out) != 0)
-            ff_post_error(_("Print Failed"),
-                          _("Failed to generate postscript in file %s"),
-                          outputfile_ == NULL ? "temporary" : outputfile_);
-        free(pi.sfbits);
-        free(pi.title);
-    }
-
-    void start_document() override { dump_prologue(&pi); }
-
-    void end_document() override { dump_trailer(&pi); }
-
-    void add_page() override {
-        PageLayout layout =
-            SCCalculateLayout(pi.pagewidth, pi.pageheight, current_char);
-        SCPrintPage(&pi, current_char, layout);
-    }
-
-    void print_char(SplineChar* sc) {
-        current_char = sc;
-        add_page();
+    void add_page(size_t page_number) override {
+        PageLayout layout = SCCalculateLayout(pi->pagewidth, pi->pageheight,
+                                              chars[page_number]);
+        SCPrintPage(pi, chars[page_number], layout);
     }
 
  private:
-    PI pi;
-    char* outputfile_;
-    SplineChar* current_char;
+    std::vector<SplineChar*> chars;
 };
 
-class MultiSizePrinter : public ff::layout::IPrinter {
+class MultiSizePrinter : public ff::layout::LegacyPrinter {
  public:
     MultiSizePrinter(FontViewBase* fv, char* outputfile)
-        : outputfile_(outputfile) {
-        PI_Init(&pi, pt_multisize, fv, NULL);
+        : LegacyPrinter(fv, outputfile) {
+        pi->pointsize = pointsizes[0];
+        pi->extravspace = pi->pointsize / 6;
 
-        if (outputfile == NULL) {
-            char buf[100];
-            sprintf(buf, "pr-%.90s.%s", pi.mainsf->fontname,
-                    pi.printtype == pt_file ? "ps" : "pdf");
-            outputfile = buf;
-        }
-        pi.out = fopen(outputfile, "wb");
-        if (pi.out == NULL) {
-            ff_post_error(_("Print Failed"),
-                          _("Failed to open file %s for output"), outputfile);
-            return;
-        }
-
-        int sfmax = 1;
-
-        pi.sfmax = sfmax;
-        pi.sfbits = (struct sfbits*)calloc(sfmax, sizeof(struct sfbits));
-        pi.sfcnt = 0;
-    }
-
-    ~MultiSizePrinter() {
-        rewind(pi.out);
-
-        if (ferror(pi.out))
-            ff_post_error(_("Print Failed"),
-                          _("Failed to generate postscript in file %s"),
-                          outputfile_ == NULL ? "temporary" : outputfile_);
-
-        if (fclose(pi.out) != 0)
-            ff_post_error(_("Print Failed"),
-                          _("Failed to generate postscript in file %s"),
-                          outputfile_ == NULL ? "temporary" : outputfile_);
-        free(pi.sfbits);
-        free(pi.title);
+        chars = collect_chars(fv, NULL, NULL);
+        int printing_area_y = pi->pageheight - 120;
+        samples_per_page_ = printing_area_y / (pi->pointsize + pi->extravspace);
     }
 
     void start_document() override {
-        pi.pointsize = pointsizes[0];
-        pi.extravspace = pi.pointsize / 6;
-        if (!PIDownloadFont(&pi, pi.mainsf, pi.mainmap)) return;
-        dump_prologue(&pi);
+        if (!PIDownloadFont(pi, pi->mainsf, pi->mainmap)) return;
+        LegacyPrinter::start_document();
     }
 
-    void end_document() override { dump_trailer(&pi); }
-
-    void add_page() override {
-        PageLayout layout =
-            SCCalculateLayout(pi.pagewidth, pi.pageheight, current_char);
-        SCPrintPage(&pi, current_char, layout);
+    size_t page_count() const override {
+        if (chars.empty())
+            return 0;
+        else
+            return (chars.size() - 1) / samples_per_page_ + 1;
     }
 
-    void print_char(SplineChar* sc) {
-        current_char = sc;
-        add_page();
-    }
+    void add_page(size_t page_number) override {
+        size_t start_index = page_number * samples_per_page_;
+        size_t end_index =
+            std::min(start_index + samples_per_page_, chars.size());
 
-    void _go(const std::vector<SplineChar*>& chars) {
-        int printing_area_y = pi.pageheight - 120;
-        int samples_per_page =
-            printing_area_y / (pi.pointsize + pi.extravspace);
+        samplestartpage(pi);
 
-        for (size_t i = 0; i < chars.size(); ++i) {
-            if (i % samples_per_page == 0) samplestartpage(&pi);
-            pi.ypos =
-                -30 - (i % samples_per_page) * (pi.pointsize + pi.extravspace);
-            SCPrintSizes(&pi, chars[i]);
+        for (size_t i = start_index; i < end_index; ++i) {
+            pi->ypos =
+                -30 - (i - start_index) * (pi->pointsize + pi->extravspace);
+            SCPrintSizes(pi, chars[i]);
         }
     }
 
  private:
-    PI pi;
-    char* outputfile_;
-    SplineChar* current_char;
+    std::vector<SplineChar*> chars;
+    int samples_per_page_;
 };
 
-void ScriptPrintChars(FontViewBase* fv, char* outputfile) {
-    CharsPrinter printer(fv, outputfile);
-    std::vector<SplineChar*> chars = collect_chars(fv, NULL, NULL);
-
+void ScriptLegacyPrint(ff::layout::LegacyPrinter& printer) {
     printer.start_document();
-    for (SplineChar* sc : chars) printer.print_char(sc);
-    printer.end_document();
-}
-
-void ScriptPrintMultiSize(FontViewBase* fv, char* outputfile) {
-    MultiSizePrinter printer(fv, outputfile);
-    std::vector<SplineChar*> chars = collect_chars(fv, NULL, NULL);
-
-    printer.start_document();
-    printer._go(chars);
+    size_t page_count = printer.page_count();
+    for (size_t i = 0; i < page_count; ++i) {
+        printer.add_page(i);
+    }
     printer.end_document();
 }
 
 void ScriptPrint(FontViewBase *fv,int type,int32_t *pointsizes,char *samplefile,
 	unichar_t *sample, char *outputfile) {
     if (type == pt_chars) {
-	return ScriptPrintChars(fv, outputfile);
+	CharsPrinter printer(fv, outputfile);
+	return ScriptLegacyPrint(printer);
     } else if (type == pt_multisize) {
-	return ScriptPrintMultiSize(fv, outputfile);
+	MultiSizePrinter printer(fv, outputfile);
+	return ScriptLegacyPrint(printer);
     }
 
     PI pi;
