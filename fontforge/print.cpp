@@ -2111,19 +2111,15 @@ return;
 /* ************************************************************************** */
 /* ************************** Code for multi size *************************** */
 /* ************************************************************************** */
-static double pointsizes[] = { 72, 48, 36, 24, 20, 18, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4.2, 4, 0 };
+static const double pointsizes[] = { 72, 48, 36, 24, 20, 18, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4.2, 4, 0 };
 
 static void SCPrintSizes(PI *pi,SplineChar *sc) {
     int xstart = 10, i;
     int enc;
     struct sfbits *sfbit = &pi->sfbits[0];
 
-    if ( !SCWorthOutputting(sc))
-return;
     enc = sfbit->map->backmap[sc->orig_pos];
-    if ( pi->ypos - pi->pointsize < -(pi->pageheight-90) && pi->ypos!=-30 ) {
-	samplestartpage(pi);
-    }
+
     if ( pi->printtype==pt_pdf ) {
 	fprintf(pi->out,"BT\n%d %d Td\n", xstart, pi->ypos );
     } else {
@@ -2149,25 +2145,6 @@ return;
     }
     if ( pi->printtype==pt_pdf )
 	fprintf(pi->out, "ET\n");
-    pi->ypos -= pi->pointsize+pi->extravspace;
-}
-
-static void PIMultiSize(PI *pi, const std::vector<SplineChar*>& chars) {
-    int i, gid;
-    struct sfbits *sfbit = &pi->sfbits[0];
-
-    pi->pointsize = pointsizes[0];
-    pi->extravspace = pi->pointsize/6;
-    if ( !PIDownloadFont(pi,pi->mainsf,pi->mainmap))
-return;
-    dump_prologue(pi);
-
-    samplestartpage(pi);
-
-    for ( SplineChar* sc : chars )
-	SCPrintSizes(pi, sc);
-
-    dump_trailer(pi);
 }
 
 /* ************************************************************************** */
@@ -2971,9 +2948,7 @@ void DoPrinting(PI *pi,char *filename, FontViewBase* fv, SplineChar* sc, struct 
     else if ( pi->pt==pt_fontsample )
 	PIFontSample(pi);
     else {
-	/* pi->pt==pt_multisize */
-	std::vector<SplineChar*> chars = collect_chars(fv, sc, mv);
-	PIMultiSize(pi, chars);
+	// TODO(iorsh): Steer to use ff::layout::IPrinter interface.
     }
     rewind(pi->out);
     if ( ferror(pi->out) )
@@ -3151,9 +3126,89 @@ class CharsPrinter : public ff::layout::IPrinter {
     SplineChar* current_char;
 };
 
+class MultiSizePrinter : public ff::layout::IPrinter {
+ public:
+    MultiSizePrinter(FontViewBase* fv, char* outputfile)
+        : outputfile_(outputfile) {
+        PI_Init(&pi, pt_multisize, fv, NULL);
+
+        if (outputfile == NULL) {
+            char buf[100];
+            sprintf(buf, "pr-%.90s.%s", pi.mainsf->fontname,
+                    pi.printtype == pt_file ? "ps" : "pdf");
+            outputfile = buf;
+        }
+        pi.out = fopen(outputfile, "wb");
+        if (pi.out == NULL) {
+            ff_post_error(_("Print Failed"),
+                          _("Failed to open file %s for output"), outputfile);
+            return;
+        }
+
+        int sfmax = 1;
+
+        pi.sfmax = sfmax;
+        pi.sfbits = (struct sfbits*)calloc(sfmax, sizeof(struct sfbits));
+        pi.sfcnt = 0;
+    }
+
+    ~MultiSizePrinter() {
+        rewind(pi.out);
+
+        if (ferror(pi.out))
+            ff_post_error(_("Print Failed"),
+                          _("Failed to generate postscript in file %s"),
+                          outputfile_ == NULL ? "temporary" : outputfile_);
+
+        if (fclose(pi.out) != 0)
+            ff_post_error(_("Print Failed"),
+                          _("Failed to generate postscript in file %s"),
+                          outputfile_ == NULL ? "temporary" : outputfile_);
+        free(pi.sfbits);
+        free(pi.title);
+    }
+
+    void start_document() override {
+        pi.pointsize = pointsizes[0];
+        pi.extravspace = pi.pointsize / 6;
+        if (!PIDownloadFont(&pi, pi.mainsf, pi.mainmap)) return;
+        dump_prologue(&pi);
+    }
+
+    void end_document() override { dump_trailer(&pi); }
+
+    void add_page() override {
+        PageLayout layout =
+            SCCalculateLayout(pi.pagewidth, pi.pageheight, current_char);
+        SCPrintPage(&pi, current_char, layout);
+    }
+
+    void print_char(SplineChar* sc) {
+        current_char = sc;
+        add_page();
+    }
+
+    void _go(const std::vector<SplineChar*>& chars) {
+        int printing_area_y = pi.pageheight - 120;
+        int samples_per_page =
+            printing_area_y / (pi.pointsize + pi.extravspace);
+
+        for (size_t i = 0; i < chars.size(); ++i) {
+            if (i % samples_per_page == 0) samplestartpage(&pi);
+            pi.ypos =
+                -30 - (i % samples_per_page) * (pi.pointsize + pi.extravspace);
+            SCPrintSizes(&pi, chars[i]);
+        }
+    }
+
+ private:
+    PI pi;
+    char* outputfile_;
+    SplineChar* current_char;
+};
+
 void ScriptPrintChars(FontViewBase* fv, char* outputfile) {
     CharsPrinter printer(fv, outputfile);
-    int i, gid;
     std::vector<SplineChar*> chars = collect_chars(fv, NULL, NULL);
 
     printer.start_document();
@@ -3161,10 +3216,21 @@ void ScriptPrintChars(FontViewBase* fv, char* outputfile) {
     printer.end_document();
 }
 
+void ScriptPrintMultiSize(FontViewBase* fv, char* outputfile) {
+    MultiSizePrinter printer(fv, outputfile);
+    std::vector<SplineChar*> chars = collect_chars(fv, NULL, NULL);
+
+    printer.start_document();
+    printer._go(chars);
+    printer.end_document();
+}
+
 void ScriptPrint(FontViewBase *fv,int type,int32_t *pointsizes,char *samplefile,
 	unichar_t *sample, char *outputfile) {
     if (type == pt_chars) {
 	return ScriptPrintChars(fv, outputfile);
+    } else if (type == pt_multisize) {
+	return ScriptPrintMultiSize(fv, outputfile);
     }
 
     PI pi;
