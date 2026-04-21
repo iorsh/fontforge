@@ -30,6 +30,8 @@
 
 #include "print.h"
 
+#include <map>
+
 #include "cvexport.h"
 #include "dumppfa.h"
 #include "ffglib_compat.h"
@@ -1618,31 +1620,39 @@ return;
 	    fprintf(pi->out,"(%X) %d -54.84 n_show\n", i, 60+(pi->pointsize+pi->extrahspace)*i );
 }
 
-static int DumpLine(PI *pi) {
-    int i=0, line, gid;
-    struct sfbits *sfbit = &pi->sfbits[0];
+static std::vector<int> collect_glyph_indexes(PI* pi) {
+    std::vector<int> glyphs;
+    struct sfbits* sfbit = &pi->sfbits[0];
 
-    /* First find the next line with stuff on it */
-    if ( !sfbit->iscid || sfbit->istype42cid ) {
-	for ( line = pi->chline ; line<sfbit->map->enccount; line += pi->max ) {
-	    for ( i=0; i<pi->max && line+i<sfbit->map->enccount; ++i )
-		if ( (gid=sfbit->map->map[line+i])!=-1 )
-		    if ( SCWorthOutputting(sfbit->sf->glyphs[gid]) )
-	    break;
-	    if ( i!=pi->max )
-	break;
-	}
+    if (!sfbit->iscid || sfbit->istype42cid) {
+        for (int i = 0; i < sfbit->map->enccount; ++i) {
+            int gid = sfbit->map->map[i];
+            if (gid != -1 && SCWorthOutputting(sfbit->sf->glyphs[gid]))
+                glyphs.push_back(i);
+        }
     } else {
-	for ( line = pi->chline ; line<sfbit->cidcnt; line += pi->max ) {
-	    for ( i=0; i<pi->max && line+i<sfbit->cidcnt; ++i )
-		if ( CIDWorthOutputting(sfbit->sf,line+i)!= -1 )
-	    break;
-	    if ( i!=pi->max )
-	break;
-	}
+        for (int i = 0; i < sfbit->cidcnt; ++i) {
+            if (CIDWorthOutputting(sfbit->sf, i) != -1) glyphs.push_back(i);
+        }
     }
-    if ( line+i>=sfbit->cidcnt )		/* Nothing more */
-return(0);
+    return glyphs;
+}
+
+static std::map<int, std::vector<int>> collect_lines(
+    const std::vector<int>& glyphs, int max) {
+    std::map<int, std::vector<int>> lines;
+    // Glyphs are assumed to be sorted in ascending order.
+    for (size_t i = 0; i < glyphs.size(); ++i) {
+        int line = glyphs[i] / max;
+        if (lines.find(line) == lines.end()) lines[line] = std::vector<int>();
+        lines[line].push_back(glyphs[i]);
+    }
+    return lines;
+}
+
+static void DumpLine(PI *pi, const std::vector<int> &glyphs) {
+    int i=0, line = pi->chline, gid;
+    struct sfbits *sfbit = &pi->sfbits[0];
 
     if ( sfbit->iscid )
 	/* No encoding worries */;
@@ -1668,16 +1678,10 @@ return(0);
 	}
     }
 
-    if ( pi->chline==0 ) {
-	/* start the first page */
+    /* start subsequent pages by displaying the one before */
+    if ( pi->ypos - pi->pointsize < -(pi->pageheight-90) ) {
 	startpage(pi);
-    } else {
-	/* start subsequent pages by displaying the one before */
-	if ( pi->ypos - pi->pointsize < -(pi->pageheight-90) ) {
-	    startpage(pi);
-	}
     }
-    pi->chline = line;
 
     if ( pi->printtype==pt_pdf ) {
 	int lastfont = -1;
@@ -1751,8 +1755,6 @@ return(0);
 	}
     }
     pi->ypos -= pi->pointsize+pi->extravspace;
-    pi->chline += pi->max;
-return(true);
 }
 
 static void PIFontDisplay(PI *pi) {
@@ -1787,8 +1789,13 @@ return;
 	else if ( pi->max >= 2 ) pi->max = 2;
     }
 
-    while ( DumpLine(pi))
-	;
+    std::vector<int> glyphs = collect_glyph_indexes(pi);
+    std::map<int, std::vector<int>> lines = collect_lines(glyphs, pi->max);
+    startpage(pi);
+    for ( const auto& line : lines ) {
+	pi->chline = line.first * pi->max;
+	DumpLine(pi, line.second);
+    }
 
     if ( pi->chline==0 )
 	ff_post_notice(_("Print Failed"),_("Warning: Font contained no glyphs"));
