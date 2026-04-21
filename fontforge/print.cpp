@@ -1577,8 +1577,8 @@ static void dump_trailer(PI *pi) {
 /* ************************* Code for full font dump ************************ */
 /* ************************************************************************** */
 
-static void startpage(PI *pi ) {
-    int i;
+// 'max' argument applies to font dump only. Single glyph is output with max=0.
+static void startpage(PI *pi, size_t max = 0) {
     /* I used to have a progress indicator here showing pages. But they went */
     /*  by so fast that even for CaslonRoman it was pointless */
 
@@ -1596,11 +1596,11 @@ return;
 	fprintf(pi->out,"(Font Display for %s) Tj\n", pi->mainsf->fontname );
 	fprintf( pi->out, "-159.8 -43.98 Td\n" );
 	if ( pi->sfbits[0].iscid && !pi->sfbits[0].istype42cid)
-	    for ( i=0; i<pi->max; ++i )
-		fprintf(pi->out,"%d 0 Td (%d) Tj\n", (pi->pointsize+pi->extrahspace), i );
+	    for (size_t i=0; i<max; ++i )
+		fprintf(pi->out,"%d 0 Td (%ld) Tj\n", (pi->pointsize+pi->extrahspace), i );
 	else
-	    for ( i=0; i<pi->max; ++i )
-		fprintf(pi->out,"%d 0 Td (%X) Tj\n", (pi->pointsize+pi->extrahspace), i );
+	    for (size_t i=0; i<max; ++i )
+		fprintf(pi->out,"%d 0 Td (%lX) Tj\n", (pi->pointsize+pi->extrahspace), i );
 	fprintf( pi->out, "ET\n" );
 return;
     }
@@ -1613,11 +1613,11 @@ return;
     fprintf(pi->out,"(Font Display for %s) 193.2 -10.92 n_show\n", pi->mainsf->fontname);
 
     if ( pi->sfbits[0].iscid && !pi->sfbits[0].istype42cid )
-	for ( i=0; i<pi->max; ++i )
-	    fprintf(pi->out,"(%d) %d -54.84 n_show\n", i, 60+(pi->pointsize+pi->extrahspace)*i );
+	for ( size_t i=0; i<max; ++i )
+	    fprintf(pi->out,"(%ld) %ld -54.84 n_show\n", i, 60+(pi->pointsize+pi->extrahspace)*i );
     else
-	for ( i=0; i<pi->max; ++i )
-	    fprintf(pi->out,"(%X) %d -54.84 n_show\n", i, 60+(pi->pointsize+pi->extrahspace)*i );
+	for ( size_t i=0; i<max; ++i )
+	    fprintf(pi->out,"(%lX) %ld -54.84 n_show\n", i, 60+(pi->pointsize+pi->extrahspace)*i );
 }
 
 static std::vector<int> collect_glyph_indexes(PI* pi) {
@@ -1650,16 +1650,17 @@ static std::map<int, std::vector<int>> collect_lines(
     return lines;
 }
 
-static void DumpLine(PI *pi, const std::vector<int> &glyphs) {
-    int i=0, line = pi->chline, gid;
+static void DumpLine(PI *pi, size_t line_idx, const std::vector<int> &glyphs, size_t max) {
+    int i=0, gid;
+    const size_t base_idx = line_idx * max;
     struct sfbits *sfbit = &pi->sfbits[0];
 
     if ( sfbit->iscid )
 	/* No encoding worries */;
-    else if ( (sfbit->wastwobyte && line>=65536) || ( !sfbit->wastwobyte && line>=256 ) ) {
+    else if ( (sfbit->wastwobyte && base_idx>=65536) || ( !sfbit->wastwobyte && base_idx>=256 ) ) {
 	/* Nothing more encoded. Can't use the normal font, must use one of */
 	/*  the funky reencodings we built up at the beginning */
-	if ( pi->lastbase!=(line>>8) ) {
+	if ( pi->lastbase!=(base_idx>>8) ) {
 	    if ( !pi->overflow ) {
 		/* draw a line to indicate the end of the encoding */
 		/* but we've still got more (unencoded) glyphs coming */
@@ -1672,7 +1673,7 @@ static void DumpLine(PI *pi, const std::vector<int> &glyphs) {
 		pi->ypos -= 5;
 	    }
 	    pi->overflow = true;
-	    pi->lastbase = (line>>8);
+	    pi->lastbase = (base_idx>>8);
 	    sprintf(sfbit->psfontname,"%s-%x__%d", sfbit->sf->fontname, pi->lastbase,
 		    pi->pointsize );
 	}
@@ -1680,75 +1681,75 @@ static void DumpLine(PI *pi, const std::vector<int> &glyphs) {
 
     /* start subsequent pages by displaying the one before */
     if ( pi->ypos - pi->pointsize < -(pi->pageheight-90) ) {
-	startpage(pi);
+	startpage(pi, max);
     }
 
     if ( pi->printtype==pt_pdf ) {
 	int lastfont = -1;
-	if ( !pi->overflow || (line<17*65536 && sfbit->isunicodefull)) {
+	if ( !pi->overflow || (base_idx<17*65536 && sfbit->isunicodefull)) {
 	    fprintf(pi->out, "BT\n  /FTB 12 Tf\n  26.88 %d Td\n", pi->ypos );
 	    if ( sfbit->iscid && !sfbit->istype42cid )
-		fprintf(pi->out,"(%d) Tj\n", pi->chline );
+		fprintf(pi->out,"(%ld) Tj\n", base_idx );
 	    else
-		fprintf(pi->out,"(%04X) Tj\n", pi->chline );
+		fprintf(pi->out,"(%04lX) Tj\n", base_idx );
 	    fprintf(pi->out, "ET\n" );
 	}
 	fprintf(pi->out, "BT\n  %d %d Td\n", 58-(pi->pointsize+pi->extrahspace), pi->ypos );
 	if ( sfbit->iscid )
 	    fprintf(pi->out, "  /F0 %d Tf\n", pi->pointsize );
-	for ( i=0; i<pi->max ; ++i ) {
+	for ( i=0; i<max ; ++i ) {
 	    fprintf( pi->out, "  %d 0 TD\n", pi->pointsize+pi->extrahspace );
-	    if ( i+pi->chline<sfbit->cidcnt &&
-			((sfbit->iscid && !sfbit->istype42cid && CIDWorthOutputting(sfbit->sf,i+pi->chline)!=-1) ||
-			 ((!sfbit->iscid || sfbit->istype42cid) && (gid=sfbit->map->map[i+pi->chline])!=-1 &&
+	    if ( i+base_idx<sfbit->cidcnt &&
+			((sfbit->iscid && !sfbit->istype42cid && CIDWorthOutputting(sfbit->sf,i+base_idx)!=-1) ||
+			 ((!sfbit->iscid || sfbit->istype42cid) && (gid=sfbit->map->map[i+base_idx])!=-1 &&
 				 SCWorthOutputting(sfbit->sf->glyphs[gid]))) ) {
 		/*int x = 58 + i*(pi->pointsize+pi->extrahspace);*/
-		if ( !sfbit->iscid && (i+pi->chline)/256 != lastfont ) {
-		    lastfont = (i+pi->chline)/256;
+		if ( !sfbit->iscid && (i+base_idx)/256 != lastfont ) {
+		    lastfont = (i+base_idx)/256;
 		    fprintf(pi->out, "  /F%d-%d %d Tf\n", pi->sfid, sfbit->fonts[lastfont], pi->pointsize );
 		}
 		if ( sfbit->istype42cid ) {
-		    int gid = sfbit->map->map[pi->chline+i];
+		    int gid = sfbit->map->map[base_idx+i];
 		    SplineChar *sc = gid==-1? NULL : sfbit->sf->glyphs[gid];
 		    fprintf( pi->out, "  <%04x> Tj\n", sc==NULL ? 0 : sc->ttf_glyph );
 		} else if ( sfbit->iscid )
-		    fprintf( pi->out, "  <%04x> Tj\n", pi->chline+i );
+		    fprintf( pi->out, "  <%04lx> Tj\n", base_idx+i );
 		else
-		    fprintf( pi->out, "  <%02x> Tj\n", (pi->chline+i)%256 );
+		    fprintf( pi->out, "  <%02lx> Tj\n", (base_idx+i)%256 );
 	    }
 	}
 	fprintf(pi->out, "ET\n" );
     } else {
-	if ( !pi->overflow || (line<17*65536 && sfbit->isunicodefull)) {
+	if ( !pi->overflow || (base_idx<17*65536 && sfbit->isunicodefull)) {
 	    fprintf(pi->out,"Times-Bold__12 setfont\n" );
 	    if ( sfbit->iscid && !sfbit->istype42cid )
-		fprintf(pi->out,"(%d) 26.88 %d n_show\n", pi->chline, pi->ypos );
+		fprintf(pi->out,"(%ld) 26.88 %d n_show\n", base_idx, pi->ypos );
 	    else
-		fprintf(pi->out,"(%04X) 26.88 %d n_show\n", pi->chline, pi->ypos );
+		fprintf(pi->out,"(%04lX) 26.88 %d n_show\n", base_idx, pi->ypos );
 	}
 	fprintf(pi->out,"%s setfont\n", sfbit->psfontname );
-	for ( i=0; i<pi->max ; ++i ) {
-	    if ( i+pi->chline<sfbit->cidcnt &&
-			((sfbit->iscid && !sfbit->istype42cid && CIDWorthOutputting(sfbit->sf,i+pi->chline)!=-1) ||
-			 ((!sfbit->iscid || sfbit->istype42cid) && (gid=sfbit->map->map[i+pi->chline])!=-1 &&
+	for ( i=0; i<max ; ++i ) {
+	    if ( i+base_idx<sfbit->cidcnt &&
+			((sfbit->iscid && !sfbit->istype42cid && CIDWorthOutputting(sfbit->sf,i+base_idx)!=-1) ||
+			 ((!sfbit->iscid || sfbit->istype42cid) && (gid=sfbit->map->map[i+base_idx])!=-1 &&
 				 SCWorthOutputting(sfbit->sf->glyphs[gid]))) ) {
 		int x = 58 + i*(pi->pointsize+pi->extrahspace);
 		if ( sfbit->istype42cid ) {
-		    int gid = sfbit->map->map[pi->chline+i];
+		    int gid = sfbit->map->map[base_idx+i];
 		    if ( gid!=-1 ) gid = sfbit->sf->glyphs[gid]->ttf_glyph;
 		    fprintf( pi->out, "<%04x> %d %d n_show\n", gid==-1?0:gid,
 			    x, pi->ypos );
 		} else if ( pi->overflow ) {
-		    fprintf( pi->out, "<%02x> %d %d n_show\n", pi->chline +i-(pi->lastbase<<8),
+		    fprintf( pi->out, "<%02lx> %d %d n_show\n", base_idx +i-(pi->lastbase<<8),
 			    x, pi->ypos );
 		} else if ( sfbit->iscid ) {
-		    fprintf( pi->out, "<%04x> %d %d n_show\n", pi->chline +i,
+		    fprintf( pi->out, "<%04lx> %d %d n_show\n", base_idx +i,
 			    x, pi->ypos );
 		} else if ( sfbit->twobyte ) {
-		    fprintf( pi->out, "<%04x> %d %d n_show\n", pi->chline +i,
+		    fprintf( pi->out, "<%04lx> %d %d n_show\n", base_idx +i,
 			    x, pi->ypos );
 		} else {
-		    fprintf( pi->out, "<%02x> %d %d n_show\n", pi->chline +i,
+		    fprintf( pi->out, "<%02lx> %d %d n_show\n", base_idx +i,
 			    x, pi->ypos );
 		}
 	    }
@@ -1766,7 +1767,7 @@ return;
 
     pi->extravspace = pi->pointsize/6;
     pi->extrahspace = pi->pointsize/3;
-    pi->max = (pi->pagewidth-100)/(pi->extrahspace+pi->pointsize);
+    size_t max = (pi->pagewidth-100)/(pi->extrahspace+pi->pointsize);
     pi->sfbits[0].cidcnt = pi->sfbits[0].map->enccount;
     if ( sf->subfontcnt!=0 && pi->sfbits[0].iscid ) {
 	int i,max=0;
@@ -1777,27 +1778,26 @@ return;
     }
 
     if ( pi->sfbits[0].iscid && !pi->sfbits[0].istype42cid ) {
-	if ( pi->max>=20 ) pi->max = 20;
-	else if ( pi->max>=10 ) pi->max = 10;
-	else if ( pi->max >= 5 ) pi->max = 5;
-	else if ( pi->max >= 2 ) pi->max = 2;
+	if ( max>=20 ) max = 20;
+	else if ( max>=10 ) max = 10;
+	else if ( max >= 5 ) max = 5;
+	else if ( max >= 2 ) max = 2;
     } else {
-	if ( pi->max>=32 ) pi->max = 32;
-	else if ( pi->max>=16 ) pi->max = 16;
-	else if ( pi->max>=8 ) pi->max = 8;
-	else if ( pi->max >= 4 ) pi->max = 4;
-	else if ( pi->max >= 2 ) pi->max = 2;
+	if ( max>=32 ) max = 32;
+	else if ( max>=16 ) max = 16;
+	else if ( max>=8 ) max = 8;
+	else if ( max >= 4 ) max = 4;
+	else if ( max >= 2 ) max = 2;
     }
 
     std::vector<int> glyphs = collect_glyph_indexes(pi);
-    std::map<int, std::vector<int>> lines = collect_lines(glyphs, pi->max);
-    startpage(pi);
+    std::map<int, std::vector<int>> lines = collect_lines(glyphs, max);
+    startpage(pi, max);
     for ( const auto& line : lines ) {
-	pi->chline = line.first * pi->max;
-	DumpLine(pi, line.second);
+	DumpLine(pi, line.first, line.second, max);
     }
 
-    if ( pi->chline==0 )
+    if ( lines.size() == 0 )
 	ff_post_notice(_("Print Failed"),_("Warning: Font contained no glyphs"));
     else
 	dump_trailer(pi);

@@ -84,8 +84,6 @@ typedef struct printinfo {
     unsigned int done: 1;
     unsigned int hadsize: 1;
     int ypos;
-    int max;		/* max chars per line */
-    int chline;		/* High order bits of characters we're outputting */
     int page;
     int lastbase;
     char *printer;
