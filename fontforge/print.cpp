@@ -1626,14 +1626,14 @@ static std::vector<int> collect_glyph_indexes(PI* pi) {
     struct sfbits* sfbit = &pi->sfbits[0];
 
     if (!sfbit->iscid || sfbit->istype42cid) {
-        for (int i = 0; i < sfbit->map->enccount; ++i) {
-            int gid = sfbit->map->map[i];
-            if (gid != -1 && SCWorthOutputting(sfbit->sf->glyphs[gid]))
+        for (int i = 0; i < pi->mainmap->enccount; ++i) {
+            int gid = pi->mainmap->map[i];
+            if (gid != -1 && SCWorthOutputting(pi->mainsf->glyphs[gid]))
                 glyphs.push_back(i);
         }
     } else {
         for (int i = 0; i < sfbit->cidcnt; ++i) {
-            if (CIDWorthOutputting(sfbit->sf, i) != -1) glyphs.push_back(i);
+            if (CIDWorthOutputting(pi->mainsf, i) != -1) glyphs.push_back(i);
         }
     }
     return glyphs;
@@ -1834,52 +1834,6 @@ static void DumpFontPage(PI* pi, const GridPageLayout& page_layout) {
             }
         }
     }
-}
-
-static void PIFontDisplay(PI *pi) {
-    SplineFont *sf = pi->mainsf;
-
-    if ( !PIDownloadFont(pi,sf,pi->mainmap))
-return;
-    dump_prologue(pi);
-
-    pi->extravspace = pi->pointsize/6;
-    pi->extrahspace = pi->pointsize/3;
-    size_t max = (pi->pagewidth-100)/(pi->extrahspace+pi->pointsize);
-    pi->sfbits[0].cidcnt = pi->sfbits[0].map->enccount;
-    if ( sf->subfontcnt!=0 && pi->sfbits[0].iscid ) {
-	int i,max=0;
-	for ( i=0; i<sf->subfontcnt; ++i )
-	    if ( sf->subfonts[i]->glyphcnt>max )
-		max = sf->subfonts[i]->glyphcnt;
-	pi->sfbits[0].cidcnt = max;
-    }
-
-    if ( pi->sfbits[0].iscid && !pi->sfbits[0].istype42cid ) {
-	if ( max>=20 ) max = 20;
-	else if ( max>=10 ) max = 10;
-	else if ( max >= 5 ) max = 5;
-	else if ( max >= 2 ) max = 2;
-    } else {
-	if ( max>=32 ) max = 32;
-	else if ( max>=16 ) max = 16;
-	else if ( max>=8 ) max = 8;
-	else if ( max >= 4 ) max = 4;
-	else if ( max >= 2 ) max = 2;
-    }
-
-    std::vector<int> glyphs = collect_glyph_indexes(pi);
-    std::map<int, std::vector<int>> lines = collect_lines(glyphs, max);
-    std::vector<GridPageLayout> pages = compute_grid_layout(pi, lines, max);
-
-    for ( const auto& page : pages ) {
-	DumpFontPage(pi, page);
-    }
-
-    if ( lines.size() == 0 )
-	ff_post_notice(_("Print Failed"),_("Warning: Font contained no glyphs"));
-    else
-	dump_trailer(pi);
 }
 
 /* ************************************************************************** */
@@ -3015,9 +2969,7 @@ void DoPrinting(PI *pi,char *filename, FontViewBase* fv, SplineChar* sc, struct 
     pi->sfbits = (struct sfbits *)calloc(sfmax,sizeof(struct sfbits));
     pi->sfcnt = 0;
 
-    if ( pi->pt==pt_fontdisplay )
-	PIFontDisplay(pi);
-    else if ( pi->pt==pt_fontsample )
+    if ( pi->pt==pt_fontsample )
 	PIFontSample(pi);
     else {
 	// TODO(iorsh): Steer to use ff::layout::IPrinter interface.
@@ -3136,10 +3088,10 @@ return( NULL );
 return( space );
 }
 
-ff::layout::LegacyPrinter::LegacyPrinter(FontViewBase* fv, char* outputfile)
+ff::layout::LegacyPrinter::LegacyPrinter(int pt, FontViewBase* fv, char* outputfile)
     : outputfile_(outputfile) {
     pi = new PI{};
-    PI_Init(pi, pt_chars, fv, NULL);
+    PI_Init(pi, (enum printtype)pt, fv, NULL);
 
     if (outputfile == NULL) {
         char buf[100];
@@ -3185,7 +3137,7 @@ void ff::layout::LegacyPrinter::end_document() { dump_trailer(pi); }
 class CharsPrinter : public ff::layout::LegacyPrinter {
  public:
     CharsPrinter(FontViewBase* fv, char* outputfile)
-        : LegacyPrinter(fv, outputfile) {
+        : LegacyPrinter(pt_chars, fv, outputfile) {
         chars = collect_chars(fv, NULL, NULL);
     }
 
@@ -3204,7 +3156,7 @@ class CharsPrinter : public ff::layout::LegacyPrinter {
 class MultiSizePrinter : public ff::layout::LegacyPrinter {
  public:
     MultiSizePrinter(FontViewBase* fv, char* outputfile)
-        : LegacyPrinter(fv, outputfile) {
+        : LegacyPrinter(pt_multisize, fv, outputfile) {
         pi->pointsize = pointsizes[0];
         pi->extravspace = pi->pointsize / 6;
 
@@ -3244,6 +3196,74 @@ class MultiSizePrinter : public ff::layout::LegacyPrinter {
     int samples_per_page_;
 };
 
+class FontDisplayPrinter : public ff::layout::LegacyPrinter {
+ public:
+    FontDisplayPrinter(FontViewBase* fv, int pointsize, char* outputfile)
+        : LegacyPrinter(pt_fontdisplay, fv, outputfile) {
+        SplineFont* sf = pi->mainsf;
+        pi->pointsize = pointsize;
+        pi->extravspace = pointsize / 6;
+        pi->extrahspace = pointsize / 3;
+        size_t max = (pi->pagewidth - 100) / (pi->extrahspace + pointsize);
+        pi->sfbits[0].cidcnt = pi->mainmap->enccount;
+        if (sf->subfontcnt != 0 && pi->sfbits[0].iscid) {
+            int i, max = 0;
+            for (i = 0; i < sf->subfontcnt; ++i)
+                if (sf->subfonts[i]->glyphcnt > max)
+                    max = sf->subfonts[i]->glyphcnt;
+            pi->sfbits[0].cidcnt = max;
+        }
+
+        if (pi->sfbits[0].iscid && !pi->sfbits[0].istype42cid) {
+            if (max >= 20)
+                max = 20;
+            else if (max >= 10)
+                max = 10;
+            else if (max >= 5)
+                max = 5;
+            else if (max >= 2)
+                max = 2;
+        } else {
+            if (max >= 32)
+                max = 32;
+            else if (max >= 16)
+                max = 16;
+            else if (max >= 8)
+                max = 8;
+            else if (max >= 4)
+                max = 4;
+            else if (max >= 2)
+                max = 2;
+        }
+
+        std::vector<int> glyphs = collect_glyph_indexes(pi);
+        std::map<int, std::vector<int>> lines = collect_lines(glyphs, max);
+        pages_ = compute_grid_layout(pi, lines, max);
+    }
+
+    void start_document() override {
+        if (!PIDownloadFont(pi, pi->mainsf, pi->mainmap)) return;
+        LegacyPrinter::start_document();
+    }
+
+    void end_document() override {
+        if (pages_.size() == 0)
+            ff_post_notice(_("Print Failed"),
+                           _("Warning: Font contained no glyphs"));
+        else
+            LegacyPrinter::end_document();
+    }
+
+    size_t page_count() const override { return pages_.size(); }
+
+    void add_page(size_t page_number) override {
+        DumpFontPage(pi, pages_[page_number]);
+    }
+
+ private:
+    std::vector<GridPageLayout> pages_;
+};
+
 void ScriptLegacyPrint(ff::layout::LegacyPrinter& printer) {
     printer.start_document();
     size_t page_count = printer.page_count();
@@ -3260,6 +3280,9 @@ void ScriptPrint(FontViewBase *fv,int type,int32_t *pointsizes,char *samplefile,
 	return ScriptLegacyPrint(printer);
     } else if (type == pt_multisize) {
 	MultiSizePrinter printer(fv, outputfile);
+	return ScriptLegacyPrint(printer);
+    } else if (type == pt_fontdisplay) {
+	FontDisplayPrinter printer(fv, pointsizes[0], outputfile);
 	return ScriptLegacyPrint(printer);
     }
 

@@ -38,7 +38,7 @@ namespace ff::layout {
 
 class LegacyPrinter : public IPrinter {
  public:
-    LegacyPrinter(FontViewBase* fv, char* outputfile);
+    LegacyPrinter(int pt, FontViewBase* fv, char* outputfile);
     ~LegacyPrinter() override;
 
     void start_document() override;
