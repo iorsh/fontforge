@@ -80,12 +80,10 @@ typedef struct printinfo {
     int extrahspace, extravspace;
     FILE *out;
     unsigned int showvm: 1;
-    unsigned int overflow: 1;
     unsigned int done: 1;
     unsigned int hadsize: 1;
     int ypos;
     int page;
-    int lastbase;
     char *printer;
     int copies;
     int pagewidth, pageheight, printtype;
