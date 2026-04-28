@@ -4906,7 +4906,10 @@ This type may not be pickled.
    .. object:: fontsample
 
       The third argument should contain a string which will be laid out
-      and displayed as well as FontForge can.
+      and displayed using the default shaper. The shaper can be changed
+      using :meth:`fontforge.setPrefs()` with ``pref_name="DefaultShaper"``
+      and ``value`` set to either ``"builtin"`` or ``"harfbuzz"``. See also
+      :ref:`shapers <metricsview.Shapers>`. 
 
    .. object:: fontsampleinfile
 

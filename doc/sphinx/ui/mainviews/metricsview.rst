@@ -61,6 +61,8 @@ around. (If you wish to create a :ref:`Device Table <metricsview.DeviceTable>`
 for small pixel sizes you must use the
 :ref:`Kern Pair Closeup dialog <metricsview.kernpair>`)
 
+.. _metricsview.Shapers:
+
 Shapers
 -------
 

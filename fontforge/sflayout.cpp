@@ -449,8 +449,7 @@ static int ot_strlen(struct opentype_str *str) {
 return( i );
 }
 
-static std::shared_ptr<ff::shapers::IShaper> BuildShaper(
-    SplineFont* sf, const char* shaper_name) {
+static std::shared_ptr<ff::shapers::IShaper> BuildShaper(SplineFont* sf) {
     auto context = std::make_shared<ShaperContext>();
     context->sf = sf;
     context->apply_ticked_features = ApplyTickedFeatures;
@@ -460,7 +459,7 @@ static std::shared_ptr<ff::shapers::IShaper> BuildShaper(
     context->write_font_into_memory = WriteTTFFontForShaper;
     context->get_encoding = SCGetEncoding;
 
-    return ff::shapers::Factory(context, shaper_name);
+    return ff::shapers::Factory(context);
 }
 
 // TODO(iorsh): Propagate shaper name from scripting command
@@ -502,7 +501,7 @@ void LayoutInfoRefigureLines(LayoutInfo *li, int start_of_change,
 	for ( fl=oldstart, start = start_of_change-fl->start;
 		fl!=NULL && fl!=oldend;
 		fl=fl->next, start = 0 ) {
-	    auto shaper = BuildShaper(fl->fd->sf, "builtin");
+	    auto shaper = BuildShaper(fl->fd->sf);
 
 	    if ( start<0 ) start = 0;
 	    if ( fl->end - fl->start >= fl->scmax )

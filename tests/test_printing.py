@@ -33,6 +33,7 @@ def _make_deterministic_environment() -> None:
 
 
 def _generate_outputs(font_path: str, out_dir: str) -> list[str]:
+    fontforge.setPrefs("DefaultShaper", "builtin")
     font = fontforge.open(font_path)
 
     lorem_ipsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed" \
