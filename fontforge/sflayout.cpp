@@ -39,9 +39,12 @@
 #include "splinefill.h"
 #include "splineorder2.h"
 #include "splineutil.h"
+#include "tottf.h"
 #include "tottfgpos.h"
 #include "ustring.h"
 #include "utype.h"
+#include "shapers/i_shaper.hpp"
+#include "shapers/shaper_shim.hpp"
 
 #include <math.h>
 #include "ffunistd.h"
@@ -446,6 +449,21 @@ static int ot_strlen(struct opentype_str *str) {
 return( i );
 }
 
+static std::shared_ptr<ff::shapers::IShaper> BuildShaper(
+    SplineFont* sf, const char* shaper_name) {
+    auto context = std::make_shared<ShaperContext>();
+    context->sf = sf;
+    context->apply_ticked_features = ApplyTickedFeatures;
+    context->get_char_metrics =
+        reinterpret_cast<decltype(context->get_char_metrics)>(SCCharMetrics);
+    context->script_is_rtl = ScriptIsRightToLeft;
+    context->write_font_into_memory = WriteTTFFontForShaper;
+    context->get_encoding = SCGetEncoding;
+
+    return ff::shapers::Factory(context, shaper_name);
+}
+
+// TODO(iorsh): Propagate shaper name from scripting command
 void LayoutInfoRefigureLines(LayoutInfo *li, int start_of_change,
 	int end_of_change, int width) {
     int i,j, p,ps,pe, l,ls,le, pdiff, ldiff;
@@ -484,6 +502,8 @@ void LayoutInfoRefigureLines(LayoutInfo *li, int start_of_change,
 	for ( fl=oldstart, start = start_of_change-fl->start;
 		fl!=NULL && fl!=oldend;
 		fl=fl->next, start = 0 ) {
+	    auto shaper = BuildShaper(fl->fd->sf, "builtin");
+
 	    if ( start<0 ) start = 0;
 	    if ( fl->end - fl->start >= fl->scmax )
 		fl->sctext = (SplineChar **)realloc(fl->sctext,((fl->scmax = fl->end-fl->start+4)+1)*sizeof(SplineChar *));
@@ -494,11 +514,15 @@ void LayoutInfoRefigureLines(LayoutInfo *li, int start_of_change,
 	    }
 	    fl->sctext[j] = NULL;
 
-	    free( fl->ottext );
-	    fl->ottext = ApplyTickedFeatures(fl->fd->sf,fl->feats,
-		    fl->script, fl->lang, false,
-		    rint( (fl->fd->pointsize*li->dpi)/72 ),
-		    fl->sctext);
+	    std::set<ff::Tag> dflt_feats = shaper->default_features(fl->script, fl->lang, false);
+	    std::map<ff::Tag, bool> feature_map;
+	    // Python printing doesn't apply any features by default (???).
+	    for (ff::Tag f : dflt_feats) feature_map[f] = false;
+	    for (auto f = fl->feats; f && *f; ++f) feature_map[*f] = true;
+	    auto shaper_out = shaper->mv_apply_features(
+		fl->sctext, feature_map, fl->script, fl->lang, rint( (fl->fd->pointsize*li->dpi)/72 ), false);
+	    fl->ottext = shaper_out.first;
+
 	    scale = fl->fd->pointsize*li->dpi / (72.0*(fl->fd->sf->ascent+fl->fd->sf->descent));
 	    for ( i=0; fl->ottext[i].sc!=NULL; ++i ) {
 		fl->ottext[i].fl = fl;

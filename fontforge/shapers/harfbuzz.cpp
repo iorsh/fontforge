@@ -244,7 +244,9 @@ std::vector<int> HarfBuzzShaper::compute_kerning_deltas(
     // HarfBuzz takes it into account automatically.
     std::vector<int> kerning_deltas;
     for (int i = 0; i + 1 < glyph_count; ++i) {
-        int kerning_offset = context_->get_kern_offset(ots_arr + i);
+        int kerning_offset = context_->get_kern_offset
+                                 ? context_->get_kern_offset(ots_arr + i)
+                                 : 0;
         if (kerning_offset == INVALID_KERN_OFFSET) {
             kerning_offset = 0;
         }

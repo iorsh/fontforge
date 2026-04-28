@@ -142,7 +142,8 @@ uint32_t* shaper_default_features(cpp_IShaper* shaper, uint32_t script,
 namespace ff::shapers {
 
 class IShaper;
-std::shared_ptr<IShaper> Factory(std::shared_ptr<ShaperContext> context);
+std::shared_ptr<IShaper> Factory(std::shared_ptr<ShaperContext> context,
+                                 const char* shaper_name = nullptr);
 
 }  // namespace ff::shapers
 #endif
