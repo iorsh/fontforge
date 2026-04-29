@@ -2741,8 +2741,7 @@ return( true );
 return( false );
 }
 
-unichar_t *PrtBuildDef( SplineFont *sf, void *tf,
-	void (*langsyscallback)(void *tf, int end, uint32_t script, uint32_t lang) ) {
+unichar_t *PrtBuildDef( SplineFont *sf, LayoutInfo *li ) {
     int i, j, gotem, len, any=0, foundsomething=0;
     unichar_t *ret=NULL;
     const char **cur;
@@ -2789,8 +2788,8 @@ unichar_t *PrtBuildDef( SplineFont *sf, void *tf,
 		if ( ret )
 		    ret[len] = '\n';
 		++len;
-		if ( ret && langsyscallback!=NULL )
-		    (langsyscallback)(tf,len,sample[i].otf_script,sample[i].lang);
+		if ( ret )
+		    LayoutInfoInitLangSys(li,len,sample[i].otf_script,sample[i].lang);
 	    }
 	}
 
@@ -2802,8 +2801,7 @@ unichar_t *PrtBuildDef( SplineFont *sf, void *tf,
 		    len += u_strlen(ret+len);
 		    ret[len++] = '\n';
 		    ret[len] = '\0';
-		    if ( langsyscallback!=NULL )
-			(langsyscallback)(tf,len,scriptsthere[s],langs[rcnt]);
+		    LayoutInfoInitLangSys(li,len,scriptsthere[s],langs[rcnt]);
 		}
 		free(randoms[rcnt]);
 		randoms[rcnt] = NULL;
@@ -2840,8 +2838,7 @@ unichar_t *PrtBuildDef( SplineFont *sf, void *tf,
 		    len += u_strlen(ret+len);
 		    ret[len++] = '\n';
 		    ret[len] = '\0';
-		    if ( langsyscallback!=NULL )
-			(langsyscallback)(tf,len,DEFAULT_SCRIPT,DEFAULT_LANG);
+		    LayoutInfoInitLangSys(li,len,DEFAULT_SCRIPT,DEFAULT_LANG);
 		} else
 		    len += ff_utf8_strlen( buffer, -1 )+1;
 	    }
@@ -3310,7 +3307,7 @@ void ScriptPrint(FontViewBase *fv,int type,int32_t *pointsizes,char *samplefile,
 	if ( samplefile!=NULL && *samplefile!='\0' )
 	    sample = FileToUString(samplefile,65536);
 	if ( sample==NULL )
-	    sample = PrtBuildDef(pi.mainsf,li,(void (*)(void *, int, uint32_t, uint32_t))LayoutInfoInitLangSys);
+	    sample = PrtBuildDef(pi.mainsf,li);
 	else
 	    LayoutInfoInitLangSys(li,u_strlen(sample),DEFAULT_SCRIPT,DEFAULT_LANG);
 	LayoutInfoSetTitle(li, sample, width);

@@ -2223,8 +2223,7 @@ return;
     DSP_SetFont(active,true);
     if ( isprint ) {
 	SFTFSetDPI(gcd[13].ret,dpi);
-	temp = PrtBuildDef(sf,&((SFTextArea *) gcd[13].ret)->li,
-		(void (*)(void *, int, uint32_t, uint32_t))LayoutInfoInitLangSys);
+	temp = PrtBuildDef(sf,&((SFTextArea *) gcd[13].ret)->li);
 	GGadgetSetTitle(gcd[13].ret, temp);
 	free(temp);
     } else {

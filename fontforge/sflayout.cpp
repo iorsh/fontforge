@@ -1039,7 +1039,7 @@ void LayoutInfoInitLangSys(LayoutInfo *li, int end, uint32_t script, uint32_t la
     struct fontlist *prev, *next;
 
     if ( (li->text!=NULL && li->text[0]!='\0') || li->fontlist==NULL ) {
-	IError( "SFTFInitLangSys can only be called during initialization" );
+	IError( "LayoutInfoInitLangSys can only be called during initialization" );
 return;
     }
     if ( li->fontlist!=NULL && li->fontlist->script==0 ) {

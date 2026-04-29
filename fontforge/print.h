@@ -118,7 +118,7 @@ extern int PdfDumpGlyphResources(PI *pi,SplineChar *sc);
 extern void makePatName(char *buffer,
 	RefChar *ref,SplineChar *sc,int layer,int isstroke,int isgrad);
 
-extern unichar_t *PrtBuildDef(SplineFont *sf, void *tf, void (*langsyscallback)(void *tf, int end, uint32_t script, uint32_t lang));
+extern unichar_t *PrtBuildDef(SplineFont *sf, struct layoutinfo *li);
 extern void ScriptPrint(FontViewBase *fv, int type, int32_t *pointsizes, char *samplefile, unichar_t *sample, char *outputfile);
 
 #ifdef __cplusplus
