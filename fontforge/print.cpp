@@ -32,6 +32,7 @@
 
 #include <map>
 #include <optional>
+#include <vector>
 
 #include "cvexport.h"
 #include "dumppfa.h"
@@ -2077,13 +2078,53 @@ static void outputotchar(PI *pi,struct opentype_str *osc,int x,int baseline, rea
     }
 }
 
+using FontSamplePage =
+    std::vector<std::pair<int /* line_index*/, int /*baseline*/>>;
+
+static std::vector<FontSamplePage> PIFontSamplePaginate(LayoutInfo* li, int top,
+                                                        int bottom) {
+    std::vector<FontSamplePage> pages;
+    int y = top;
+
+    for (int i = 0; i < li->lcnt; ++i) {
+        /* Start a new page when the line doesn't fit or this is the very first
+         * line */
+        if (i == 0 || y - li->lineheights[i].fh < bottom) {
+            pages.push_back({});
+            y = top;
+        }
+        int baseline = y - li->lineheights[i].as;
+        y -= li->lineheights[i].fh;
+        pages.back().push_back({i, baseline});
+    }
+
+    return pages;
+}
+
+static void PIFontSampleOutputPage(PI* pi, LayoutInfo* li,
+                                   const FontSamplePage& page, real scale) {
+    if (pi->printtype == pt_pdf) {
+        fprintf(pi->out, "BT\n");
+        pi->lastx = pi->lasty = 0;
+    }
+
+    for (const auto& [line_idx, baseline] : page) {
+        int x = rint(36 / scale);
+        struct opentype_str** line = li->lines[line_idx];
+        for (int j = 0; line[j] != NULL; ++j) {
+            outputotchar(pi, line[j], x, baseline, scale);
+            x += line[j]->advance_width + line[j]->vr.h_adv_off;
+        }
+    }
+
+    if (pi->printtype == pt_pdf) fprintf(pi->out, "ET\n");
+}
+
 static void PIFontSample(PI *pi) {
     struct sfmaps *sfmaps;
     int cnt=0;
-    int y,x, bottom, top, baseline;
+    int top, bottom;
     LayoutInfo *li = pi->sample;
-    struct opentype_str **line;
-    int i,j;
     real scale;
 
     pi->pointsize = 12;		/* no longer meaningful */
@@ -2101,36 +2142,16 @@ return;
     }
     dump_prologue(pi);
 
-    samplestartpage(pi);
-    if ( pi->printtype==pt_pdf ) {
-	fprintf(pi->out, "BT\n" );
-	pi->lastx = pi->lasty = 0;
-    }
-    y = top = rint((pi->pageheight - 96)/scale);	/* In dpi units */
+    top    = rint((pi->pageheight - 96)/scale);	/* In dpi units */
     bottom = rint(36/scale);			/* multiply by scale to get ps points */
 
-    for ( i=0; i<li->lcnt; ++i ) {
-	if ( y - li->lineheights[i].fh < bottom ) {
-	    if ( pi->printtype==pt_pdf )
-		fprintf(pi->out, "ET\n" );
-	    samplestartpage(pi);
-	    if ( pi->printtype==pt_pdf ) {
-		fprintf(pi->out, "BT\n" );
-		pi->lastx = pi->lasty = 0;
-	    }
-	    y = top;
-	}
-	x = rint(36/scale);
-	baseline = y - li->lineheights[i].as;
-	y -= li->lineheights[i].fh;
-	line = li->lines[i];
-	for ( j=0; line[j]!=NULL; ++j ) {
-	    outputotchar(pi,line[j],x,baseline, scale);
-	    x += line[j]->advance_width + line[j]->vr.h_adv_off;
-	}
+    std::vector<FontSamplePage> pages = PIFontSamplePaginate(li, top, bottom);
+
+    for (const FontSamplePage& pg : pages) {
+	samplestartpage(pi);
+	PIFontSampleOutputPage(pi, li, pg, scale);
     }
-    if ( pi->printtype==pt_pdf )
-	fprintf(pi->out, "ET\n" );
+
     dump_trailer(pi);
 }
 
