@@ -2120,40 +2120,96 @@ static void PIFontSampleOutputPage(PI* pi, LayoutInfo* li,
     if (pi->printtype == pt_pdf) fprintf(pi->out, "ET\n");
 }
 
-static void PIFontSample(PI *pi) {
-    struct sfmaps *sfmaps;
-    int cnt=0;
-    int top, bottom;
-    LayoutInfo *li = pi->sample;
-    real scale;
+static unichar_t *FileToUString(char *filename,int max);
 
-    pi->pointsize = 12;		/* no longer meaningful */
-    pi->extravspace = pi->pointsize/6;
-    scale = 72.0/li->dpi;
-    pi->lastfont = -1; pi->intext = false;
-    pi->wassfid = -1;
+class FontSamplePrinter : public ff::layout::LegacyPrinter {
+ public:
+    FontSamplePrinter(FontViewBase* fv, int32_t* pointsizes,
+                      char* samplefile, unichar_t* sample, char* outputfile)
+        : LegacyPrinter(pt_fontsample, fv, outputfile) {
+        // Override pointsize if caller supplied a list
+        if (pointsizes != NULL) {
+            pi->pointsizes = pointsizes;
+            pi->pointsize  = pointsizes[0];
+        }
 
-    for ( cnt=0, sfmaps = li->sfmaps; sfmaps!=NULL; sfmaps = sfmaps->next, ++cnt ) {
-	pi->sfid = cnt;
-	sfmaps->sfbit_id = cnt;
-	pi->sfbits[cnt].sfmap = sfmaps;
-	if ( !PIDownloadFont(pi,sfmaps->sf,sfmaps->map))
-return;
+        // Build LayoutInfo from the font view
+        int width = (pi->pagewidth - 1 * 72) * printdpi / 72;
+        li_ = (LayoutInfo*)calloc(1, sizeof(LayoutInfo));
+        unichar_t temp[2] = {0, 0};
+        li_->wrap = true;
+        li_->dpi  = printdpi;
+        li_->ps   = -1;
+        li_->text = u_copy(temp);
+        SFMapOfSF(li_, fv->sf);
+        LI_SetFontData(li_, 0, -1, fv->sf, fv->active_layer, sftf_otf,
+                       pi->pointsize, true, width);
+
+        // Resolve sample text
+        unichar_t* owned_sample = NULL;
+        if (samplefile != NULL && *samplefile != '\0')
+            owned_sample = FileToUString(samplefile, 65536);
+        if (owned_sample == NULL && sample == NULL)
+            owned_sample = PrtBuildDef(pi->mainsf, li_);
+        else if (owned_sample == NULL)
+            LayoutInfoInitLangSys(li_, u_strlen(sample),
+                                  DEFAULT_SCRIPT, DEFAULT_LANG);
+        LayoutInfoSetTitle(li_, owned_sample ? owned_sample : sample, width);
+        free(owned_sample);
+        pi->sample = li_;
+
+        // Re-size sfbits to match the actual number of sfmaps in the layout
+        int sfmax = 0;
+        for (struct sfmaps* m = li_->sfmaps; m != NULL; m = m->next, ++sfmax);
+        if (sfmax == 0) sfmax = 1;
+        free(pi->sfbits);
+        pi->sfmax  = sfmax;
+        pi->sfbits = (struct sfbits*)calloc(sfmax, sizeof(struct sfbits));
+        pi->sfcnt  = 0;
+
+        // Pre-compute pagination
+        real scale = 72.0 / li_->dpi;
+        int top    = rint((pi->pageheight - 96) / scale);
+        int bottom = rint(36 / scale);
+        pages_     = PIFontSamplePaginate(li_, top, bottom);
     }
-    dump_prologue(pi);
 
-    top    = rint((pi->pageheight - 96)/scale);	/* In dpi units */
-    bottom = rint(36/scale);			/* multiply by scale to get ps points */
-
-    std::vector<FontSamplePage> pages = PIFontSamplePaginate(li, top, bottom);
-
-    for (const FontSamplePage& pg : pages) {
-	samplestartpage(pi);
-	PIFontSampleOutputPage(pi, li, pg, scale);
+    ~FontSamplePrinter() override {
+        LayoutInfo_Destroy(li_);
+        free(li_);
     }
 
-    dump_trailer(pi);
-}
+    void start_document() override {
+        pi->pointsize   = 12; /* no longer meaningful */
+        pi->extravspace = pi->pointsize / 6;
+        pi->lastfont    = -1;
+        pi->intext      = false;
+        pi->wassfid     = -1;
+
+        int cnt = 0;
+        for (struct sfmaps* sfmaps = li_->sfmaps; sfmaps != NULL;
+             sfmaps = sfmaps->next, ++cnt) {
+            pi->sfid             = cnt;
+            sfmaps->sfbit_id     = cnt;
+            pi->sfbits[cnt].sfmap = sfmaps;
+            if (!PIDownloadFont(pi, sfmaps->sf, sfmaps->map))
+                return;
+        }
+        LegacyPrinter::start_document();
+    }
+
+    size_t page_count() const override { return pages_.size(); }
+
+    void add_page(size_t page_number) override {
+        real scale = 72.0 / li_->dpi;
+        samplestartpage(pi);
+        PIFontSampleOutputPage(pi, li_, pages_[page_number], scale);
+    }
+
+ private:
+    LayoutInfo* li_;
+    std::vector<FontSamplePage> pages_;
+};
 
 /* ************************************************************************** */
 /* ************************** Code for multi size *************************** */
@@ -2987,9 +3043,36 @@ void DoPrinting(PI *pi,char *filename, FontViewBase* fv, SplineChar* sc, struct 
     pi->sfbits = (struct sfbits *)calloc(sfmax,sizeof(struct sfbits));
     pi->sfcnt = 0;
 
-    if ( pi->pt==pt_fontsample )
-	PIFontSample(pi);
-    else {
+    if ( pi->pt==pt_fontsample ) {
+	// UI path (e.g. displayfonts.c): pi->sample is already prepared by the caller.
+	[&]() {
+	    LayoutInfo *li = pi->sample;
+	    pi->pointsize   = 12; /* no longer meaningful */
+	    pi->extravspace = pi->pointsize / 6;
+	    real scale      = 72.0 / li->dpi;
+	    pi->lastfont    = -1; pi->intext = false;
+	    pi->wassfid     = -1;
+
+	    int cnt = 0;
+	    for (struct sfmaps *sfmaps = li->sfmaps; sfmaps != NULL;
+		 sfmaps = sfmaps->next, ++cnt) {
+		pi->sfid              = cnt;
+		sfmaps->sfbit_id      = cnt;
+		pi->sfbits[cnt].sfmap = sfmaps;
+		if (!PIDownloadFont(pi, sfmaps->sf, sfmaps->map))
+		    return;
+	    }
+	    dump_prologue(pi);
+
+	    int top    = rint((pi->pageheight - 96) / scale);
+	    int bottom = rint(36 / scale);
+	    for (const FontSamplePage &pg : PIFontSamplePaginate(li, top, bottom)) {
+		samplestartpage(pi);
+		PIFontSampleOutputPage(pi, li, pg, scale);
+	    }
+	    dump_trailer(pi);
+	}();
+    } else {
 	// TODO(iorsh): Steer to use ff::layout::IPrinter interface.
     }
     rewind(pi->out);
@@ -3302,64 +3385,8 @@ void ScriptPrint(FontViewBase *fv,int type,int32_t *pointsizes,char *samplefile,
     } else if (type == pt_fontdisplay) {
 	FontDisplayPrinter printer(fv, pointsizes[0], outputfile);
 	return ScriptLegacyPrint(printer);
+    } else if (type == pt_fontsample) {
+	FontSamplePrinter printer(fv, pointsizes, samplefile, sample, outputfile);
+	return ScriptLegacyPrint(printer);
     }
-
-    PI pi;
-    char buf[100];
-    LayoutInfo *li;
-    unichar_t temp[2];
-
-    PI_Init(&pi, (enum printtype)type, fv,NULL);
-    if ( pointsizes!=NULL ) {
-	pi.pointsizes = pointsizes;
-	pi.pointsize = pointsizes[0];
-    }
-    if ( type==pt_fontsample ) {
-	int width = (pi.pagewidth-1*72)*printdpi/72;
-	li = (LayoutInfo *)calloc(1,sizeof(LayoutInfo));
-	temp[0] = 0;
-	li->wrap = true;
-	li->dpi = printdpi;
-	li->ps = -1;
-	li->text = u_copy(temp);
-	SFMapOfSF(li,fv->sf);
-	LI_SetFontData(li,0,-1, fv->sf, fv->active_layer,sftf_otf,pi.pointsize,true,width);
-
-	if ( samplefile!=NULL && *samplefile!='\0' )
-	    sample = FileToUString(samplefile,65536);
-	if ( sample==NULL )
-	    sample = PrtBuildDef(pi.mainsf,li);
-	else
-	    LayoutInfoInitLangSys(li,u_strlen(sample),DEFAULT_SCRIPT,DEFAULT_LANG);
-	LayoutInfoSetTitle(li, sample, width);
-	pi.sample = li;
-	free(sample);
-    }
-    if ( pi.printtype==pt_file || pi.printtype==pt_pdf ) {
-	if ( outputfile==NULL ) {
-	    sprintf(buf,"pr-%.90s.%s", pi.mainsf->fontname,
-		    pi.printtype==pt_file?"ps":"pdf" );
-	    outputfile = buf;
-	}
-	pi.out = fopen(outputfile,"wb");
-	if ( pi.out==NULL ) {
-	    ff_post_error(_("Print Failed"),_("Failed to open file %s for output"), outputfile);
-return;
-	}
-    } else {
-	outputfile = NULL;
-	pi.out = GFileTmpfile();
-	if ( pi.out==NULL ) {
-	    ff_post_error(_("Failed to open temporary output file"),_("Failed to open temporary output file"));
-return;
-	}
-    }
-
-    DoPrinting(&pi,outputfile, fv, NULL, NULL);
-
-    if ( pi.pt==pt_fontsample ) {
-	LayoutInfo_Destroy(pi.sample);
-	free(pi.sample);
-    }
-    free(pi.title);
 }
