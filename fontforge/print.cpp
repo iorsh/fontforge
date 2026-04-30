@@ -2119,95 +2119,6 @@ static void PIFontSampleOutputPage(PI* pi, LayoutInfo* li,
     if (pi->printtype == pt_pdf) fprintf(pi->out, "ET\n");
 }
 
-static unichar_t *FileToUString(char *filename,int max);
-
-class FontSamplePrinter : public ff::layout::LegacyPrinter {
- public:
-    FontSamplePrinter(FontViewBase* fv, int32_t* pointsizes,
-                      char* samplefile, unichar_t* sample, char* outputfile)
-        : LegacyPrinter(pt_fontsample, fv, outputfile) {
-        // Override pointsize if caller supplied a list
-        if (pointsizes != NULL) {
-            pi->pointsizes = pointsizes;
-            pi->pointsize  = pointsizes[0];
-        }
-
-        // Build LayoutInfo from the font view
-        int width = (pi->pagewidth - 1 * 72) * printdpi / 72;
-        li_ = (LayoutInfo*)calloc(1, sizeof(LayoutInfo));
-        unichar_t temp[2] = {0, 0};
-        li_->wrap = true;
-        li_->dpi  = printdpi;
-        li_->ps   = -1;
-        li_->text = u_copy(temp);
-        SFMapOfSF(li_, fv->sf);
-        LI_SetFontData(li_, 0, -1, fv->sf, fv->active_layer, sftf_otf,
-                       pi->pointsize, true, width);
-
-        // Resolve sample text
-        unichar_t* owned_sample = NULL;
-        if (samplefile != NULL && *samplefile != '\0')
-            owned_sample = FileToUString(samplefile, 65536);
-        if (owned_sample == NULL && sample == NULL)
-            owned_sample = PrtBuildDef(pi->mainsf, li_);
-        else if (owned_sample == NULL)
-            LayoutInfoInitLangSys(li_, u_strlen(sample),
-                                  DEFAULT_SCRIPT, DEFAULT_LANG);
-        LayoutInfoSetTitle(li_, owned_sample ? owned_sample : sample, width);
-        free(owned_sample);
-        pi->sample = li_;
-
-        // Re-size sfbits to match the actual number of sfmaps in the layout
-        int sfmax = 0;
-        for (struct sfmaps* m = li_->sfmaps; m != NULL; m = m->next, ++sfmax);
-        if (sfmax == 0) sfmax = 1;
-        free(pi->sfbits);
-        pi->sfmax  = sfmax;
-        pi->sfbits = (struct sfbits*)calloc(sfmax, sizeof(struct sfbits));
-        pi->sfcnt  = 0;
-
-        // Pre-compute pagination
-        real scale = 72.0 / li_->dpi;
-        int top    = rint((pi->pageheight - 96) / scale);
-        int bottom = rint(36 / scale);
-        pages_     = PIFontSamplePaginate(li_, top, bottom);
-    }
-
-    ~FontSamplePrinter() override {
-        LayoutInfo_Destroy(li_);
-        free(li_);
-    }
-
-    void start_document() override {
-        pi->pointsize   = 12; /* no longer meaningful */
-        pi->extravspace = pi->pointsize / 6;
-        pi->wassfid     = -1;
-
-        int cnt = 0;
-        for (struct sfmaps* sfmaps = li_->sfmaps; sfmaps != NULL;
-             sfmaps = sfmaps->next, ++cnt) {
-            pi->sfid             = cnt;
-            sfmaps->sfbit_id     = cnt;
-            pi->sfbits[cnt].sfmap = sfmaps;
-            if (!PIDownloadFont(pi, sfmaps->sf, sfmaps->map))
-                return;
-        }
-        LegacyPrinter::start_document();
-    }
-
-    size_t page_count() const override { return pages_.size(); }
-
-    void add_page(size_t page_number) override {
-        real scale = 72.0 / li_->dpi;
-        samplestartpage(pi);
-        PIFontSampleOutputPage(pi, li_, pages_[page_number], scale);
-    }
-
- private:
-    LayoutInfo* li_;
-    std::vector<FontSamplePage> pages_;
-};
-
 /* ************************************************************************** */
 /* ************************** Code for multi size *************************** */
 /* ************************************************************************** */
@@ -3308,6 +3219,92 @@ class FontDisplayPrinter : public ff::layout::LegacyPrinter {
 
  private:
     std::vector<GridPageLayout> pages_;
+};
+
+class FontSamplePrinter : public ff::layout::LegacyPrinter {
+ public:
+    FontSamplePrinter(FontViewBase* fv, int32_t* pointsizes, char* samplefile,
+                      unichar_t* sample, char* outputfile)
+        : LegacyPrinter(pt_fontsample, fv, outputfile) {
+        // Override pointsize if caller supplied a list
+        if (pointsizes != NULL) {
+            pi->pointsizes = pointsizes;
+            pi->pointsize = pointsizes[0];
+        }
+
+        // Build LayoutInfo from the font view
+        int width = (pi->pagewidth - 1 * 72) * printdpi / 72;
+        li_ = (LayoutInfo*)calloc(1, sizeof(LayoutInfo));
+        unichar_t temp[2] = {0, 0};
+        li_->wrap = true;
+        li_->dpi = printdpi;
+        li_->ps = -1;
+        li_->text = u_copy(temp);
+        SFMapOfSF(li_, fv->sf);
+        LI_SetFontData(li_, 0, -1, fv->sf, fv->active_layer, sftf_otf,
+                       pi->pointsize, true, width);
+
+        // Resolve sample text
+        unichar_t* owned_sample = NULL;
+        if (samplefile != NULL && *samplefile != '\0')
+            owned_sample = FileToUString(samplefile, 65536);
+        if (owned_sample == NULL && sample == NULL)
+            owned_sample = PrtBuildDef(pi->mainsf, li_);
+        else if (owned_sample == NULL)
+            LayoutInfoInitLangSys(li_, u_strlen(sample), DEFAULT_SCRIPT,
+                                  DEFAULT_LANG);
+        LayoutInfoSetTitle(li_, owned_sample ? owned_sample : sample, width);
+        free(owned_sample);
+        pi->sample = li_;
+
+        // Re-size sfbits to match the actual number of sfmaps in the layout
+        int sfmax = 0;
+        for (struct sfmaps* m = li_->sfmaps; m != NULL; m = m->next, ++sfmax);
+        if (sfmax == 0) sfmax = 1;
+        free(pi->sfbits);
+        pi->sfmax = sfmax;
+        pi->sfbits = (struct sfbits*)calloc(sfmax, sizeof(struct sfbits));
+        pi->sfcnt = 0;
+
+        // Pre-compute pagination
+        real scale = 72.0 / li_->dpi;
+        int top = rint((pi->pageheight - 96) / scale);
+        int bottom = rint(36 / scale);
+        pages_ = PIFontSamplePaginate(li_, top, bottom);
+    }
+
+    ~FontSamplePrinter() override {
+        LayoutInfo_Destroy(li_);
+        free(li_);
+    }
+
+    void start_document() override {
+        pi->pointsize = 12; /* no longer meaningful */
+        pi->extravspace = pi->pointsize / 6;
+        pi->wassfid = -1;
+
+        int cnt = 0;
+        for (struct sfmaps* sfmaps = li_->sfmaps; sfmaps != NULL;
+             sfmaps = sfmaps->next, ++cnt) {
+            pi->sfid = cnt;
+            sfmaps->sfbit_id = cnt;
+            pi->sfbits[cnt].sfmap = sfmaps;
+            if (!PIDownloadFont(pi, sfmaps->sf, sfmaps->map)) return;
+        }
+        LegacyPrinter::start_document();
+    }
+
+    size_t page_count() const override { return pages_.size(); }
+
+    void add_page(size_t page_number) override {
+        real scale = 72.0 / li_->dpi;
+        samplestartpage(pi);
+        PIFontSampleOutputPage(pi, li_, pages_[page_number], scale);
+    }
+
+ private:
+    LayoutInfo* li_;
+    std::vector<FontSamplePage> pages_;
 };
 
 void ScriptLegacyPrint(ff::layout::LegacyPrinter& printer) {
