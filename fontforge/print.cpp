@@ -3032,59 +3032,7 @@ static void QueueIt(PI *pi) {
 }
 
 void DoPrinting(PI *pi,char *filename, FontViewBase* fv, SplineChar* sc, struct metricsview *mv) {
-    int sfmax=1;
-
-    if ( pi->pt==pt_fontsample ) {
-	struct sfmaps *sfmap;
-	for ( sfmap=pi->sample->sfmaps, sfmax=0; sfmap!=NULL; sfmap=sfmap->next, ++sfmax );
-	if ( sfmax==0 ) sfmax=1;
-    }
-    pi->sfmax = sfmax;
-    pi->sfbits = (struct sfbits *)calloc(sfmax,sizeof(struct sfbits));
-    pi->sfcnt = 0;
-
-    if ( pi->pt==pt_fontsample ) {
-	// UI path (e.g. displayfonts.c): pi->sample is already prepared by the caller.
-	[&]() {
-	    LayoutInfo *li = pi->sample;
-	    pi->pointsize   = 12; /* no longer meaningful */
-	    pi->extravspace = pi->pointsize / 6;
-	    real scale      = 72.0 / li->dpi;
-	    pi->lastfont    = -1; pi->intext = false;
-	    pi->wassfid     = -1;
-
-	    int cnt = 0;
-	    for (struct sfmaps *sfmaps = li->sfmaps; sfmaps != NULL;
-		 sfmaps = sfmaps->next, ++cnt) {
-		pi->sfid              = cnt;
-		sfmaps->sfbit_id      = cnt;
-		pi->sfbits[cnt].sfmap = sfmaps;
-		if (!PIDownloadFont(pi, sfmaps->sf, sfmaps->map))
-		    return;
-	    }
-	    dump_prologue(pi);
-
-	    int top    = rint((pi->pageheight - 96) / scale);
-	    int bottom = rint(36 / scale);
-	    for (const FontSamplePage &pg : PIFontSamplePaginate(li, top, bottom)) {
-		samplestartpage(pi);
-		PIFontSampleOutputPage(pi, li, pg, scale);
-	    }
-	    dump_trailer(pi);
-	}();
-    } else {
-	// TODO(iorsh): Steer to use ff::layout::IPrinter interface.
-    }
-    rewind(pi->out);
-    if ( ferror(pi->out) )
-	ff_post_error(_("Print Failed"),_("Failed to generate postscript in file %s"),
-		filename==NULL?"temporary":filename );
-    if ( pi->printtype!=pt_file && pi->printtype!=pt_pdf )
-	QueueIt(pi);
-    if ( fclose(pi->out)!=0 )
-	ff_post_error(_("Print Failed"),_("Failed to generate postscript in file %s"),
-		filename==NULL?"temporary":filename );
-    free(pi->sfbits);
+    // TODO(iorsh): Steer to use ff::layout::IPrinter interface.
 }
 
 /* ************************************************************************** */
