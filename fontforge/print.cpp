@@ -1984,7 +1984,6 @@ static void samplestartpage(PI *pi ) {
 	    fprintf(pi->out,"ET\nq 1 0 0 1 40 %d cm\n", pi->pageheight-34-
 		    pi->pointsize*sfbit->sf->ascent/(sfbit->sf->ascent+sfbit->sf->descent) );
 	}
-	pi->lastfont = -1;
 	pi->wasps = -1;
     } else {
 	fprintf(pi->out,"%%%%Page: %d %d\n", pi->page, pi->page );
@@ -2182,8 +2181,6 @@ class FontSamplePrinter : public ff::layout::LegacyPrinter {
     void start_document() override {
         pi->pointsize   = 12; /* no longer meaningful */
         pi->extravspace = pi->pointsize / 6;
-        pi->lastfont    = -1;
-        pi->intext      = false;
         pi->wassfid     = -1;
 
         int cnt = 0;

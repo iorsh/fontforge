@@ -98,7 +98,6 @@ typedef struct printinfo {
     int sfcnt, sfmax, sfid;
     struct sfbits *sfbits;
     long start_cur_page;
-    int lastfont, intext;
     struct layoutinfo *sample;
     int wassfid, wasfn, wasps;
     int lastx, lasty;
