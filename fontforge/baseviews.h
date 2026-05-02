@@ -37,7 +37,6 @@ extern "C" {
 
 #define free_with_debug(x) { fprintf(stderr,"%p FREE()\n",x); free(x); }
 
-
 enum widthtype { wt_width, wt_lbearing, wt_rbearing, wt_bearings, wt_vwidth };
 
 enum fvtrans_flags { fvt_alllayers=1, fvt_round_to_int=2,
@@ -365,6 +364,8 @@ struct fixed_maps {
     struct position_maps *maps;
 };
 
+typedef struct smallcaps smallcaps;
+
 struct genericchange {
     enum glyphchange_type gc;
     uint32_t feature_tag;
@@ -388,7 +389,7 @@ struct genericchange {
     struct fixed_maps g;			/* Adjusted for each glyph */
     double vertical_offset;
     unsigned int dstem_control, serif_control;
-    struct smallcaps *small;
+    smallcaps *small;
 /* Filled in by called routine */
     SplineFont *sf;
     int layer;
