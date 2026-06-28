@@ -1508,6 +1508,7 @@ return( GGadgetDispatchEvent(bv->vsb,event));
       case et_destroy:
 	BVUnlinkView(bv);
 	BVPalettesHideIfMine(bv);
+	GDrawDestroyWindow(bv->v);
 	BitmapViewFree(bv);
       break;
       case et_map:
@@ -2405,7 +2406,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     wattrs.event_masks = -1;
     wattrs.cursor = ( bc->refs == NULL ) ? ct_pencil : ct_pointer;
     wattrs.gtk_widget = get_drawing_widget_c(bv->gtk_window);
-    bv->v = GWidgetCreateSubWindow(gw,&pos,v_e_h,bv,&wattrs);
+    bv->v = GWidgetCreateTopWindow(NULL,&pos,v_e_h,bv,&wattrs);
     GDrawSetWindowTypeName(bv->v, "BitmapView");
 
     bv->height = pos.height; bv->width = pos.width;
