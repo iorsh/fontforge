@@ -32,7 +32,14 @@ namespace ff::views {
 BitmapView::BitmapView(int width, int height) {
     window.set_default_size(width, height);
 
-    drawing_area.set_name("BitmapDrawingArea");
+    // Fontforge drawing area processes events in the legacy code
+    // expose, keypresses, mouse etc. We reject specifically motion hints, as we
+    // wish to have full mouse motion events.
+    // Exposure events are also rejected, as they are processed in the legacy
+    // code. Redirecting them to GTK widget would cause blanking and flickering.
+    drawing_area.set_events(Gdk::ALL_EVENTS_MASK &
+                            ~Gdk::POINTER_MOTION_HINT_MASK &
+                            ~Gdk::EXPOSURE_MASK);
     window.add(drawing_area);
 
     window.show_all();
