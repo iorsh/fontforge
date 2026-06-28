@@ -24,11 +24,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include "bitmap_view_shim.hpp"
 
 #include <gtkmm.h>
 
 #include "application.hpp"
+#include "bitmap_view.hpp"
 #include "utils.hpp"
 
 void* create_bitmap_view(int width, int height) {
@@ -36,30 +38,22 @@ void* create_bitmap_view(int width, int height) {
     // a GTK window is invoked.
     ff::app::GtkApp();
 
-    Gtk::Window* bitmap_view_window = new Gtk::Window();
-    bitmap_view_window->set_default_size(width, height);
-
-    Gtk::DrawingArea* drawing_area = new Gtk::DrawingArea();
-    drawing_area->set_name("BitmapDrawingArea");
-    bitmap_view_window->add(*drawing_area);
-
-    bitmap_view_window->show_all();
-
-    return bitmap_view_window;
+    ff::views::BitmapView* bitmap_view =
+        new ff::views::BitmapView(width, height);
+    return bitmap_view;
 }
 
-void gtk_set_title(void* window, char* window_title, char* taskbar_title) {
-    Gtk::Window* gtk_window = static_cast<Gtk::Window*>(window);
+void gtk_set_title(void* bv_opaque, char* window_title, char* taskbar_title) {
+    ff::views::BitmapView* bitmap_view =
+        static_cast<ff::views::BitmapView*>(bv_opaque);
 
-    if (gtk_window != nullptr) {
-        gtk_window->set_title(window_title);
+    if (bitmap_view != nullptr) {
+        bitmap_view->set_title(window_title, taskbar_title);
     }
 }
 
-GtkWidget* get_drawing_widget_c(void* window) {
-    Gtk::Window* bitmap_view_window = static_cast<Gtk::Window*>(window);
-    Gtk::Widget* drawing_area =
-        ff::ui_utils::gtk_find_child(bitmap_view_window, "BitmapDrawingArea");
-
-    return (GtkWidget*)drawing_area->gobj();
+GtkWidget* get_drawing_widget_c(void* bv_opaque) {
+    ff::views::BitmapView* bitmap_view =
+        static_cast<ff::views::BitmapView*>(bv_opaque);
+    return bitmap_view->get_drawing_widget_c();
 }

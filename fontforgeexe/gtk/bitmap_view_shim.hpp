@@ -34,11 +34,11 @@ extern "C" {
 
 // Create GTK Bitmap View window.
 // Return value:
-//    pointer to Gtk::Window object, opaque to C code
+//    pointer to ff::views::BitmapView object, opaque to C code
 void* create_bitmap_view(int width, int height);
 
-// Set Gtk::Window title and taskbar title [unsupported]
-void gtk_set_title(void* window, char* window_title, char* taskbar_title);
+// Set views::BitmapView title and taskbar title [unsupported]
+void gtk_set_title(void* bv_opaque, char* window_title, char* taskbar_title);
 
 GtkWidget* get_drawing_widget_c(void* window);
 
