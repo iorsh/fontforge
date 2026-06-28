@@ -913,8 +913,8 @@ static void BVShowInfo(BitmapView *bv) {
 
 static void BVResize(BitmapView *bv, GEvent *event ) {
     int sbsize = GDrawPointsToPixels(bv->gw,_GScrollBar_Width);
-    int newwidth = event->u.resize.size.width-sbsize,
-	newheight = event->u.resize.size.height-sbsize - bv->mbh-bv->infoh;
+    int newwidth = event->u.resize.size.width,
+	newheight = event->u.resize.size.height;
     GRect size;
 
     if ( newwidth == bv->width && newheight == bv->height )
@@ -1422,6 +1422,10 @@ return( GGadgetDispatchEvent(bv->vsb,event));
     }
 
     switch ( event->type ) {
+      case et_resize:
+      case et_map:
+	BVResize(bv,event);
+      break;
       case et_selclear:
 	ClipboardClear();
       break;
@@ -1489,10 +1493,6 @@ return( GGadgetDispatchEvent(bv->vsb,event));
       break;
       case et_charup:
 	BVCharUp(bv,event);
-      break;
-      case et_resize:
-	if ( event->u.resize.sized )
-	    BVResize(bv,event);
       break;
       case et_controlevent:
 	switch ( event->u.control.subtype ) {
