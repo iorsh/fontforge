@@ -1,4 +1,4 @@
-/* Copyright (C) 2026 by Maxim Iorsh <iorsh@users@sourceforge.net>
+/* Copyright 2026 Maxim Iorsh <iorsh@users.sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,24 +24,22 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#pragma once
 
-typedef struct _GtkWidget GtkWidget;
+#include "bitmap_view.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace ff::views {
 
-// Create GTK Bitmap View window.
-// Return value:
-//    pointer to ff::views::BitmapView object, opaque to C code
-void* create_bitmap_view(int width, int height);
+BitmapView::BitmapView(int width, int height) {
+    window.set_default_size(width, height);
 
-// Set views::BitmapView title and taskbar title [unsupported]
-void gtk_set_title(void* bv_opaque, char* window_title, char* taskbar_title);
+    drawing_area.set_name("BitmapDrawingArea");
+    window.add(drawing_area);
 
-GtkWidget* get_drawing_widget_c(void* window);
-
-#ifdef __cplusplus
+    window.show_all();
 }
-#endif
+
+GtkWidget* BitmapView::get_drawing_widget_c() {
+    return (GtkWidget*)drawing_area.gobj();
+}
+
+}  // namespace ff::views
