@@ -5,6 +5,8 @@ add_subdirectory(widgets)
 add_library(ffgtk OBJECT
   application.hpp
   application.cpp
+  bitmap_view_shim.hpp
+  bitmap_view_shim.cpp
   bitmaps_dlg.hpp
   bitmaps_dlg.cpp
   css_builder.hpp

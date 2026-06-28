@@ -41,6 +41,7 @@
 #include "ustring.h"
 #include "utype.h"
 #include "bv_mids.h"
+#include "gtk/bitmap_view_shim.hpp"
 
 #include <locale.h>
 #include <math.h>
@@ -228,6 +229,7 @@ void BVChangeBC(BitmapView *bv, BDFChar *bc, int fitit ) {
 
     title = BVMakeTitles(bv,bc,buf);
     GDrawSetWindowTitles8(bv->gw,buf,title);
+    gtk_set_title(bv->gtk_window, buf, title);
     free(title);
 
     BVPaletteChangedChar(bv);
@@ -2348,6 +2350,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     DefaultY(&pos);
 
     bv->gw = gw = GDrawCreateTopWindow(NULL,&pos,bv_e_h,bv,&wattrs);
+    bv->gtk_window = create_bitmap_view(pos.width, pos.height);
     free( (unichar_t *) wattrs.icon_title );
     GDrawSetWindowTypeName(bv->gw, "BitmapView");
 
@@ -2397,10 +2400,11 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
 
     pos.y = bv->mbh+bv->infoh; pos.height -= bv->mbh + sbsize + bv->infoh;
     pos.x = 0; pos.width -= sbsize;
-    wattrs.mask = wam_events|wam_cursor|wam_backcol;
+    wattrs.mask = wam_events|wam_cursor|wam_backcol|wam_gtk_wrapper;
     wattrs.background_color = view_bgcol;
     wattrs.event_masks = -1;
     wattrs.cursor = ( bc->refs == NULL ) ? ct_pencil : ct_pointer;
+    wattrs.gtk_widget = get_drawing_widget_c(bv->gtk_window);
     bv->v = GWidgetCreateSubWindow(gw,&pos,v_e_h,bv,&wattrs);
     GDrawSetWindowTypeName(bv->v, "BitmapView");
 
