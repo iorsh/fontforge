@@ -27,13 +27,21 @@
 
 #include "pixel_grid.hpp"
 #include "utils.hpp"
+#include <iostream>
 
 namespace ff::views {
 
 bool on_drawing_area_event(GdkEvent* event);
 bool on_drawing_area_key(GdkEventKey* event, Gtk::DrawingArea& drawing_area);
+void on_scrollbar_value_changed(std::shared_ptr<BVContext> fv_context,
+                                Gtk::Scrollbar& scroller);
 
-PixelGrid::PixelGrid() {
+PixelGrid::PixelGrid(std::shared_ptr<BVContext> context) {
+    hscroller_.signal_value_changed().connect(
+        [this, context]() { on_scrollbar_value_changed(context, hscroller_); });
+    vscroller_.signal_value_changed().connect(
+        [this, context]() { on_scrollbar_value_changed(context, vscroller_); });
+
     drawing_area.set_vexpand(true);
     drawing_area.set_hexpand(true);
 
@@ -128,6 +136,21 @@ bool on_drawing_area_key(GdkEventKey* event, Gtk::DrawingArea& drawing_area) {
 
     // Don't handle this event any further.
     return true;
+}
+
+void on_scrollbar_value_changed(std::shared_ptr<BVContext> bv_context,
+                                Gtk::Scrollbar& scroller) {
+    double new_position = scroller.get_value();
+    bool is_vertical = (dynamic_cast<Gtk::VScrollbar*>(&scroller) != nullptr);
+
+    // The horizontal scrollbar uses the opposite sign convention in the
+    // legacy bitmap view code.
+    if (!is_vertical) {
+        new_position = -new_position;
+    }
+
+    bv_context->scroll_bitmapview_to_position_cb(bv_context->bv, is_vertical,
+                                                 new_position);
 }
 
 }  // namespace ff::views
