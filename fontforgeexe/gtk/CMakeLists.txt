@@ -11,6 +11,7 @@ add_library(ffgtk OBJECT
   bitmap_view_shim.cpp
   bitmaps_dlg.hpp
   bitmaps_dlg.cpp
+  c_context.h
   css_builder.hpp
   css_builder.cpp
   dialog_base.hpp

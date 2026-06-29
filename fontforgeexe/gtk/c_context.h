@@ -35,6 +35,11 @@ typedef struct bitmapview BitmapView;
 // C structure and callback for interacting with legacy code
 typedef struct bitmapview_context {
     BitmapView* bv;
+
+    // Set character grid to the desired position according to the scrollbar
+    void (*scroll_bitmapview_to_position_cb)(BitmapView* bv, bool is_vertical,
+                                             int32_t position);
+
 } BVContext;
 
 #ifdef __cplusplus

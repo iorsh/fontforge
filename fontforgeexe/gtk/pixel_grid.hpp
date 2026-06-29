@@ -29,11 +29,13 @@
 #include <string>
 #include <gtkmm.h>
 
+#include "c_context.h"
+
 namespace ff::views {
 
 class PixelGrid {
  public:
-    PixelGrid();
+    PixelGrid(std::shared_ptr<BVContext> context);
 
     Gtk::Widget& get_top_widget();
     GtkWidget* get_drawing_widget_c();

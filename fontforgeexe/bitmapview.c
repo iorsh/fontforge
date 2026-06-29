@@ -1289,7 +1289,7 @@ return;			/* Not pressed */
 	    newx -= bv->xoff; bv->xoff += newx;
 	    newy -= bv->yoff; bv->yoff += newy;
 	    BVScrollBarSetPos(bv,false,-bv->xoff);
-	    BVScrollBarSetPos(bv,true,-bv->yoff);
+	    BVScrollBarSetPos(bv,true,bv->yoff);
 	    GDrawScroll(bv->v,NULL,newx,newy);
 	}
 	bv->event_x = event->u.mouse.x; bv->event_y = event->u.mouse.y;
@@ -1416,6 +1416,33 @@ static void BVMouseUp(BitmapView *bv, GEvent *event) {
     }
     bv->active_tool = bvt_none;
     BVToolsSetCursor(bv,event->u.mouse.state&~(1<<(7+event->u.mouse.button)), event->u.mouse.device);		/* X still has the buttons set in the state, even though we just released them. I don't want em */
+}
+
+static void BVScrollToPos(BitmapView* bv, bool is_vertical, int32_t position) {
+    int newpos = position;
+    int fh = bv->bdf->ascent + bv->bdf->descent;
+
+    if (is_vertical) {
+        if (newpos > 4 * fh * bv->scale - bv->height)
+            newpos = 4 * fh * bv->scale - bv->height;
+        if (newpos < -2 * fh * bv->scale) newpos = -2 * fh * bv->scale;
+        if (newpos != bv->yoff) {
+            int diff = newpos - bv->yoff;
+            bv->yoff = newpos;
+            BVScrollBarSetPos(bv, true, newpos);
+            GDrawScroll(bv->v, NULL, 0, diff);
+        }
+    } else {
+        if (newpos > 6 * fh * bv->scale - bv->width)
+            newpos = 6 * fh * bv->scale - bv->width;
+        if (newpos < -3 * fh * bv->scale) newpos = -3 * fh * bv->scale;
+        if (newpos != bv->xoff) {
+            int diff = newpos - bv->xoff;
+            bv->xoff = newpos;
+            BVScrollBarSetPos(bv, false, -newpos);
+            GDrawScroll(bv->v, NULL, diff, 0);
+        }
+    }
 }
 
 static int v_e_h(GWindow gw, GEvent *event) {
@@ -2365,6 +2392,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv->gw = gw = GDrawCreateTopWindow(NULL,&pos,bv_e_h,bv,&wattrs);
 
     bv_context->bv = bv;
+    bv_context->scroll_bitmapview_to_position_cb = BVScrollToPos;
     bv->gtk_window = create_bitmap_view(&bv_context, pos.width, pos.height);
 
     free( (unichar_t *) wattrs.icon_title );
