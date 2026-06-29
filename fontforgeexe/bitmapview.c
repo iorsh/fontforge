@@ -49,7 +49,6 @@
 
 int bv_width = 270, bv_height=250;
 
-extern int _GScrollBar_Width;
 extern struct lconv localeinfo;
 extern char *coord_sep;
 struct bvshows BVShows = { 1, 1, 1, 0 };
@@ -922,7 +921,6 @@ static void BVShowInfo(BitmapView *bv) {
 }
 
 static void BVResize(BitmapView *bv, GEvent *event ) {
-    int sbsize = GDrawPointsToPixels(bv->gw,_GScrollBar_Width);
     int newwidth = event->u.resize.size.width,
 	newheight = event->u.resize.size.height;
     GRect size;
@@ -932,10 +930,6 @@ return;
 
     /* MenuBar takes care of itself */
     GDrawResize(bv->v,newwidth,newheight);
-//     GGadgetMove(bv->vsb,newwidth, bv->mbh+bv->infoh);
-//     GGadgetResize(bv->vsb,sbsize,newheight);
-//     GGadgetMove(bv->hsb,0,event->u.resize.size.height-sbsize);
-//     GGadgetResize(bv->hsb,newwidth,sbsize);
     bv->width = newwidth; bv->height = newheight;
     GGadgetGetSize(bv->recalc,&size);
     GGadgetMove(bv->recalc,event->u.resize.size.width - size.width - GDrawPointsToPixels(bv->gw,6),size.y);
@@ -1428,7 +1422,6 @@ static void BVScrollToPos(BitmapView* bv, bool is_vertical, int32_t position) {
             newpos = 4 * fh * bv->scale - bv->height;
         if (newpos < -2 * fh * bv->scale) newpos = -2 * fh * bv->scale;
         if (newpos != bv->yoff) {
-            int diff = newpos - bv->yoff;
             bv->yoff = newpos;
         }
     } else {
@@ -1436,7 +1429,6 @@ static void BVScrollToPos(BitmapView* bv, bool is_vertical, int32_t position) {
             newpos = 6 * fh * bv->scale - bv->width;
         if (newpos < -3 * fh * bv->scale) newpos = -3 * fh * bv->scale;
         if (newpos != bv->xoff) {
-            int diff = newpos - bv->xoff;
             bv->xoff = newpos;
         }
     }
@@ -1445,16 +1437,6 @@ static void BVScrollToPos(BitmapView* bv, bool is_vertical, int32_t position) {
 
 static int v_e_h(GWindow gw, GEvent *event) {
     BitmapView *bv = (BitmapView *) GDrawGetUserData(gw);
-
-    if (( event->type==et_mouseup || event->type==et_mousedown ) &&
-	    (event->u.mouse.button>=4 && event->u.mouse.button<=7) ) {
-	int ish = event->u.mouse.button>5;
-	if ( event->u.mouse.state&ksm_shift ) ish = !ish;
-	if ( ish ) /* bind shift to vertical scrolling */
-return( GGadgetDispatchEvent(bv->hsb,event));
-	else
-return( GGadgetDispatchEvent(bv->vsb,event));
-    }
 
     switch ( event->type ) {
       case et_resize:
@@ -1508,16 +1490,6 @@ static int bv_e_h(GWindow gw, GEvent *event) {
     BitmapView *bv = (BitmapView *) GDrawGetUserData(gw);
     int enc;
 
-    if (( event->type==et_mouseup || event->type==et_mousedown ) &&
-	    (event->u.mouse.button>=4 && event->u.mouse.button<=7) ) {
-	int ish = event->u.mouse.button>5;
-	if ( event->u.mouse.state&ksm_shift ) ish = !ish;
-	if ( ish ) /* bind shift to vertical scrolling */
-return( GGadgetDispatchEvent(bv->hsb,event));
-	else
-return( GGadgetDispatchEvent(bv->vsb,event));
-    }
-
     switch ( event->type ) {
       case et_expose:
 	GDrawSetLineWidth(gw,0);
@@ -1528,17 +1500,6 @@ return( GGadgetDispatchEvent(bv->vsb,event));
       break;
       case et_charup:
 	BVCharUp(bv,event);
-      break;
-      case et_controlevent:
-	switch ( event->u.control.subtype ) {
-	  case et_scrollbarchange:
-	    if ( event->u.control.g == bv->hsb )
-		BVHScroll(bv,&event->u.control.u.sb);
-	    else
-		BVVScroll(bv,&event->u.control.u.sb);
-	  break;
-	  default: break;
-	}
       break;
       case et_destroy:
 	BVUnlinkView(bv);
@@ -2343,7 +2304,6 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     GWindowAttrs wattrs;
     GGadgetData gd;
     GRect gsize;
-    int sbsize;
     char buf[300];
     static GWindow icon = NULL;
     GTextInfo ti;
@@ -2426,8 +2386,8 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     GGadgetGetSize(bv->recalc,&size);
     GGadgetMove(bv->recalc,pos.width - size.width - GDrawPointsToPixels(gw,6),size.y);
 
-    pos.y = bv->mbh+bv->infoh; pos.height -= bv->mbh + sbsize + bv->infoh;
-    pos.x = 0; pos.width -= sbsize;
+    pos.y = bv->mbh+bv->infoh; pos.height -= bv->mbh + bv->infoh;
+    pos.x = 0;
     wattrs.mask = wam_events|wam_cursor|wam_backcol|wam_gtk_wrapper;
     wattrs.background_color = view_bgcol;
     wattrs.event_masks = -1;

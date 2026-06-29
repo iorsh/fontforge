@@ -327,7 +327,7 @@ typedef struct bitmapview {
     int enc;
     void* gtk_window; /* pointer to opaque ff::views::BitmapView object */
     GWindow gw, v;
-    GGadget *vsb, *hsb, *mb;
+    GGadget *mb;
     GGadget *recalc;
     GFont *small;
     int xoff, yoff;
