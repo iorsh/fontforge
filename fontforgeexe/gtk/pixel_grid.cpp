@@ -61,6 +61,15 @@ PixelGrid::PixelGrid(std::shared_ptr<BVContext> context) {
         return on_drawing_area_key(event, drawing_area);
     });
 
+    // Redirect mouse scrolling events from the drawing area to the scrollbars.
+    // Depending on the mouse type, both directions can be affected.
+    auto on_drawing_area_scroll = [this](GdkEventScroll* event) {
+        hscroller_.event((GdkEvent*)event);
+        vscroller_.event((GdkEvent*)event);
+        return true;
+    };
+    drawing_area.signal_scroll_event().connect(on_drawing_area_scroll);
+
     drawing_area.set_can_focus(true);
 
     pixel_grid_box_.attach(drawing_area, 0, 0);
@@ -91,8 +100,11 @@ void PixelGrid::set_scroller_bounds(bool is_vertical, int32_t sb_min,
                                    ? static_cast<Gtk::Scrollbar&>(vscroller_)
                                    : static_cast<Gtk::Scrollbar&>(hscroller_);
     Glib::RefPtr<Gtk::Adjustment> adjustment = scroller.get_adjustment();
-    adjustment->configure(adjustment->get_value(), sb_min, sb_max, 1,
-                          sb_pagesize - 1, sb_pagesize);
+    // Scrollbars seem to ignore step and page increments and behave
+    // incoherently to the extent that a single click on a stepper button yields
+    // a different delta each time. The values of 3, 3 are somehow okeyish.
+    adjustment->configure(adjustment->get_value(), sb_min, sb_max, 3, 3,
+                          sb_pagesize);
 }
 
 /////////////////  EVENTS  ////////////////////
