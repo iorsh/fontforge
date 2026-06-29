@@ -30,16 +30,20 @@
 #include <gtkmm.h>
 
 #include "application.hpp"
+#include "c_context.h"
 #include "bitmap_view.hpp"
 #include "utils.hpp"
 
-void* create_bitmap_view(int width, int height) {
+void* create_bitmap_view(BVContext** p_bv_context, int width, int height) {
     // To avoid instability, the GTK application is lazily initialized only when
     // a GTK window is invoked.
     ff::app::GtkApp();
 
+    // Take ownership of *p_bv_context
+    std::shared_ptr<BVContext> context(*p_bv_context, &free);
     ff::views::BitmapView* bitmap_view =
-        new ff::views::BitmapView(width, height);
+        new ff::views::BitmapView(context, width, height);
+    *p_bv_context = NULL;
     return bitmap_view;
 }
 

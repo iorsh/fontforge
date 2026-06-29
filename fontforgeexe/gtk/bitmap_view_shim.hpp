@@ -29,6 +29,7 @@
 #include <stdint.h>
 
 typedef struct _GtkWidget GtkWidget;
+typedef struct bitmapview_context BVContext;
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,7 +38,7 @@ extern "C" {
 // Create GTK Bitmap View window.
 // Return value:
 //    pointer to ff::views::BitmapView object, opaque to C code
-void* create_bitmap_view(int width, int height);
+void* create_bitmap_view(BVContext** p_bv_context, int width, int height);
 
 // Set views::BitmapView title and taskbar title [unsupported]
 void gtk_set_title(void* bv_opaque, char* window_title, char* taskbar_title);

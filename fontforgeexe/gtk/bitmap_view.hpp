@@ -30,12 +30,13 @@
 #include <gtkmm.h>
 
 #include "pixel_grid.hpp"
+#include "c_context.h"
 
 namespace ff::views {
 
 class BitmapView {
  public:
-    BitmapView(int width, int height);
+    BitmapView(std::shared_ptr<BVContext> context, int width, int height);
 
     void set_title(const std::string& window_title,
                    const std::string& taskbar_title) {
@@ -57,6 +58,8 @@ class BitmapView {
     }
 
  private:
+    std::shared_ptr<BVContext> bv_context;
+
     Gtk::Window window;
     PixelGrid pixel_grid;
 };
