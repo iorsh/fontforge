@@ -57,3 +57,17 @@ GtkWidget* get_drawing_widget_c(void* bv_opaque) {
         static_cast<ff::views::BitmapView*>(bv_opaque);
     return bitmap_view->get_drawing_widget_c();
 }
+
+void bv_set_scroller_position(void* bv_opaque, bool is_vertical,
+                              int32_t position) {
+    ff::views::BitmapView* bitmap_view =
+        static_cast<ff::views::BitmapView*>(bv_opaque);
+    bitmap_view->set_scroller_position(is_vertical, position);
+}
+
+void bv_set_scroller_bounds(void* bv_opaque, bool is_vertical, int32_t sb_min,
+                            int32_t sb_max, int32_t sb_pagesize) {
+    ff::views::BitmapView* bitmap_view =
+        static_cast<ff::views::BitmapView*>(bv_opaque);
+    bitmap_view->set_scroller_bounds(is_vertical, sb_min, sb_max, sb_pagesize);
+}

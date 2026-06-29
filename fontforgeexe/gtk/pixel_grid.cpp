@@ -34,6 +34,9 @@ bool on_drawing_area_event(GdkEvent* event);
 bool on_drawing_area_key(GdkEventKey* event, Gtk::DrawingArea& drawing_area);
 
 PixelGrid::PixelGrid() {
+    drawing_area.set_vexpand(true);
+    drawing_area.set_hexpand(true);
+
     // Fontforge drawing area processes events in the legacy code
     // expose, keypresses, mouse etc. We reject specifically motion hints, as we
     // wish to have full mouse motion events.
@@ -51,12 +54,37 @@ PixelGrid::PixelGrid() {
     });
 
     drawing_area.set_can_focus(true);
+
+    pixel_grid_box_.attach(drawing_area, 0, 0);
+    pixel_grid_box_.attach(hscroller_, 0, 1);
+    pixel_grid_box_.attach(vscroller_, 1, 0);
 }
 
-Gtk::Widget& PixelGrid::get_top_widget() { return drawing_area; }
+Gtk::Widget& PixelGrid::get_top_widget() { return pixel_grid_box_; }
 
 GtkWidget* PixelGrid::get_drawing_widget_c() {
     return (GtkWidget*)drawing_area.gobj();
+}
+
+void PixelGrid::set_scroller_position(bool is_vertical, int32_t position) {
+    Gtk::Scrollbar& scroller = is_vertical
+                                   ? static_cast<Gtk::Scrollbar&>(vscroller_)
+                                   : static_cast<Gtk::Scrollbar&>(hscroller_);
+    if (!scroller.has_grab()) {
+        // Set the scroller only if its slider is not currently grabbed with the
+        // mouse.
+        scroller.get_adjustment()->set_value(position);
+    }
+}
+
+void PixelGrid::set_scroller_bounds(bool is_vertical, int32_t sb_min,
+                                    int32_t sb_max, int32_t sb_pagesize) {
+    Gtk::Scrollbar& scroller = is_vertical
+                                   ? static_cast<Gtk::Scrollbar&>(vscroller_)
+                                   : static_cast<Gtk::Scrollbar&>(hscroller_);
+    Glib::RefPtr<Gtk::Adjustment> adjustment = scroller.get_adjustment();
+    adjustment->configure(adjustment->get_value(), sb_min, sb_max, 1,
+                          sb_pagesize - 1, sb_pagesize);
 }
 
 /////////////////  EVENTS  ////////////////////

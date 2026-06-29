@@ -26,6 +26,8 @@
  */
 #pragma once
 
+#include <stdint.h>
+
 typedef struct _GtkWidget GtkWidget;
 
 #ifdef __cplusplus
@@ -40,7 +42,13 @@ void* create_bitmap_view(int width, int height);
 // Set views::BitmapView title and taskbar title [unsupported]
 void gtk_set_title(void* bv_opaque, char* window_title, char* taskbar_title);
 
-GtkWidget* get_drawing_widget_c(void* window);
+GtkWidget* get_drawing_widget_c(void* bv_opaque);
+
+void bv_set_scroller_position(void* bv_opaque, bool is_vertical,
+                              int32_t position);
+
+void bv_set_scroller_bounds(void* bv_opaque, bool is_vertical, int32_t sb_min,
+                            int32_t sb_max, int32_t sb_pagesize);
 
 #ifdef __cplusplus
 }

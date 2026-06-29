@@ -37,9 +37,15 @@ class PixelGrid {
 
     Gtk::Widget& get_top_widget();
     GtkWidget* get_drawing_widget_c();
+    void set_scroller_position(bool is_vertical, int32_t position);
+    void set_scroller_bounds(bool is_vertical, int32_t sb_min, int32_t sb_max,
+                             int32_t sb_pagesize);
 
  private:
+    Gtk::Grid pixel_grid_box_;
     Gtk::DrawingArea drawing_area;
+    Gtk::HScrollbar hscroller_;
+    Gtk::VScrollbar vscroller_;
 };
 
 }  // namespace ff::views
