@@ -29,6 +29,8 @@
 #include <string>
 #include <gtkmm.h>
 
+#include "pixel_grid.hpp"
+
 namespace ff::views {
 
 class BitmapView {
@@ -40,11 +42,13 @@ class BitmapView {
         window.set_title(window_title);
     }
 
-    GtkWidget* get_drawing_widget_c();
+    GtkWidget* get_drawing_widget_c() {
+        return pixel_grid.get_drawing_widget_c();
+    }
 
  private:
     Gtk::Window window;
-    Gtk::DrawingArea drawing_area;
+    PixelGrid pixel_grid;
 };
 
 }  // namespace ff::views

@@ -19,6 +19,8 @@ add_library(ffgtk OBJECT
   find_problems.cpp
   language_list.hpp
   language_list.cpp
+  pixel_grid.hpp
+  pixel_grid.cpp
   show_histogram.hpp
   show_histogram.cpp
   simple_dialogs.hpp
