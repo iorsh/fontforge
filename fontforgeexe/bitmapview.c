@@ -70,13 +70,22 @@ static Color selected_ref_color = 0x909000;
 static Color ref_border_color = 0x606060;
 static Color selected_ref_border_color = 0x606000;
 
+
+static void BVScrollBarSetPos(BitmapView *bv, bool is_vertical, int32_t pos) {
+   bv_set_scroller_position(bv->gtk_window, is_vertical, pos);
+}
+
+static void BVScrollBarSetBounds(BitmapView *bv, bool is_vertical, int32_t sb_min, int32_t sb_max, int32_t sb_pagesize) {
+   bv_set_scroller_bounds(bv->gtk_window, is_vertical, sb_min, sb_max, sb_pagesize);
+}
+
 static void BVNewScale(BitmapView *bv) {
     int fh = bv->bdf->ascent+bv->bdf->descent;
 
-    GScrollBarSetBounds(bv->vsb,-2*fh*bv->scale,4*fh*bv->scale,bv->height);
-    GScrollBarSetBounds(bv->hsb,-3*fh*bv->scale,6*fh*bv->scale,bv->width);
-    GScrollBarSetPos(bv->vsb,bv->yoff);
-    GScrollBarSetPos(bv->hsb,-bv->xoff);
+    BVScrollBarSetBounds(bv,true,-2*fh*bv->scale,4*fh*bv->scale,bv->height);
+    BVScrollBarSetBounds(bv,false,-3*fh*bv->scale,6*fh*bv->scale,bv->width);
+    BVScrollBarSetPos(bv,true,bv->yoff);
+    BVScrollBarSetPos(bv,false,-bv->xoff);
 
     GDrawRequestExpose(bv->v,NULL,false);
 }
@@ -922,10 +931,10 @@ return;
 
     /* MenuBar takes care of itself */
     GDrawResize(bv->v,newwidth,newheight);
-    GGadgetMove(bv->vsb,newwidth, bv->mbh+bv->infoh);
-    GGadgetResize(bv->vsb,sbsize,newheight);
-    GGadgetMove(bv->hsb,0,event->u.resize.size.height-sbsize);
-    GGadgetResize(bv->hsb,newwidth,sbsize);
+//     GGadgetMove(bv->vsb,newwidth, bv->mbh+bv->infoh);
+//     GGadgetResize(bv->vsb,sbsize,newheight);
+//     GGadgetMove(bv->hsb,0,event->u.resize.size.height-sbsize);
+//     GGadgetResize(bv->hsb,newwidth,sbsize);
     bv->width = newwidth; bv->height = newheight;
     GGadgetGetSize(bv->recalc,&size);
     GGadgetMove(bv->recalc,event->u.resize.size.width - size.width - GDrawPointsToPixels(bv->gw,6),size.y);
@@ -977,7 +986,7 @@ static void BVHScroll(BitmapView *bv,struct sbevent *sb) {
     if ( newpos!=bv->xoff ) {
 	int diff = newpos-bv->xoff;
 	bv->xoff = newpos;
-	GScrollBarSetPos(bv->hsb,-newpos);
+	BVScrollBarSetPos(bv,false,-newpos);
 	GDrawScroll(bv->v,NULL,diff,0);
     }
 }
@@ -1022,7 +1031,7 @@ static void BVVScroll(BitmapView *bv,struct sbevent *sb) {
     if ( newpos!=bv->yoff ) {
 	int diff = newpos-bv->yoff;
 	bv->yoff = newpos;
-	GScrollBarSetPos(bv->vsb,newpos);
+	BVScrollBarSetPos(bv,true,newpos);
 	GDrawScroll(bv->v,NULL,0,diff);
     }
 }
@@ -1278,8 +1287,8 @@ return;			/* Not pressed */
 	if ( newx!=bv->xoff || newy!=bv->yoff ) {
 	    newx -= bv->xoff; bv->xoff += newx;
 	    newy -= bv->yoff; bv->yoff += newy;
-	    GScrollBarSetPos(bv->hsb,-bv->xoff);
-	    GScrollBarSetPos(bv->vsb,-bv->yoff);
+	    BVScrollBarSetPos(bv,false,-bv->xoff);
+	    BVScrollBarSetPos(bv,true,-bv->yoff);
 	    GDrawScroll(bv->v,NULL,newx,newy);
 	}
 	bv->event_x = event->u.mouse.x; bv->event_y = event->u.mouse.y;
@@ -2368,20 +2377,6 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     GGadgetGetSize(bv->mb,&gsize);
     bv->mbh = gsize.height;
     bv->infoh = GDrawPointsToPixels(gw,36);
-
-    gd.pos.y = bv->mbh+bv->infoh;
-    gd.pos.width = sbsize = GDrawPointsToPixels(gw,_GScrollBar_Width);
-    gd.pos.height = pos.height-bv->mbh-bv->infoh - sbsize;
-    gd.pos.x = pos.width-sbsize;
-    gd.u.sbinit = NULL;
-    gd.flags = gg_visible|gg_enabled|gg_pos_in_pixels|gg_sb_vert;
-    bv->vsb = GScrollBarCreate(gw,&gd,bv);
-
-    gd.pos.y = pos.height-sbsize; gd.pos.height = sbsize;
-    gd.pos.width = pos.width - sbsize;
-    gd.pos.x = 0;
-    gd.flags = gg_visible|gg_enabled|gg_pos_in_pixels;
-    bv->hsb = GScrollBarCreate(gw,&gd,bv);
 
     memset(&gd, '\0', sizeof(gd));
     memset(&ti, '\0', sizeof(ti));

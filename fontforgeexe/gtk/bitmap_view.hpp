@@ -46,6 +46,16 @@ class BitmapView {
         return pixel_grid.get_drawing_widget_c();
     }
 
+    void set_scroller_position(bool is_vertical, int32_t position) {
+        pixel_grid.set_scroller_position(is_vertical, position);
+    }
+
+    void set_scroller_bounds(bool is_vertical, int32_t sb_min, int32_t sb_max,
+                             int32_t sb_pagesize) {
+        pixel_grid.set_scroller_bounds(is_vertical, sb_min, sb_max,
+                                       sb_pagesize);
+    }
+
  private:
     Gtk::Window window;
     PixelGrid pixel_grid;
