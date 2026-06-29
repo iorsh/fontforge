@@ -31,6 +31,7 @@
 namespace ff::views {
 
 bool on_drawing_area_event(GdkEvent* event);
+bool on_drawing_area_key(GdkEventKey* event, Gtk::DrawingArea& drawing_area);
 
 BitmapView::BitmapView(int width, int height) {
     // Fontforge drawing area processes events in the legacy code
@@ -38,10 +39,19 @@ BitmapView::BitmapView(int width, int height) {
     // wish to have full mouse motion events.
     // Exposure events are also rejected, as they are processed in the legacy
     // code. Redirecting them to GTK widget would cause blanking and flickering.
-    drawing_area.signal_event().connect(&on_drawing_area_event);
     drawing_area.set_events(Gdk::ALL_EVENTS_MASK &
                             ~Gdk::POINTER_MOTION_HINT_MASK &
                             ~Gdk::EXPOSURE_MASK);
+    drawing_area.signal_event().connect(&on_drawing_area_event);
+
+    // Drawing area is responsible to dispatch keypress events. Most go to the
+    // legacy code.
+    drawing_area.signal_key_press_event().connect([this](GdkEventKey* event) {
+        return on_drawing_area_key(event, drawing_area);
+    });
+
+    drawing_area.set_can_focus(true);
+
     window.add(drawing_area);
 
     window.show_all();
@@ -67,6 +77,32 @@ bool on_drawing_area_event(GdkEvent* event) {
 
     // Return false to allow further propagation of unhandled events
     return false;
+}
+
+bool on_drawing_area_key(GdkEventKey* event, Gtk::DrawingArea& drawing_area) {
+    // All keypress events belong to the top window. Some of them must go to
+    // the main loop to be picked by the legacy GDraw handler. Their window
+    // must be replaced, because legacy GDraw handler picks only events which
+    // belong to the drawing area window.
+
+    GdkWindow* drawing_win =
+        gtk_widget_get_window((GtkWidget*)(drawing_area.gobj()));
+
+    // The GDK reference handling is very fragile, so we *slowly* replace the
+    // window...
+    GdkWindow* old_event_window = event->window;
+    event->window = drawing_win;
+
+    // Put a copy of the event into the main loop. The event copy handles its
+    // object references by itself.
+    gdk_event_put((GdkEvent*)event);
+
+    // *Slowly* replace the window back, so that the handler caller wraps it
+    // up correctly.
+    event->window = old_event_window;
+
+    // Don't handle this event any further.
+    return true;
 }
 
 }  // namespace ff::views
