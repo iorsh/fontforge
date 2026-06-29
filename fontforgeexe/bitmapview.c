@@ -1418,6 +1418,7 @@ static void BVMouseUp(BitmapView *bv, GEvent *event) {
     BVToolsSetCursor(bv,event->u.mouse.state&~(1<<(7+event->u.mouse.button)), event->u.mouse.device);		/* X still has the buttons set in the state, even though we just released them. I don't want em */
 }
 
+/* Update bv->xoff, bv->yoff from GTK scrollbar */
 static void BVScrollToPos(BitmapView* bv, bool is_vertical, int32_t position) {
     int newpos = position;
     int fh = bv->bdf->ascent + bv->bdf->descent;
@@ -1429,8 +1430,6 @@ static void BVScrollToPos(BitmapView* bv, bool is_vertical, int32_t position) {
         if (newpos != bv->yoff) {
             int diff = newpos - bv->yoff;
             bv->yoff = newpos;
-            BVScrollBarSetPos(bv, true, newpos);
-            GDrawScroll(bv->v, NULL, 0, diff);
         }
     } else {
         if (newpos > 6 * fh * bv->scale - bv->width)
@@ -1439,10 +1438,9 @@ static void BVScrollToPos(BitmapView* bv, bool is_vertical, int32_t position) {
         if (newpos != bv->xoff) {
             int diff = newpos - bv->xoff;
             bv->xoff = newpos;
-            BVScrollBarSetPos(bv, false, -newpos);
-            GDrawScroll(bv->v, NULL, diff, 0);
         }
     }
+    GDrawRequestExpose(bv->v, NULL, false);
 }
 
 static int v_e_h(GWindow gw, GEvent *event) {
