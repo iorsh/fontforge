@@ -1,4 +1,4 @@
-/* Copyright 2026 Maxim Iorsh <iorsh@users.sourceforge.net>
+/* Copyright 2024 Maxim Iorsh <iorsh@users.sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,17 +24,22 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#pragma once
 
-#include "bitmap_view.hpp"
-#include "utils.hpp"
+#include <string>
+#include <gtkmm.h>
 
 namespace ff::views {
 
-BitmapView::BitmapView(int width, int height) {
-    window.add(pixel_grid.get_top_widget());
+class PixelGrid {
+ public:
+    PixelGrid();
 
-    window.show_all();
-    window.resize(width, height);
-}
+    Gtk::Widget& get_top_widget();
+    GtkWidget* get_drawing_widget_c();
+
+ private:
+    Gtk::DrawingArea drawing_area;
+};
 
 }  // namespace ff::views
