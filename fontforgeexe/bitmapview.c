@@ -42,6 +42,7 @@
 #include "utype.h"
 #include "bv_mids.h"
 #include "gtk/bitmap_view_shim.hpp"
+#include "gtk/c_context.h"
 
 #include <locale.h>
 #include <math.h>
@@ -2322,6 +2323,8 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     static GWindow icon = NULL;
     GTextInfo ti;
     int as, ds, ld;
+    // Memory ownership handed over to GTK UI code
+    BVContext *bv_context = calloc(1, sizeof(BVContext));
 
     BitmapViewInit();
 
@@ -2360,7 +2363,10 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     DefaultY(&pos);
 
     bv->gw = gw = GDrawCreateTopWindow(NULL,&pos,bv_e_h,bv,&wattrs);
-    bv->gtk_window = create_bitmap_view(pos.width, pos.height);
+
+    bv_context->bv = bv;
+    bv->gtk_window = create_bitmap_view(&bv_context, pos.width, pos.height);
+
     free( (unichar_t *) wattrs.icon_title );
     GDrawSetWindowTypeName(bv->gw, "BitmapView");
 

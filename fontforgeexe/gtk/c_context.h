@@ -1,4 +1,4 @@
-/* Copyright (C) 2026 by Maxim Iorsh <iorsh@users@sourceforge.net>
+/* Copyright 2026 Maxim Iorsh <iorsh@users.sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,30 +26,16 @@
  */
 #pragma once
 
-#include <stdint.h>
-
-typedef struct _GtkWidget GtkWidget;
-typedef struct bitmapview_context BVContext;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Create GTK Bitmap View window.
-// Return value:
-//    pointer to ff::views::BitmapView object, opaque to C code
-void* create_bitmap_view(BVContext** p_bv_context, int width, int height);
+typedef struct bitmapview BitmapView;
 
-// Set views::BitmapView title and taskbar title [unsupported]
-void gtk_set_title(void* bv_opaque, char* window_title, char* taskbar_title);
-
-GtkWidget* get_drawing_widget_c(void* bv_opaque);
-
-void bv_set_scroller_position(void* bv_opaque, bool is_vertical,
-                              int32_t position);
-
-void bv_set_scroller_bounds(void* bv_opaque, bool is_vertical, int32_t sb_min,
-                            int32_t sb_max, int32_t sb_pagesize);
+// C structure and callback for interacting with legacy code
+typedef struct bitmapview_context {
+    BitmapView* bv;
+} BVContext;
 
 #ifdef __cplusplus
 }

@@ -30,7 +30,9 @@
 
 namespace ff::views {
 
-BitmapView::BitmapView(int width, int height) {
+BitmapView::BitmapView(std::shared_ptr<BVContext> context, int width,
+                       int height)
+    : bv_context(context) {
     window.add(pixel_grid.get_top_widget());
 
     window.show_all();
