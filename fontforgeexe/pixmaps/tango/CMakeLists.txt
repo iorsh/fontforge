@@ -8,6 +8,14 @@ install(FILES
 )
 
 install(FILES
+  svg/right_pointer.svg
+  svg/press_2_ptr.svg
+
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/fontforge/pixmaps/svg
+  COMPONENT theme
+)
+
+install(FILES
   changeweight.png check_off_disabled.png check_off.png check_on_disabled.png check_on.png
   chooseraudio.png chooserback.png chooserbookmark.png choosercid.png choosercompressed.png
   chooserconfigtool.png choosercore.png chooserdir.png chooserforward.png chooserhomefolder.png
