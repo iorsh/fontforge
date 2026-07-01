@@ -158,4 +158,41 @@ Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name) {
     return res;
 }
 
+Glib::RefPtr<Gdk::Pixbuf> load_image(const Glib::ustring& icon_name, int width,
+                                     int height) {
+    Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
+
+    // Load icon by name from the theme
+    auto icon_info = theme->lookup_icon(icon_name, width);
+    if (icon_info) {
+        if (height == 0) {
+            // Assume icon is requested.
+            return theme->load_icon(icon_name, width,
+                                    Gtk::ICON_LOOKUP_FORCE_SIZE);
+        } else {
+            return Gdk::Pixbuf::create_from_file(icon_info.get_filename(),
+                                                 width, height);
+        }
+    }
+
+    int size = std::max(width, height);
+    // Use generic sad face for missing icons
+    if (theme->lookup_icon("computer-fail-symbolic", size)) {
+        return theme->load_icon("computer-fail-symbolic", size,
+                                Gtk::ICON_LOOKUP_FORCE_SIZE);
+    }
+
+    // Fallback to black square
+    static const std::vector<guint8> sq(width * height, 0);
+    static Glib::RefPtr<Gdk::Pixbuf> fallback_icon =
+        Gdk::Pixbuf::create_from_data(sq.data(), Gdk::COLORSPACE_RGB, false, 8,
+                                      width, height, 0);
+
+    return fallback_icon;
+}
+
+Glib::RefPtr<Gdk::Pixbuf> load_icon(const Glib::ustring& icon_name, int size) {
+    return load_image(icon_name, size, 0);
+}
+
 }  // namespace ff::ui_utils

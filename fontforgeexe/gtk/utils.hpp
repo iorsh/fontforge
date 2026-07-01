@@ -55,4 +55,8 @@ Glib::RefPtr<Gdk::Cursor> set_cursor(Gtk::Widget* widget,
 void unset_cursor(Gtk::Widget* widget, Glib::RefPtr<Gdk::Cursor> old_cursor);
 
 Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name);
+
+Glib::RefPtr<Gdk::Pixbuf> load_image(const Glib::ustring& icon_name, int width,
+                                     int height);
+Glib::RefPtr<Gdk::Pixbuf> load_icon(const Glib::ustring& icon_name, int size);
 }  // namespace ff::ui_utils
