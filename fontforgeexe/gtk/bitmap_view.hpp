@@ -58,9 +58,13 @@ class BitmapView {
     }
 
  private:
+    Gtk::Box* build_infobar();
+
     std::shared_ptr<BVContext> bv_context;
 
     Gtk::Window window;
+    Gtk::Label pointer_location_;
+    Gtk::Label pointer_drag_location_;
     PixelGrid pixel_grid;
 };
 

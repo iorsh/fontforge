@@ -33,10 +33,44 @@ namespace ff::views {
 BitmapView::BitmapView(std::shared_ptr<BVContext> context, int width,
                        int height)
     : bv_context(context), pixel_grid(context) {
-    window.add(pixel_grid.get_top_widget());
+    Gtk::Box* root_box = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_VERTICAL);
+
+    Gtk::Box* infobar = build_infobar();
+
+    root_box->pack_start(*infobar, Gtk::PACK_SHRINK);
+    root_box->pack_start(pixel_grid.get_top_widget(), Gtk::PACK_EXPAND_WIDGET);
+
+    window.add(*root_box);
 
     window.show_all();
     window.resize(width, height);
+}
+
+Gtk::Box* BitmapView::build_infobar() {
+    Gtk::Box* infobar =
+        Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL);
+    infobar->set_spacing(0.5 * ff::ui_utils::ui_font_em_size());
+    infobar->set_margin_start(ff::ui_utils::ui_font_em_size());
+
+    int icon_height = ff::ui_utils::ui_font_eX_size();
+    auto pbuf = ff::ui_utils::load_image("right_pointer", -1, icon_height);
+    Gtk::Image* right_pointer_image = Gtk::make_managed<Gtk::Image>(pbuf);
+    pbuf = ff::ui_utils::load_image("press_2_ptr", -1, icon_height);
+    Gtk::Image* press_2_ptr_image = Gtk::make_managed<Gtk::Image>(pbuf);
+
+    pointer_location_.set_width_chars(12);
+    pointer_location_.set_xalign(0.0);
+    pointer_location_.set_text("0,0");
+    pointer_drag_location_.set_width_chars(12);
+    pointer_drag_location_.set_xalign(0.0);
+    pointer_drag_location_.set_text("0,0");
+
+    infobar->pack_start(*right_pointer_image, Gtk::PACK_SHRINK);
+    infobar->pack_start(pointer_location_, Gtk::PACK_SHRINK);
+    infobar->pack_start(*press_2_ptr_image, Gtk::PACK_SHRINK);
+    infobar->pack_start(pointer_drag_location_, Gtk::PACK_SHRINK);
+
+    return infobar;
 }
 
 }  // namespace ff::views
