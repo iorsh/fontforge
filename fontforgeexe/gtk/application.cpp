@@ -33,6 +33,10 @@
 #include "gresource.h"
 #include "css_builder.hpp"
 
+extern "C" {
+#include "gfile.h"
+}
+
 extern GResInfo gdraw_ri;
 extern "C" void GResEditDoInit(GResInfo* ri);
 
@@ -59,6 +63,11 @@ Glib::RefPtr<Gtk::Application> GtkApp() {
                       << std::endl;
         }
         load_legacy_style();
+
+        auto theme = Gtk::IconTheme::get_default();
+        std::string pixmap_dir = getPixmapDir();
+        theme->prepend_search_path(pixmap_dir);
+        theme->prepend_search_path(pixmap_dir + "/svg");
 
         initialized = true;
     }
