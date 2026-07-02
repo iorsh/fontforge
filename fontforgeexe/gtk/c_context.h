@@ -40,6 +40,9 @@ typedef struct bitmapview_context {
     void (*scroll_bitmapview_to_position_cb)(BitmapView* bv, bool is_vertical,
                                              int32_t position);
 
+    void (*get_pixel_and_tool_coords)(BitmapView* bv, int* pixel_x,
+                                      int* pixel_y, int* tool_x, int* tool_y);
+
 } BVContext;
 
 #ifdef __cplusplus

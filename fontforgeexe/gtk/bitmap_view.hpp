@@ -60,6 +60,8 @@ class BitmapView {
  private:
     Gtk::Box* build_infobar();
 
+    bool on_motion_notify_event(GdkEventMotion* event);
+
     std::shared_ptr<BVContext> bv_context;
 
     Gtk::Window window;

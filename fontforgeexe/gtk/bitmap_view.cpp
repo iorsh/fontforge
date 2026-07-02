@@ -37,6 +37,8 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> context, int width,
 
     Gtk::Box* infobar = build_infobar();
 
+    pixel_grid.get_drawing_widget().signal_motion_notify_event().connect(
+        sigc::mem_fun(*this, &BitmapView::on_motion_notify_event));
     root_box->pack_start(*infobar, Gtk::PACK_SHRINK);
     root_box->pack_start(pixel_grid.get_top_widget(), Gtk::PACK_EXPAND_WIDGET);
 
@@ -60,10 +62,8 @@ Gtk::Box* BitmapView::build_infobar() {
 
     pointer_location_.set_width_chars(12);
     pointer_location_.set_xalign(0.0);
-    pointer_location_.set_text("0,0");
     pointer_drag_location_.set_width_chars(12);
     pointer_drag_location_.set_xalign(0.0);
-    pointer_drag_location_.set_text("0,0");
 
     infobar->pack_start(*right_pointer_image, Gtk::PACK_SHRINK);
     infobar->pack_start(pointer_location_, Gtk::PACK_SHRINK);
@@ -71,6 +71,26 @@ Gtk::Box* BitmapView::build_infobar() {
     infobar->pack_start(pointer_drag_location_, Gtk::PACK_SHRINK);
 
     return infobar;
+}
+
+bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {
+    static const int kInvalidCoord = 100000;
+    int pixel_x, pixel_y, tool_x = kInvalidCoord, tool_y = kInvalidCoord;
+
+    bv_context->get_pixel_and_tool_coords(bv_context->bv, &pixel_x, &pixel_y,
+                                          &tool_x, &tool_y);
+
+    pointer_location_.set_text(std::to_string(pixel_x) +
+                               ui_utils::get_list_separator() +
+                               std::to_string(pixel_y));
+    if (tool_x != kInvalidCoord && tool_y != kInvalidCoord)
+        pointer_drag_location_.set_text(std::to_string(tool_x) +
+                                        ui_utils::get_list_separator() +
+                                        std::to_string(tool_y));
+    else
+        pointer_drag_location_.set_text("");
+
+    return false;
 }
 
 }  // namespace ff::views

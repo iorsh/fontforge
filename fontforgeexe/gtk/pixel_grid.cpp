@@ -79,6 +79,8 @@ PixelGrid::PixelGrid(std::shared_ptr<BVContext> context) {
 
 Gtk::Widget& PixelGrid::get_top_widget() { return pixel_grid_box_; }
 
+Gtk::DrawingArea& PixelGrid::get_drawing_widget() { return drawing_area; }
+
 GtkWidget* PixelGrid::get_drawing_widget_c() {
     return (GtkWidget*)drawing_area.gobj();
 }
