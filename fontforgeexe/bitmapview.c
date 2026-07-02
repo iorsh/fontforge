@@ -825,25 +825,12 @@ static void BVExpose(BitmapView *bv, GWindow pixmap, GEvent *event ) {
     GDrawPopClip(pixmap,&old);
 }
 
-static void BVInfoDrawText(BitmapView *bv, GWindow pixmap ) {
-    GRect r;
-    Color bg = GDrawGetDefaultBackground(GDrawGetDisplayOfWindow(pixmap));
-    char buffer[50];
-    int ybase = bv->mbh+10+bv->sas;
-
-    GDrawSetFont(pixmap,bv->small);
-    r.x = bv->infoh+RPT_DATA; r.width = 39;
-    r.y = bv->mbh; r.height = 36 /* bv->infoh-1 */;
-    GDrawFillRect(pixmap,&r,bg);
-
-    sprintf(buffer,"%d%s%d", bv->info_x, coord_sep, bv->info_y );
-    buffer[11] = '\0';
-    GDrawDrawText8(pixmap,bv->infoh+RPT_DATA,ybase,buffer,-1,GDrawGetDefaultForeground(NULL));
-
-    if ( bv->active_tool!=cvt_none ) {
-	sprintf(buffer,"%d%s%d", bv->info_x-bv->pressed_x, coord_sep, bv->info_y-bv->pressed_y );
-	buffer[11] = '\0';
-	GDrawDrawText8(pixmap,bv->infoh+RPT_DATA,ybase+bv->sfh+10,buffer,-1,GDrawGetDefaultForeground(NULL));
+static void BVInfoGetText(BitmapView* bv, int* x, int* y, int* dx, int* dy) {
+    *x = bv->info_x;
+    *y = bv->info_y;
+    if (bv->active_tool != cvt_none) {
+        *dx = bv->info_x - bv->pressed_x;
+        *dy = bv->info_y - bv->pressed_y;
     }
 }
 
@@ -894,7 +881,6 @@ return;
     if (event->u.expose.rect.y < bv->mbh + bv->infoh - 1) {
 	GDrawDrawImage(pixmap,&GIcon_rightpointer,NULL,bv->infoh+RPT_BASE,bv->mbh+8);
 	GDrawDrawImage(pixmap,&GIcon_press2ptr,NULL,bv->infoh+RPT_BASE,bv->mbh+18+bv->sfh);
-	BVInfoDrawText(bv,pixmap );
 
 	r.x = bv->infoh+RPT_DATA; r.y = bv->mbh+36;
 	r.width = 20; r.height = 10;
@@ -2351,6 +2337,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
 
     bv_context->bv = bv;
     bv_context->scroll_bitmapview_to_position_cb = BVScrollToPos;
+    bv_context->get_pixel_and_tool_coords = BVInfoGetText;
     bv->gtk_window = create_bitmap_view(&bv_context, pos.width, pos.height);
 
     free( (unichar_t *) wattrs.icon_title );

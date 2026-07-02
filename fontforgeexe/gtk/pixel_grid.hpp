@@ -38,6 +38,7 @@ class PixelGrid {
     PixelGrid(std::shared_ptr<BVContext> context);
 
     Gtk::Widget& get_top_widget();
+    Gtk::DrawingArea& get_drawing_widget();
     GtkWidget* get_drawing_widget_c();
     void set_scroller_position(bool is_vertical, int32_t position);
     void set_scroller_bounds(bool is_vertical, int32_t sb_min, int32_t sb_max,
