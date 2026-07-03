@@ -26,6 +26,7 @@ add_library(ffgtk OBJECT
   show_histogram.cpp
   simple_dialogs.hpp
   simple_dialogs.cpp
+  ui_context.hpp
   utils.hpp
   utils.cpp
 )
