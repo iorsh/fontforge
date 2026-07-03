@@ -314,11 +314,11 @@ std::string build_styles(const GResInfo* gdraw_ri) {
     static const std::map<std::string, Selector> css_selector_map = {
         {"", {"box", {"tooltip"}}},
         {"GLabel", {"label", {"button", "tooltip", "tab"}}},
-        {"GButton", {"button", {"spinbutton"}}},
+        {"GButton", {"button:not(.radio)", {"spinbutton"}}},
         {"GDefaultButton", {"button#ok", {}}},
         {"GCancelButton", {"button#cancel", {}}},
         {"GNumericField", {"spinbutton", {}}},
-        {"GNumericFieldSpinner", {"spinbutton button", {}}},
+        {"GNumericFieldSpinner", {"spinbutton button:not(.radio)", {}}},
         {"GTextField", {"entry", {"spinbutton"}}},
         {"GGadget.Popup", {"tooltip", {}}},
         {"GScrollBar", {"scrollbar", {}}},
