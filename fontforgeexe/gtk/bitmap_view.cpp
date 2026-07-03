@@ -81,6 +81,20 @@ Gtk::VBox* BitmapView::build_toolbar() {
     toolbar->set_vexpand(false);
     toolbar->set_valign(Gtk::ALIGN_START);
 
+    std::vector<std::string> button_names = {"pointer", "magnify", "pencil",
+                                             "line",    "shift",   "hand"};
+    Gtk::RadioToolButton::Group tool_group;
+    for (const auto& name : button_names) {
+        Gtk::Image* icon =
+            Gtk::make_managed<Gtk::Image>(ff::ui_utils::load_icon(name, 24));
+        Gtk::RadioToolButton* button =
+            Gtk::make_managed<Gtk::RadioToolButton>(*icon, name);
+        button->set_group(tool_group);
+        toolbar->add(*button);
+    }
+
+    toolbar->add(*Gtk::make_managed<Gtk::Separator>());
+
     Gtk::Image* icon = Gtk::make_managed<Gtk::Image>(
         ff::ui_utils::load_icon("filerevert", 24));
     Gtk::ToolButton* regen_button =
