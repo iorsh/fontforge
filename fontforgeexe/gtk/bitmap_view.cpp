@@ -33,16 +33,19 @@ namespace ff::views {
 BitmapView::BitmapView(std::shared_ptr<BVContext> context, int width,
                        int height)
     : bv_context(context), pixel_grid(context) {
-    Gtk::Box* root_box = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_VERTICAL);
+    Gtk::Grid* root_grid = Gtk::make_managed<Gtk::Grid>();
 
     Gtk::Box* infobar = build_infobar();
+    Gtk::VBox* toolbar = build_toolbar();
 
     pixel_grid.get_drawing_widget().signal_motion_notify_event().connect(
         sigc::mem_fun(*this, &BitmapView::on_motion_notify_event));
-    root_box->pack_start(*infobar, Gtk::PACK_SHRINK);
-    root_box->pack_start(pixel_grid.get_top_widget(), Gtk::PACK_EXPAND_WIDGET);
 
-    window.add(*root_box);
+    root_grid->attach(*infobar, 0, 0, 2, 1);
+    root_grid->attach(*toolbar, 0, 1);
+    root_grid->attach(pixel_grid.get_top_widget(), 1, 1);
+
+    window.add(*root_grid);
 
     window.show_all();
     window.resize(width, height);
@@ -71,6 +74,20 @@ Gtk::Box* BitmapView::build_infobar() {
     infobar->pack_start(pointer_drag_location_, Gtk::PACK_SHRINK);
 
     return infobar;
+}
+
+Gtk::VBox* BitmapView::build_toolbar() {
+    Gtk::VBox* toolbar = Gtk::make_managed<Gtk::VBox>();
+    toolbar->set_vexpand(false);
+    toolbar->set_valign(Gtk::ALIGN_START);
+
+    Gtk::Image* icon = Gtk::make_managed<Gtk::Image>(
+        ff::ui_utils::load_icon("filerevert", 24));
+    Gtk::ToolButton* regen_button =
+        Gtk::make_managed<Gtk::ToolButton>(*icon, "Recalculate Bitmap");
+    toolbar->add(*regen_button);
+
+    return toolbar;
 }
 
 bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {

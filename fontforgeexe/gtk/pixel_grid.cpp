@@ -70,7 +70,10 @@ PixelGrid::PixelGrid(std::shared_ptr<BVContext> context) {
     };
     drawing_area.signal_scroll_event().connect(on_drawing_area_scroll);
 
+    // Keep keyboard handling in the drawing area even when other widgets exist
+    // in the same window (e.g. toolbar controls).
     drawing_area.set_can_focus(true);
+    drawing_area.signal_map().connect([this]() { drawing_area.grab_focus(); });
 
     pixel_grid_box_.attach(drawing_area, 0, 0);
     pixel_grid_box_.attach(hscroller_, 0, 1);

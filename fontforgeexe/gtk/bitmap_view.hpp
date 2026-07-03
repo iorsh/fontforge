@@ -59,6 +59,7 @@ class BitmapView {
 
  private:
     Gtk::Box* build_infobar();
+    Gtk::VBox* build_toolbar();
 
     bool on_motion_notify_event(GdkEventMotion* event);
 
