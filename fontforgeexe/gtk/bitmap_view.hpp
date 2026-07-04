@@ -29,6 +29,7 @@
 #include <string>
 #include <gtkmm.h>
 
+#include "bitmap_view_shim.hpp"
 #include "pixel_grid.hpp"
 #include "c_context.h"
 #include "ui_context.hpp"
@@ -74,6 +75,8 @@ class BitmapView {
     Gtk::VBox* build_toolbar();
 
     bool on_motion_notify_event(GdkEventMotion* event);
+
+    void on_tool_button_clicked(const BitmapViewTool& tool_def);
 
     BitmapViewUiContext context;
 

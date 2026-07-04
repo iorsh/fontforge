@@ -32,16 +32,16 @@
 #include "gtk/bitmap_view_shim.hpp"
 
 std::vector<BitmapViewTool> bitmap_view_tools = {
-    {bvt_pointer, "pointer", N_("Pointer")},
-    {bvt_magnify, "magnify", N_("Magnify (Minify with alt)")},
-    {bvt_pencil, "pencil", N_("Set/Clear Pixels")},
-    {bvt_eyedropper, "color-picker", N_("Pick Color")},
-    {bvt_line, "line", N_("Draw a Line")},
-    {bvt_shift, "shift", N_("Shift Entire Bitmap")},
-    {bvt_hand, "hand", N_("Scroll Bitmap")},
-    {bvt_rect, "toolsrect", N_("Draw Rectangle")},
-    {bvt_filledrect, "filledrect", N_("Draw Filled Rectangle")},
-    {bvt_elipse, "toolselipse", N_("Draw Ellipse")},
-    {bvt_filledelipse, "filledelipse", N_("Draw Filled Ellipse")},
+    {bvt_pointer, "pointer", "default", N_("Pointer")},
+    {bvt_magnify, "magnify", "zoom-in", N_("Magnify (Minify with alt)")},
+    {bvt_pencil, "pencil", "", N_("Set/Clear Pixels")},
+    {bvt_eyedropper, "color-picker", "", N_("Pick Color")},
+    {bvt_line, "line", "", N_("Draw a Line")},
+    {bvt_shift, "shift", "all-scroll", N_("Shift Entire Bitmap")},
+    {bvt_hand, "hand", "grab", N_("Scroll Bitmap")},
+    {bvt_rect, "toolsrect", "", N_("Draw Rectangle")},
+    {bvt_filledrect, "filledrect", "", N_("Draw Filled Rectangle")},
+    {bvt_elipse, "toolselipse", "", N_("Draw Ellipse")},
+    {bvt_filledelipse, "filledelipse", "", N_("Draw Filled Ellipse")},
 };
 void* p_bitmap_view_tools = &bitmap_view_tools;

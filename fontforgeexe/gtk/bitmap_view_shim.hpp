@@ -66,6 +66,7 @@ enum bvtools {
 struct BitmapViewTool {
     bvtools tool_id;
     std::string icon_name;
+    std::string cursor_name;
     L10nText label;
 };
 
