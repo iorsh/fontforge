@@ -36,6 +36,9 @@ typedef struct bitmapview BitmapView;
 typedef struct bitmapview_context {
     BitmapView* bv;
 
+    // Can be cast to std::vector<BitmapViewTool>*
+    void* p_bitmap_view_tools;
+
     // Set character grid to the desired position according to the scrollbar
     void (*scroll_bitmapview_to_position_cb)(BitmapView* bv, bool is_vertical,
                                              int32_t position);

@@ -52,6 +52,8 @@ int bv_width = 270, bv_height=250;
 extern struct lconv localeinfo;
 extern char *coord_sep;
 struct bvshows BVShows = { 1, 1, 1, 0 };
+extern void* p_bitmap_view_tools;
+
 
 #define RPT_BASE	3		/* Place to draw the pointer icon */
 #define RPT_DATA	24		/* x,y text after above */
@@ -2336,6 +2338,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv->gw = gw = GDrawCreateTopWindow(NULL,&pos,bv_e_h,bv,&wattrs);
 
     bv_context->bv = bv;
+    bv_context->p_bitmap_view_tools = p_bitmap_view_tools;
     bv_context->scroll_bitmapview_to_position_cb = BVScrollToPos;
     bv_context->get_pixel_and_tool_coords = BVInfoGetText;
     bv->gtk_window = create_bitmap_view(&bv_context, pos.width, pos.height);

@@ -14,6 +14,7 @@ fontforge/glif_name_hash.cpp
 fontforge/shapers/*.cpp
 fontforge/shapers/*.hpp
 fontforge/shapers/*.h
+fontforgeexe/bitmap_view_menu.cpp
 fontforgeexe/bitmapdlg.cpp
 fontforgeexe/histograms.cpp
 fontforgeexe/gtk/c_context.h
