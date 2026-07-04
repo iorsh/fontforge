@@ -12,6 +12,7 @@ if(ENABLE_GUI)
     bdfinfo.c
     bitmapdlg.cpp
     bitmapview.c
+    bitmap_view_menu.cpp
     charinfo.c
     charview_private.h
     charview.c

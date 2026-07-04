@@ -26,6 +26,7 @@
  */
 
 #include "bitmap_view.hpp"
+#include "bitmap_view_shim.hpp"
 #include "utils.hpp"
 
 namespace ff::views {
@@ -77,26 +78,31 @@ Gtk::Box* BitmapView::build_infobar() {
 }
 
 Gtk::VBox* BitmapView::build_toolbar() {
+    int icon_height = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
+
     Gtk::VBox* toolbar = Gtk::make_managed<Gtk::VBox>();
     toolbar->set_vexpand(false);
     toolbar->set_valign(Gtk::ALIGN_START);
 
-    std::vector<std::string> button_names = {"pointer", "magnify", "pencil",
-                                             "line",    "shift",   "hand"};
+    const std::vector<BitmapViewTool>& bitmap_view_tools =
+        *static_cast<std::vector<BitmapViewTool>*>(
+            context.legacy()->p_bitmap_view_tools);
     Gtk::RadioToolButton::Group tool_group;
-    for (const auto& name : button_names) {
-        Gtk::Image* icon =
-            Gtk::make_managed<Gtk::Image>(ff::ui_utils::load_icon(name, 24));
+
+    for (const auto& tool : bitmap_view_tools) {
+        Gtk::Image* icon = Gtk::make_managed<Gtk::Image>(
+            ff::ui_utils::load_icon(tool.icon_name, icon_height));
         Gtk::RadioToolButton* button =
-            Gtk::make_managed<Gtk::RadioToolButton>(*icon, name);
+            Gtk::make_managed<Gtk::RadioToolButton>(*icon);
         button->set_group(tool_group);
+        button->set_tooltip_text(tool.label);
         toolbar->add(*button);
     }
 
     toolbar->add(*Gtk::make_managed<Gtk::Separator>());
 
     Gtk::Image* icon = Gtk::make_managed<Gtk::Image>(
-        ff::ui_utils::load_icon("filerevert", 24));
+        ff::ui_utils::load_icon("filerevert", icon_height));
     Gtk::ToolButton* regen_button =
         Gtk::make_managed<Gtk::ToolButton>(*icon, "Recalculate Bitmap");
     toolbar->add(*regen_button);

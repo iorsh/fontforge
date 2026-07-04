@@ -25,9 +25,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "bitmap_view_shim.hpp"
-
 #include <gtkmm.h>
+#include "bitmap_view_shim.hpp"
 
 #include "application.hpp"
 #include "c_context.h"

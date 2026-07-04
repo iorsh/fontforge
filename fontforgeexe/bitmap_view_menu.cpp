@@ -1,4 +1,4 @@
-/* Copyright 2026 Maxim Iorsh <iorsh@users.sourceforge.net>
+/* Copyright (C) 2026 by Maxim Iorsh <iorsh@users@sourceforge.net>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,30 +24,24 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <vector>
+#include <gtkmm.h>
 
-typedef struct bitmapview BitmapView;
+#include "intl.h"
+#include "gtk/bitmap_view_shim.hpp"
 
-// C structure and callback for interacting with legacy code
-typedef struct bitmapview_context {
-    BitmapView* bv;
-
-    // Can be cast to std::vector<BitmapViewTool>*
-    void* p_bitmap_view_tools;
-
-    // Set character grid to the desired position according to the scrollbar
-    void (*scroll_bitmapview_to_position_cb)(BitmapView* bv, bool is_vertical,
-                                             int32_t position);
-
-    void (*get_pixel_and_tool_coords)(BitmapView* bv, int* pixel_x,
-                                      int* pixel_y, int* tool_x, int* tool_y);
-
-} BVContext;
-
-#ifdef __cplusplus
-}
-#endif
+std::vector<BitmapViewTool> bitmap_view_tools = {
+    {bvt_pointer, "pointer", N_("Pointer")},
+    {bvt_magnify, "magnify", N_("Magnify (Minify with alt)")},
+    {bvt_pencil, "pencil", N_("Set/Clear Pixels")},
+    {bvt_eyedropper, "color-picker", N_("Pick Color")},
+    {bvt_line, "line", N_("Draw a Line")},
+    {bvt_shift, "shift", N_("Shift Entire Bitmap")},
+    {bvt_hand, "hand", N_("Scroll Bitmap")},
+    {bvt_rect, "toolsrect", N_("Draw Rectangle")},
+    {bvt_filledrect, "filledrect", N_("Draw Filled Rectangle")},
+    {bvt_elipse, "toolselipse", N_("Draw Ellipse")},
+    {bvt_filledelipse, "filledelipse", N_("Draw Filled Ellipse")},
+};
+void* p_bitmap_view_tools = &bitmap_view_tools;

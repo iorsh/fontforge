@@ -32,6 +32,43 @@ typedef struct _GtkWidget GtkWidget;
 typedef struct bitmapview_context BVContext;
 
 #ifdef __cplusplus
+
+#include "l10n_text.hpp"
+
+// Duplicates enum bvtools in fontforge/baseviews.h
+enum bvtools {
+    bvt_pointer,
+    bvt_magnify,
+    bvt_pencil,
+    bvt_line,
+    bvt_shift,
+    bvt_hand,
+    bvt_minify,
+    bvt_max = bvt_minify,
+    bvt_eyedropper,
+    bvt_setwidth,
+    bvt_setvwidth,
+    bvt_rect,
+    bvt_filledrect,
+    bvt_elipse,
+    bvt_filledelipse,
+    bvt_max2 = bvt_filledelipse,
+    bvt_none = -1,
+    bvt_fliph = 0,
+    bvt_flipv,
+    bvt_rotate90cw,
+    bvt_rotate90ccw,
+    bvt_rotate180,
+    bvt_skew,
+    bvt_transmove
+};
+
+struct BitmapViewTool {
+    bvtools tool_id;
+    std::string icon_name;
+    L10nText label;
+};
+
 extern "C" {
 #endif
 
