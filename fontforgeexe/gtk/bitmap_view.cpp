@@ -96,6 +96,8 @@ Gtk::VBox* BitmapView::build_toolbar() {
             Gtk::make_managed<Gtk::RadioToolButton>(*icon);
         button->set_group(tool_group);
         button->set_tooltip_text(tool.label);
+        button->signal_clicked().connect(
+            [this, tool]() { on_tool_button_clicked(tool); });
         toolbar->add(*button);
     }
 
@@ -128,6 +130,21 @@ bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {
         pointer_drag_location_.set_text("");
 
     return false;
+}
+
+void BitmapView::on_tool_button_clicked(const BitmapViewTool& tool_def) {
+    auto display = pixel_grid.get_drawing_widget().get_display();
+    auto cursor = Gdk::Cursor::create(display, tool_def.cursor_name);
+    if (!cursor) {
+        // Fallback to the tool icon if the cursor was not found.
+        int cursor_size =
+            std::max(12, (int)(1.5 * ui_utils::ui_font_eX_size()));
+        auto cursor_pbuf =
+            ff::ui_utils::load_icon(tool_def.icon_name, cursor_size);
+        cursor = Gdk::Cursor::create(display, cursor_pbuf, cursor_size / 2,
+                                     cursor_size / 2);
+    }
+    pixel_grid.get_drawing_widget().get_window()->set_cursor(cursor);
 }
 
 }  // namespace ff::views

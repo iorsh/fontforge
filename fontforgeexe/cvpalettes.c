@@ -4287,6 +4287,7 @@ static void BVToolsExpose(GWindow pixmap, BitmapView *bv, GRect *r) {
 }
 
 void BVToolsSetCursor(BitmapView *bv, int state,char *device) {
+	return;
     int shouldshow;
     static enum bvtools tools[bvt_max2+1] = { bvt_none };
     int cntrl;
