@@ -31,6 +31,17 @@
 typedef struct _GtkWidget GtkWidget;
 typedef struct bitmapview_context BVContext;
 
+enum BVDevice {
+    bvd_undefined = -1,
+    bvd_mouse_btn1,
+    bvd_mouse_ctrl_btn1,
+    bvd_mouse_btn2,
+    bvd_mouse_ctrl_btn2,
+    bvd_stylus,
+    bvd_ctrl_stylus,
+    bvd_eraser
+};
+
 #ifdef __cplusplus
 
 #include "l10n_text.hpp"
