@@ -76,7 +76,8 @@ class BitmapView {
 
     bool on_motion_notify_event(GdkEventMotion* event);
 
-    void on_tool_button_clicked(const BitmapViewTool& tool_def);
+    void on_tool_button_clicked(GdkEventButton* event,
+                                const BitmapViewTool& tool_def);
 
     BitmapViewUiContext context;
 

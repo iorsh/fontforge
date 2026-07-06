@@ -96,8 +96,17 @@ Gtk::VBox* BitmapView::build_toolbar() {
             Gtk::make_managed<Gtk::RadioToolButton>(*icon);
         button->set_group(tool_group);
         button->set_tooltip_text(tool.label);
-        button->signal_clicked().connect(
-            [this, tool]() { on_tool_button_clicked(tool); });
+
+        // Only signal_event() agrees to catch secondary mouse clicks.
+        button->signal_event().connect([this, tool](GdkEvent* event) {
+            if (event->type == GDK_BUTTON_RELEASE) {
+                GdkEventButton* button_event =
+                    reinterpret_cast<GdkEventButton*>(event);
+                on_tool_button_clicked(button_event, tool);
+                return true;
+            }
+            return false;
+        });
         toolbar->add(*button);
     }
 
@@ -132,7 +141,28 @@ bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {
     return false;
 }
 
-void BitmapView::on_tool_button_clicked(const BitmapViewTool& tool_def) {
+void BitmapView::on_tool_button_clicked(GdkEventButton* event,
+                                        const BitmapViewTool& tool_def) {
+    bool ctrl_down = (event->state & GDK_CONTROL_MASK) != 0;  // Ctrl key
+    BVDevice device = bvd_undefined;
+
+    if (event->button == GDK_BUTTON_PRIMARY) {
+        device = ctrl_down ? bvd_mouse_ctrl_btn1 : bvd_mouse_btn1;
+    } else if (event->button == GDK_BUTTON_MIDDLE) {
+        device = ctrl_down ? bvd_mouse_ctrl_btn2 : bvd_mouse_btn2;
+    } else {
+        GdkInputSource src = gdk_device_get_source(event->device);
+        if (src == GDK_SOURCE_PEN) {
+            device = ctrl_down ? bvd_ctrl_stylus : bvd_stylus;
+        } else if (src == GDK_SOURCE_ERASER) {
+            device = bvd_eraser;
+        }
+    }
+    if (device == bvd_undefined) return;  // unsupported device
+
+    // Cursor reflects the tool activated by primary device only.
+    if (device != bvd_mouse_btn1 && device != bvd_stylus) return;
+
     auto display = pixel_grid.get_drawing_widget().get_display();
     auto cursor = Gdk::Cursor::create(display, tool_def.cursor_name);
     if (!cursor) {
