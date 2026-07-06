@@ -74,12 +74,16 @@ class BitmapView {
     Gtk::Box* build_infobar();
     Gtk::VBox* build_toolbar();
 
+    Glib::RefPtr<Gtk::GestureMultiPress> create_tool_button_controller(
+        Gtk::RadioToolButton& button) const;
+
     bool on_motion_notify_event(GdkEventMotion* event);
 
     void on_tool_button_clicked(GdkEventButton* event,
                                 const BitmapViewTool& tool_def);
 
     BitmapViewUiContext context;
+    std::vector<Glib::RefPtr<Gtk::GestureMultiPress>> gestures_;
 
     Gtk::Window window;
     Gtk::Label pointer_location_;

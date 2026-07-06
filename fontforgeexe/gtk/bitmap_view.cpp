@@ -97,6 +97,11 @@ Gtk::VBox* BitmapView::build_toolbar() {
         button->set_group(tool_group);
         button->set_tooltip_text(tool.label);
 
+        auto click_controller = create_tool_button_controller(*button);
+        // gestures_ is a dummy container to keep the controller alive for the
+        // lifetime of the BitmapView.
+        gestures_.push_back(click_controller);
+
         // Only signal_event() agrees to catch secondary mouse clicks.
         button->signal_event().connect([this, tool](GdkEvent* event) {
             if (event->type == GDK_BUTTON_RELEASE) {
@@ -119,6 +124,44 @@ Gtk::VBox* BitmapView::build_toolbar() {
     toolbar->add(*regen_button);
 
     return toolbar;
+}
+
+// The only purpose of this controller is to filter out Ctrl+primary click
+// events, which are used to activate a secondary tool. By FontForge convention,
+// the active tool button only shows the active primary tool (primary mouse
+// button). Ctrl+primary click activates other tool, and this should not result
+// in active UI button.
+Glib::RefPtr<Gtk::GestureMultiPress> BitmapView::create_tool_button_controller(
+    Gtk::RadioToolButton& button) const {
+    auto click_controller = Gtk::GestureMultiPress::create(button);
+
+    // Steal these definitions from gtk_button_init().
+    click_controller->set_touch_only(false);
+    click_controller->set_exclusive(true);
+    click_controller->set_button(GDK_BUTTON_PRIMARY);
+
+    click_controller->signal_pressed().connect(
+        [this, click_controller](int n_press, double x, double y) {
+            GdkEvent* current_event = gtk_get_current_event();
+            if (current_event != nullptr &&
+                current_event->type == GDK_BUTTON_PRESS) {
+                GdkEventButton* button_event =
+                    reinterpret_cast<GdkEventButton*>(current_event);
+                if (button_event != nullptr) {
+                    // Effectively drop Ctrl+click events.
+                    if (button_event->state & GDK_CONTROL_MASK) {
+                        click_controller->set_state(
+                            Gtk::EventSequenceState::EVENT_SEQUENCE_CLAIMED);
+                    }
+                }
+            }
+        },
+        false  // Run this handler before default ones.
+    );
+    click_controller->set_propagation_phase(
+        Gtk::PropagationPhase::PHASE_CAPTURE);
+
+    return click_controller;
 }
 
 bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {
