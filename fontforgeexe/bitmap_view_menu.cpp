@@ -26,7 +26,6 @@
  */
 
 #include <vector>
-#include <gtkmm.h>
 
 #include "intl.h"
 #include "gtk/bitmap_view_shim.hpp"

@@ -94,7 +94,7 @@ Gtk::VBox* BitmapView::build_toolbar() {
 
     for (const auto& tool : bitmap_view_tools) {
         Gtk::Image* icon = Gtk::make_managed<Gtk::Image>(
-            ff::ui_utils::load_icon(tool.icon_name, icon_height));
+            make_tool_icon(tool.icon_name, bvd_undefined));
         Gtk::RadioToolButton* button =
             Gtk::make_managed<Gtk::RadioToolButton>(*icon);
         button->set_group(tool_group);
@@ -185,6 +185,61 @@ static BVDevice determine_device(GdkEventButton* event) {
     }
 
     return device;
+}
+
+Glib::RefPtr<Gdk::Pixbuf> BitmapView::make_tool_icon(
+    const std::string& icon_name, BVDevice device) {
+    // Device icons, one device can have up to two icons
+    static const std::map<BVDevice, std::array<std::string, 2>> kDeviceIcons = {
+        {bvd_undefined, {}},
+        {bvd_mouse_btn1, {}},
+        {bvd_mouse_ctrl_btn1, {"", "tool_control"}},
+        {bvd_mouse_btn2, {"tool_middle_button"}},
+        {bvd_mouse_ctrl_btn2, {"tool_middle_button", "tool_control"}},
+        {bvd_stylus, {"tool_stylus"}},
+        {bvd_ctrl_stylus, {"tool_stylus", "tool_control"}},
+        {bvd_eraser, {"tool_stylus"}},
+    };
+
+    std::map<std::pair<std::string, BVDevice>, Glib::RefPtr<Gdk::Pixbuf>>
+        icon_cache;
+    std::pair<std::string, BVDevice> cache_key = {icon_name, device};
+    auto it = icon_cache.find(cache_key);
+    if (it != icon_cache.end()) {
+        return it->second;
+    }
+
+    // Create a slightly taller bitmap to accommodate the device icons in the
+    // lower corners.
+    int icon_width = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
+    int icon_height = std::max(20, (int)(2.5 * ui_utils::ui_font_eX_size()));
+    Glib::RefPtr<Gdk::Pixbuf> icon = Gdk::Pixbuf::create(
+        Gdk::COLORSPACE_RGB, true, 8, icon_width, icon_height);
+    auto raw_icon = ff::ui_utils::load_icon(icon_name, icon_width);
+    raw_icon->copy_area(0, 0, raw_icon->get_width(), raw_icon->get_height(),
+                        icon, 0,
+                        (icon->get_height() - raw_icon->get_height()) / 2);
+
+    const auto& dev_icons = kDeviceIcons.at(device);
+
+    // Lower left corner
+    if (!dev_icons[0].empty()) {
+        auto dev_icon = ff::ui_utils::load_icon(dev_icons[0], icon_width / 2);
+        dev_icon->copy_area(0, 0, dev_icon->get_width(), dev_icon->get_height(),
+                            icon, 0,
+                            icon->get_height() - dev_icon->get_height());
+    }
+
+    // Lower right corner
+    if (!dev_icons[1].empty()) {
+        auto dev_icon = ff::ui_utils::load_icon(dev_icons[1], icon_width / 2);
+        dev_icon->copy_area(0, 0, dev_icon->get_width(), dev_icon->get_height(),
+                            icon, icon->get_width() - dev_icon->get_width(),
+                            icon->get_height() - dev_icon->get_height());
+    }
+
+    icon_cache[cache_key] = icon;
+    return icon;
 }
 
 bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {

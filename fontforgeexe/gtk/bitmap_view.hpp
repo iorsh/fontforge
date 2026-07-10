@@ -77,6 +77,12 @@ class BitmapView {
     Glib::RefPtr<Gtk::GestureMultiPress> create_tool_button_controller(
         Gtk::RadioToolButton& button) const;
 
+    // Create a toolbar icon and overlay it with tiny device modifier icons,
+    // e.g. a tool with device bvd_mouse_ctrl_btn1 will have a tiny "Control"
+    // icon in its corner.
+    Glib::RefPtr<Gdk::Pixbuf> make_tool_icon(const std::string& icon_name,
+                                             BVDevice device);
+
     bool on_motion_notify_event(GdkEventMotion* event);
 
     bool on_button_press_event(GdkEventButton* event);
