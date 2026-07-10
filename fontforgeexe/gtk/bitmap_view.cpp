@@ -99,6 +99,7 @@ Gtk::VBox* BitmapView::build_toolbar() {
             Gtk::make_managed<Gtk::RadioToolButton>(*icon);
         button->set_group(tool_group);
         button->set_tooltip_text(tool.label);
+        tool_button_map_[tool.tool_id] = button;
 
         auto click_controller = create_tool_button_controller(*button);
         // gestures_ is a dummy container to keep the controller alive for the
@@ -278,9 +279,57 @@ void BitmapView::on_tool_button_clicked(GdkEventButton* event,
     BVDevice device = determine_device(event);
     if (device == bvd_undefined) return;  // unsupported device
 
-    tool_map_[device] = tool_def.tool_id;
+    // Primary mouse button is already assigned to this tool, no other devices
+    // can take over it.
+    auto primary_tool_it = tool_map_.find(bvd_mouse_btn1);
+    if (primary_tool_it != tool_map_.end() &&
+        primary_tool_it->second == tool_def.tool_id) {
+        return;
+    }
 
-    // Cursor reflects the tool activated by primary device only.
+    // Check if this tool was already assigned to another device, and if so,
+    // remove it from that device.
+    auto existing_device_it =
+        std::find_if(tool_map_.begin(), tool_map_.end(),
+                     [&](const std::pair<BVDevice, bvtools>& pair) {
+                         return pair.second == tool_def.tool_id;
+                     });
+    if (existing_device_it != tool_map_.end()) {
+        tool_map_.erase(existing_device_it);
+    }
+
+    // Find the previously active tool for this device, if any, and update its
+    // button icon to the default one.
+    auto it = tool_map_.find(device);
+    if (it != tool_map_.end()) {
+        bvtools old_tool = it->second;
+
+        const std::vector<BitmapViewTool>& bitmap_view_tools =
+            *static_cast<std::vector<BitmapViewTool>*>(
+                context.legacy()->p_bitmap_view_tools);
+        auto tool_def_it = std::find_if(
+            bitmap_view_tools.begin(), bitmap_view_tools.end(),
+            [&](const BitmapViewTool& td) { return td.tool_id == it->second; });
+        Gtk::RadioToolButton* old_button = tool_button_map_[old_tool];
+        auto icon_image =
+            dynamic_cast<Gtk::Image*>(old_button->get_icon_widget());
+        if (icon_image) {
+            auto icon_pixbuf =
+                make_tool_icon(tool_def_it->icon_name, bvd_undefined);
+            icon_image->set(icon_pixbuf);
+        }
+    }
+
+    // Update the tool map and the button icon for the newly assigned tool.
+    tool_map_[device] = tool_def.tool_id;
+    auto new_button = tool_button_map_[tool_def.tool_id];
+    auto icon_image = dynamic_cast<Gtk::Image*>(new_button->get_icon_widget());
+    if (icon_image) {
+        auto icon_pixbuf = make_tool_icon(tool_def.icon_name, device);
+        icon_image->set(icon_pixbuf);
+    }
+
+    // Cursor reflects the tool assigned to primary device only.
     if (device != bvd_mouse_btn1 && device != bvd_stylus) return;
 
     auto display = pixel_grid.get_drawing_widget().get_display();
