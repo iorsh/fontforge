@@ -1140,7 +1140,7 @@ return;		/* I treat this more like a modifier key change than a button press */
 return;
     }
     BVToolsSetCursor(bv,event->u.mouse.state|(1<<(7+event->u.mouse.button)), event->u.mouse.device );
-    bv->active_tool = bv->showing_tool;
+//     bv->active_tool = bv->showing_tool;
     bv->pressed_x = x; bv->pressed_y = y;
     bv->info_x = x; bv->info_y = y;
     ny = bc->ymax-y;
@@ -1421,6 +1421,10 @@ static void BVScrollToPos(BitmapView* bv, bool is_vertical, int32_t position) {
         }
     }
     GDrawRequestExpose(bv->v, NULL, false);
+}
+
+void BVActivateTool(BitmapView* bv, int /*enum bvtools*/ tool_id) {
+    bv->active_tool = tool_id;
 }
 
 static int v_e_h(GWindow gw, GEvent *event) {
@@ -2341,6 +2345,8 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv_context->p_bitmap_view_tools = p_bitmap_view_tools;
     bv_context->scroll_bitmapview_to_position_cb = BVScrollToPos;
     bv_context->get_pixel_and_tool_coords = BVInfoGetText;
+    bv_context->activate_tool = BVActivateTool;
+
     bv->gtk_window = create_bitmap_view(&bv_context, pos.width, pos.height);
 
     free( (unichar_t *) wattrs.icon_title );

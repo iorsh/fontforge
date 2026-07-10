@@ -42,6 +42,9 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
     pixel_grid.get_drawing_widget().signal_motion_notify_event().connect(
         sigc::mem_fun(*this, &BitmapView::on_motion_notify_event));
 
+    pixel_grid.get_drawing_widget().signal_button_press_event().connect(
+        sigc::mem_fun(*this, &BitmapView::on_button_press_event));
+
     root_grid->attach(*infobar, 0, 0, 2, 1);
     root_grid->attach(*toolbar, 0, 1);
     root_grid->attach(pixel_grid.get_top_widget(), 1, 1);
@@ -164,6 +167,26 @@ Glib::RefPtr<Gtk::GestureMultiPress> BitmapView::create_tool_button_controller(
     return click_controller;
 }
 
+static BVDevice determine_device(GdkEventButton* event) {
+    bool ctrl_down = (event->state & GDK_CONTROL_MASK) != 0;  // Ctrl key
+    BVDevice device = bvd_undefined;
+
+    if (event->button == GDK_BUTTON_PRIMARY) {
+        device = ctrl_down ? bvd_mouse_ctrl_btn1 : bvd_mouse_btn1;
+    } else if (event->button == GDK_BUTTON_MIDDLE) {
+        device = ctrl_down ? bvd_mouse_ctrl_btn2 : bvd_mouse_btn2;
+    } else {
+        GdkInputSource src = gdk_device_get_source(event->device);
+        if (src == GDK_SOURCE_PEN) {
+            device = ctrl_down ? bvd_ctrl_stylus : bvd_stylus;
+        } else if (src == GDK_SOURCE_ERASER) {
+            device = bvd_eraser;
+        }
+    }
+
+    return device;
+}
+
 bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {
     static const int kInvalidCoord = 100000;
     int pixel_x, pixel_y, tool_x = kInvalidCoord, tool_y = kInvalidCoord;
@@ -184,24 +207,23 @@ bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {
     return false;
 }
 
+bool BitmapView::on_button_press_event(GdkEventButton* event) {
+    BVDevice device = determine_device(event);
+    if (device == bvd_undefined) return false;  // unsupported device
+    auto it = tool_map_.find(device);
+    if (it == tool_map_.end()) return false;  // no tool assigned to this device
+
+    context.legacy()->activate_tool(context.legacy()->bv, it->second);
+
+    return true;
+}
+
 void BitmapView::on_tool_button_clicked(GdkEventButton* event,
                                         const BitmapViewTool& tool_def) {
-    bool ctrl_down = (event->state & GDK_CONTROL_MASK) != 0;  // Ctrl key
-    BVDevice device = bvd_undefined;
-
-    if (event->button == GDK_BUTTON_PRIMARY) {
-        device = ctrl_down ? bvd_mouse_ctrl_btn1 : bvd_mouse_btn1;
-    } else if (event->button == GDK_BUTTON_MIDDLE) {
-        device = ctrl_down ? bvd_mouse_ctrl_btn2 : bvd_mouse_btn2;
-    } else {
-        GdkInputSource src = gdk_device_get_source(event->device);
-        if (src == GDK_SOURCE_PEN) {
-            device = ctrl_down ? bvd_ctrl_stylus : bvd_stylus;
-        } else if (src == GDK_SOURCE_ERASER) {
-            device = bvd_eraser;
-        }
-    }
+    BVDevice device = determine_device(event);
     if (device == bvd_undefined) return;  // unsupported device
+
+    tool_map_[device] = tool_def.tool_id;
 
     // Cursor reflects the tool activated by primary device only.
     if (device != bvd_mouse_btn1 && device != bvd_stylus) return;

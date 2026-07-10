@@ -79,6 +79,8 @@ class BitmapView {
 
     bool on_motion_notify_event(GdkEventMotion* event);
 
+    bool on_button_press_event(GdkEventButton* event);
+
     void on_tool_button_clicked(GdkEventButton* event,
                                 const BitmapViewTool& tool_def);
 
@@ -89,6 +91,8 @@ class BitmapView {
     Gtk::Label pointer_location_;
     Gtk::Label pointer_drag_location_;
     PixelGrid pixel_grid;
+
+    std::map<BVDevice, bvtools> tool_map_;
 };
 
 }  // namespace ff::views
