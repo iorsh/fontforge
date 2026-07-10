@@ -98,7 +98,12 @@ class BitmapView {
     Gtk::Label pointer_drag_location_;
     PixelGrid pixel_grid;
 
+    // This is a somewhat complicated mapping of tools to devices. In fact, it's
+    // bijectional. Each device can have at most one tool assigned to it, and
+    // each tool can be assigned to at most one device.
     std::map<BVDevice, bvtools> tool_map_;
+
+    std::map<bvtools, Gtk::RadioToolButton*> tool_button_map_;
 };
 
 }  // namespace ff::views
