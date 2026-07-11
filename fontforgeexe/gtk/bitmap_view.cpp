@@ -45,6 +45,12 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
     pixel_grid.get_drawing_widget().signal_button_press_event().connect(
         sigc::mem_fun(*this, &BitmapView::on_button_press_event));
 
+    pixel_grid.get_drawing_widget().signal_key_press_event().connect(
+        sigc::mem_fun(*this, &BitmapView::on_key_event), false);
+
+    pixel_grid.get_drawing_widget().signal_key_release_event().connect(
+        sigc::mem_fun(*this, &BitmapView::on_key_event), false);
+
     root_grid->attach(*infobar, 0, 0, 2, 1);
     root_grid->attach(*toolbar, 0, 1);
     root_grid->attach(pixel_grid.get_top_widget(), 1, 1);
@@ -243,6 +249,32 @@ Glib::RefPtr<Gdk::Pixbuf> BitmapView::make_tool_icon(
     return icon;
 }
 
+const BitmapViewTool& BitmapView::find_tool_definition(bvtools tool_id) {
+    const std::vector<BitmapViewTool>& bitmap_view_tools =
+        *static_cast<std::vector<BitmapViewTool>*>(
+            context.legacy()->p_bitmap_view_tools);
+    auto tool_def_it = std::find_if(
+        bitmap_view_tools.begin(), bitmap_view_tools.end(),
+        [tool_id](const BitmapViewTool& td) { return td.tool_id == tool_id; });
+
+    return *tool_def_it;
+}
+
+void BitmapView::update_primary_cursor(const BitmapViewTool& tool_def) {
+    auto display = pixel_grid.get_drawing_widget().get_display();
+    auto cursor = Gdk::Cursor::create(display, tool_def.cursor_name);
+    if (!cursor) {
+        // Fallback to the tool icon if the cursor was not found.
+        int cursor_size =
+            std::max(12, (int)(1.5 * ui_utils::ui_font_eX_size()));
+        auto cursor_pbuf =
+            ff::ui_utils::load_icon(tool_def.icon_name, cursor_size);
+        cursor = Gdk::Cursor::create(display, cursor_pbuf, cursor_size / 2,
+                                     cursor_size / 2);
+    }
+    pixel_grid.get_drawing_widget().get_window()->set_cursor(cursor);
+}
+
 bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {
     static const int kInvalidCoord = 100000;
     int pixel_x, pixel_y, tool_x = kInvalidCoord, tool_y = kInvalidCoord;
@@ -259,6 +291,23 @@ bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {
                                         std::to_string(tool_y));
     else
         pointer_drag_location_.set_text("");
+
+    return false;
+}
+
+bool BitmapView::on_key_event(GdkEventKey* event) {
+    // Update the cursor when Ctrl key is pressed or released, because
+    // Ctrl+primary click activates a different tool.
+    if (event->keyval == GDK_KEY_Control_L ||
+        event->keyval == GDK_KEY_Control_R) {
+        BVDevice device = (event->type == GDK_KEY_PRESS) ? bvd_mouse_ctrl_btn1
+                                                         : bvd_mouse_btn1;
+        auto it = tool_map_.find(device);
+        if (it != tool_map_.end()) {
+            const BitmapViewTool& tool_def = find_tool_definition(it->second);
+            update_primary_cursor(tool_def);
+        }
+    }
 
     return false;
 }
@@ -304,18 +353,13 @@ void BitmapView::on_tool_button_clicked(GdkEventButton* event,
     if (it != tool_map_.end()) {
         bvtools old_tool = it->second;
 
-        const std::vector<BitmapViewTool>& bitmap_view_tools =
-            *static_cast<std::vector<BitmapViewTool>*>(
-                context.legacy()->p_bitmap_view_tools);
-        auto tool_def_it = std::find_if(
-            bitmap_view_tools.begin(), bitmap_view_tools.end(),
-            [&](const BitmapViewTool& td) { return td.tool_id == it->second; });
+        const BitmapViewTool& old_tool_def = find_tool_definition(old_tool);
         Gtk::RadioToolButton* old_button = tool_button_map_[old_tool];
         auto icon_image =
             dynamic_cast<Gtk::Image*>(old_button->get_icon_widget());
         if (icon_image) {
             auto icon_pixbuf =
-                make_tool_icon(tool_def_it->icon_name, bvd_undefined);
+                make_tool_icon(old_tool_def.icon_name, bvd_undefined);
             icon_image->set(icon_pixbuf);
         }
     }
@@ -332,18 +376,7 @@ void BitmapView::on_tool_button_clicked(GdkEventButton* event,
     // Cursor reflects the tool assigned to primary device only.
     if (device != bvd_mouse_btn1 && device != bvd_stylus) return;
 
-    auto display = pixel_grid.get_drawing_widget().get_display();
-    auto cursor = Gdk::Cursor::create(display, tool_def.cursor_name);
-    if (!cursor) {
-        // Fallback to the tool icon if the cursor was not found.
-        int cursor_size =
-            std::max(12, (int)(1.5 * ui_utils::ui_font_eX_size()));
-        auto cursor_pbuf =
-            ff::ui_utils::load_icon(tool_def.icon_name, cursor_size);
-        cursor = Gdk::Cursor::create(display, cursor_pbuf, cursor_size / 2,
-                                     cursor_size / 2);
-    }
-    pixel_grid.get_drawing_widget().get_window()->set_cursor(cursor);
+    update_primary_cursor(tool_def);
 }
 
 }  // namespace ff::views
