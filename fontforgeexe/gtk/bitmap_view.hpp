@@ -83,7 +83,13 @@ class BitmapView {
     Glib::RefPtr<Gdk::Pixbuf> make_tool_icon(const std::string& icon_name,
                                              BVDevice device);
 
+    const BitmapViewTool& find_tool_definition(bvtools tool_id);
+
+    void update_primary_cursor(const BitmapViewTool& tool_def);
+
     bool on_motion_notify_event(GdkEventMotion* event);
+
+    bool on_key_event(GdkEventKey* event);
 
     bool on_button_press_event(GdkEventButton* event);
 
