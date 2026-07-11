@@ -109,7 +109,8 @@ class BitmapView {
     // This is a somewhat complicated mapping of tools to devices. In fact, it's
     // bijectional. Each device can have at most one tool assigned to it, and
     // each tool can be assigned to at most one device.
-    std::map<BVDevice, bvtools> tool_map_;
+    // NOTE: This mapping is preserved throughout the session.
+    static std::map<BVDevice, bvtools> tool_map_;
 
     std::map<bvtools, Gtk::RadioToolButton*> tool_button_map_;
 };
