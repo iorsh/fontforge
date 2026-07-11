@@ -83,7 +83,9 @@ class BitmapView {
     Glib::RefPtr<Gdk::Pixbuf> make_tool_icon(const std::string& icon_name,
                                              BVDevice device);
 
-    const BitmapViewTool& find_tool_definition(bvtools tool_id);
+    const BitmapViewTool& find_tool_definition(bvtools tool_id) const;
+
+    BVDevice find_device(bvtools tool_id) const;
 
     void update_primary_cursor(const BitmapViewTool& tool_def);
 

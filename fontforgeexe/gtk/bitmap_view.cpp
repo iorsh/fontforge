@@ -249,7 +249,7 @@ Glib::RefPtr<Gdk::Pixbuf> BitmapView::make_tool_icon(
     return icon;
 }
 
-const BitmapViewTool& BitmapView::find_tool_definition(bvtools tool_id) {
+const BitmapViewTool& BitmapView::find_tool_definition(bvtools tool_id) const {
     const std::vector<BitmapViewTool>& bitmap_view_tools =
         *static_cast<std::vector<BitmapViewTool>*>(
             context.legacy()->p_bitmap_view_tools);
@@ -258,6 +258,14 @@ const BitmapViewTool& BitmapView::find_tool_definition(bvtools tool_id) {
         [tool_id](const BitmapViewTool& td) { return td.tool_id == tool_id; });
 
     return *tool_def_it;
+}
+
+BVDevice BitmapView::find_device(bvtools tool_id) const {
+    auto it = std::find_if(tool_map_.begin(), tool_map_.end(),
+                           [tool_id](const std::pair<BVDevice, bvtools>& pair) {
+                               return pair.second == tool_id;
+                           });
+    return (it == tool_map_.end()) ? bvd_undefined : it->first;
 }
 
 void BitmapView::update_primary_cursor(const BitmapViewTool& tool_def) {
@@ -338,13 +346,9 @@ void BitmapView::on_tool_button_clicked(GdkEventButton* event,
 
     // Check if this tool was already assigned to another device, and if so,
     // remove it from that device.
-    auto existing_device_it =
-        std::find_if(tool_map_.begin(), tool_map_.end(),
-                     [&](const std::pair<BVDevice, bvtools>& pair) {
-                         return pair.second == tool_def.tool_id;
-                     });
-    if (existing_device_it != tool_map_.end()) {
-        tool_map_.erase(existing_device_it);
+    BVDevice existing_device = find_device(tool_def.tool_id);
+    if (existing_device != bvd_undefined) {
+        tool_map_.erase(existing_device);
     }
 
     // Find the previously active tool for this device, if any, and update its
