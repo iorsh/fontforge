@@ -31,9 +31,18 @@
 
 namespace ff::views {
 
+std::map<BVDevice, bvtools> BitmapView::tool_map_ = {
+    {bvd_mouse_btn1, bvt_pencil}, {bvd_mouse_ctrl_btn1, bvt_pointer}};
+
 BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
                        int height)
     : context(bv_context), pixel_grid(bv_context) {
+    // TODO(iorsh): Remove this later. The persistent width/height values are
+    // currently broken, make sure they are positive so as not to break the
+    // window resizing.
+    width = std::max(width, 1);
+    height = std::max(height, 1);
+
     Gtk::Grid* root_grid = Gtk::make_managed<Gtk::Grid>();
 
     Gtk::Box* infobar = build_infobar();
@@ -56,6 +65,12 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
     root_grid->attach(pixel_grid.get_top_widget(), 1, 1);
 
     window.add(*root_grid);
+
+    // The legacy code currently sets the cursor on its own, we must set it
+    // later.
+    Glib::signal_idle().connect_once([this]() {
+        update_primary_cursor(find_tool_definition(tool_map_[bvd_mouse_btn1]));
+    });
 
     window.show_all();
     window.resize(width, height);
@@ -99,12 +114,14 @@ Gtk::VBox* BitmapView::build_toolbar() {
     Gtk::RadioToolButton::Group tool_group;
 
     for (const auto& tool : bitmap_view_tools) {
+        BVDevice device = find_device(tool.tool_id);
         Gtk::Image* icon = Gtk::make_managed<Gtk::Image>(
-            make_tool_icon(tool.icon_name, bvd_undefined));
+            make_tool_icon(tool.icon_name, device));
         Gtk::RadioToolButton* button =
             Gtk::make_managed<Gtk::RadioToolButton>(*icon);
         button->set_group(tool_group);
         button->set_tooltip_text(tool.label);
+        button->set_active(device == bvd_mouse_btn1);
         tool_button_map_[tool.tool_id] = button;
 
         auto click_controller = create_tool_button_controller(*button);
