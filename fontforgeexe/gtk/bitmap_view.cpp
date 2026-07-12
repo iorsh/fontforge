@@ -317,6 +317,26 @@ bool BitmapView::on_motion_notify_event(GdkEventMotion* event) {
     else
         pointer_drag_location_.set_text("");
 
+    // When the primary tool is the pointer, we allow the bitmap boundaries to
+    // be dragged by the pointer tool. We update the cursor near the boundary
+    // line to reflect the active width tool.
+    guint working_state_mask = GDK_BUTTON1_MASK | GDK_BUTTON2_MASK |
+                               GDK_BUTTON3_MASK | GDK_CONTROL_MASK;
+    if (find_device(bvt_pointer) == bvd_mouse_btn1 &&
+        !(event->state & working_state_mask)) {
+        bvtools width_tool = (bvtools)context.legacy()->active_width_tool(
+            context.legacy()->bv, event->x, event->y);
+        BitmapViewTool cursor_def{bvt_none, "", "", ""};
+        if (width_tool == bvt_setwidth) {
+            cursor_def = {width_tool, "col-resize", "col-resize", ""};
+        } else if (width_tool == bvt_setvwidth) {
+            cursor_def = {width_tool, "row-resize", "row-resize", ""};
+        } else {
+            cursor_def = find_tool_definition(bvt_pointer);
+        }
+        update_primary_cursor(cursor_def);
+    }
+
     return false;
 }
 
