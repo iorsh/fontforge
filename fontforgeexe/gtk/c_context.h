@@ -48,6 +48,8 @@ typedef struct bitmapview_context {
 
     void (*activate_tool)(BitmapView* bv, int /*enum bvtools*/ tool_id);
 
+    int /*enum bvtools*/ (*active_width_tool)(BitmapView* bv, int x, int y);
+
 } BVContext;
 
 #ifdef __cplusplus

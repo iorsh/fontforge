@@ -1122,6 +1122,21 @@ return( true );
 return( false );
 }
 
+int BVActiveWidthTool(BitmapView* bv, int x, int y) {
+    enum bvtools tool = bvt_none;
+    if (x - bv->xoff > bv->bc->width * bv->scale - 3 &&
+        x - bv->xoff < bv->bc->width * bv->scale + 3) {
+        tool = bvt_setwidth;
+    } else if (bv->bc->sc->parent->hasvmetrics &&
+               bv->height - y - bv->yoff >
+                   (bv->bdf->ascent - bv->bc->vwidth) * bv->scale - 3 &&
+               bv->height - y - bv->yoff <
+                   (bv->bdf->ascent - bv->bc->vwidth) * bv->scale + 3) {
+        tool = bvt_setvwidth;
+    }
+    return tool;
+}
+
 static void BVMouseDown(BitmapView *bv, GEvent *event) {
     int x = floor( (event->u.mouse.x-bv->xoff)/ (real) bv->scale);
     int y = floor( (bv->height-event->u.mouse.y-bv->yoff)/ (real) bv->scale);
@@ -1204,16 +1219,12 @@ return;
 		GDrawSetCursor(bv->v,ct_shift);
 		/* otherwise we'll move the selection */
 	    }
-	} else if ( /*bc->sc->parent->onlybitmaps &&*/
-		event->u.mouse.x-bv->xoff > bc->width*bv->scale-3 &&
-		event->u.mouse.x-bv->xoff < bc->width*bv->scale+3 ) {
-	    bv->active_tool = bvt_setwidth;
-	    BVToolsSetCursor(bv,event->u.mouse.state|(1<<(7+event->u.mouse.button)), event->u.mouse.device );
-	} else if ( /*bc->sc->parent->onlybitmaps &&*/ bc->sc->parent->hasvmetrics &&
-		bv->height-event->u.mouse.y-bv->yoff > (bv->bdf->ascent-bc->vwidth)*bv->scale-3 &&
-		bv->height-event->u.mouse.y-bv->yoff < (bv->bdf->ascent-bc->vwidth)*bv->scale+3 ) {
-	    bv->active_tool = bvt_setvwidth;
-	    BVToolsSetCursor(bv,event->u.mouse.state|(1<<(7+event->u.mouse.button)), event->u.mouse.device );
+	} else {
+	    int8_t active_width_tool = BVActiveWidthTool(bv, event->u.mouse.x, event->u.mouse.y);
+	    if ( active_width_tool != bvt_none ) {
+		bv->active_tool = active_width_tool;
+		BVToolsSetCursor(bv,event->u.mouse.state|(1<<(7+event->u.mouse.button)), event->u.mouse.device );
+	    }
 	}
 	BCCharUpdate(bc);
       break;
@@ -2346,6 +2357,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv_context->scroll_bitmapview_to_position_cb = BVScrollToPos;
     bv_context->get_pixel_and_tool_coords = BVInfoGetText;
     bv_context->activate_tool = BVActivateTool;
+    bv_context->active_width_tool = BVActiveWidthTool;
 
     bv->gtk_window = create_bitmap_view(&bv_context, pos.width, pos.height);
 
