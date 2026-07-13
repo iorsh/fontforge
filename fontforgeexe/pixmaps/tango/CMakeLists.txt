@@ -7,9 +7,8 @@ install(FILES
   COMPONENT theme
 )
 
-install(FILES
-  svg/right_pointer.svg
-  svg/press_2_ptr.svg
+install(DIRECTORY
+  svg/
 
   DESTINATION ${CMAKE_INSTALL_DATADIR}/fontforge/pixmaps/svg
   COMPONENT theme
