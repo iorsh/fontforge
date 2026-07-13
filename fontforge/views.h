@@ -345,9 +345,7 @@ typedef struct bitmapview {
     unsigned int shades_hidden:1;
     unsigned int shades_down:1;
     /*GWindow tools, layers;*/
-    int8_t b1_tool, cb1_tool, b2_tool, cb2_tool;		/* Button 3 does a popup */
-    int8_t s1_tool, s2_tool, er_tool;			/* Bindings for wacom stylus and eraser */
-    int8_t showing_tool, pressed_tool, pressed_display, had_control, active_tool;
+    int8_t had_control, active_tool;
     int pressed_x, pressed_y;
     int info_x, info_y;
     int event_x, event_y;
@@ -869,7 +867,6 @@ extern void CVDrawSplineSetOutlineOnly(CharView *cv, GWindow pixmap, SplinePoint
 	Color fg, int dopoints, DRect *clip, enum outlinesfm_flags strokeFillMode );
 extern GWindow CVMakeTools(CharView *cv);
 extern GWindow CVMakeLayers(CharView *cv);
-extern GWindow BVMakeTools(BitmapView *bv);
 extern GWindow BVMakeLayers(BitmapView *bv);
 extern void CVSetLayer(CharView *cv,int layer);
 extern int CVPaletteMnemonicCheck(GEvent *event);

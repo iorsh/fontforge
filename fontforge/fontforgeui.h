@@ -58,7 +58,7 @@ extern GImage GIcon_tangent, GIcon_curve, GIcon_hvcurve, GIcon_corner, GIcon_rul
 	GIcon_squarecap, GIcon_roundcap, GIcon_buttcap,
 	GIcon_miterjoin, GIcon_roundjoin, GIcon_beveljoin,
 	GIcon_rect, GIcon_elipse, GIcon_rrect, GIcon_poly, GIcon_star,
-	GIcon_pencil, GIcon_shift, GIcon_line, GIcon_hand,
+	GIcon_hand,
 	GIcon_press2ptr, GIcon_freehand, GIcon_greyfree,
 	GIcon_spirodisabled, GIcon_spiroup, GIcon_spirodown,
 	GIcon_spirocurve, GIcon_spirocorner, GIcon_spirog2curve,

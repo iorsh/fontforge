@@ -2405,11 +2405,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     GDrawSetWindowTypeName(bv->v, "BitmapView");
 
     bv->height = pos.height; bv->width = pos.width;
-    bv->b1_tool = ( bc->refs == NULL ) ? bvt_pencil : bvt_pointer; bv->cb1_tool = bvt_pointer;
-    bv->b2_tool = bvt_magnify; bv->cb2_tool = bvt_shift;
-    bv->s1_tool = bv->s2_tool = bv->er_tool = bvt_pointer;
-    bv->showing_tool = ( bc->refs == NULL ) ? bvt_pencil : bvt_pointer;
-    bv->pressed_tool = bv->pressed_display = bv->active_tool = bvt_none;
+    bv->active_tool = bvt_none;
 
     /*bv->tools = BVMakeTools(bv);*/
     /*bv->layers = BVMakeLayers(bv);*/

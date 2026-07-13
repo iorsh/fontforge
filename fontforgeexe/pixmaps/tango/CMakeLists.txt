@@ -52,13 +52,13 @@ install(FILES
   palettecurve.png palettecurve-selected.png paletteelipse.png paletteelipse-selected.png
   paletteflip.png paletteflip-selected.png palettefreehand.png palettefreehand-selected.png
   palettehand.png palettehand-selected.png palettehvcurve.png palettehvcurve-selected.png
-  paletteknife.png paletteknife-selected.png paletteline.png palettemagnify.png
-  palettemagnify-selected.png palettepencil.png palettepen.png palettepen-selected.png
+  paletteknife.png paletteknife-selected.png palettemagnify.png
+  palettemagnify-selected.png palettepen.png palettepen-selected.png
   paletteperspective.png paletteperspective-selected.png palettepointer.png
   palettepointer-selected.png palettepoly.png palettepoly-selected.png paletterect.png
   paletterect-selected.png paletterotate.png paletterotate-selected.png paletteruler.png
   paletteruler-selected.png palettescale.png palettescale-selected.png paletteselectedbg.png
-  paletteshift.png paletteskew.png paletteskew-selected.png palettesmall3drotate.png
+  paletteskew.png paletteskew-selected.png palettesmall3drotate.png
   palettesmallcorner.png palettesmallcurve.png palettesmallelipse.png palettesmallflip.png
   palettesmallhand.png palettesmallhvcurve.png palettesmallknife.png palettesmallmag.png
   palettesmallpencil.png palettesmallpen.png palettesmallperspective.png palettesmallpointer.png
