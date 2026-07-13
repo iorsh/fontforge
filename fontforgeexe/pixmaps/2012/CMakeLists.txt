@@ -40,9 +40,9 @@ install(FILES
   metricssetwidth.png oblique.png outline.png overlapexclude.png overlapfindinter.png
   overlapintersection.png overlaprm.png palette3drotate.png palettecorner.png palettecurve.png
   paletteelipse.png paletteflip.png palettefreehand.png palettehand.png palettehvcurve.png
-  paletteknife.png paletteline.png palettemagnify.png palettepencil.png palettepen.png
+  paletteknife.png palettemagnify.png palettepen.png
   paletteperspective.png palettepointer.png palettepoly.png paletterect.png paletterotate.png
-  paletteruler.png palettescale.png paletteshift.png paletteskew.png palettesmall3drotate.png
+  paletteruler.png palettescale.png paletteskew.png palettesmall3drotate.png
   palettesmallcorner.png palettesmallcurve.png palettesmallelipse.png palettesmallflip.png
   palettesmallhand.png palettesmallhvcurve.png palettesmallknife.png palettesmallmag.png
   palettesmallpencil.png palettesmallpen.png palettesmallperspective.png palettesmallpointer.png

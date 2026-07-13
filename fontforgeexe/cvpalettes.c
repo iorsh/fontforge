@@ -67,7 +67,7 @@ extern GDevEventMask input_em[];
 extern const int input_em_cnt;
 
 int cvvisible[2] = { 1, 1}, bvvisible[3]= { 1,1,1 };
-static GWindow cvlayers, cvtools, bvlayers, bvtools, bvshades;
+static GWindow cvlayers, cvtools, bvlayers, bvshades;
 static GWindow cvlayers2=NULL;
 
 #define LSHOW_CUBIC   1
@@ -98,7 +98,7 @@ struct l2 {
 
 struct l2 layer2 = { 2, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, NULL, NULL };
 static int layers2_active = -1;
-static GPoint cvtoolsoff = { -9999, -9999 }, cvlayersoff = { -9999, -9999 }, bvlayersoff = { -9999, -9999 }, bvtoolsoff = { -9999, -9999 }, bvshadesoff = { -9999, -9999 };
+static GPoint cvtoolsoff = { -9999, -9999 }, cvlayersoff = { -9999, -9999 }, bvlayersoff = { -9999, -9999 }, bvshadesoff = { -9999, -9999 };
 int palettes_fixed=1;
 static GCursor tools[cvt_max+1] = { ct_pointer }, spirotools[cvt_max+1];
 
@@ -3825,18 +3825,15 @@ void _CVPaletteActivate(CharView *cv, int force, int docking_changed) {
 	if ( cvvisible[0])
 	    CVLayersSet(cv);
     }
-    if ( bvtools!=NULL ) {
-	BitmapView *bv = GDrawGetUserData(bvtools);
+    if ( bvlayers!=NULL ) {
+	BitmapView *bv = GDrawGetUserData(bvlayers);
 	if ( bv!=NULL ) {
-	    SaveOffsets(bv->gw,bvtools,&bvtoolsoff);
 	    SaveOffsets(bv->gw,bvlayers,&bvlayersoff);
 	    if ( !bv->shades_hidden )
 		SaveOffsets(bv->gw,bvshades,&bvshadesoff);
-	    GDrawSetUserData(bvtools,NULL);
 	    GDrawSetUserData(bvlayers,NULL);
 	    GDrawSetUserData(bvshades,NULL);
 	}
-	SetPaletteVisible(NULL, bvtools, false);
 	SetPaletteVisible(NULL, bvlayers, false);
 	SetPaletteVisible(NULL, bvshades, false);
     }
@@ -4204,91 +4201,9 @@ static char *bvpopups[] = { N_("Pointer"), N_("Magnify (Minify with alt)"),
 				    N_("Set/Clear Pixels"), N_("Draw a Line"),
 			            N_("Shift Entire Bitmap"), N_("Scroll Bitmap") };
 
-static void BVToolsExpose(GWindow pixmap, BitmapView *bv, GRect *r) {
-    GRect old;
-    /* Note: If you change this ordering, change enum bvtools */
-    static GImage *buttons[][2] = { { &GIcon_pointer, &GIcon_magnify },
-				    { &GIcon_pencil, &GIcon_line },
-			            { &GIcon_shift, &GIcon_hand }};
-    int i,j,norm;
-    int tool = bv->cntrldown?bv->cb1_tool:bv->b1_tool;
-    int dither = GDrawSetDither(NULL,false);
-
-    GDrawPushClip(pixmap,r,&old);
-    GDrawFillRect(pixmap,r,cvpalettebgcol);
-    GDrawSetLineWidth(pixmap,0);
-    for ( i=0; i<sizeof(buttons)/sizeof(buttons[0]); ++i ) for ( j=0; j<2; ++j ) {
-	GDrawDrawImage(pixmap,buttons[i][j],NULL,j*27+1,i*27+1);
-	norm = (i*2+j!=tool);
-	GDrawDrawLine(pixmap,j*27,i*27,j*27+25,i*27,norm?0xe0e0e0:0x707070);
-	GDrawDrawLine(pixmap,j*27,i*27,j*27,i*27+25,norm?0xe0e0e0:0x707070);
-	GDrawDrawLine(pixmap,j*27,i*27+25,j*27+25,i*27+25,norm?0x707070:0xe0e0e0);
-	GDrawDrawLine(pixmap,j*27+25,i*27,j*27+25,i*27+25,norm?0x707070:0xe0e0e0);
-    }
-    GDrawPopClip(pixmap,&old);
-    GDrawSetDither(NULL,dither);
-}
-
 void BVToolsSetCursor(BitmapView *bv, int state,char *device) {
 	return;
-    int shouldshow;
-    static enum bvtools tools[bvt_max2+1] = { bvt_none };
     int cntrl;
-
-    if ( tools[0] == bvt_none ) {
-	tools[bvt_pointer] = ct_mypointer;
-	tools[bvt_magnify] = ct_magplus;
-	tools[bvt_pencil] = ct_pencil;
-	tools[bvt_line] = ct_line;
-	tools[bvt_shift] = ct_shift;
-	tools[bvt_hand] = ct_myhand;
-	tools[bvt_minify] = ct_magminus;
-	tools[bvt_eyedropper] = ct_eyedropper;
-	tools[bvt_setwidth] = ct_setwidth;
-	tools[bvt_setvwidth] = ct_updown;
-	tools[bvt_rect] = ct_rect;
-	tools[bvt_filledrect] = ct_filledrect;
-	tools[bvt_elipse] = ct_elipse;
-	tools[bvt_filledelipse] = ct_filledelipse;
-    }
-
-    shouldshow = bvt_none;
-    if ( bv->active_tool!=bvt_none )
-	shouldshow = bv->active_tool;
-    else if ( bv->pressed_display!=bvt_none )
-	shouldshow = bv->pressed_display;
-    else if ( device==NULL || strcmp(device,"Mouse1")==0 ) {
-	if ( (state&(ksm_shift|ksm_control)) && (state&ksm_button4))
-	    shouldshow = bvt_magnify;
-	else if ( (state&(ksm_shift|ksm_control)) && (state&ksm_button5))
-	    shouldshow = bvt_minify;
-	else if ( (state&ksm_control) && (state&(ksm_button2|ksm_super)) )
-	    shouldshow = bv->cb2_tool;
-	else if ( (state&(ksm_button2|ksm_super)) )
-	    shouldshow = bv->b2_tool;
-	else if ( (state&ksm_control) )
-	    shouldshow = bv->cb1_tool;
-	else
-	    shouldshow = bv->b1_tool;
-    } else if ( strcmp(device,"eraser")==0 )
-	shouldshow = bv->er_tool;
-    else if ( strcmp(device,"stylus")==0 ) {
-	if ( (state&(ksm_button2|ksm_control|ksm_super)) )
-	    shouldshow = bv->s2_tool;
-	else
-	    shouldshow = bv->s1_tool;
-    }
-    
-    if ( shouldshow==bvt_magnify && (state&ksm_meta))
-	shouldshow = bvt_minify;
-    if ( (shouldshow==bvt_pencil || shouldshow==bvt_line) && (state&ksm_meta) && bv->bdf->clut!=NULL )
-	shouldshow = bvt_eyedropper;
-    if ( shouldshow!=bvt_none && shouldshow!=bv->showing_tool ) {
-	GDrawSetCursor(bv->v,tools[shouldshow]);
-	if ( bvtools != NULL )
-	    GDrawSetCursor(bvtools,tools[shouldshow]);
-	bv->showing_tool = shouldshow;
-    }
 
     if ( device==NULL || strcmp(device,"stylus")==0 ) {
 	cntrl = (state&ksm_control)?1:0;
@@ -4296,160 +4211,12 @@ void BVToolsSetCursor(BitmapView *bv, int state,char *device) {
 	    cntrl = true;
 	if ( cntrl != bv->cntrldown ) {
 	    bv->cntrldown = cntrl;
-	    GDrawRequestExpose(bvtools,NULL,false);
 	}
     }
-}
-
-static void BVToolsMouse(BitmapView *bv, GEvent *event) {
-    int i = (event->u.mouse.y/27), j = (event->u.mouse.x/27);
-    int pos;
-    int isstylus = event->u.mouse.device!=NULL && strcmp(event->u.mouse.device,"stylus")==0;
-    int styluscntl = isstylus && (event->u.mouse.state&0x200);
-
-    if(j >= 2)
-return;			/* If the wm gave me a window the wrong size */
-
-    pos = i*2 + j;
-    GGadgetEndPopup();
-    if ( pos<0 || pos>=bvt_max )
-	pos = bvt_none;
-    if ( event->type == et_mousedown ) {
-        if ( isstylus && event->u.mouse.button==2 )
-            /* Not a real button press, only touch counts. This is a modifier */;
-	else {
-	    bv->pressed_tool = bv->pressed_display = pos;
-	    bv->had_control = ((event->u.mouse.state&ksm_control) || styluscntl)?1:0;
-	    event->u.chr.state |= (1<<(7+event->u.mouse.button));
-	}
-    } else if ( event->type == et_mousemove ) {
-	if ( bv->pressed_tool==bvt_none && pos!=bvt_none ) {
-	    /* Not pressed */
-	    if ( !bv->shades_hidden && strcmp(bvpopups[pos],"Set/Clear Pixels")==0 )
-		GGadgetPreparePopup8(bvtools,_("Set/Clear Pixels\n(Eyedropper with alt)"));
-	    else
-		GGadgetPreparePopup8(bvtools,_(bvpopups[pos]));
-	} else if ( pos!=bv->pressed_tool || bv->had_control != (((event->u.mouse.state&ksm_control)||styluscntl)?1:0) )
-	    bv->pressed_display = bvt_none;
-	else
-	    bv->pressed_display = bv->pressed_tool;
-    } else if ( event->type == et_mouseup ) {
-	if ( pos!=bv->pressed_tool || bv->had_control != (((event->u.mouse.state&ksm_control)||styluscntl)?1:0) )
-	    bv->pressed_tool = bv->pressed_display = bvt_none;
-	else {
-	    if ( event->u.mouse.device!=NULL && strcmp(event->u.mouse.device,"eraser")==0 )
-		bv->er_tool = pos;
-	    else if ( isstylus ) {
-	        if ( event->u.mouse.button==2 )
-		    /* Only thing that matters is touch which maps to button 1 */;
-		else if ( bv->had_control )
-		    bv->s2_tool = pos;
-		else
-		    bv->s1_tool = pos;
-	    } else if ( bv->had_control && event->u.mouse.button==2 )
-		bv->cb2_tool = pos;
-	    else if ( event->u.mouse.button==2 )
-		bv->b2_tool = pos;
-	    else if ( bv->had_control ) {
-		if ( bv->cb1_tool!=pos ) {
-		    bv->cb1_tool = pos;
-		    GDrawRequestExpose(bvtools,NULL,false);
-		}
-	    } else {
-		if ( bv->b1_tool!=pos ) {
-		    bv->b1_tool = pos;
-		    GDrawRequestExpose(bvtools,NULL,false);
-		}
-	    }
-	    bv->pressed_tool = bv->pressed_display = bvt_none;
-	}
-	event->u.mouse.state &= ~(1<<(7+event->u.mouse.button));
-    }
-    BVToolsSetCursor(bv,event->u.mouse.state,event->u.mouse.device);
-}
-
-static int bvtools_e_h(GWindow gw, GEvent *event) {
-    BitmapView *bv = (BitmapView *) GDrawGetUserData(gw);
-
-    if ( event->type==et_destroy && bvtools == gw ) {
-	bvtools = NULL;
-return( true );
-    }
-
-    if ( bv==NULL )
-return( true );
-
-    switch ( event->type ) {
-      case et_expose:
-	BVToolsExpose(gw,bv,&event->u.expose.rect);
-      break;
-      case et_mousedown:
-	BVToolsMouse(bv,event);
-      break;
-      case et_mousemove:
-	BVToolsMouse(bv,event);
-      break;
-      case et_mouseup:
-	BVToolsMouse(bv,event);
-      break;
-      case et_crossing:
-	bv->pressed_display = bvt_none;
-	BVToolsSetCursor(bv,event->u.mouse.state,event->u.mouse.device);
-      break;
-      case et_char: case et_charup:
-	if ( bv->had_control != ((event->u.chr.state&ksm_control)?1:0) )
-	    bv->pressed_display = bvt_none;
-	PostCharToWindow(bv->gw,event);
-      break;
-      case et_close:
-	SetPaletteVisible(NULL, gw, false);
-      break;
-      default: break;
-    }
-return( true );
-}
-
-GWindow BVMakeTools(BitmapView *bv) {
-    GRect r;
-    GWindowAttrs wattrs;
-
-    if ( bvtools!=NULL )
-return( bvtools );
-    memset(&wattrs,0,sizeof(wattrs));
-    wattrs.mask = wam_events|wam_cursor|wam_utf8_wtitle|wam_positioned|wam_isdlg;
-    wattrs.event_masks = -1;
-    wattrs.cursor = ct_mypointer;
-    wattrs.positioned = true;
-    wattrs.is_dlg = true;
-    wattrs.utf8_window_title = _("Tools");
-
-    r.width = BV_TOOLS_WIDTH; r.height = BV_TOOLS_HEIGHT;
-    r.x = -r.width-6; r.y = bv->mbh+20;
-    if ( palettes_fixed || palettes_docked ) {
-	r.x = 0; r.y = 0;
-    }
-    bvtools = CreatePalette( bv->gw, &r, bvtools_e_h, bv, &wattrs, bv->v );
-    if ( bvvisible[1] )
-	SetPaletteVisible(bv->gw, bvtools, true);
-return( bvtools );
 }
 
 static void BVPopupInvoked(GWindow v, GMenuItem *mi,GEvent *e) {
     BitmapView *bv = (BitmapView *) GDrawGetUserData(v);
-    int pos;
-
-    pos = mi->mid;
-    if ( bv->had_control ) {
-	if ( bv->cb1_tool!=pos ) {
-	    bv->cb1_tool = pos;
-	    GDrawRequestExpose(bvtools,NULL,false);
-	}
-    } else {
-	if ( bv->b1_tool!=pos ) {
-	    bv->b1_tool = pos;
-	    GDrawRequestExpose(bvtools,NULL,false);
-	}
-    }
     BVToolsSetCursor(bv,bv->had_control?ksm_control:0,NULL);
 }
 
@@ -4517,8 +4284,7 @@ void BVToolsPopup(BitmapView *bv, GEvent *event) {
 }
 
 static void BVPaletteCheck(BitmapView *bv) {
-    if ( bvtools==NULL ) {
-	BVMakeTools(bv);
+    if ( bvlayers==NULL ) {
 	BVMakeLayers(bv);
 	BVMakeShades(bv);
     }
@@ -4526,8 +4292,6 @@ static void BVPaletteCheck(BitmapView *bv) {
 
 int BVPaletteIsVisible(BitmapView *bv,int which) {
     BVPaletteCheck(bv);
-    if ( which==1 )
-return( bvtools!=NULL && GDrawIsVisible(bvtools) );
     if ( which==2 )
 return( bvshades!=NULL && GDrawIsVisible(bvshades) );
 
@@ -4536,9 +4300,7 @@ return( bvlayers!=NULL && GDrawIsVisible(bvlayers) );
 
 void BVPaletteSetVisible(BitmapView *bv,int which,int visible) {
     BVPaletteCheck(bv);
-    if ( which==1 && bvtools!=NULL)
-	SetPaletteVisible(bv->gw, bvtools, visible );
-    else if ( which==2 && bvshades!=NULL)
+    if ( which==2 && bvshades!=NULL)
 	SetPaletteVisible(bv->gw, bvshades, visible );
     else if ( which==0 && bvlayers!=NULL )
 	SetPaletteVisible(bv->gw, bvlayers, visible );
@@ -4550,53 +4312,38 @@ static void _BVPaletteActivate(BitmapView *bv, int force, int docking_changed) {
     BitmapView *old;
 
     BVPaletteCheck(bv);
-    if ( ((old = GDrawGetUserData(bvtools)) != bv) || force ) {
+    if ( ((old = GDrawGetUserData(bvlayers)) != bv) || force ) {
 	if ( old!=NULL ) {
-	    SaveOffsets(old->gw,bvtools,&bvtoolsoff);
 	    SaveOffsets(old->gw,bvlayers,&bvlayersoff);
 	    SaveOffsets(old->gw,bvshades,&bvshadesoff);
 	}
 
     if ((palettes_docked && old != bv) || docking_changed) {
         // Recreate the bvtools if docked, similar to cvtools
-        GDrawDestroyWindow(bvtools);
         GDrawDestroyWindow(bvlayers);
         GDrawDestroyWindow(bvshades);
-        bvtools = bvlayers = bvshades = NULL;
+        bvlayers = bvshades = NULL;
         BVPaletteCheck(bv);
     }
 
-	GDrawSetUserData(bvtools,bv);
 	GDrawSetUserData(bvlayers,bv);
 	GDrawSetUserData(bvshades,bv);
 
     if (palettes_docked) {
         if (bvvisible[0])
             GDrawRequestExpose(bvlayers, NULL, false);
-        if (bvvisible[1])
-            GDrawRequestExpose(bvtools, NULL, false);
         if (bvvisible[2])
             GDrawRequestExpose(bvshades, NULL, false);
     } else {
 	    if ( bvvisible[0])
 		RestoreOffsets(bv->gw,bvlayers,&bvlayersoff);
-	    if ( bvvisible[1])
-		RestoreOffsets(bv->gw,bvtools,&bvtoolsoff);
 	    if ( bvvisible[2] && !bv->shades_hidden )
 		RestoreOffsets(bv->gw,bvshades,&bvshadesoff);
 	}
-	SetPaletteVisible(bv->gw, bvtools, bvvisible[1]);
 	SetPaletteVisible(bv->gw, bvlayers, bvvisible[0]);
 	SetPaletteVisible(bv->gw, bvshades, bvvisible[2] && bv->bdf->clut!=NULL);
-	if ( bvvisible[1]) {
-	    bv->showing_tool = bvt_none;
-	    BVToolsSetCursor(bv,0,NULL);
-	    GDrawRequestExpose(bvtools,NULL,false);
-	}
 	if ( bvvisible[0])
 	    BVLayersSet(bv);
-	if ( bvvisible[2] && !bv->shades_hidden )
-	    GDrawRequestExpose(bvtools,NULL,false);
     }
     if ( cvtools!=NULL ) {
 	CharView *cv = GDrawGetUserData(cvtools);
@@ -4622,16 +4369,13 @@ void BVPaletteActivate(BitmapView *bv) {
 }
 
 void BVPalettesHideIfMine(BitmapView *bv) {
-    if ( bvtools==NULL )
+    if ( bvlayers==NULL )
 return;
-    if ( GDrawGetUserData(bvtools)==bv ) {
-	SaveOffsets(bv->gw,bvtools,&bvtoolsoff);
+    if ( GDrawGetUserData(bvlayers)==bv ) {
 	SaveOffsets(bv->gw,bvlayers,&bvlayersoff);
 	SaveOffsets(bv->gw,bvshades,&bvshadesoff);
-	SetPaletteVisible(NULL, bvtools, false);
 	SetPaletteVisible(NULL, bvlayers, false);
 	SetPaletteVisible(NULL, bvshades, false);
-	GDrawSetUserData(bvtools,NULL);
 	GDrawSetUserData(bvlayers,NULL);
 	GDrawSetUserData(bvshades,NULL);
     }
@@ -4657,17 +4401,14 @@ void CVPaletteDeactivate(void) {
 	if ( cvlayers2!=NULL )
 	    SetPaletteVisible(NULL, cvlayers2, false);
     }
-    if ( bvtools!=NULL ) {
-	BitmapView *bv = GDrawGetUserData(bvtools);
+    if ( bvlayers!=NULL ) {
+	BitmapView *bv = GDrawGetUserData(bvlayers);
 	if ( bv!=NULL ) {
-	    SaveOffsets(bv->gw,bvtools,&bvtoolsoff);
 	    SaveOffsets(bv->gw,bvlayers,&bvlayersoff);
 	    SaveOffsets(bv->gw,bvshades,&bvshadesoff);
-	    GDrawSetUserData(bvtools,NULL);
 	    GDrawSetUserData(bvlayers,NULL);
 	    GDrawSetUserData(bvshades,NULL);
 	}
-	SetPaletteVisible(NULL, bvtools, false);
 	SetPaletteVisible(NULL, bvlayers, false);
 	SetPaletteVisible(NULL, bvshades, false);
     }
@@ -4703,8 +4444,8 @@ void PalettesChangeDocking() {
 
     if (cvtools != NULL)
         _CVPaletteActivate((CharView*)GDrawGetUserData(cvtools), true, true);
-    if (bvtools != NULL)
-        _BVPaletteActivate((BitmapView*)GDrawGetUserData(bvtools), true, true);
+    if (bvlayers != NULL)
+        _BVPaletteActivate((BitmapView*)GDrawGetUserData(bvlayers), true, true);
 
     SavePrefs(true);
 }
