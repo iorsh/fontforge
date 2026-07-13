@@ -354,6 +354,16 @@ bool BitmapView::on_key_event(GdkEventKey* event) {
         }
     }
 
+    // Alt key changes the cursor to Zoom-out when magnigier tool is active
+    if ((event->keyval == GDK_KEY_Alt_L || event->keyval == GDK_KEY_Alt_R) &&
+        find_device(bvt_magnify) == bvd_mouse_btn1) {
+        BitmapViewTool cursor_def = find_tool_definition(bvt_magnify);
+        if (event->type == GDK_KEY_PRESS) {
+            cursor_def.icon_name = cursor_def.cursor_name = "zoom-out";
+        }
+        update_primary_cursor(cursor_def);
+    }
+
     return false;
 }
 
@@ -363,7 +373,14 @@ bool BitmapView::on_button_press_event(GdkEventButton* event) {
     auto it = tool_map_.find(device);
     if (it == tool_map_.end()) return false;  // no tool assigned to this device
 
-    context.legacy()->activate_tool(context.legacy()->bv, it->second);
+    bvtools active_tool = it->second;
+
+    // Alt key activates minifier when magnigier tool is active
+    if (active_tool == bvt_magnify && (event->state & GDK_MOD1_MASK)) {
+        active_tool = bvt_minify;
+    }
+
+    context.legacy()->activate_tool(context.legacy()->bv, active_tool);
 
     return true;
 }
