@@ -11018,8 +11018,12 @@ void FontInfoInit(void) {
 return;
     done = true;
     for ( j=0; needswork[j]!=NULL; ++j ) {
-	for ( i=0; needswork[j][i].text!=NULL; ++i )
-	    needswork[j][i].text = (unichar_t *) S_((char *) needswork[j][i].text);
+	for ( i=0; needswork[j][i].text!=NULL; ++i ) {
+            char* tr = S_((char *) needswork[j][i].text);
+	    if (needswork[j] == mslanguages)
+	        printf("%s ---> %s\n", (char*)needswork[j][i].text, tr);
+	    needswork[j][i].text = (unichar_t *)tr;
+	}
     }
     for ( j=0; needswork2[j]!=NULL; ++j ) {
 	for ( i=0; needswork2[j][i]!=NULL; ++i )
