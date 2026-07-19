@@ -34,6 +34,7 @@
 #include "dumppfa.h"
 #include "ffglib_compat.h"
 #include "fontforgevw.h"
+#include "bvedit.h"
 #include "gfile.h"
 #include "gicons.h"
 #include "gutils.h"
@@ -536,7 +537,7 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
     struct _GImage base;
     GImage gi;
     GClut clut;
-    BDFChar *bdfc;
+    BDFChar *bdfc = NULL;
     int ret;
     int tot, i;
     uint8_t *pt, *end;
@@ -552,13 +553,31 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
     memset(&clut,'\0', sizeof(clut));
     gi.u.image = &base;
 
-    if ( bitsperpixel==1 ) {
-	if ( (freetypecontext = FreeTypeFontContext(sc->parent,sc,NULL,layer))==NULL )
-	    bdfc = SplineCharRasterize(sc,layer,pixelsize);
-	else {
-	    bdfc = SplineCharFreeTypeRasterize(freetypecontext,sc->orig_pos,pixelsize,72,1);
-	    FreeTypeFreeContext(freetypecontext);
+    if ( sc->parent->onlybitmaps ) {
+	BDFFont *bdf;
+	for ( bdf=sc->parent->bitmaps; bdf!=NULL; bdf=bdf->next ) {
+	    bdfc = bdf->glyphs[sc->orig_pos];
+	    if ( bdfc!=NULL ) break;
 	}
+	if ( bdfc->byte_data ) {
+	    int depth = BDFDepth(bdf);
+	    bdfc = BCScaleGrey(bdfc,bdf->pixelsize,depth,pixelsize,depth);
+	    bitsperpixel = 8;
+	} else {
+	    bdfc = BCScale(bdfc,bdf->pixelsize,pixelsize);
+	    bitsperpixel = 1;
+	}
+    } else if ( (freetypecontext = FreeTypeFontContext(sc->parent,sc,NULL,layer))==NULL ) {
+	if ( bitsperpixel==1 )
+	    bdfc = SplineCharRasterize(sc,layer,pixelsize);
+	else
+	    bdfc = SplineCharAntiAlias(sc,pixelsize,layer,(1<<(bitsperpixel/2)));
+    } else {
+	bdfc = SplineCharFreeTypeRasterize(freetypecontext,sc->orig_pos,pixelsize,72,bitsperpixel);
+	FreeTypeFreeContext(freetypecontext);
+    }
+
+    if ( bitsperpixel==1 ) {
 	BCRegularizeBitmap(bdfc, bitsperpixel);
 	/* People don't seem to like having a minimal bounding box for their */
 	/*  images. */
@@ -592,12 +611,6 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
 	    ret = GImageWriteBmp(&gi,filename);
 	BDFCharFree(bdfc);
     } else {
-	if ( (freetypecontext = FreeTypeFontContext(sc->parent,sc,NULL,layer))==NULL )
-	    bdfc = SplineCharAntiAlias(sc,pixelsize,layer,(1<<(bitsperpixel/2)));
-	else {
-	    bdfc = SplineCharFreeTypeRasterize(freetypecontext,sc->orig_pos,pixelsize,72,bitsperpixel);
-	    FreeTypeFreeContext(freetypecontext);
-	}
 	BCRegularizeBitmap(bdfc, bitsperpixel);
 	BCExpandBitmapToEmBox(bdfc,
 		0,
