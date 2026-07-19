@@ -559,7 +559,7 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
 	    bdfc = SplineCharFreeTypeRasterize(freetypecontext,sc->orig_pos,pixelsize,72,1);
 	    FreeTypeFreeContext(freetypecontext);
 	}
-	BCRegularizeBitmap(bdfc);
+	BCRegularizeBitmap(bdfc, bitsperpixel);
 	/* People don't seem to like having a minimal bounding box for their */
 	/*  images. */
 	BCExpandBitmapToEmBox(bdfc,
@@ -598,7 +598,7 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
 	    bdfc = SplineCharFreeTypeRasterize(freetypecontext,sc->orig_pos,pixelsize,72,bitsperpixel);
 	    FreeTypeFreeContext(freetypecontext);
 	}
-	BCRegularizeGreymap(bdfc);
+	BCRegularizeBitmap(bdfc, bitsperpixel);
 	BCExpandBitmapToEmBox(bdfc,
 		0,
 		(int) rint(sc->parent->ascent*pixelsize/emsize) - pixelsize,
@@ -643,7 +643,7 @@ int BCExportXBM(char *filename,BDFChar *bdfc, int format) {
     gi.u.image = &base;
 
     if ( !bdfc->byte_data ) {
-	BCRegularizeBitmap(bdfc);
+	BCRegularizeBitmap(bdfc, 1);
 	/* Sigh. Bitmaps use a different defn of set than images do. make it consistent */
 	tot = bdfc->bytes_per_line*(bdfc->ymax-bdfc->ymin+1);
 	for ( pt = bdfc->bitmap, end = pt+tot; pt<end; *pt++ ^= 0xff );
@@ -669,7 +669,7 @@ int BCExportXBM(char *filename,BDFChar *bdfc, int format) {
 	/* And back to normal */
 	for ( pt = bdfc->bitmap, end = pt+tot; pt<end; *pt++ ^= 0xff );
     } else {
-	BCRegularizeGreymap(bdfc);
+	BCRegularizeBitmap(bdfc, 8);
 	base.image_type = it_index;
 	base.data = bdfc->bitmap;
 	base.bytes_per_line = bdfc->bytes_per_line;
