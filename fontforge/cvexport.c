@@ -532,97 +532,101 @@ return(0);
 return( ret );
 }
 
-int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixelsize, int bitsperpixel) {
-/* 0=*.xbm, 1=*.bmp, 2=*.png, 3=*.xpm, 4=*.c(fontforge-internal) */
+int ExportImage(char* filename, SplineChar* sc, int layer, int format,
+                int pixelsize, int bitsperpixel) {
+    /* 0=*.xbm, 1=*.bmp, 2=*.png, 3=*.xpm, 4=*.c(fontforge-internal) */
     struct _GImage base;
     GImage gi;
-    BDFChar *bdfc = NULL;
+    BDFChar* bdfc = NULL;
     int ret;
     int tot, i;
     uint8_t *pt, *end;
-    void *freetypecontext;
-    double emsize = sc->parent->ascent+sc->parent->descent;
+    void* freetypecontext;
+    double emsize = sc->parent->ascent + sc->parent->descent;
 
-    if ( autohint_before_generate && sc->changedsincelasthinted && !sc->manualhints )
-	SplineCharAutoHint(sc,layer,NULL);
+    if (autohint_before_generate && sc->changedsincelasthinted &&
+        !sc->manualhints)
+        SplineCharAutoHint(sc, layer, NULL);
 
-    memset(&gi,'\0', sizeof(gi));
-    memset(&base,'\0', sizeof(base));
+    memset(&gi, '\0', sizeof(gi));
+    memset(&base, '\0', sizeof(base));
     gi.u.image = &base;
 
-    if ( sc->parent->onlybitmaps ) {
-	BDFFont *bdf;
-	for ( bdf=sc->parent->bitmaps; bdf!=NULL; bdf=bdf->next ) {
-	    bdfc = bdf->glyphs[sc->orig_pos];
-	    if ( bdfc!=NULL ) break;
-	}
-	if ( bdfc->byte_data ) {
-	    int depth = BDFDepth(bdf);
-	    bdfc = BCScaleGrey(bdfc,bdf->pixelsize,depth,pixelsize,depth);
-	    bitsperpixel = 8;
-	} else {
-	    bdfc = BCScale(bdfc,bdf->pixelsize,pixelsize);
-	    bitsperpixel = 1;
-	}
-    } else if ( (freetypecontext = FreeTypeFontContext(sc->parent,sc,NULL,layer))==NULL ) {
-	if ( bitsperpixel==1 )
-	    bdfc = SplineCharRasterize(sc,layer,pixelsize);
-	else
-	    bdfc = SplineCharAntiAlias(sc,pixelsize,layer,(1<<(bitsperpixel/2)));
+    if (sc->parent->onlybitmaps) {
+        BDFFont* bdf;
+        for (bdf = sc->parent->bitmaps; bdf != NULL; bdf = bdf->next) {
+            bdfc = bdf->glyphs[sc->orig_pos];
+            if (bdfc != NULL) break;
+        }
+        if (bdfc->byte_data) {
+            int depth = BDFDepth(bdf);
+            bdfc = BCScaleGrey(bdfc, bdf->pixelsize, depth, pixelsize, depth);
+            bitsperpixel = 8;
+        } else {
+            bdfc = BCScale(bdfc, bdf->pixelsize, pixelsize);
+            bitsperpixel = 1;
+        }
+    } else if ((freetypecontext =
+                    FreeTypeFontContext(sc->parent, sc, NULL, layer)) == NULL) {
+        if (bitsperpixel == 1)
+            bdfc = SplineCharRasterize(sc, layer, pixelsize);
+        else
+            bdfc = SplineCharAntiAlias(sc, pixelsize, layer,
+                                       (1 << (bitsperpixel / 2)));
     } else {
-	bdfc = SplineCharFreeTypeRasterize(freetypecontext,sc->orig_pos,pixelsize,72,bitsperpixel);
-	FreeTypeFreeContext(freetypecontext);
+        bdfc = SplineCharFreeTypeRasterize(freetypecontext, sc->orig_pos,
+                                           pixelsize, 72, bitsperpixel);
+        FreeTypeFreeContext(freetypecontext);
     }
 
     BCRegularizeBitmap(bdfc, bitsperpixel);
     /* People don't seem to like having a minimal bounding box for their */
     /*  images. */
-    BCExpandBitmapToEmBox(bdfc,
-	0,
-	(int) rint(sc->parent->ascent*pixelsize/emsize)-pixelsize,
-	(int) rint(sc->width*pixelsize/emsize),
-	(int) rint(sc->parent->ascent*pixelsize/emsize));
+    BCExpandBitmapToEmBox(
+        bdfc, 0, (int)rint(sc->parent->ascent * pixelsize / emsize) - pixelsize,
+        (int)rint(sc->width * pixelsize / emsize),
+        (int)rint(sc->parent->ascent * pixelsize / emsize));
 
-    if ( bitsperpixel==1 ) {
-	/* Sigh. Bitmaps use a different defn of set than images do. make it consistent */
-	tot = bdfc->bytes_per_line*(bdfc->ymax-bdfc->ymin+1);
-	for ( pt = bdfc->bitmap, end = pt+tot; pt<end; *pt++ ^= 0xff );
+    if (bitsperpixel == 1) {
+        /* Sigh. Bitmaps use a different defn of set than images do. make it
+         * consistent */
+        tot = bdfc->bytes_per_line * (bdfc->ymax - bdfc->ymin + 1);
+        for (pt = bdfc->bitmap, end = pt + tot; pt < end; *pt++ ^= 0xff);
 
-	base.image_type = it_mono;
+        base.image_type = it_mono;
     } else {
-	GClut clut;
-	int scale;
-	base.image_type = it_index;
-	memset(&clut,'\0', sizeof(clut));
-	clut.clut_len = 1<<bitsperpixel;
-	clut.is_grey = true;
-	clut.trans_index = -1;
-	scale = 255/((1<<bitsperpixel)-1);
-	scale = COLOR_CREATE(scale,scale,scale);
-	for ( i=0; i< 1<<bitsperpixel; ++i )
-	    clut.clut[(1<<bitsperpixel)-1 - i] = i*scale;
-	base.clut = &clut;
+        GClut clut;
+        int scale;
+        base.image_type = it_index;
+        memset(&clut, '\0', sizeof(clut));
+        clut.clut_len = 1 << bitsperpixel;
+        clut.is_grey = true;
+        clut.trans_index = -1;
+        scale = 255 / ((1 << bitsperpixel) - 1);
+        scale = COLOR_CREATE(scale, scale, scale);
+        for (i = 0; i < 1 << bitsperpixel; ++i)
+            clut.clut[(1 << bitsperpixel) - 1 - i] = i * scale;
+        base.clut = &clut;
     }
 
     base.data = bdfc->bitmap;
     base.bytes_per_line = bdfc->bytes_per_line;
-    base.width = bdfc->xmax-bdfc->xmin+1;
-    base.height = bdfc->ymax-bdfc->ymin+1;
+    base.width = bdfc->xmax - bdfc->xmin + 1;
+    base.height = bdfc->ymax - bdfc->ymin + 1;
     base.trans = -1;
-    if ( format==0 )
-	ret = !GImageWriteXbm(&gi,filename);
+    if (format == 0) ret = !GImageWriteXbm(&gi, filename);
 #ifndef _NO_LIBPNG
-    else if ( format==2 )
-	ret = GImageWritePng(&gi,filename,false);
+    else if (format == 2)
+        ret = GImageWritePng(&gi, filename, false);
 #endif
-    else if ( format==3 )
-	ret = !GImageWriteXpm(&gi,filename);
-    else if ( format==4 )
-	ret = !GImageWriteGImage(&gi,filename);
+    else if (format == 3)
+        ret = !GImageWriteXpm(&gi, filename);
+    else if (format == 4)
+        ret = !GImageWriteGImage(&gi, filename);
     else
-	ret = GImageWriteBmp(&gi,filename);
+        ret = GImageWriteBmp(&gi, filename);
     BDFCharFree(bdfc);
-    return( ret );
+    return (ret);
 }
 
 int BCExportXBM(char *filename,BDFChar *bdfc, int format) {
