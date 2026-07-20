@@ -536,12 +536,10 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
 /* 0=*.xbm, 1=*.bmp, 2=*.png, 3=*.xpm, 4=*.c(fontforge-internal) */
     struct _GImage base;
     GImage gi;
-    GClut clut;
     BDFChar *bdfc = NULL;
     int ret;
     int tot, i;
     uint8_t *pt, *end;
-    int scale;
     void *freetypecontext;
     double emsize = sc->parent->ascent+sc->parent->descent;
 
@@ -550,7 +548,6 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
 
     memset(&gi,'\0', sizeof(gi));
     memset(&base,'\0', sizeof(base));
-    memset(&clut,'\0', sizeof(clut));
     gi.u.image = &base;
 
     if ( sc->parent->onlybitmaps ) {
@@ -577,53 +574,26 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
 	FreeTypeFreeContext(freetypecontext);
     }
 
-    if ( bitsperpixel==1 ) {
-	BCRegularizeBitmap(bdfc, bitsperpixel);
-	/* People don't seem to like having a minimal bounding box for their */
-	/*  images. */
-	BCExpandBitmapToEmBox(bdfc,
-		0,
-		(int) rint(sc->parent->ascent*pixelsize/emsize)-pixelsize,
-		(int) rint(sc->width*pixelsize/emsize),
-		(int) rint(sc->parent->ascent*pixelsize/emsize));
+    BCRegularizeBitmap(bdfc, bitsperpixel);
+    /* People don't seem to like having a minimal bounding box for their */
+    /*  images. */
+    BCExpandBitmapToEmBox(bdfc,
+	0,
+	(int) rint(sc->parent->ascent*pixelsize/emsize)-pixelsize,
+	(int) rint(sc->width*pixelsize/emsize),
+	(int) rint(sc->parent->ascent*pixelsize/emsize));
 
+    if ( bitsperpixel==1 ) {
 	/* Sigh. Bitmaps use a different defn of set than images do. make it consistent */
 	tot = bdfc->bytes_per_line*(bdfc->ymax-bdfc->ymin+1);
 	for ( pt = bdfc->bitmap, end = pt+tot; pt<end; *pt++ ^= 0xff );
 
 	base.image_type = it_mono;
-	base.data = bdfc->bitmap;
-	base.bytes_per_line = bdfc->bytes_per_line;
-	base.width = bdfc->xmax-bdfc->xmin+1;
-	base.height = bdfc->ymax-bdfc->ymin+1;
-	base.trans = -1;
-	if ( format==0 )
-	    ret = !GImageWriteXbm(&gi,filename);
-#ifndef _NO_LIBPNG
-	else if ( format==2 )
-	    ret = GImageWritePng(&gi,filename,false);
-#endif
-	else if ( format==3 )
-	    ret = !GImageWriteXpm(&gi,filename);
-	else if ( format==4 )
-	    ret = !GImageWriteGImage(&gi,filename);
-	else
-	    ret = GImageWriteBmp(&gi,filename);
-	BDFCharFree(bdfc);
     } else {
-	BCRegularizeBitmap(bdfc, bitsperpixel);
-	BCExpandBitmapToEmBox(bdfc,
-		0,
-		(int) rint(sc->parent->ascent*pixelsize/emsize) - pixelsize,
-		(int) rint(sc->width*pixelsize/emsize),
-		(int) rint(sc->parent->ascent*pixelsize/emsize));
+	GClut clut;
+	int scale;
 	base.image_type = it_index;
-	base.data = bdfc->bitmap;
-	base.bytes_per_line = bdfc->bytes_per_line;
-	base.width = bdfc->xmax-bdfc->xmin+1;
-	base.height = bdfc->ymax-bdfc->ymin+1;
-	base.clut = &clut;
-	base.trans = -1;
+	memset(&clut,'\0', sizeof(clut));
 	clut.clut_len = 1<<bitsperpixel;
 	clut.is_grey = true;
 	clut.trans_index = -1;
@@ -631,15 +601,28 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
 	scale = COLOR_CREATE(scale,scale,scale);
 	for ( i=0; i< 1<<bitsperpixel; ++i )
 	    clut.clut[(1<<bitsperpixel)-1 - i] = i*scale;
-#ifndef _NO_LIBPNG
-	if ( format==2 )
-	    ret = GImageWritePng(&gi,filename,false);
-	else
-#endif
-	    ret = GImageWriteBmp(&gi,filename);
-	BDFCharFree(bdfc);
+	base.clut = &clut;
     }
-return( ret );
+
+    base.data = bdfc->bitmap;
+    base.bytes_per_line = bdfc->bytes_per_line;
+    base.width = bdfc->xmax-bdfc->xmin+1;
+    base.height = bdfc->ymax-bdfc->ymin+1;
+    base.trans = -1;
+    if ( format==0 )
+	ret = !GImageWriteXbm(&gi,filename);
+#ifndef _NO_LIBPNG
+    else if ( format==2 )
+	ret = GImageWritePng(&gi,filename,false);
+#endif
+    else if ( format==3 )
+	ret = !GImageWriteXpm(&gi,filename);
+    else if ( format==4 )
+	ret = !GImageWriteGImage(&gi,filename);
+    else
+	ret = GImageWriteBmp(&gi,filename);
+    BDFCharFree(bdfc);
+    return( ret );
 }
 
 int BCExportXBM(char *filename,BDFChar *bdfc, int format) {
