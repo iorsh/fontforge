@@ -536,6 +536,7 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
 /* 0=*.xbm, 1=*.bmp, 2=*.png, 3=*.xpm, 4=*.c(fontforge-internal) */
     struct _GImage base;
     GImage gi;
+    GClut clut;
     BDFChar *bdfc = NULL;
     int ret;
     int tot, i;
@@ -548,6 +549,7 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
 
     memset(&gi,'\0', sizeof(gi));
     memset(&base,'\0', sizeof(base));
+    memset(&clut,'\0', sizeof(clut));
     gi.u.image = &base;
 
     if ( sc->parent->onlybitmaps ) {
@@ -590,10 +592,8 @@ int ExportImage(char *filename,SplineChar *sc, int layer, int format, int pixels
 
 	base.image_type = it_mono;
     } else {
-	GClut clut;
 	int scale;
 	base.image_type = it_index;
-	memset(&clut,'\0', sizeof(clut));
 	clut.clut_len = 1<<bitsperpixel;
 	clut.is_grey = true;
 	clut.trans_index = -1;
