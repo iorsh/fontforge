@@ -35,10 +35,23 @@
 #include "uiinterface.h"
 #include "ustring.h"
 #include "wordlistparser.h"
+#include "shapers/shaper_shim.hpp"
 
 #include <ctype.h>
 #include <string.h>
 
+
+int WordlistSCFakeUnicode(SplineChar *sc) {
+    if (sc->unicodeenc != -1)
+        return sc->unicodeenc;
+    else
+        return FAKE_UNICODE_BASE + sc->orig_pos;
+}
+
+int WordlistSCFakeUnicode_cb( SplineChar *sc, void* )
+{
+    return WordlistSCFakeUnicode( sc );
+}
 
 const char* Wordlist_getSCName( SplineChar* sc )
 {

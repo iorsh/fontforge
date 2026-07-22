@@ -88,6 +88,8 @@ typedef struct wordlistchar {
 
 typedef WordListChar* WordListLine;
 
+extern int WordlistSCFakeUnicode(SplineChar *sc);
+extern int WordlistSCFakeUnicode_cb( SplineChar *sc, void* );
 extern bool Wordlist_selectionsEqual( unichar_t* s1, unichar_t* s2 );
 extern WordListLine WordListLine_end( WordListLine wll );
 extern int WordListLine_size( WordListLine wll );

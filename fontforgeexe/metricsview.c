@@ -1824,13 +1824,6 @@ static void MVVScroll(MetricsView *mv,struct sbevent *sb) {
     }
 }
 
-static int MVFakeUnicodeOfSc(MetricsView *mv, SplineChar *sc) {
-    if (sc->unicodeenc != -1)
-        return sc->unicodeenc;
-    else
-        return FAKE_UNICODE_BASE + sc->orig_pos;
-}
-
 static int MVOddMatch(MetricsView *mv,int uni,SplineChar *sc) {
     if ( sc->unicodeenc!=-1 )
 return( false );
@@ -1854,7 +1847,7 @@ void MVSetSCs(MetricsView *mv, SplineChar **scs) {
 	if ( scs[len]->unicodeenc>0 )
 	    ustr[len] = scs[len]->unicodeenc;
 	else
-	    ustr[len] = MVFakeUnicodeOfSc(mv,scs[len]);
+	    ustr[len] = WordlistSCFakeUnicode(scs[len]);
     ustr[len] = 0;
     GGadgetSetTitle(mv->text,ustr);
     free(ustr);
@@ -1863,15 +1856,6 @@ void MVSetSCs(MetricsView *mv, SplineChar **scs) {
 
     GDrawRequestExpose(mv->v,NULL,false);
 }
-
-
-static int WordlistEscapedInputStringToRealString_getFakeUnicodeAs_MVFakeUnicodeOfSc( SplineChar *sc, void* udata )
-{
-    MetricsView *mv = (MetricsView *)udata;
-    int n = MVFakeUnicodeOfSc( mv, sc );
-    return n;
-}
-
 
 static void MVTextChanged(MetricsView *mv) {
     const unichar_t *ret = 0, *pt, *ept, *tpt;
@@ -1885,7 +1869,7 @@ static void MVTextChanged(MetricsView *mv) {
     // for the metrics window
     WordListLine wll = WordlistEscapedInputStringToParsedDataComplex(
     	mv->sf, _GGadgetGetTitle(mv->text),
-    	WordlistEscapedInputStringToRealString_getFakeUnicodeAs_MVFakeUnicodeOfSc, mv );
+    	WordlistSCFakeUnicode_cb, NULL );
     ret = WordListLine_toustr( wll );
 
     if (( isrighttoleft(ret[0]) && !mv->right_to_left ) ||
@@ -2011,7 +1995,7 @@ static void MVFigureGlyphNames(MetricsView *mv,const unichar_t *names) {
     newtext = malloc((cnt+1)*sizeof(unichar_t));
     for ( i=0; i<cnt; ++i ) {
 	newtext[i] = founds[i]->unicodeenc==-1 ?
-						MVFakeUnicodeOfSc(mv,founds[i]) :
+						WordlistSCFakeUnicode(founds[i]) :
 						founds[i]->unicodeenc;
 	mv->chars[i] = founds[i];
     }
@@ -2797,7 +2781,7 @@ static void MVResetText(MetricsView *mv) {
     new = malloc((mv->clen+1)*sizeof(unichar_t));
     for ( pt=new, i=0; i<mv->clen; ++i ) {
 	if ( mv->chars[i]->unicodeenc==-1 )
-	    *pt++ = MVFakeUnicodeOfSc(mv,mv->chars[i]);
+	    *pt++ = WordlistSCFakeUnicode(mv->chars[i]);
 	else
 	    *pt++ = mv->chars[i]->unicodeenc;
     }
@@ -4897,7 +4881,7 @@ return;
     for ( i=within; i<within+cnt; ++i ) {
 	mv->chars[i] = founds[i-within];
 	newtext[i] = founds[i-within]->unicodeenc>=0 ?
-		founds[i-within]->unicodeenc : MVFakeUnicodeOfSc(mv,founds[i-within]);
+		founds[i-within]->unicodeenc : WordlistSCFakeUnicode(founds[i-within]);
     }
     mv->clen += cnt;
     MVRemetric(mv);
