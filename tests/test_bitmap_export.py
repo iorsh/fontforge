@@ -30,13 +30,12 @@ def _make_deterministic_environment() -> None:
         __import__("time").tzset()
 
 
-def _generate_bitmap_outputs(font_path: str, out_dir: str, is_bitmap_font: bool, font_type_label: str) -> list[str]:
+def _generate_bitmap_outputs(font_path: str, out_dir: str, font_type_label: str) -> list[str]:
     """Generate bitmap exports in various formats and bitdepths.
     
     Args:
         font_path: Path to the font file
         out_dir: Output directory for generated bitmaps
-        is_bitmap_font: True for bitmap-only fonts (courB18), False for regular fonts (Caliban)
         font_type_label: Label to use in filename to distinguish font types (e.g., "bitmap", "regular")
     
     Returns:
@@ -46,23 +45,12 @@ def _generate_bitmap_outputs(font_path: str, out_dir: str, is_bitmap_font: bool,
     
     formats = ["bmp", "png", "xbm"]
     bitdepths = [1, 8]
+    test_glyph = "A"
     
     generated = []
     
-    # Use a reasonable glyph for testing (should exist in both fonts)
-    test_glyph = "A"
-    if test_glyph not in font:
-        # Fallback to first glyph if A doesn't exist
-        for glyph_name in font.glyphs():
-            test_glyph = glyph_name
-            break
-    
     for fmt in formats:
         for bitdepth in bitdepths:
-            # For bitmap fonts, only try bitdepth 1 for XBM/XPM
-        #     if is_bitmap_font and bitdepth == 8 and fmt in ["xbm", "xpm"]:
-        #         continue
-            
             # Create a descriptive filename with font type label
             filename = f"{font_type_label}_{fmt}_depth{bitdepth}.{fmt}"
             export_path = os.path.join(out_dir, filename)
@@ -72,7 +60,7 @@ def _generate_bitmap_outputs(font_path: str, out_dir: str, is_bitmap_font: bool,
                 glyph = font[test_glyph]
                 glyph.export(
                     export_path,
-                    pointsize=72,
+                    pixelsize=100,
                     bitdepth=bitdepth
                 )
                 generated.append(export_path)
@@ -143,10 +131,10 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory(prefix="ff-bitmap-export-test-") as temp_dir:
         # Test bitmap-only font
-        bitmap_generated = _generate_bitmap_outputs(bitmap_font_path, temp_dir, is_bitmap_font=True, font_type_label="court18")
+        bitmap_generated = _generate_bitmap_outputs(bitmap_font_path, temp_dir, font_type_label="court18")
         
         # Test regular font
-        regular_generated = _generate_bitmap_outputs(regular_font_path, temp_dir, is_bitmap_font=False, font_type_label="caliban")
+        regular_generated = _generate_bitmap_outputs(regular_font_path, temp_dir, font_type_label="caliban")
         
         all_generated = bitmap_generated + regular_generated
         
