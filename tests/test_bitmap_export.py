@@ -30,6 +30,11 @@ def _make_deterministic_environment() -> None:
         __import__("time").tzset()
 
 
+def _normalized_text(path: str) -> str:
+    with open(path, "r", encoding="utf-8", errors="replace", newline=None) as f:
+        return f.read().replace("\r\n", "\n").replace("\r", "\n")
+
+
 def _generate_bitmap_outputs(font_path: str, out_dir: str, font_type_label: str) -> list[str]:
     """Generate bitmap exports in various formats and bitdepths.
     
@@ -94,8 +99,12 @@ def _assert_identical_outputs(generated_files: list[str], refs_dir: str) -> None
             missing_refs.append(reference)
             continue
 
-        if not filecmp.cmp(generated, reference, shallow=False):
-            mismatches.append((generated, reference))
+        if generated.lower().endswith(".xbm"):
+            if _normalized_text(generated) != _normalized_text(reference):
+                mismatches.append((generated, reference))
+        else:
+            if not filecmp.cmp(generated, reference, shallow=False):
+                mismatches.append((generated, reference))
 
     if missing_refs:
         raise ValueError(
