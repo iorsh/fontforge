@@ -68,6 +68,7 @@ set(FONTFORGE_NOINST_HEADERS
   winfonts.h
   woff.h
   zapfnomen.h
+  wordlistparser.h
 )
 
 set(FONTFORGE_INST_HEADERS
@@ -216,6 +217,7 @@ add_library(fontforge
   winfonts.c
   woff.c
   zapfnomen.c
+  wordlistparser.c
 )
 
 add_subdirectory(layout)

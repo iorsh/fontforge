@@ -49,7 +49,7 @@
 #include "tottfgpos.h"
 #include "ustring.h"
 #include "utype.h"
-#include "wordlistparser.h"
+#include "wordlistparser_ui.h"
 #include "gtk/simple_dialogs.hpp"
 #include "shapers/shaper_shim.hpp"
 #include "mv_mids.h"

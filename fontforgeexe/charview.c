@@ -59,7 +59,7 @@
 #include "splineutil2.h"
 #include "ustring.h"
 #include "utype.h"
-#include "wordlistparser.h"
+#include "wordlistparser_ui.h"
 
 #include "cv_mids.h"
 #include "gtk/simple_dialogs.hpp"
