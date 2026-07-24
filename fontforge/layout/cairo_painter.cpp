@@ -50,6 +50,8 @@ extern SplineFont** FVCollectFamily(SplineFont* sf);
 extern SplineCharTTFMap* MakeGlyphTTFMap(SplineFont* sf);
 extern char* SFGetFullName(SplineFont* sf);
 SplineChar** FVGetSelection(FontViewBase* fv);
+extern char* WordlistEscapedInputStringToUTF8(SplineFont* sf,
+                                              const char* input);
 }
 #include "gutils.h"
 #include "ustring.h"
@@ -637,6 +639,31 @@ double SampleTextPrinter::calculate_height(
     return height;
 }
 
+double SampleTextPrinter::calculate_advance(const CairoFontRec& font_rec,
+                                            const std::string& text,
+                                            double size) {
+    auto face = font_rec.face;
+    auto shaper = font_rec.shaper;
+    const SplineFontProperties& default_sf_properties = font_rec.props;
+    double hb_scale =
+        default_sf_properties.ascent + default_sf_properties.descent;
+
+    unichar_t* unitext = utf82u_copy(text.c_str());
+    // Copy zero-terminated array into vector
+    std::vector<unichar_t> uni_buf(unitext, unitext + u_strlen(unitext) + 1);
+    free(unitext);
+
+    std::vector<MetricsCore> metrics = shaper->apply_features(
+        uni_buf, features_, script_, lang_, false, false);
+    // Remove auxiliary trailing element added for legacy C consumers
+    metrics.pop_back();
+    if (metrics.empty()) return 0;
+
+    double seg_advance =
+        size * (metrics.back().dx + metrics.back().dwidth) / hb_scale;
+    return seg_advance;
+}
+
 void SampleTextPrinter::calculate_layout(
     const Cairo::RefPtr<Cairo::Context>& cr,
     const Cairo::Rectangle& printable_area, const std::string& sample_text) {
@@ -652,7 +679,7 @@ void SampleTextPrinter::calculate_layout(
     RichTextLineBuffer line_buffer;
     double line_buffer_width = 0;
 
-    for (const auto& [current_tags, text] : parsed_text) {
+    for (const auto& [current_tags, raw_text] : parsed_text) {
         std::vector<ParsedTag> parsed_tags;
         for (const std::string& tag : current_tags) {
             parsed_tags.emplace_back(parse_tag(tag));
@@ -664,6 +691,12 @@ void SampleTextPrinter::calculate_layout(
         double font_size = get_size(current_tags);
         cr->set_font_face(font_face);
         cr->set_font_size(font_size);
+
+        // Unescape glyph names
+        char* unescaped = WordlistEscapedInputStringToUTF8(
+            cairo_family_[font_idx].sf, raw_text.c_str());
+        const std::string text(unescaped);
+        free(unescaped);
 
         // Iterator inside the currently processed block, which can be broken at
         // word boundaries.
@@ -685,8 +718,8 @@ void SampleTextPrinter::calculate_layout(
                              [](unsigned char c) { return std::isspace(c); });
             std::string subblock(subblock_start, space_it);
 
-            Cairo::TextExtents block_extents;
-            cr->get_text_extents(subblock, block_extents);
+            double subblock_advance =
+                calculate_advance(cairo_family_[font_idx], subblock, font_size);
 
             // When to continue filling the current line buffer:
             //  * The buffer doesn't end with user linebreak and...
@@ -698,8 +731,7 @@ void SampleTextPrinter::calculate_layout(
             bool continue_filling_buffer =
                 (*subblock_break != '\n') &&
                 ((line_buffer.empty() && subblock_start == subblock_break) ||
-                 (line_buffer_width + block_extents.width) <
-                     printable_area.width);
+                 (line_buffer_width + subblock_advance) < printable_area.width);
 
             if (continue_filling_buffer) {
                 subblock_break = space_it;
@@ -728,12 +760,12 @@ void SampleTextPrinter::calculate_layout(
         } while (space_it != text.end());
 
         std::string printable_subblock(subblock_start, text.end());
-        Cairo::TextExtents block_extents;
-        cr->get_text_extents(printable_subblock, block_extents);
+        double block_advance = calculate_advance(cairo_family_[font_idx],
+                                                 printable_subblock, font_size);
 
         line_buffer.emplace_back(std::string(subblock_start, text.end()),
                                  font_idx, font_size);
-        line_buffer_width += block_extents.x_advance;
+        line_buffer_width += block_advance;
     }
 
     // Collect leftovers from the end of text sample.

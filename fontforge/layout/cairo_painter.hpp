@@ -226,6 +226,11 @@ class SampleTextPrinter : public ff::layout::IPrinter {
     // Calculate height of single line
     double calculate_height(const Cairo::RefPtr<Cairo::Context>& cr,
                             const RichTextLineBuffer& line_buffer);
+
+    // Calculate advance of a text string after shaping.
+    double calculate_advance(const CairoFontRec& font_rec,
+                             const std::string& text, double size);
+
     void calculate_layout(const Cairo::RefPtr<Cairo::Context>& cr,
                           const Cairo::Rectangle& printable_area,
                           const std::string& sample_text);
