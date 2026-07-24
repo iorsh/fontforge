@@ -29,6 +29,7 @@
 
 #include "wordlistparser.h"
 
+#include "ffunistd.h"
 #include "fvfonts.h"
 #include "shapers/shaper_shim.hpp"
 
