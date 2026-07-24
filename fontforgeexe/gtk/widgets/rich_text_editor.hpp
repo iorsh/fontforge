@@ -32,7 +32,13 @@ namespace ff::widget {
 
 class RichTechEditor : public Gtk::Grid {
  public:
-    explicit RichTechEditor(const std::vector<double>& pointsizes);
+    // Create a rich text editor with the given list of point sizes. The point
+    // sizes are used to populate the size combobox in the toolbar. The generic
+    // flag indicates whether the editor is used for generic text editing
+    // without font-specific context. If false, the editor allow selection from
+    // predefined list of fonts.
+    explicit RichTechEditor(const std::vector<double>& pointsizes,
+                            bool generic = true);
 
     void configure(bool bold_enabled, bool italic_enabled, bool stretch_enabled,
                    bool weight_enabled);
@@ -148,6 +154,7 @@ class RichTechEditor : public Gtk::Grid {
     TagComboBox* stretch_combo_ = nullptr;
     TagComboBox* size_combo_ = nullptr;
     TagComboBox* weight_combo_ = nullptr;
+    TagComboBox* fonts_combo_ = nullptr;
     Gtk::Toolbar* toolbar_ = nullptr;
 
     static void on_text_view_paste_clipboard(GtkTextView* text_view,
@@ -161,9 +168,11 @@ class RichTechEditor : public Gtk::Grid {
     TagComboBox* build_stretch_combo();
     TagComboBox* build_size_combo(const std::vector<double>& pointsizes);
     TagComboBox* build_weight_combo();
+    TagComboBox* build_fonts_combo();
     Gtk::ToolButton* build_tools_menu();
 
     Gtk::Toolbar* build_generic_toolbar();
+    Gtk::Toolbar* build_fonts_toolbar();
 
     void on_load_buffer_from_xml();
     void on_save_buffer_to_xml();

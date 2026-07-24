@@ -274,7 +274,8 @@ guint8* ff_xml_serialize(const Glib::RefPtr<Gtk::TextBuffer>& content_buffer,
 const std::string RichTechEditor::rich_text_mime_type =
     "application/vnd.fontforge.rich-text+xml";
 
-RichTechEditor::RichTechEditor(const std::vector<double>& pointsizes) {
+RichTechEditor::RichTechEditor(const std::vector<double>& pointsizes,
+                               bool generic) {
     scale_css_provider_ = Gtk::CssProvider::create();
     text_view_.get_style_context()->add_provider(
         scale_css_provider_, GTK_STYLE_PROVIDER_PRIORITY_USER - 1);
@@ -289,7 +290,11 @@ RichTechEditor::RichTechEditor(const std::vector<double>& pointsizes) {
     clear_button->set_tooltip_text(_("Clear Formatting"));
     Gtk::ToolButton* hamburger_button = build_tools_menu();
 
-    toolbar_ = build_generic_toolbar();
+    if (generic) {
+        toolbar_ = build_generic_toolbar();
+    } else {
+        toolbar_ = build_fonts_toolbar();
+    }
     toolbar_->append(*size_combo_);
     toolbar_->append(*clear_button);
     toolbar_->append(*hamburger_button);
@@ -576,6 +581,38 @@ RichTechEditor::TagComboBox* RichTechEditor::build_weight_combo() {
                                           tag_map, labels);
 }
 
+RichTechEditor::TagComboBox* RichTechEditor::build_fonts_combo() {
+    std::string default_id = "font|sans";
+
+    // By convention, TextBuffer::Tag with name e.g. "font|ZZZ" will
+    // be exported to XML tag as <font value="ZZZ">. Unlike in XML,
+    // TextBuffer tags must have unique names.
+    std::vector<std::tuple<std::string /*id*/, std::string /*label*/,
+                           std::string /*font name*/>>
+        property_vec{
+            {"font|sans", _("Sans"), "Sans"},
+            {"font|serif", _("Serif"), "Serif"},
+            {"font|monospace", _("Monospace"), "Monospace"},
+        };
+
+    std::map<std::string /*id*/, Glib::RefPtr<Gtk::TextTag>> tag_map;
+    std::vector<std::pair<std::string /*id*/, std::string /*label*/>> labels;
+
+    for (const auto& [tag_id, label, font_name] : property_vec) {
+        // Create and register tag
+        if (tag_id != default_id) {
+            auto tag = text_view_.get_buffer()->create_tag(tag_id);
+            tag->property_family() = font_name;
+            tag_map[tag_id] = tag;
+        }
+
+        labels.emplace_back(tag_id, label);
+    }
+
+    return Gtk::make_managed<TagComboBox>(text_view_.get_buffer(), default_id,
+                                          tag_map, labels);
+}
+
 Gtk::ToolButton* RichTechEditor::build_tools_menu() {
     Gtk::Menu* hamburger_menu = Gtk::make_managed<Gtk::Menu>();
     Gtk::MenuItem* load_item = Gtk::make_managed<Gtk::MenuItem>(_("Load XML"));
@@ -630,6 +667,16 @@ Gtk::Toolbar* RichTechEditor::build_generic_toolbar() {
     toolbar->append(*italic_button_);
     toolbar->append(*stretch_combo_);
     toolbar->append(*weight_combo_);
+
+    return toolbar;
+}
+
+Gtk::Toolbar* RichTechEditor::build_fonts_toolbar() {
+    fonts_combo_ = build_fonts_combo();
+    fonts_combo_->set_tooltip_text(_("Font"));
+
+    Gtk::Toolbar* toolbar = Gtk::make_managed<Gtk::Toolbar>();
+    toolbar->append(*fonts_combo_);
 
     return toolbar;
 }
