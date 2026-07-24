@@ -411,7 +411,7 @@ WordListLine WordlistEscapedInputStringToParsedDataComplex(
 }
 
 
-static int WordlistShaperFakeUnicode_cb(SplineChar *sc, void*) {
+static int WordlistShaperFakeUnicode_cb(SplineChar *sc, void *data) {
     if (sc->unicodeenc != -1)
         return sc->unicodeenc;
     else
