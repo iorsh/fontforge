@@ -40,7 +40,7 @@ int WordlistSCFakeUnicode(SplineChar *sc) {
         return FAKE_UNICODE_BASE + sc->orig_pos;
 }
 
-int WordlistSCFakeUnicode_cb( SplineChar *sc, void* )
+int WordlistSCFakeUnicode_cb( SplineChar *sc, void *data)
 {
     return WordlistSCFakeUnicode( sc );
 }
