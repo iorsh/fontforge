@@ -418,6 +418,34 @@ WordListLine WordlistEscapedInputStringToParsedDataComplex(
     return(ret);
 }
 
+
+static int WordlistShaperFakeUnicode_cb(SplineChar *sc, void*) {
+    if (sc->unicodeenc != -1)
+        return sc->unicodeenc;
+    else
+        return FAKE_UNICODE_BASE + sc->ttf_glyph;
+}
+
+char* WordlistEscapedInputStringToUTF8(SplineFont* sf, const char* input) {
+	unichar_t* uinput = utf82u_copy(input);
+    WordListLine wll = WordlistEscapedInputStringToParsedDataComplex(
+    	sf, uinput,
+    	WordlistShaperFakeUnicode_cb, NULL );
+    unichar_t* u_ret = WordListLine_toustr( wll );
+
+    /* Escaped glyphs are recoded to fake unicode values above the Unicode
+       range. u2utf8_strncpy() should not comlian about them. */
+    int u_len = u_strlen(u_ret);
+    char* ret = (char *)malloc(u_len*6+1);
+    u2utf8_strncpy(ret, u_ret, u_len, UTF8IDPB_NOLIMIT);
+
+    free(uinput);
+    free(wll);
+    free(u_ret);
+
+    return ret;
+}
+
 WordListLine WordlistEscapedInputStringToParsedData(
     SplineFont* sf,
     unichar_t* input_const )

@@ -120,4 +120,8 @@ extern WordListLine WordlistEscapedInputStringToParsedDataComplex(
     WordlistEscapedInputStringToRealString_getFakeUnicodeOfScFunc getUnicodeFunc,
     void* udata );
 
+/* The unput may contain unencoded glyphs references as \<glyph_name>. These
+ * glyphs are recoded to fake values above the Unicode range. */
+extern char* WordlistEscapedInputStringToUTF8(SplineFont* sf, const char* input);
+
 #endif /* FONTFORGE_WORDLISTPARSER_H */
