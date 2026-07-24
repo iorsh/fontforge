@@ -143,12 +143,12 @@ class RichTechEditor : public Gtk::Grid {
     Gtk::ScrolledWindow scrolled_;
     Gtk::TextView text_view_;
 
-    ToggleTagButton* bold_button_;
-    ToggleTagButton* italic_button_;
-    TagComboBox* stretch_combo_;
-    TagComboBox* size_combo_;
-    TagComboBox* weight_combo_;
-    Gtk::Toolbar toolbar_;
+    ToggleTagButton* bold_button_ = nullptr;
+    ToggleTagButton* italic_button_ = nullptr;
+    TagComboBox* stretch_combo_ = nullptr;
+    TagComboBox* size_combo_ = nullptr;
+    TagComboBox* weight_combo_ = nullptr;
+    Gtk::Toolbar* toolbar_ = nullptr;
 
     static void on_text_view_paste_clipboard(GtkTextView* text_view,
                                              gpointer user_data);
@@ -162,6 +162,9 @@ class RichTechEditor : public Gtk::Grid {
     TagComboBox* build_size_combo(const std::vector<double>& pointsizes);
     TagComboBox* build_weight_combo();
     Gtk::ToolButton* build_tools_menu();
+
+    Gtk::Toolbar* build_generic_toolbar();
+
     void on_load_buffer_from_xml();
     void on_save_buffer_to_xml();
 };

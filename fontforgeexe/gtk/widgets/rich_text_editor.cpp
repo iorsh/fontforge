@@ -280,28 +280,8 @@ RichTechEditor::RichTechEditor(const std::vector<double>& pointsizes) {
         scale_css_provider_, GTK_STYLE_PROVIDER_PRIORITY_USER - 1);
     refresh_scale_css();
 
-    auto bold_tag = text_view_.get_buffer()->create_tag("bold");
-    bold_tag->property_weight() = 700;
-
-    bold_button_ =
-        Gtk::make_managed<ToggleTagButton>(text_view_.get_buffer(), bold_tag);
-    bold_button_->set_icon_name("format-text-bold");
-    bold_button_->set_tooltip_text(_("Bold"));
-
-    auto italic_tag = text_view_.get_buffer()->create_tag("italic");
-    italic_tag->property_style() = Pango::STYLE_ITALIC;
-
-    italic_button_ =
-        Gtk::make_managed<ToggleTagButton>(text_view_.get_buffer(), italic_tag);
-    italic_button_->set_icon_name("format-text-italic");
-    italic_button_->set_tooltip_text(_("Italic"));
-
-    stretch_combo_ = build_stretch_combo();
     size_combo_ = build_size_combo(pointsizes);
-    weight_combo_ = build_weight_combo();
-    stretch_combo_->set_tooltip_text(_("Width Class"));
     size_combo_->set_tooltip_text(_("Font Size"));
-    weight_combo_->set_tooltip_text(_("Weight Class"));
 
     ClearFormattingButton* clear_button =
         Gtk::make_managed<ClearFormattingButton>(text_view_.get_buffer());
@@ -309,15 +289,12 @@ RichTechEditor::RichTechEditor(const std::vector<double>& pointsizes) {
     clear_button->set_tooltip_text(_("Clear Formatting"));
     Gtk::ToolButton* hamburger_button = build_tools_menu();
 
-    toolbar_.append(*bold_button_);
-    toolbar_.append(*italic_button_);
-    toolbar_.append(*stretch_combo_);
-    toolbar_.append(*size_combo_);
-    toolbar_.append(*weight_combo_);
-    toolbar_.append(*clear_button);
-    toolbar_.append(*hamburger_button);
+    toolbar_ = build_generic_toolbar();
+    toolbar_->append(*size_combo_);
+    toolbar_->append(*clear_button);
+    toolbar_->append(*hamburger_button);
 
-    toolbar_.set_hexpand();
+    toolbar_->set_hexpand();
 
     text_view_.set_wrap_mode(Gtk::WRAP_WORD);
     text_view_.set_hexpand();
@@ -335,7 +312,7 @@ RichTechEditor::RichTechEditor(const std::vector<double>& pointsizes) {
                                                          &ff_deserialize_html);
 
     scrolled_.add(text_view_);
-    attach(toolbar_, 0, 0);
+    attach(*toolbar_, 0, 0);
     attach(scrolled_, 0, 1);
 }
 
@@ -623,6 +600,38 @@ Gtk::ToolButton* RichTechEditor::build_tools_menu() {
         });
 
     return hamburger_button;
+}
+
+Gtk::Toolbar* RichTechEditor::build_generic_toolbar() {
+    auto bold_tag = text_view_.get_buffer()->create_tag("bold");
+    bold_tag->property_weight() = 700;
+
+    bold_button_ =
+        Gtk::make_managed<ToggleTagButton>(text_view_.get_buffer(), bold_tag);
+    bold_button_->set_icon_name("format-text-bold");
+    bold_button_->set_tooltip_text(_("Bold"));
+
+    auto italic_tag = text_view_.get_buffer()->create_tag("italic");
+    italic_tag->property_style() = Pango::STYLE_ITALIC;
+
+    italic_button_ =
+        Gtk::make_managed<ToggleTagButton>(text_view_.get_buffer(), italic_tag);
+    italic_button_->set_icon_name("format-text-italic");
+    italic_button_->set_tooltip_text(_("Italic"));
+
+    stretch_combo_ = build_stretch_combo();
+    stretch_combo_->set_tooltip_text(_("Width Class"));
+
+    weight_combo_ = build_weight_combo();
+    weight_combo_->set_tooltip_text(_("Weight Class"));
+
+    Gtk::Toolbar* toolbar = Gtk::make_managed<Gtk::Toolbar>();
+    toolbar->append(*bold_button_);
+    toolbar->append(*italic_button_);
+    toolbar->append(*stretch_combo_);
+    toolbar->append(*weight_combo_);
+
+    return toolbar;
 }
 
 void RichTechEditor::on_load_buffer_from_xml() {
