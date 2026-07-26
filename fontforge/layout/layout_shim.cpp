@@ -59,6 +59,8 @@ SplineFontProperties SplineFontProperties::from_tags(
             props.os2_width = widths.at(tag_value);
         } else if (tag_name == "weight") {
             props.os2_weight = weights.at(tag_value);
+        } else if (tag_name == "font") {
+            props.full_name = tag_value;
         }
     }
     return props;
@@ -71,6 +73,7 @@ void SplineFontProperties::merge(const SplineFontProperties& other) {
     if (other.os2_weight != -1) os2_weight = other.os2_weight;
     if (other.os2_width != -1) os2_width = other.os2_width;
     if (!other.styles.empty()) styles = other.styles;
+    if (!other.full_name.empty()) full_name = other.full_name;
 }
 
 int SplineFontProperties::distance(const SplineFontProperties& other) const {
@@ -87,7 +90,13 @@ int SplineFontProperties::distance(const SplineFontProperties& other) const {
     const std::vector<int16_t>& m = width_mapper.at(os2_width);
     int width_dist = std::find(m.begin(), m.end(), other.os2_width) - m.begin();
 
-    return (int)(italic ^ other.italic) * 100 +
+    // Full name is a perfect match
+    if (!full_name.empty() && full_name == other.full_name) {
+        return 0;
+    }
+
+    // Add 1 to ensure that the full name match is always preferred.
+    return 1 + (int)(italic ^ other.italic) * 100 +
            std::fabs(os2_weight - other.os2_weight) + width_dist * 100;
 }
 
