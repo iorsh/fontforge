@@ -271,6 +271,14 @@ class CairoPainter {
         return false;
     }
 
+    std::vector<std::string> get_font_list() const {
+        std::vector<std::string> font_list;
+        for (const auto& font_rec : cairo_family_) {
+            font_list.push_back(font_rec.props.full_name);
+        }
+        return font_list;
+    }
+
     size_t page_count() const {
         return active_printer_ ? active_printer_->page_count() : 0;
     }

@@ -38,6 +38,7 @@ class RichTechEditor : public Gtk::Grid {
     // without font-specific context. If false, the editor allow selection from
     // predefined list of fonts.
     explicit RichTechEditor(const std::vector<double>& pointsizes,
+                            const std::vector<std::string>& font_list,
                             bool generic = true);
 
     void configure(bool bold_enabled, bool italic_enabled, bool stretch_enabled,
@@ -168,11 +169,12 @@ class RichTechEditor : public Gtk::Grid {
     TagComboBox* build_stretch_combo();
     TagComboBox* build_size_combo(const std::vector<double>& pointsizes);
     TagComboBox* build_weight_combo();
-    TagComboBox* build_fonts_combo();
+    TagComboBox* build_fonts_combo(const std::vector<std::string>& font_list);
     Gtk::ToolButton* build_tools_menu();
 
     Gtk::Toolbar* build_generic_toolbar();
-    Gtk::Toolbar* build_fonts_toolbar();
+    Gtk::Toolbar* build_fonts_toolbar(
+        const std::vector<std::string>& font_list);
 
     void on_load_buffer_from_xml();
     void on_save_buffer_to_xml();

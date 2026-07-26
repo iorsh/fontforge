@@ -306,7 +306,10 @@ Gtk::Widget* PrintPreviewWidget::build_opentype_controls() {
 }
 
 void PrintPreviewWidget::build_sample_text_editor() {
-    sample_text_ = Gtk::make_managed<widget::RichTechEditor>(kMultiPointsizes);
+    bool generic = false;
+    std::vector<std::string> font_list = cairo_painter_.get_font_list();
+    sample_text_ = Gtk::make_managed<widget::RichTechEditor>(
+        kMultiPointsizes, font_list, generic);
     sample_text_->set_hexpand();
     sample_text_->set_vexpand();
     sample_text_->get_buffer()->signal_changed().connect([this] {
@@ -334,8 +337,9 @@ void PrintPreviewWidget::build_sample_text_editor() {
         cairo_painter_.family_has_multiple(&SplineFontProperties::os2_width);
     bool enable_weight =
         cairo_painter_.family_has_multiple(&SplineFontProperties::os2_weight);
-    sample_text_->configure(enable_weight, enable_italic, enable_stretch,
-                            enable_weight);
+    if (generic)
+        sample_text_->configure(enable_weight, enable_italic, enable_stretch,
+                                enable_weight);
 }
 
 Gtk::VBox* PrintPreviewWidget::build_sample_text_controls() {
