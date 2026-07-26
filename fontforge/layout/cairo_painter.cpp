@@ -46,7 +46,7 @@ extern void SCCharMetrics(SplineChar* sc, int16_t* width, int16_t* vwidth);
 extern SplineChar* SFGetChar(SplineFont* sf, int unienc, const char* name);
 extern SplineChar* SFGetOrMakeChar(SplineFont* sf, int unienc,
                                    const char* name);
-extern SplineFont** FVCollectFamily(SplineFont* sf);
+extern SplineFont** FVCollectFonts(SplineFont* sf);
 extern SplineCharTTFMap* MakeGlyphTTFMap(SplineFont* sf);
 extern char* SFGetFullName(SplineFont* sf);
 SplineChar** FVGetSelection(FontViewBase* fv);
@@ -1093,7 +1093,7 @@ std::shared_ptr<shapers::IShaper> create_shaper(SplineFont* sf) {
 }
 
 CairoFontFamily create_cairo_family(SplineFont* current_sf) {
-    SplineFont** family_sfs = FVCollectFamily(current_sf);
+    SplineFont** family_sfs = FVCollectFonts(current_sf);
     SplineFontProperties* sf_properties = nullptr;
     Cairo::RefPtr<Cairo::FtFontFace> ft_face;
     std::shared_ptr<shapers::IShaper> shaper;

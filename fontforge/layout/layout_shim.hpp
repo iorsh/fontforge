@@ -36,11 +36,9 @@ typedef struct cpp_SplineFontProperties cpp_SplineFontProperties;
 
 /* Create a new SplineFontProperties object */
 cpp_SplineFontProperties* SFGetProperties(SplineFont* sf);
-cpp_SplineFontProperties* make_SplineFontProperties(int ascent, int descent,
-                                                    bool italic,
-                                                    int16_t os2_weight,
-                                                    int16_t os2_width,
-                                                    const char* styles);
+cpp_SplineFontProperties* make_SplineFontProperties(
+    int ascent, int descent, bool italic, int16_t os2_weight, int16_t os2_width,
+    const char* family_name, const char* styles, const char* full_name);
 
 #ifdef __cplusplus
 }
@@ -58,7 +56,9 @@ struct SplineFontProperties {
     bool italic = false;
     int16_t os2_weight = -1;
     int16_t os2_width = -1;
+    std::string family_name;
     std::string styles;
+    std::string full_name;
 
     static SplineFontProperties from_tags(const std::vector<ParsedTag>& tags);
 

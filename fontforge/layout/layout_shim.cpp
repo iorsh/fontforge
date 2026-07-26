@@ -31,9 +31,10 @@ namespace ff::layout {
 
 extern "C" cpp_SplineFontProperties* make_SplineFontProperties(
     int ascent, int descent, bool italic, int16_t os2_weight, int16_t os2_width,
-    const char* styles) {
+    const char* family_name, const char* styles, const char* full_name) {
     return toC(new SplineFontProperties{ascent, descent, italic, os2_weight,
-                                        os2_width, styles});
+                                        os2_width, family_name, styles,
+                                        full_name});
 }
 
 SplineFontProperties SplineFontProperties::from_tags(

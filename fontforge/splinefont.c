@@ -404,7 +404,9 @@ cpp_SplineFontProperties* SFGetProperties(SplineFont* sf) {
     (sf->italicangle != 0.0),
     sf->pfminfo.weight,
     sf->pfminfo.width,
-    SFGetModifiers(sf));
+    sf->familyname ? sf->familyname : "",
+    SFGetModifiers(sf),
+    SFGetFullName(sf));
 }
 
 static char *scaleString(char *string, double scale) {

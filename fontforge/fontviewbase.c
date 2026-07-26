@@ -2184,7 +2184,8 @@ void FF_SetMVInterface(struct mv_interface *mvi) {
     mv_interface = mvi;
 }
 
-SplineFont** FVCollectFamily(SplineFont* sf_in) {
+/* Collect all open fonts, not just the same family as sf_in. */
+SplineFont** FVCollectFonts(SplineFont* sf_in) {
     int cnt;
     FontViewBase* fv;
     SplineFont *sf = NULL, **family = NULL;
@@ -2198,9 +2199,8 @@ SplineFont** FVCollectFamily(SplineFont* sf_in) {
             sf = fv->sf;
             if (sf->cidmaster != NULL) sf = sf->cidmaster;
 
-            /* Skip the incoming argument, and other families */
-            if (sf == sf_in || sf_in->familyname == NULL || sf->familyname == NULL ||
-                strcmp(sf_in->familyname, sf->familyname) != 0)
+            /* Skip the incoming argument */
+            if (sf == sf_in)
                 continue;
 
             family[cnt] = sf;
