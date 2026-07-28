@@ -271,10 +271,10 @@ class CairoPainter {
         return false;
     }
 
-    std::vector<std::string> get_font_list() const {
-        std::vector<std::string> font_list;
+    std::vector<SplineFontProperties> get_font_list() const {
+        std::vector<SplineFontProperties> font_list;
         for (const auto& font_rec : cairo_family_) {
-            font_list.push_back(font_rec.props.full_name);
+            font_list.push_back(font_rec.props);
         }
         return font_list;
     }

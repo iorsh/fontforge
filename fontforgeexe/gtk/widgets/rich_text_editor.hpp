@@ -30,6 +30,17 @@
 
 namespace ff::widget {
 
+struct RichTextFontProperties {
+    Pango::Weight weight = Pango::WEIGHT_NORMAL;
+    Pango::Style style = Pango::STYLE_NORMAL;
+    Pango::Stretch stretch = Pango::STRETCH_NORMAL;
+    Pango::Underline underline = Pango::UNDERLINE_NONE;
+};
+
+// Each font name is associated with a set of properties.
+using RichTextFontList =
+    std::vector<std::pair<std::string, RichTextFontProperties>>;
+
 class RichTechEditor : public Gtk::Grid {
  public:
     // Create a rich text editor with the given list of point sizes. The point
@@ -38,7 +49,7 @@ class RichTechEditor : public Gtk::Grid {
     // without font-specific context. If false, the editor allow selection from
     // predefined list of fonts.
     explicit RichTechEditor(const std::vector<double>& pointsizes,
-                            const std::vector<std::string>& font_list,
+                            const RichTextFontList& font_list,
                             bool generic = true);
 
     void configure(bool bold_enabled, bool italic_enabled, bool stretch_enabled,
@@ -169,12 +180,11 @@ class RichTechEditor : public Gtk::Grid {
     TagComboBox* build_stretch_combo();
     TagComboBox* build_size_combo(const std::vector<double>& pointsizes);
     TagComboBox* build_weight_combo();
-    TagComboBox* build_fonts_combo(const std::vector<std::string>& font_list);
+    TagComboBox* build_fonts_combo(const RichTextFontList& font_list);
     Gtk::ToolButton* build_tools_menu();
 
     Gtk::Toolbar* build_generic_toolbar();
-    Gtk::Toolbar* build_fonts_toolbar(
-        const std::vector<std::string>& font_list);
+    Gtk::Toolbar* build_fonts_toolbar(const RichTextFontList& font_list);
 
     void on_load_buffer_from_xml();
     void on_save_buffer_to_xml();
