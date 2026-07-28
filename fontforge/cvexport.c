@@ -560,6 +560,11 @@ int ExportImage(char* filename, SplineChar* sc, int layer, int format,
             bdfc = bdf->glyphs[sc->orig_pos];
             if (bdfc != NULL) break;
         }
+	if (bdfc == NULL) {
+	    fprintf(stderr,"Failed to retrieve bitmap character \"%s\"\n",
+		    sc->name ? sc->name : "unknown");
+	    return false;
+	}
         if (bdfc->byte_data) {
             int depth = BDFDepth(bdf);
             bdfc = BCScaleGrey(bdfc, bdf->pixelsize, depth, pixelsize, depth);
