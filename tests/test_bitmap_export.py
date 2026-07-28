@@ -49,7 +49,7 @@ def _generate_bitmap_outputs(font_path: str, out_dir: str, font_type_label: str)
     font = fontforge.open(font_path)
     
     formats = ["bmp", "png", "xbm"]
-    bitdepths = [1, 8]
+    bitdepths = [1, 2, 4, 8]
     test_glyph = "A"
     
     generated = []
