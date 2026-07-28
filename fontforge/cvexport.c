@@ -581,7 +581,7 @@ int ExportImage(char* filename, SplineChar* sc, int layer, int format,
         FreeTypeFreeContext(freetypecontext);
     }
 
-    BCRegularizeBitmap(bdfc, bitsperpixel);
+    BCRegularizeBitmap(bdfc, bdfc->byte_data ? 8 : 1);
     /* People don't seem to like having a minimal bounding box for their */
     /*  images. */
     BCExpandBitmapToEmBox(
