@@ -21,8 +21,15 @@ Sample Text
 The sample text can be edited in the text area, which is visible right away in
 Windows, or appears when clicking on a one-line preview of the sample text.
 
-.. image:: /images/SampleTextEditor.png
-   :align: right
+The editor works in a generic mode when a single family, possibly with multiple
+styles, is being edited. In this mode the usual text editing controls such as
+bold, italic, wide etc. are available. When fonts from multiple families are
+opened in the editor, the available fonts can be explicitly selected by name.
+
+.. _printing.sample_text.generic_mode:
+
+Generic Mode
+------------
 
 The sample text can be formatted to have different weights, slant, sizes and
 widths. The availability of these options depends on the fonts from the same
@@ -32,6 +39,22 @@ the sample text. If you have a condensed version of the font open, you can
 change the width of the sample text. This allow you to see how the different
 faces of the font family work together. You can clean all formatting from the
 selected text by clicking on the "Clear Formatting" button.
+
+.. image:: /images/SampleTextEditor.png
+   :align: right
+
+Specific mode
+-------------
+
+In this mode font styles are not available, but you can select the font to use
+for each segment of the sample text. This allows you to see how different
+unrelated fonts work together in a single text. The underscored text in the
+text area indicates that the font for that segment doesn't belong to the same
+family as the font currently being proofed. Font size and "Clear Formatting"
+button are available in the same manner as in the generic mode.
+
+.. image:: /images/SampleTextSpecific.png
+   :align: right
 
 An additional tool menu button, also located in the text area toolbar, allows
 to import and export the sample text in a JSON format, which preserves the
