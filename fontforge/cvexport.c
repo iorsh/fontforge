@@ -568,7 +568,9 @@ int ExportImage(char* filename, SplineChar* sc, int layer, int format,
         if (bdfc->byte_data) {
             int depth = BDFDepth(bdf);
             bdfc = BCScaleGrey(bdfc, bdf->pixelsize, depth, pixelsize, depth);
-            bitsperpixel = 8;
+	    if (bitsperpixel != depth)
+		fprintf(stderr, "The bitmap font can be exported in its native depth %d only.\n", depth);
+            bitsperpixel = depth;
         } else {
             bdfc = BCScale(bdfc, bdf->pixelsize, pixelsize);
             bitsperpixel = 1;
