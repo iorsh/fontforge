@@ -52,8 +52,10 @@ class RichTechEditor : public Gtk::Grid {
                             const RichTextFontList& font_list,
                             bool generic = true);
 
-    void configure(bool bold_enabled, bool italic_enabled, bool stretch_enabled,
-                   bool weight_enabled);
+    void configure(bool bold_enabled, bool bold_value, bool italic_enabled,
+                   bool italic_value, bool stretch_enabled,
+                   Pango::Stretch stretch_value, bool weight_enabled,
+                   Pango::Weight weight_value);
 
     // Load buffer from XML stream
     void load_buffer(std::istream& istream);
@@ -125,6 +127,10 @@ class RichTechEditor : public Gtk::Grid {
 
         std::string get_active_tag(const Gtk::TextBuffer::iterator& start,
                                    const Gtk::TextBuffer::iterator& end);
+
+        void set_active_tag(const Glib::ustring& tag_id) {
+            combo_box_.set_active_id(tag_id);
+        }
 
         // Set the combobox active row when the buffer cursor or selection
         // changes.

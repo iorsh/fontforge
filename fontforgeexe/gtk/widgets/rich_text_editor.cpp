@@ -322,10 +322,31 @@ RichTechEditor::RichTechEditor(const std::vector<double>& pointsizes,
     attach(scrolled_, 0, 1);
 }
 
-void RichTechEditor::configure(bool bold_enabled, bool italic_enabled,
-                               bool stretch_enabled, bool weight_enabled) {
+void RichTechEditor::configure(bool bold_enabled, bool bold_value,
+                               bool italic_enabled, bool italic_value,
+                               bool stretch_enabled,
+                               Pango::Stretch stretch_value,
+                               bool weight_enabled,
+                               Pango::Weight weight_value) {
+    if (!bold_enabled) {
+        bold_button_->set_active(bold_value);
+    }
     bold_button_->set_sensitive(bold_enabled);
+    if (!italic_enabled) {
+        italic_button_->set_active(italic_value);
+    }
     italic_button_->set_sensitive(italic_enabled);
+    text_view_.get_buffer()->get_tag_table()->foreach (
+        [&](Glib::RefPtr<Gtk::TextTag> tag) {
+            if (!stretch_enabled && tag->property_stretch_set() &&
+                tag->property_stretch() == stretch_value) {
+                stretch_combo_->set_active_tag(tag->property_name());
+            }
+            if (!weight_enabled && tag->property_weight_set() &&
+                tag->property_weight() == weight_value) {
+                weight_combo_->set_active_tag(tag->property_name());
+            }
+        });
     stretch_combo_->set_sensitive(stretch_enabled);
     weight_combo_->set_sensitive(weight_enabled);
 }

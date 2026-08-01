@@ -60,6 +60,22 @@ static const std::vector<double> kMultiPointsizes{
 // accomodate the CSS box-shadow.
 static const int wrapper_margin = 20;
 
+static const std::map<int16_t, Pango::Stretch> kWidthMap{
+    {1, Pango::STRETCH_ULTRA_CONDENSED}, {2, Pango::STRETCH_EXTRA_CONDENSED},
+    {3, Pango::STRETCH_CONDENSED},       {4, Pango::STRETCH_SEMI_CONDENSED},
+    {5, Pango::STRETCH_NORMAL},          {6, Pango::STRETCH_SEMI_EXPANDED},
+    {7, Pango::STRETCH_EXPANDED},        {8, Pango::STRETCH_EXTRA_EXPANDED},
+    {9, Pango::STRETCH_ULTRA_EXPANDED},
+};
+static const std::map<int16_t, Pango::Weight> kWeightMap{
+    {100, Pango::WEIGHT_THIN},   {200, Pango::WEIGHT_ULTRALIGHT},
+    {300, Pango::WEIGHT_LIGHT},  {350, Pango::WEIGHT_SEMILIGHT},
+    {380, Pango::WEIGHT_BOOK},   {400, Pango::WEIGHT_NORMAL},
+    {500, Pango::WEIGHT_MEDIUM}, {600, Pango::WEIGHT_SEMIBOLD},
+    {700, Pango::WEIGHT_BOLD},   {800, Pango::WEIGHT_ULTRABOLD},
+    {900, Pango::WEIGHT_HEAVY},  {1000, Pango::WEIGHT_ULTRAHEAVY},
+};
+
 // Preserve the dialog state between invocations
 static struct {
     std::string radio_selection = SAMPLE_TEXT;
@@ -307,34 +323,14 @@ Gtk::Widget* PrintPreviewWidget::build_opentype_controls() {
 
 static widget::RichTextFontProperties make_rt_properties(
     const SplineFontProperties& font_props, const std::string& default_family) {
-    static const std::map<int16_t, Pango::Stretch> widths{
-        {1, Pango::STRETCH_ULTRA_CONDENSED},
-        {2, Pango::STRETCH_EXTRA_CONDENSED},
-        {3, Pango::STRETCH_CONDENSED},
-        {4, Pango::STRETCH_SEMI_CONDENSED},
-        {5, Pango::STRETCH_NORMAL},
-        {6, Pango::STRETCH_SEMI_EXPANDED},
-        {7, Pango::STRETCH_EXPANDED},
-        {8, Pango::STRETCH_EXTRA_EXPANDED},
-        {9, Pango::STRETCH_ULTRA_EXPANDED},
-    };
-    static const std::map<int16_t, Pango::Weight> weights{
-        {100, Pango::WEIGHT_THIN},   {200, Pango::WEIGHT_ULTRALIGHT},
-        {300, Pango::WEIGHT_LIGHT},  {350, Pango::WEIGHT_SEMILIGHT},
-        {380, Pango::WEIGHT_BOOK},   {400, Pango::WEIGHT_NORMAL},
-        {500, Pango::WEIGHT_MEDIUM}, {600, Pango::WEIGHT_SEMIBOLD},
-        {700, Pango::WEIGHT_BOLD},   {800, Pango::WEIGHT_ULTRABOLD},
-        {900, Pango::WEIGHT_HEAVY},  {1000, Pango::WEIGHT_ULTRAHEAVY},
-    };
-
     widget::RichTextFontProperties rt_props;
-    rt_props.weight = weights.count(font_props.os2_weight)
-                          ? weights.at(font_props.os2_weight)
+    rt_props.weight = kWeightMap.count(font_props.os2_weight)
+                          ? kWeightMap.at(font_props.os2_weight)
                           : Pango::WEIGHT_NORMAL;
     rt_props.style =
         font_props.italic ? Pango::STYLE_ITALIC : Pango::STYLE_NORMAL;
-    rt_props.stretch = widths.count(font_props.os2_width)
-                           ? widths.at(font_props.os2_width)
+    rt_props.stretch = kWidthMap.count(font_props.os2_width)
+                           ? kWidthMap.at(font_props.os2_width)
                            : Pango::STRETCH_NORMAL;
 
     // Fonts outside the family being proofed are underlined for distinction.
@@ -382,15 +378,31 @@ void PrintPreviewWidget::build_sample_text_editor() {
             preview_area.queue_draw();
         });
 
+    bool bold_value =
+        cairo_painter_.default_rec().props.os2_weight >= Pango::WEIGHT_SEMIBOLD;
+
     bool enable_italic =
         cairo_painter_.family_has_multiple(&SplineFontProperties::italic);
+    bool italic_value = cairo_painter_.default_rec().props.italic;
+
     bool enable_stretch =
         cairo_painter_.family_has_multiple(&SplineFontProperties::os2_width);
+    Pango::Stretch stretch_value =
+        kWidthMap.count(cairo_painter_.default_rec().props.os2_width)
+            ? kWidthMap.at(cairo_painter_.default_rec().props.os2_width)
+            : Pango::STRETCH_NORMAL;
+
     bool enable_weight =
         cairo_painter_.family_has_multiple(&SplineFontProperties::os2_weight);
+    Pango::Weight weight_value =
+        kWeightMap.count(cairo_painter_.default_rec().props.os2_weight)
+            ? kWeightMap.at(cairo_painter_.default_rec().props.os2_weight)
+            : Pango::WEIGHT_NORMAL;
+
     if (generic)
-        sample_text_->configure(enable_weight, enable_italic, enable_stretch,
-                                enable_weight);
+        sample_text_->configure(enable_weight, bold_value, enable_italic,
+                                italic_value, enable_stretch, stretch_value,
+                                enable_weight, weight_value);
 }
 
 Gtk::VBox* PrintPreviewWidget::build_sample_text_controls() {
