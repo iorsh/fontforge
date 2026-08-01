@@ -345,7 +345,7 @@ static widget::RichTextFontProperties make_rt_properties(
 }
 
 void PrintPreviewWidget::build_sample_text_editor() {
-    bool generic = false;
+    bool generic = true;
     std::vector<SplineFontProperties> font_list =
         cairo_painter_.get_font_list();
     widget::RichTextFontList rt_font_list;
@@ -353,6 +353,11 @@ void PrintPreviewWidget::build_sample_text_editor() {
         rt_font_list.emplace_back(
             font_props.full_name,
             make_rt_properties(font_props, font_list.front().family_name));
+
+        // The generic interface allows access to the same family only. Switch
+        // to the specific interface if multiple families are present.
+        if (font_props.family_name != font_list.front().family_name)
+            generic = false;
     }
     sample_text_ = Gtk::make_managed<widget::RichTechEditor>(
         kMultiPointsizes, rt_font_list, generic);
