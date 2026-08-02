@@ -236,7 +236,7 @@ Glib::RefPtr<Gdk::Pixbuf> BitmapView::make_tool_icon(
     // Create a slightly taller bitmap to accommodate the device icons in the
     // lower corners.
     int icon_width = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
-    int icon_height = std::max(20, (int)(2.5 * ui_utils::ui_font_eX_size()));
+    int icon_height = icon_width;
     Glib::RefPtr<Gdk::Pixbuf> icon = Gdk::Pixbuf::create(
         Gdk::COLORSPACE_RGB, true, 8, icon_width, icon_height);
     auto raw_icon = ff::ui_utils::load_icon(icon_name, icon_width);
