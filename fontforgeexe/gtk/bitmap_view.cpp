@@ -225,7 +225,7 @@ Glib::RefPtr<Gdk::Pixbuf> BitmapView::make_tool_icon(
         {bvd_eraser, {"tool_stylus"}},
     };
 
-    std::map<std::pair<std::string, BVDevice>, Glib::RefPtr<Gdk::Pixbuf>>
+    static std::map<std::pair<std::string, BVDevice>, Glib::RefPtr<Gdk::Pixbuf>>
         icon_cache;
     std::pair<std::string, BVDevice> cache_key = {icon_name, device};
     auto it = icon_cache.find(cache_key);
@@ -249,17 +249,21 @@ Glib::RefPtr<Gdk::Pixbuf> BitmapView::make_tool_icon(
     // Lower left corner
     if (!dev_icons[0].empty()) {
         auto dev_icon = ff::ui_utils::load_icon(dev_icons[0], icon_width / 2);
-        dev_icon->copy_area(0, 0, dev_icon->get_width(), dev_icon->get_height(),
-                            icon, 0,
-                            icon->get_height() - dev_icon->get_height());
+        int dst_x = 0;
+        int dst_y = icon->get_height() - dev_icon->get_height();
+        dev_icon->composite(icon, dst_x, dst_y, dev_icon->get_width(),
+                            dev_icon->get_height(), dst_x, dst_y, 1.0, 1.0,
+                            Gdk::INTERP_NEAREST, 255);
     }
 
     // Lower right corner
     if (!dev_icons[1].empty()) {
         auto dev_icon = ff::ui_utils::load_icon(dev_icons[1], icon_width / 2);
-        dev_icon->copy_area(0, 0, dev_icon->get_width(), dev_icon->get_height(),
-                            icon, icon->get_width() - dev_icon->get_width(),
-                            icon->get_height() - dev_icon->get_height());
+        int dst_x = icon->get_width() - dev_icon->get_width();
+        int dst_y = icon->get_height() - dev_icon->get_height();
+        dev_icon->composite(icon, dst_x, dst_y, dev_icon->get_width(),
+                            dev_icon->get_height(), dst_x, dst_y, 1.0, 1.0,
+                            Gdk::INTERP_NEAREST, 255);
     }
 
     icon_cache[cache_key] = icon;
