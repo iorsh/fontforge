@@ -33,6 +33,7 @@
 #include "pixel_grid.hpp"
 #include "c_context.h"
 #include "ui_context.hpp"
+#include "views/toolbar.hpp"
 
 namespace ff::views {
 
@@ -72,20 +73,7 @@ class BitmapView {
 
  private:
     Gtk::Box* build_infobar();
-    Gtk::VBox* build_toolbar();
-
-    Glib::RefPtr<Gtk::GestureMultiPress> create_tool_button_controller(
-        Gtk::RadioToolButton& button) const;
-
-    // Create a toolbar icon and overlay it with tiny device modifier icons,
-    // e.g. a tool with device bvd_mouse_ctrl_btn1 will have a tiny "Control"
-    // icon in its corner.
-    Glib::RefPtr<Gdk::Pixbuf> make_tool_icon(const std::string& icon_name,
-                                             BVDevice device);
-
-    const BitmapViewTool& find_tool_definition(bvtools tool_id) const;
-
-    BVDevice find_device(bvtools tool_id) const;
+    void build_toolbar();
 
     void update_primary_cursor(const BitmapViewTool& tool_def);
 
@@ -95,24 +83,13 @@ class BitmapView {
 
     bool on_button_press_event(GdkEventButton* event);
 
-    void on_tool_button_clicked(GdkEventButton* event,
-                                const BitmapViewTool& tool_def);
-
     BitmapViewUiContext context;
-    std::vector<Glib::RefPtr<Gtk::GestureMultiPress>> gestures_;
 
     Gtk::Window window;
     Gtk::Label pointer_location_;
     Gtk::Label pointer_drag_location_;
     PixelGrid pixel_grid;
-
-    // This is a somewhat complicated mapping of tools to devices. In fact, it's
-    // bijectional. Each device can have at most one tool assigned to it, and
-    // each tool can be assigned to at most one device.
-    // NOTE: This mapping is preserved throughout the session.
-    static std::map<BVDevice, bvtools> tool_map_;
-
-    std::map<bvtools, Gtk::RadioToolButton*> tool_button_map_;
+    ViewToolbar toolbar_;
 };
 
 }  // namespace ff::views

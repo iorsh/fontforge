@@ -29,6 +29,8 @@ add_library(ffgtk OBJECT
   ui_context.hpp
   utils.hpp
   utils.cpp
+  views/toolbar.hpp
+  views/toolbar.cpp
 )
 
 target_link_libraries(ffgtk PUBLIC

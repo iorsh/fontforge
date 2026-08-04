@@ -20,6 +20,8 @@ fontforgeexe/histograms.cpp
 fontforgeexe/gtk/c_context.h
 fontforgeexe/gtk/*.cpp
 fontforgeexe/gtk/*.hpp
+fontforgeexe/gtk/views/*.cpp
+fontforgeexe/gtk/views/*.hpp
 fontforgeexe/gtk/widgets/*.cpp
 fontforgeexe/gtk/widgets/*.hpp
 gutils/ffdir.cpp
