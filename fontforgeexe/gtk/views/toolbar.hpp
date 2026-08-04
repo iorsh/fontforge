@@ -48,9 +48,8 @@ class ViewToolbar : public Gtk::VBox {
  public:
     ViewToolbar(const std::vector<BitmapViewTool>& bitmap_view_tools);
 
-    void set_button_click_cb(
-        std::function<void(const BitmapViewTool&)> callback) {
-        button_click_cb_ = callback;
+    sigc::signal<void, const BitmapViewTool&>& signal_tool_clicked() {
+        return signal_tool_clicked_;
     }
 
     BVDevice find_device(bvtools tool_id) const;
@@ -67,7 +66,7 @@ class ViewToolbar : public Gtk::VBox {
     std::vector<BitmapViewTool> bitmap_view_tools_;
     std::map<bvtools, Gtk::RadioToolButton*> tool_button_map_;
     std::vector<Glib::RefPtr<Gtk::GestureMultiPress>> gestures_;
-    std::function<void(const BitmapViewTool&)> button_click_cb_;
+    sigc::signal<void, const BitmapViewTool&> signal_tool_clicked_;
 
     Glib::RefPtr<Gtk::GestureMultiPress> create_tool_button_controller(
         Gtk::RadioToolButton& button) const;

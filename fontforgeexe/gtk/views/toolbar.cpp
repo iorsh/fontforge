@@ -265,7 +265,7 @@ void ViewToolbar::on_tool_button_clicked(GdkEventButton* event,
     // Cursor reflects the tool assigned to primary device only.
     if (device != bvd_mouse_btn1 && device != bvd_stylus) return;
 
-    if (button_click_cb_) button_click_cb_(tool_def);
+    signal_tool_clicked_.emit(tool_def);
 }
 
 }  // namespace ff::views

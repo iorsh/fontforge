@@ -102,9 +102,8 @@ Gtk::Box* BitmapView::build_infobar() {
 }
 
 void BitmapView::build_toolbar() {
-    toolbar_.set_button_click_cb([this](const BitmapViewTool& tool_def) {
-        update_primary_cursor(tool_def);
-    });
+    toolbar_.signal_tool_clicked().connect(
+        sigc::mem_fun(*this, &BitmapView::update_primary_cursor));
     toolbar_.add(*Gtk::make_managed<Gtk::Separator>());
 
     int icon_height = std::max(16, (int)(2 * ui_utils::ui_font_eX_size()));
