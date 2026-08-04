@@ -29,6 +29,8 @@
 #include "bitmap_view_shim.hpp"
 #include "utils.hpp"
 
+#include "intl.h"
+
 namespace ff::views {
 
 BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
@@ -47,6 +49,7 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
 
     Gtk::Box* infobar = build_infobar();
     build_toolbar();
+    Gtk::ToolPalette* panels = build_panels();
 
     pixel_grid.get_drawing_widget().signal_motion_notify_event().connect(
         sigc::mem_fun(*this, &BitmapView::on_motion_notify_event));
@@ -60,9 +63,10 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
     pixel_grid.get_drawing_widget().signal_key_release_event().connect(
         sigc::mem_fun(*this, &BitmapView::on_key_event), false);
 
-    root_grid->attach(*infobar, 0, 0, 2, 1);
+    root_grid->attach(*infobar, 0, 0, 3, 1);
     root_grid->attach(toolbar_, 0, 1);
     root_grid->attach(pixel_grid.get_top_widget(), 1, 1);
+    root_grid->attach(*panels, 2, 1);
 
     window.add(*root_grid);
 
@@ -112,6 +116,34 @@ void BitmapView::build_toolbar() {
     Gtk::ToolButton* regen_button =
         Gtk::make_managed<Gtk::ToolButton>(*icon, "Recalculate Bitmap");
     toolbar_.add(*regen_button);
+}
+
+Gtk::ToolPalette* BitmapView::build_panels() {
+    Gtk::ToolPalette* panels = Gtk::make_managed<Gtk::ToolPalette>();
+    panels->set_orientation(Gtk::ORIENTATION_VERTICAL);
+
+    Gtk::ToolItemGroup* preview_panel =
+        Gtk::make_managed<Gtk::ToolItemGroup>(_("Preview"));
+    preview_panel->get_label_widget()->set_halign(Gtk::ALIGN_START);
+    Gtk::ToolButton* dummy1 = Gtk::make_managed<Gtk::ToolButton>("DUMMY 1");
+    preview_panel->insert(*dummy1, 0);
+    panels->add(*preview_panel);
+
+    Gtk::ToolItemGroup* layers_panel =
+        Gtk::make_managed<Gtk::ToolItemGroup>(_("Layers"));
+    layers_panel->get_label_widget()->set_halign(Gtk::ALIGN_START);
+    Gtk::ToolButton* dummy2 = Gtk::make_managed<Gtk::ToolButton>("DUMMY 2");
+    layers_panel->insert(*dummy2, 0);
+    panels->add(*layers_panel);
+
+    Gtk::ToolItemGroup* color_picker_panel =
+        Gtk::make_managed<Gtk::ToolItemGroup>(_("Color Picker"));
+    color_picker_panel->get_label_widget()->set_halign(Gtk::ALIGN_START);
+    Gtk::ToolButton* dummy3 = Gtk::make_managed<Gtk::ToolButton>("DUMMY 3");
+    color_picker_panel->insert(*dummy3, 0);
+    panels->add(*color_picker_panel);
+
+    return panels;
 }
 
 void BitmapView::update_primary_cursor(const BitmapViewTool& tool_def) {
