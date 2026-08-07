@@ -151,8 +151,7 @@ void ColorManager::register_colors(const ColorMap& colors) {
     custom_color_provider_->load_from_data(css.str());
 }
 
-void ColorManager::set_color_in_context(const Cairo::RefPtr<Cairo::Context>& cr,
-                                        const std::string& color_name) const {
+Gdk::RGBA ColorManager::get_color(const std::string& color_name) const {
     Gdk::RGBA color;
     // Fallback to Pantone 448 C, the ugliest color in the world.
     color.set_rgba_u(0x4A00, 0x4100, 0x2A00, 0xFFFF);
@@ -163,6 +162,12 @@ void ColorManager::set_color_in_context(const Cairo::RefPtr<Cairo::Context>& cr,
                   << " not registered, using fallback." << std::endl;
     }
 
+    return color;
+}
+
+void ColorManager::set_color_in_context(const Cairo::RefPtr<Cairo::Context>& cr,
+                                        const std::string& color_name) const {
+    Gdk::RGBA color = get_color(color_name);
     cr->set_source_rgba(color.get_red(), color.get_green(), color.get_blue(),
                         color.get_alpha());
 }
