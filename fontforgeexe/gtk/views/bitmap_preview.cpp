@@ -32,7 +32,7 @@ namespace ff::views {
 BitmapPreview::BitmapPreview(std::shared_ptr<BVContext> context)
     : context_(std::move(context)) {
     set_vexpand(false);
-    set_size_request(64, 64);
+    set_size_request(-1, 64);
 }
 
 bool BitmapPreview::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
@@ -60,15 +60,11 @@ bool BitmapPreview::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     if (src_w <= 0 || src_h <= 0) {
         return true;
     }
+    set_size_request(-1, std::clamp(src_h, 64, 128));
 
     int32_t x = (width - src_w) / 2;
     int32_t y = (height - src_h) / 2;
     context_->draw_gimage_in_cairo_context(cr->cobj(), image, &src, x, y);
-
-    cr->set_source_rgb(0.35, 0.35, 0.35);
-    cr->set_line_width(1.0);
-    cr->rectangle(x - 0.5, y - 0.5, src_w + 1.0, src_h + 1.0);
-    cr->stroke();
 
     return true;
 }
