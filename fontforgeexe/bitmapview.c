@@ -55,9 +55,6 @@ struct bvshows BVShows = { 1, 1, 1, 0 };
 extern void* p_bitmap_view_tools;
 
 
-#define RPT_DATA	24		/* x,y text after above */
-#define RPT_COLOR	40		/* Blob showing the foreground color */
-
 static Color guide_color = 0x404040;
 static Color width_guide_color = 0x404040;
 static Color grid_color = 0xa0a0a0;
@@ -863,16 +860,10 @@ static void BVMainExpose(BitmapView *bv, GWindow pixmap, GEvent *event ) {
     GRect old, temp, r;
 
     temp = event->u.expose.rect;
-    if ( temp.y+temp.height < bv->mbh )
-return;
-    if ( temp.y <bv->mbh ) {
-	temp.height -= (bv->mbh-temp.y);
-	temp.y = bv->mbh;
-    }
     GDrawPushClip(pixmap,&temp,&old);
     GDrawSetLineWidth(pixmap,0);
 
-    r.x = bv->width; r.y = bv->height+bv->mbh;
+    r.x = bv->width; r.y = bv->height;
     LogoExpose(pixmap,event,&r,dm_fore);
 
     GDrawPopClip(pixmap,&old);
@@ -2275,7 +2266,6 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     GWindow gw;
     GWindowAttrs wattrs;
     GGadgetData gd;
-    GRect gsize;
     char buf[300];
     static GWindow icon = NULL;
     GTextInfo ti;
@@ -2344,14 +2334,11 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     gd.flags = gg_visible | gg_enabled;
     helplist[0].invoke = BVMenuContextualHelp;
     gd.u.menu2 = mblist;
-    bv->mb = GMenu2BarCreate( gw, &gd, NULL);
-    GGadgetGetSize(bv->mb,&gsize);
-    bv->mbh = gsize.height;
 
     memset(&gd, '\0', sizeof(gd));
     memset(&ti, '\0', sizeof(ti));
     gd.pos.x = pos.width - GDrawPointsToPixels(gw,111);
-    gd.pos.y = bv->mbh + GDrawPointsToPixels(gw,6);
+    gd.pos.y = GDrawPointsToPixels(gw,6);
     /*gd.pos.width = GDrawPointsToPixels(gw,106);*/
     gd.label = &ti;
     ti.text = (unichar_t *) _("Recalculate Bitmaps");
@@ -2364,7 +2351,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     GGadgetGetSize(bv->recalc,&size);
     GGadgetMove(bv->recalc,pos.width - size.width - GDrawPointsToPixels(gw,6),size.y);
 
-    pos.y = bv->mbh; pos.height -= bv->mbh;
+    pos.y = 0;
     pos.x = 0;
     wattrs.mask = wam_events|wam_cursor|wam_backcol|wam_gtk_wrapper;
     wattrs.background_color = view_bgcol;

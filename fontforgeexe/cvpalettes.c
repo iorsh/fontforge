@@ -3967,7 +3967,7 @@ return(bvlayers);
     wattrs.utf8_window_title = _("Layers");
 
     r.width = GGadgetScale(BV_LAYERS_WIDTH); r.height = BV_LAYERS_HEIGHT;
-    r.x = -r.width-6; r.y = bv->mbh+BV_TOOLS_HEIGHT+45/*25*/;	/* 45 is right if there's decor, is in kde, not in twm. Sigh */
+    r.x = -r.width-6; r.y = BV_TOOLS_HEIGHT+45/*25*/;	/* 45 is right if there's decor, is in kde, not in twm. Sigh */
     if ( palettes_docked ) {
 	r.x = 0; r.y = BV_TOOLS_HEIGHT+4;
     } else if ( palettes_fixed ) {
@@ -4184,7 +4184,7 @@ return( bvshades );
     wattrs.utf8_window_title = _("Shades");
 
     r.width = BV_SHADES_HEIGHT; r.height = r.width;
-    r.x = -r.width-6; r.y = bv->mbh+225;
+    r.x = -r.width-6; r.y = 225;
     if ( palettes_docked ) {
 	r.x = 0; r.y = BV_TOOLS_HEIGHT+BV_LAYERS_HEIGHT+4;
     } else if ( palettes_fixed ) {
