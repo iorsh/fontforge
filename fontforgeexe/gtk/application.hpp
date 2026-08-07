@@ -51,6 +51,9 @@ class ColorManager {
     // colors are inherited from the parent window.
     void register_colors(const ColorMap& colors);
 
+    // Retrieve RGBA value of a registered or standard CSS color.
+    Gdk::RGBA get_color(const std::string& color_name) const;
+
     // Helper utility to set a registered or standard CSS color in Cairo.
     void set_color_in_context(const Cairo::RefPtr<Cairo::Context>& cr,
                               const std::string& color_name) const;
