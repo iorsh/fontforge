@@ -837,7 +837,8 @@ static void BVInfoGetText(BitmapView* bv, int* x, int* y, int* dx, int* dy) {
     }
 }
 
-static GImage* BVCreateOverviewImage(BitmapView* bv, BDFChar* bdfc) {
+static GImage* BVCreateOverviewImage(BitmapView* bv) {
+    BDFChar* bdfc = BDFGetMergedChar(bv->bc);
     GImage* gi = calloc(1, sizeof(GImage));
     struct _GImage* base = calloc(1, sizeof(struct _GImage));
     GClut* clut = calloc(1, sizeof(GClut));
@@ -855,11 +856,12 @@ static GImage* BVCreateOverviewImage(BitmapView* bv, BDFChar* bdfc) {
         memcpy(base->clut, bv->bdf->clut, sizeof(GClut));
     }
 
-    base->data = bdfc->bitmap;
+    base->data = bdfc->bitmap; bdfc->bitmap = NULL;  /* don't free the bitmap data */
     base->bytes_per_line = bdfc->bytes_per_line;
     base->width = bdfc->xmax - bdfc->xmin + 1;
     base->height = bdfc->ymax - bdfc->ymin + 1;
 
+    BDFCharFree( bdfc );
     return gi;
 }
 
@@ -883,10 +885,9 @@ return;
 	box.y = bv->mbh; box.height = bv->infoh;
 	GDrawPushClip(pixmap,&box,&old2);
 
-    gi = BVCreateOverviewImage(bv, bdfc);
+    gi = BVCreateOverviewImage(bv);
     if (gi != NULL) {
         GDrawDrawImage(pixmap,gi,NULL, 5,bv->mbh+(bv->infoh-gi->u.image->height)/2);
-	gi->u.image->data = NULL;  /* don't free the bitmap data */
         GImageDestroy(gi);
     }
 
@@ -2365,12 +2366,12 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv->gw = gw = GDrawCreateTopWindow(NULL,&pos,bv_e_h,bv,&wattrs);
 
     bv_context->bv = bv;
-    bv_context->gi_wrapper = BVCreateOverviewImage(bv, bc);
     bv_context->p_bitmap_view_tools = p_bitmap_view_tools;
     bv_context->scroll_bitmapview_to_position_cb = BVScrollToPos;
     bv_context->get_pixel_and_tool_coords = BVInfoGetText;
     bv_context->activate_tool = BVActivateTool;
     bv_context->active_width_tool = BVActiveWidthTool;
+    bv_context->create_overview_image = BVCreateOverviewImage;
     bv_context->draw_gimage_in_cairo_context = GGDKDrawDrawImageInContext;
 
     bv->gtk_window = create_bitmap_view(&bv_context, pos.width, pos.height);

@@ -39,9 +39,6 @@ typedef struct bitmapview BitmapView;
 typedef struct bitmapview_context {
     BitmapView* bv;
 
-    // Wrapperr for BDFChar binary data. This wrapper doesn't own the data.
-    GImage* gi_wrapper;
-
     // Can be cast to std::vector<BitmapViewTool>*
     void* p_bitmap_view_tools;
 
@@ -55,6 +52,8 @@ typedef struct bitmapview_context {
     void (*activate_tool)(BitmapView* bv, int /*enum bvtools*/ tool_id);
 
     int /*enum bvtools*/ (*active_width_tool)(BitmapView* bv, int x, int y);
+
+    GImage* (*create_overview_image)(BitmapView* bv);
 
     void (*draw_gimage_in_cairo_context)(cairo_t* cc, GImage* image, GRect* src,
                                          int32_t x, int32_t y);
