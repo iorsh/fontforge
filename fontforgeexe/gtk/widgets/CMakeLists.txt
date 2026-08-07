@@ -3,6 +3,8 @@
 add_library(ffgtk_widgets STATIC
   histogram.hpp
   histogram.cpp
+  monochrome_ribbon.hpp
+  monochrome_ribbon.cpp
   verified_entry.hpp
   verified_entry.cpp
   num_entry.hpp
