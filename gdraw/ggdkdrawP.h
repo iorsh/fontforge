@@ -295,6 +295,7 @@ void GGDKDrawFillPoly(GWindow gw, GPoint *pts, int16_t cnt, Color col);
 void GGDKDrawDrawImage(GWindow gw, GImage *gimg, GRect *src, int32_t x, int32_t y);
 void GGDKDrawDrawGlyph(GWindow gw, GImage *gimg, GRect *src, int32_t x, int32_t y);
 void GGDKDrawDrawImageMagnified(GWindow gw, GImage *gimg, GRect *src, int32_t x, int32_t y, int32_t width, int32_t height);
+void GGDKDrawDrawImageInContext(cairo_t *cc, GImage *image, GRect *src, int32_t x, int32_t y);
 
 void GGDKDrawDrawPixmap(GWindow gw1, GWindow gw2, GRect *src, int32_t x, int32_t y);
 

@@ -958,11 +958,7 @@ void GGDKDrawFillPoly(GWindow w, GPoint *pts, int16_t cnt, Color col) {
 
 }
 
-void GGDKDrawDrawImage(GWindow w, GImage *image, GRect *src, int32_t x, int32_t y) {
-    //Log(LOGDEBUG, " ");
-    GGDKWindow gw = (GGDKWindow)w;
-    _GGDKDraw_CheckAutoPaint(gw);
-
+void GGDKDrawDrawImageInContext(cairo_t *cc, GImage *image, GRect *src, int32_t x, int32_t y) {
     cairo_surface_t *is = _GGDKDraw_GImage2Surface(image, src), *cs = is;
     struct _GImage *base = (image->list_len == 0) ? image->u.image : image->u.images[0];
 
@@ -978,26 +974,33 @@ void GGDKDrawDrawImage(GWindow w, GImage *image, GRect *src, int32_t x, int32_t 
         cairo_mask_surface(cc, is, 0, 0);
         cairo_destroy(cc);
 #else
-        cairo_set_source_rgba(gw->cc, COLOR_RED(fg) / 255.0, COLOR_GREEN(fg) / 255.0, COLOR_BLUE(fg) / 255.0, 1.0);
-        cairo_mask_surface(gw->cc, cs, x, y);
+        cairo_set_source_rgba(cc, COLOR_RED(fg) / 255.0, COLOR_GREEN(fg) / 255.0, COLOR_BLUE(fg) / 255.0, 1.0);
+        cairo_mask_surface(cc, cs, x, y);
         cs = NULL;
 #endif
     }
 
     if (cs != NULL) {
-        cairo_set_source_surface(gw->cc, cs, x, y);
-        cairo_rectangle(gw->cc, x, y, src->width, src->height);
-        cairo_fill(gw->cc);
+        cairo_set_source_surface(cc, cs, x, y);
+        cairo_rectangle(cc, x, y, src->width, src->height);
+        cairo_fill(cc);
 
         if (cs != is) {
             cairo_surface_destroy(cs);
         }
     }
     /* Clear source and mask, in case we need to */
-    cairo_new_path(gw->cc);
-    cairo_set_source_rgba(gw->cc, 0, 0, 0, 0);
+    cairo_new_path(cc);
+    cairo_set_source_rgba(cc, 0, 0, 0, 0);
 
     cairo_surface_destroy(is);
+}
+
+void GGDKDrawDrawImage(GWindow w, GImage *image, GRect *src, int32_t x, int32_t y) {
+    GGDKWindow gw = (GGDKWindow)w;
+    _GGDKDraw_CheckAutoPaint(gw);
+
+    GGDKDrawDrawImageInContext(gw->cc, image, src, x, y);
 }
 
 // What we really want to do is use the grey levels as an alpha channel
