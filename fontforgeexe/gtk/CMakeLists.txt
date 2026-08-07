@@ -29,6 +29,8 @@ add_library(ffgtk OBJECT
   ui_context.hpp
   utils.hpp
   utils.cpp
+  views/bitmap_color_chooser.hpp
+  views/bitmap_color_chooser.cpp
   views/bitmap_preview.hpp
   views/bitmap_preview.cpp
   views/toolbar.hpp

@@ -33,6 +33,7 @@
 #include "pixel_grid.hpp"
 #include "c_context.h"
 #include "ui_context.hpp"
+#include "views/bitmap_color_chooser.hpp"
 #include "views/bitmap_preview.hpp"
 #include "views/toolbar.hpp"
 
@@ -93,6 +94,7 @@ class BitmapView {
     PixelGrid pixel_grid;
     ViewToolbar toolbar_;
     BitmapPreview preview_;
+    BitmapColorChooser color_chooser_;
 };
 
 }  // namespace ff::views

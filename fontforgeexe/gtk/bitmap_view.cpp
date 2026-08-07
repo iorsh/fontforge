@@ -39,7 +39,8 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
       pixel_grid(bv_context),
       toolbar_(*static_cast<std::vector<BitmapViewTool>*>(
           context.legacy()->p_bitmap_view_tools)),
-      preview_(bv_context) {
+      preview_(bv_context),
+      color_chooser_(ColorChooserMode::ccm_grayscale) {
     // TODO(iorsh): Remove this later. The persistent width/height values are
     // currently broken, make sure they are positive so as not to break the
     // window resizing.
@@ -150,8 +151,9 @@ Gtk::ToolPalette* BitmapView::build_panels() {
     Gtk::ToolItemGroup* color_picker_panel =
         Gtk::make_managed<Gtk::ToolItemGroup>(_("Color Picker"));
     color_picker_panel->get_label_widget()->set_halign(Gtk::ALIGN_START);
-    Gtk::ToolButton* dummy3 = Gtk::make_managed<Gtk::ToolButton>("DUMMY 3");
-    color_picker_panel->insert(*dummy3, 0);
+    Gtk::ToolItem* color_chooser_item = Gtk::make_managed<Gtk::ToolItem>();
+    color_chooser_item->add(color_chooser_);
+    color_picker_panel->insert(*color_chooser_item, 0);
     panels->add(*color_picker_panel);
 
     return panels;
