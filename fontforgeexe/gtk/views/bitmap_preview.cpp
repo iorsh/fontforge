@@ -47,7 +47,7 @@ bool BitmapPreview::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     cr->set_source_rgb(0.96, 0.96, 0.96);
     cr->paint();
 
-    GImage* image = context_->gi_wrapper;
+    GImage* image = context_->create_overview_image(context_->bv);
     struct _GImage* base =
         (image->list_len == 0) ? image->u.image : image->u.images[0];
     if (!base) {

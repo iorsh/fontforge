@@ -64,6 +64,15 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
     pixel_grid.get_drawing_widget().signal_key_release_event().connect(
         sigc::mem_fun(*this, &BitmapView::on_key_event), false);
 
+    // For simplicity couple the preview redraw to the bitmap view drawing area
+    // redraw. This is not the most efficient way to do this, but it is simple
+    // and works well enough.
+    pixel_grid.get_drawing_widget().signal_draw().connect(
+        [this](const Cairo::RefPtr<Cairo::Context>&) {
+            preview_.queue_draw();
+            return false;
+        });
+
     root_grid->attach(*infobar, 0, 0, 3, 1);
     root_grid->attach(toolbar_, 0, 1);
     root_grid->attach(pixel_grid.get_top_widget(), 1, 1);
