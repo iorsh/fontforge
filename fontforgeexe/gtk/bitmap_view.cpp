@@ -38,7 +38,8 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
     : context(bv_context),
       pixel_grid(bv_context),
       toolbar_(*static_cast<std::vector<BitmapViewTool>*>(
-          context.legacy()->p_bitmap_view_tools)) {
+          context.legacy()->p_bitmap_view_tools)),
+      preview_(bv_context) {
     // TODO(iorsh): Remove this later. The persistent width/height values are
     // currently broken, make sure they are positive so as not to break the
     // window resizing.
@@ -125,8 +126,9 @@ Gtk::ToolPalette* BitmapView::build_panels() {
     Gtk::ToolItemGroup* preview_panel =
         Gtk::make_managed<Gtk::ToolItemGroup>(_("Preview"));
     preview_panel->get_label_widget()->set_halign(Gtk::ALIGN_START);
-    Gtk::ToolButton* dummy1 = Gtk::make_managed<Gtk::ToolButton>("DUMMY 1");
-    preview_panel->insert(*dummy1, 0);
+    Gtk::ToolItem* preview_item = Gtk::make_managed<Gtk::ToolItem>();
+    preview_item->add(preview_);
+    preview_panel->insert(*preview_item, 0);
     panels->add(*preview_panel);
 
     Gtk::ToolItemGroup* layers_panel =
