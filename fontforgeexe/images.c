@@ -2373,28 +2373,6 @@ static struct _GImage hand0_base = {
     0
 };
 
-static uint8_t press2ptr0_data[] = {
-    0xff, 0xf2, 
-    0xef, 0x9c, 
-    0xec, 0xf8, 
-    0xef, 0xf0, 
-    0xff, 0xe0, 
-    0x11, 0xc0, 
-    0xff, 0xf0, 
-    0xef, 0xf2, 
-    0xef, 0xe6, 
-    0xef, 0xe7, 
-};
-
-static struct _GImage press2ptr0_base = {
-    it_mono,
-    2069,16,10,2,
-    (uint8_t *) press2ptr0_data,
-    &magnify0_clut,
-    1
-};
-
-GImage GIcon_press2ptr = { 0, { &press2ptr0_base }, NULL };
 GImage GIcon_hand = { 0, { &hand0_base }, NULL }; /* superseded by hand.svg */
 GImage GIcon_star = { 0, { &star0_base }, NULL };
 GImage GIcon_poly = { 0, { &poly0_base }, NULL };

@@ -55,7 +55,6 @@ struct bvshows BVShows = { 1, 1, 1, 0 };
 extern void* p_bitmap_view_tools;
 
 
-#define RPT_BASE	3		/* Place to draw the pointer icon */
 #define RPT_DATA	24		/* x,y text after above */
 #define RPT_COLOR	40		/* Blob showing the foreground color */
 
@@ -154,11 +153,7 @@ static void BVUnlinkView(BitmapView *bv ) {
 }
 
 static void BVRefreshImage(BitmapView *bv) {
-    GRect box;
-
-    box.x = 0; box.width = bv->infoh;
-    box.y = bv->mbh; box.height = bv->infoh;
-    GDrawRequestExpose(bv->gw,&box,false);
+    /* TODO(iorsh): Refresh BitmapView::preview_ - is it necessary at all? */
 }
 
 static void BCCharUpdate(BDFChar *bc) {
@@ -166,7 +161,6 @@ static void BCCharUpdate(BDFChar *bc) {
 
     for ( bv = bc->views; bv!=NULL; bv=bv->next ) {
 	GDrawRequestExpose(bv->v, NULL, false );
-	/*BVRefreshImage(bv);*/		/* Select All gives us a blank image if we do this */
     }
 }
 
@@ -866,9 +860,7 @@ static GImage* BVCreateOverviewImage(BitmapView* bv, Color fg, Color bg) {
 }
 
 static void BVMainExpose(BitmapView *bv, GWindow pixmap, GEvent *event ) {
-    GRect old, temp, box, old2, r;
-    GImage *gi = NULL;
-    BDFChar *bdfc = BDFGetMergedChar( bv->bc );
+    GRect old, temp, r;
 
     temp = event->u.expose.rect;
     if ( temp.y+temp.height < bv->mbh )
@@ -880,45 +872,10 @@ return;
     GDrawPushClip(pixmap,&temp,&old);
     GDrawSetLineWidth(pixmap,0);
 
-    if ( event->u.expose.rect.x<6+bdfc->xmax-bdfc->xmin ) {
-	box.x = 0; box.width = bv->infoh;
-	box.y = bv->mbh; box.height = bv->infoh;
-	GDrawPushClip(pixmap,&box,&old2);
-
-    gi = BVCreateOverviewImage(bv, overview_fg_color, GDrawGetDefaultBackground(NULL));
-    if (gi != NULL) {
-        GDrawDrawImage(pixmap,gi,NULL, 5,bv->mbh+(bv->infoh-gi->u.image->height)/2);
-        GImageDestroy(gi);
-    }
-
-	GDrawPopClip(pixmap,&old2);
-    }
-    if (event->u.expose.rect.y < bv->mbh + bv->infoh - 1) {
-	GDrawDrawImage(pixmap,&GIcon_rightpointer,NULL,bv->infoh+RPT_BASE,bv->mbh+8);
-	GDrawDrawImage(pixmap,&GIcon_press2ptr,NULL,bv->infoh+RPT_BASE,bv->mbh+18+bv->sfh);
-
-	r.x = bv->infoh+RPT_DATA; r.y = bv->mbh+36;
-	r.width = 20; r.height = 10;
-	GDrawFillRect(pixmap,&r,
-		bv->bdf->clut==NULL ? GDrawGetDefaultBackground(NULL) :
-		bv->bdf->clut->clut[bv->color/( 255/((1<<BDFDepth(bv->bdf))-1) )] );
-
-	GDrawDrawImage(pixmap,&GIcon_press2ptr,NULL,bv->infoh+RPT_BASE,bv->mbh+18+bv->sfh);
-    }
-    GDrawDrawLine(pixmap,0,bv->mbh+bv->infoh-1,bv->width+300,bv->mbh+bv->infoh-1,GDrawGetDefaultForeground(NULL));
-
-    r.x = bv->width; r.y = bv->height+bv->infoh+bv->mbh;
+    r.x = bv->width; r.y = bv->height+bv->mbh;
     LogoExpose(pixmap,event,&r,dm_fore);
 
     GDrawPopClip(pixmap,&old);
-    BDFCharFree( bdfc );
-}
-
-static void BVShowInfo(BitmapView *bv) {
-    GRect r;
-    r.x = bv->infoh+RPT_DATA; r.width = 39;
-    r.y = bv->mbh; r.height = 36 /* bv->infoh-1 */;
-    GDrawRequestExpose(bv->gw, &r, false);
 }
 
 static void BVResize(BitmapView *bv, GEvent *event ) {
@@ -1269,7 +1226,6 @@ static void BVMouseMove(BitmapView *bv, GEvent *event) {
     else
 	color_under_cursor = bc->bitmap[(bc->ymax-y)*bc->bytes_per_line + (x-bc->xmin)/8]&(0x80>>((x-bc->xmin)&7)) *
 		255;
-    BVShowInfo(bv);
     BVPaletteColorUnderChange(bv,color_under_cursor);
     if ( bv->active_tool==bvt_none )
 return;			/* Not pressed */
@@ -2391,7 +2347,6 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv->mb = GMenu2BarCreate( gw, &gd, NULL);
     GGadgetGetSize(bv->mb,&gsize);
     bv->mbh = gsize.height;
-    bv->infoh = GDrawPointsToPixels(gw,36);
 
     memset(&gd, '\0', sizeof(gd));
     memset(&ti, '\0', sizeof(ti));
@@ -2409,7 +2364,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     GGadgetGetSize(bv->recalc,&size);
     GGadgetMove(bv->recalc,pos.width - size.width - GDrawPointsToPixels(gw,6),size.y);
 
-    pos.y = bv->mbh+bv->infoh; pos.height -= bv->mbh + bv->infoh;
+    pos.y = bv->mbh; pos.height -= bv->mbh;
     pos.x = 0;
     wattrs.mask = wam_events|wam_cursor|wam_backcol|wam_gtk_wrapper;
     wattrs.background_color = view_bgcol;
