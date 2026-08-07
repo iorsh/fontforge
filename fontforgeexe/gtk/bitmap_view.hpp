@@ -33,6 +33,7 @@
 #include "pixel_grid.hpp"
 #include "c_context.h"
 #include "ui_context.hpp"
+#include "views/bitmap_preview.hpp"
 #include "views/toolbar.hpp"
 
 namespace ff::views {
@@ -91,6 +92,7 @@ class BitmapView {
     Gtk::Label pointer_drag_location_;
     PixelGrid pixel_grid;
     ViewToolbar toolbar_;
+    BitmapPreview preview_;
 };
 
 }  // namespace ff::views

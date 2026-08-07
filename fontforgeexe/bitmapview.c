@@ -72,6 +72,7 @@ static Color selected_ref_color = 0x909000;
 static Color ref_border_color = 0x606060;
 static Color selected_ref_border_color = 0x606000;
 
+extern void GGDKDrawDrawImageInContext(cairo_t *cc, GImage *image, GRect *src, int32_t x, int32_t y);
 
 static void BVScrollBarSetPos(BitmapView *bv, bool is_vertical, int32_t pos) {
    bv_set_scroller_position(bv->gtk_window, is_vertical, pos);
@@ -2364,11 +2365,13 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv->gw = gw = GDrawCreateTopWindow(NULL,&pos,bv_e_h,bv,&wattrs);
 
     bv_context->bv = bv;
+    bv_context->gi_wrapper = BVCreateOverviewImage(bv, bc);
     bv_context->p_bitmap_view_tools = p_bitmap_view_tools;
     bv_context->scroll_bitmapview_to_position_cb = BVScrollToPos;
     bv_context->get_pixel_and_tool_coords = BVInfoGetText;
     bv_context->activate_tool = BVActivateTool;
     bv_context->active_width_tool = BVActiveWidthTool;
+    bv_context->draw_gimage_in_cairo_context = GGDKDrawDrawImageInContext;
 
     bv->gtk_window = create_bitmap_view(&bv_context, pos.width, pos.height);
 
