@@ -836,11 +836,35 @@ static void BVInfoGetText(BitmapView* bv, int* x, int* y, int* dx, int* dy) {
     }
 }
 
+static GImage* BVCreateOverviewImage(BitmapView* bv, BDFChar* bdfc) {
+    GImage* gi = calloc(1, sizeof(GImage));
+    struct _GImage* base = calloc(1, sizeof(struct _GImage));
+    GClut* clut = calloc(1, sizeof(GClut));
+
+    gi->u.image = base;
+    base->clut = clut;
+
+    if (bv->bdf->clut == NULL) {
+        base->image_type = it_mono;
+        clut->clut_len = 2;
+        clut->clut[0] = GDrawGetDefaultBackground(NULL);
+        clut->clut[1] = overview_fg_color;
+    } else {
+        base->image_type = it_index;
+        memcpy(base->clut, bv->bdf->clut, sizeof(GClut));
+    }
+
+    base->data = bdfc->bitmap;
+    base->bytes_per_line = bdfc->bytes_per_line;
+    base->width = bdfc->xmax - bdfc->xmin + 1;
+    base->height = bdfc->ymax - bdfc->ymin + 1;
+
+    return gi;
+}
+
 static void BVMainExpose(BitmapView *bv, GWindow pixmap, GEvent *event ) {
     GRect old, temp, box, old2, r;
-    GImage gi;
-    struct _GImage base;
-    GClut clut;
+    GImage *gi = NULL;
     BDFChar *bdfc = BDFGetMergedChar( bv->bc );
 
     temp = event->u.expose.rect;
@@ -858,25 +882,12 @@ return;
 	box.y = bv->mbh; box.height = bv->infoh;
 	GDrawPushClip(pixmap,&box,&old2);
 
-	memset(&gi,'\0',sizeof(gi));
-	memset(&base,'\0',sizeof(base));
-	memset(&clut,'\0',sizeof(clut));
-	gi.u.image = &base;
-	if ( bv->bdf->clut==NULL ) {
-	    base.image_type = it_mono;
-	    base.clut = &clut;
-	    clut.clut_len = 2;
-	    clut.clut[0] = GDrawGetDefaultBackground(NULL);
-	    clut.clut[1] = overview_fg_color;
-	} else {
-	    base.image_type = it_index;
-	    base.clut = bv->bdf->clut;
-	}
-	base.data = bdfc->bitmap;
-	base.bytes_per_line = bdfc->bytes_per_line;
-	base.width = bdfc->xmax-bdfc->xmin+1;
-	base.height = bdfc->ymax-bdfc->ymin+1;
-	GDrawDrawImage(pixmap,&gi,NULL, 5,bv->mbh+(bv->infoh-base.height)/2);
+    gi = BVCreateOverviewImage(bv, bdfc);
+    if (gi != NULL) {
+        GDrawDrawImage(pixmap,gi,NULL, 5,bv->mbh+(bv->infoh-gi->u.image->height)/2);
+	gi->u.image->data = NULL;  /* don't free the bitmap data */
+        GImageDestroy(gi);
+    }
 
 	GDrawPopClip(pixmap,&old2);
     }
