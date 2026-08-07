@@ -332,7 +332,7 @@ typedef struct bitmapview {
     GFont *small;
     int xoff, yoff;
     int width, height;
-    int infoh, mbh;
+    int mbh;
     int scale;
     real scscale;
     struct bitmapview *next;
