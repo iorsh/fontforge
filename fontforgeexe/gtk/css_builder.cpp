@@ -36,6 +36,7 @@
 typedef struct gdisplay GDisplay;
 
 extern Color histogram_graphcol;
+extern Color overview_fg_color;
 extern "C" Color GDrawGetDefaultForeground(GDisplay*);
 extern "C" Color GDrawGetDefaultBackground(GDisplay*);
 extern "C" Color GDrawGetWarningForeground(GDisplay*);
@@ -382,6 +383,11 @@ std::string build_styles(const GResInfo* gdraw_ri) {
               css_color(histogram_graphcol) + ";\n";
     styles += "@define-color ff_histogram_moving_average " +
               css_color(GDrawGetWarningForeground(nullptr)) + ";\n";
+
+    styles += "@define-color bitmap_preview_bg " +
+              css_color(GDrawGetDefaultBackground(nullptr)) + ";\n";
+    styles += "@define-color bitmap_preview_fg " +
+              css_color(overview_fg_color) + ";\n";
 
     return styles;
 }

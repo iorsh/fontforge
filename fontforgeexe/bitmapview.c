@@ -63,7 +63,7 @@ static Color guide_color = 0x404040;
 static Color width_guide_color = 0x404040;
 static Color grid_color = 0xa0a0a0;
 static Color bitmap_color = 0x808080;
-static Color overview_fg_color = 0x000000;
+Color overview_fg_color = 0x000000;
 static Color outline_color = 0x00ff00;
 static Color active_tool_color = 0x909000;
 static Color ref_color = 0x808080;
@@ -837,7 +837,7 @@ static void BVInfoGetText(BitmapView* bv, int* x, int* y, int* dx, int* dy) {
     }
 }
 
-static GImage* BVCreateOverviewImage(BitmapView* bv) {
+static GImage* BVCreateOverviewImage(BitmapView* bv, Color fg, Color bg) {
     BDFChar* bdfc = BDFGetMergedChar(bv->bc);
     GImage* gi = calloc(1, sizeof(GImage));
     struct _GImage* base = calloc(1, sizeof(struct _GImage));
@@ -849,8 +849,8 @@ static GImage* BVCreateOverviewImage(BitmapView* bv) {
     if (bv->bdf->clut == NULL) {
         base->image_type = it_mono;
         clut->clut_len = 2;
-        clut->clut[0] = GDrawGetDefaultBackground(NULL);
-        clut->clut[1] = overview_fg_color;
+        clut->clut[0] = bg;
+        clut->clut[1] = fg;
     } else {
         base->image_type = it_index;
         memcpy(base->clut, bv->bdf->clut, sizeof(GClut));
@@ -885,7 +885,7 @@ return;
 	box.y = bv->mbh; box.height = bv->infoh;
 	GDrawPushClip(pixmap,&box,&old2);
 
-    gi = BVCreateOverviewImage(bv);
+    gi = BVCreateOverviewImage(bv, overview_fg_color, GDrawGetDefaultBackground(NULL));
     if (gi != NULL) {
         GDrawDrawImage(pixmap,gi,NULL, 5,bv->mbh+(bv->infoh-gi->u.image->height)/2);
         GImageDestroy(gi);

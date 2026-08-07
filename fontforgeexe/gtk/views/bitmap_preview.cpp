@@ -27,12 +27,19 @@
 
 #include "bitmap_preview.hpp"
 
+#include "../application.hpp"
+
 namespace ff::views {
 
 BitmapPreview::BitmapPreview(std::shared_ptr<BVContext> context)
     : context_(std::move(context)) {
     set_vexpand(false);
     set_size_request(-1, 64);
+
+    app::ColorManager::instance().register_colors({
+        {"bitmap_preview_bg", {"theme_base_color", Gdk::RGBA("white")}},
+        {"bitmap_preview_fg", {"theme_fg_color", Gdk::RGBA("black")}},
+    });
 }
 
 bool BitmapPreview::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
@@ -44,10 +51,19 @@ bool BitmapPreview::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         return true;
     }
 
-    cr->set_source_rgb(0.96, 0.96, 0.96);
+    app::ColorManager::instance().set_color_in_context(cr, "bitmap_preview_bg");
     cr->paint();
+    Gdk::RGBA fg_color =
+        app::ColorManager::instance().get_color("bitmap_preview_fg");
+    Color overview_fg_color = COLOR_CREATE_U16(
+        fg_color.get_red_u(), fg_color.get_green_u(), fg_color.get_blue_u());
+    Gdk::RGBA bg_color =
+        app::ColorManager::instance().get_color("bitmap_preview_bg");
+    Color overview_bg_color = COLOR_CREATE_U16(
+        bg_color.get_red_u(), bg_color.get_green_u(), bg_color.get_blue_u());
 
-    GImage* image = context_->create_overview_image(context_->bv);
+    GImage* image = context_->create_overview_image(
+        context_->bv, overview_fg_color, overview_bg_color);
     struct _GImage* base =
         (image->list_len == 0) ? image->u.image : image->u.images[0];
     if (!base) {

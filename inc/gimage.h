@@ -38,6 +38,7 @@ typedef uint32_t Color;
 #define COLOR_WARNING		((Color) 0xfffffffd)
 #define COLOR_WHITE		((Color) 0xffffff)
 #define COLOR_CREATE(r,g,b)	(((r)<<16) | ((g)<<8) | (b))
+#define COLOR_CREATE_U16(r,g,b)	((((r)>>8)<<16) | (((g)>>8)<<8) | ((b)>>8))
 #define COLOR_ALPHA(col)	(((col)>>24))
 #define COLOR_RED(col)		(((col)>>16) & 0xff)
 #define COLOR_GREEN(col)	(((col)>>8) & 0xff)
