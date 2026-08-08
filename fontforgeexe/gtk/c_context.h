@@ -38,6 +38,7 @@ typedef struct bitmapview BitmapView;
 // C structure and callback for interacting with legacy code
 typedef struct bitmapview_context {
     BitmapView* bv;
+    int depth;
 
     // Can be cast to std::vector<BitmapViewTool>*
     void* p_bitmap_view_tools;

@@ -38,6 +38,7 @@ enum ColorChooserMode {
     ccm_undefined = -1,
     ccm_grayscale,
     ccm_gray16,
+    ccm_gray4,
 };
 
 class BitmapColorChooser : public Gtk::VBox {
@@ -55,7 +56,7 @@ class BitmapColorChooser : public Gtk::VBox {
     void init_monochrome_ribbon();
     void on_mono_value_changed(uint8_t value);
 
-    void init_color_chooser();
+    void init_color_chooser(ColorChooserMode mode);
     void on_color_chooser_value_changed();
 
     void on_value_changed(const Gdk::RGBA& color);
