@@ -30,11 +30,14 @@
 
 #include <gtkmm.h>
 
+#include "../widgets/monochrome_ribbon.hpp"
+
 namespace ff::views {
 
 enum ColorChooserMode {
     ccm_undefined = -1,
     ccm_grayscale,
+    ccm_gray16,
 };
 
 class BitmapColorChooser : public Gtk::VBox {
@@ -52,7 +55,13 @@ class BitmapColorChooser : public Gtk::VBox {
     void init_monochrome_ribbon();
     void on_mono_value_changed(uint8_t value);
 
-    Gtk::Widget* chooser_widget_ = nullptr;
+    void init_color_chooser();
+    void on_color_chooser_value_changed();
+
+    void on_value_changed(const Gdk::RGBA& color);
+
+    widgets::MonochromeRibbon* monochrome_ribbon_ = nullptr;
+    GtkWidget* color_chooser_widget_ = nullptr;
     Gtk::Label value_label_;
     sigc::signal<void, Gdk::RGBA> signal_value_changed_;
 };
