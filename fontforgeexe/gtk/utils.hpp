@@ -55,6 +55,7 @@ Glib::RefPtr<Gdk::Cursor> set_cursor(Gtk::Widget* widget,
 void unset_cursor(Gtk::Widget* widget, Glib::RefPtr<Gdk::Cursor> old_cursor);
 
 Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name);
+GtkWidget* gtk_box_child_at_position(GtkBox* box, int position);
 
 Glib::RefPtr<Gdk::Pixbuf> load_image(const Glib::ustring& icon_name, int width,
                                      int height);

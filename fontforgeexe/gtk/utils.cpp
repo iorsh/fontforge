@@ -158,6 +158,27 @@ Gtk::Widget* gtk_find_child(Gtk::Widget* w, const std::string& name) {
     return res;
 }
 
+GtkWidget* gtk_box_child_at_position(GtkBox* box, int position) {
+    if (!box) {
+        return nullptr;
+    }
+
+    GList* children = gtk_container_get_children(GTK_CONTAINER(box));
+    GtkWidget* found_child = nullptr;
+    for (GList* link = children; link != nullptr; link = link->next) {
+        GtkWidget* child_widget = GTK_WIDGET(link->data);
+        int child_position = -1;
+        gtk_container_child_get(GTK_CONTAINER(box), child_widget, "position",
+                                &child_position, NULL);
+        if (child_position == position) {
+            found_child = child_widget;
+            break;
+        }
+    }
+    g_list_free(children);
+    return found_child;
+}
+
 Glib::RefPtr<Gdk::Pixbuf> load_image(const Glib::ustring& icon_name, int width,
                                      int height) {
     Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
