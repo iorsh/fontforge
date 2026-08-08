@@ -45,26 +45,31 @@ class BitmapColorChooser : public Gtk::VBox {
  public:
     BitmapColorChooser(ColorChooserMode mode);
 
-    Gdk::RGBA value() const;
-    void set_value(const Gdk::RGBA& value);
+    // Monochrome bitmaps are represented by an intensity value between 0 and
+    // maximum palette value. E.g. a 4-bit pixel can have intensity values from
+    // 0 to 15, while an 8-bit pixel can have intensity values from 0 to 255.
+    // Zero value corresponds to background color, while maximum value
+    // corresponds to text color.
+    uint8_t intensity() const;
+    void set_intensity(uint8_t intensity);
 
-    sigc::signal<void, Gdk::RGBA>& signal_value_changed() {
-        return signal_value_changed_;
+    sigc::signal<void, uint8_t>& signal_intensity_changed() {
+        return signal_intensity_changed_;
     }
 
  private:
     void init_monochrome_ribbon();
-    void on_mono_value_changed(uint8_t value);
 
-    void init_color_chooser(ColorChooserMode mode);
+    void init_color_chooser();
     void on_color_chooser_value_changed();
 
-    void on_value_changed(const Gdk::RGBA& color);
+    void on_value_changed(uint8_t value);
 
+    ColorChooserMode mode_;
     widgets::MonochromeRibbon* monochrome_ribbon_ = nullptr;
     GtkWidget* color_chooser_widget_ = nullptr;
     Gtk::Label value_label_;
-    sigc::signal<void, Gdk::RGBA> signal_value_changed_;
+    sigc::signal<void, uint8_t> signal_intensity_changed_;
 };
 
 }  // namespace ff::views

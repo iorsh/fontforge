@@ -41,11 +41,12 @@ using ff::ui_utils::gtk_box_child_at_position;
 
 namespace ff::views {
 
-BitmapColorChooser::BitmapColorChooser(ColorChooserMode mode) : Gtk::VBox() {
+BitmapColorChooser::BitmapColorChooser(ColorChooserMode mode)
+    : Gtk::VBox(), mode_(mode) {
     if (mode == ccm_grayscale) {
         init_monochrome_ribbon();
     } else if (mode == ccm_gray16 || mode == ccm_gray4) {
-        init_color_chooser(mode);
+        init_color_chooser();
     } else {
         return;
     }
@@ -54,40 +55,44 @@ BitmapColorChooser::BitmapColorChooser(ColorChooserMode mode) : Gtk::VBox() {
     add(value_label_);
 }
 
-Gdk::RGBA BitmapColorChooser::value() const {
-    Gdk::RGBA color;
+uint8_t BitmapColorChooser::intensity() const {
     if (monochrome_ribbon_) {
-        color.set_grey(static_cast<float>(monochrome_ribbon_->value()) /
-                       255.0f);
+        return monochrome_ribbon_->value();
     } else if (color_chooser_widget_) {
+        int palette_size = (mode_ == ccm_gray16) ? 16 : 4;
+        GdkRGBA color;
         gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(color_chooser_widget_),
-                                   color.gobj());
+                                   &color);
+        return static_cast<uint8_t>(color.red * (palette_size - 1));
     }
-    return color;
+    return 0;
 }
 
-void BitmapColorChooser::set_value(const Gdk::RGBA& value) {
+void BitmapColorChooser::set_intensity(uint8_t intensity) {
     if (monochrome_ribbon_) {
-        monochrome_ribbon_->set_value(
-            static_cast<uint8_t>(value.get_red() * 255.0f));
+        monochrome_ribbon_->set_value(intensity);
     } else if (color_chooser_widget_) {
+        int palette_size = (mode_ == ccm_gray16) ? 16 : 4;
+        GdkRGBA color{static_cast<double>(intensity) / (palette_size - 1),
+                      static_cast<double>(intensity) / (palette_size - 1),
+                      static_cast<double>(intensity) / (palette_size - 1), 1.0};
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(color_chooser_widget_),
-                                   value.gobj());
-        on_color_chooser_value_changed();
+                                   &color);
     }
+    on_value_changed(intensity);
 }
 
 void BitmapColorChooser::init_monochrome_ribbon() {
     monochrome_ribbon_ = Gtk::make_managed<widgets::MonochromeRibbon>();
     monochrome_ribbon_->set_size_request(256, 30);
     monochrome_ribbon_->signal_value_changed().connect(
-        sigc::mem_fun(*this, &BitmapColorChooser::on_mono_value_changed));
+        sigc::mem_fun(*this, &BitmapColorChooser::on_value_changed));
     add(*monochrome_ribbon_);
 
-    on_mono_value_changed(monochrome_ribbon_->value());
+    on_value_changed(monochrome_ribbon_->value());
 }
 
-void BitmapColorChooser::init_color_chooser(ColorChooserMode mode) {
+void BitmapColorChooser::init_color_chooser() {
     color_chooser_widget_ = gtk_color_chooser_widget_new();
     gtk_box_pack_start(GTK_BOX(gobj()), color_chooser_widget_, TRUE, TRUE, 0);
     gtk_widget_show(color_chooser_widget_);
@@ -101,7 +106,7 @@ void BitmapColorChooser::init_color_chooser(ColorChooserMode mode) {
     gtk_container_remove(GTK_CONTAINER(palette_box), trash1);
     gtk_container_remove(GTK_CONTAINER(palette_box), trash2);
 
-    int palette_size = (mode == ccm_gray16) ? 16 : 4;
+    int palette_size = (mode_ == ccm_gray16) ? 16 : 4;
     std::vector<GdkRGBA> gray_palette(palette_size);
     for (size_t i = 0; i < gray_palette.size(); ++i) {
         const double level = i / static_cast<double>(palette_size - 1);
@@ -123,23 +128,16 @@ void BitmapColorChooser::init_color_chooser(ColorChooserMode mode) {
     on_color_chooser_value_changed();
 }
 
-void BitmapColorChooser::on_value_changed(const Gdk::RGBA& color) {
-    char* p_label = smprintf("Color: %s", color.to_string().c_str());
+void BitmapColorChooser::on_value_changed(uint8_t value) {
+    char* p_label = smprintf("Intensity: %u", value);
     value_label_.set_text(p_label);
     free(p_label);
 
-    signal_value_changed_.emit(color);
-}
-
-void BitmapColorChooser::on_mono_value_changed(uint8_t value) {
-    Gdk::RGBA color;
-    color.set_grey(static_cast<float>(value) / 255.0f);
-    on_value_changed(color);
+    signal_intensity_changed_.emit(value);
 }
 
 void BitmapColorChooser::on_color_chooser_value_changed() {
-    Gdk::RGBA color = value();
-    on_value_changed(color);
+    on_value_changed(intensity());
 }
 
 }  // namespace ff::views
