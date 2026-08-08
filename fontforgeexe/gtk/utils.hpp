@@ -60,4 +60,8 @@ GtkWidget* gtk_box_child_at_position(GtkBox* box, int position);
 Glib::RefPtr<Gdk::Pixbuf> load_image(const Glib::ustring& icon_name, int width,
                                      int height);
 Glib::RefPtr<Gdk::Pixbuf> load_icon(const Glib::ustring& icon_name, int size);
+
+guint32 color_from_gdk_rgba(const Gdk::RGBA& rgba);
+
+Glib::RefPtr<Gdk::Pixbuf> build_color_icon(const Gdk::RGBA& color, gint size);
 }  // namespace ff::ui_utils

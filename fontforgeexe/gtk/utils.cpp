@@ -216,4 +216,27 @@ Glib::RefPtr<Gdk::Pixbuf> load_icon(const Glib::ustring& icon_name, int size) {
     return load_image(icon_name, size, 0);
 }
 
+guint32 color_from_gdk_rgba(const Gdk::RGBA& color) {
+    auto r = color.get_red_u() / 256;
+    auto g = color.get_green_u() / 256;
+    auto b = color.get_blue_u() / 256;
+    auto a = color.get_alpha_u() / 256;
+    return (r << 24) | (g << 16) | (b << 8) | a;
+}
+
+Glib::RefPtr<Gdk::Pixbuf> build_color_icon(const Gdk::RGBA& rgba, gint size) {
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf =
+        Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, true, 8, size, size);
+
+    // Fill with opaque black color to create the frame
+    pixbuf->fill(0x000000ff);
+
+    // Fill the interior with actual color
+    guint32 g_color = color_from_gdk_rgba(rgba);
+    Gdk::Pixbuf::create_subpixbuf(pixbuf, 1, 1, size - 2, size - 2)
+        ->fill(g_color);
+
+    return pixbuf;
+}
+
 }  // namespace ff::ui_utils
