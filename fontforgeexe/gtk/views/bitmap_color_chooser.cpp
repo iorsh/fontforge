@@ -44,8 +44,10 @@ namespace ff::views {
 BitmapColorChooser::BitmapColorChooser(ColorChooserMode mode) : Gtk::VBox() {
     if (mode == ccm_grayscale) {
         init_monochrome_ribbon();
-    } else if (mode == ccm_gray16) {
-        init_color_chooser();
+    } else if (mode == ccm_gray16 || mode == ccm_gray4) {
+        init_color_chooser(mode);
+    } else {
+        return;
     }
 
     value_label_.set_halign(Gtk::ALIGN_START);
@@ -85,7 +87,7 @@ void BitmapColorChooser::init_monochrome_ribbon() {
     on_mono_value_changed(monochrome_ribbon_->value());
 }
 
-void BitmapColorChooser::init_color_chooser() {
+void BitmapColorChooser::init_color_chooser(ColorChooserMode mode) {
     color_chooser_widget_ = gtk_color_chooser_widget_new();
     gtk_box_pack_start(GTK_BOX(gobj()), color_chooser_widget_, TRUE, TRUE, 0);
     gtk_widget_show(color_chooser_widget_);
@@ -99,9 +101,10 @@ void BitmapColorChooser::init_color_chooser() {
     gtk_container_remove(GTK_CONTAINER(palette_box), trash1);
     gtk_container_remove(GTK_CONTAINER(palette_box), trash2);
 
-    std::array<GdkRGBA, 16> gray_palette{};
+    int palette_size = (mode == ccm_gray16) ? 16 : 4;
+    std::vector<GdkRGBA> gray_palette(palette_size);
     for (size_t i = 0; i < gray_palette.size(); ++i) {
-        const double level = static_cast<double>(i * 16) / 255.0;
+        const double level = i / static_cast<double>(palette_size - 1);
         gray_palette[i].red = level;
         gray_palette[i].green = level;
         gray_palette[i].blue = level;

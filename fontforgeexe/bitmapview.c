@@ -2312,6 +2312,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv->gw = gw = GDrawCreateTopWindow(NULL,&pos,bv_e_h,bv,&wattrs);
 
     bv_context->bv = bv;
+    bv_context->depth = BDFDepth(bdf);
     bv_context->p_bitmap_view_tools = p_bitmap_view_tools;
     bv_context->scroll_bitmapview_to_position_cb = BVScrollToPos;
     bv_context->get_pixel_and_tool_coords = BVInfoGetText;

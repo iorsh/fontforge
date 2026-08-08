@@ -33,6 +33,21 @@
 
 namespace ff::views {
 
+static ColorChooserMode get_color_chooser_mode(int depth) {
+    switch (depth) {
+        case 1:
+            return ColorChooserMode::ccm_undefined;
+        case 2:
+            return ColorChooserMode::ccm_gray4;
+        case 4:
+            return ColorChooserMode::ccm_gray16;
+        case 8:
+            return ColorChooserMode::ccm_grayscale;
+        default:
+            return ColorChooserMode::ccm_undefined;
+    }
+}
+
 BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
                        int height)
     : context(bv_context),
@@ -40,7 +55,7 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
       toolbar_(*static_cast<std::vector<BitmapViewTool>*>(
           context.legacy()->p_bitmap_view_tools)),
       preview_(bv_context),
-      color_chooser_(ColorChooserMode::ccm_grayscale) {
+      color_chooser_(get_color_chooser_mode(bv_context->depth)) {
     // TODO(iorsh): Remove this later. The persistent width/height values are
     // currently broken, make sure they are positive so as not to break the
     // window resizing.
