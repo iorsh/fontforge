@@ -8,3 +8,4 @@ else()
 endif()
 
 add_subdirectory(${GUI_THEME})
+add_subdirectory(ztheme)
