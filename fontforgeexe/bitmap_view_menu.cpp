@@ -31,16 +31,18 @@
 #include "gtk/bitmap_view_shim.hpp"
 
 std::vector<BitmapViewTool> bitmap_view_tools = {
-    {bvt_pointer, "pointer", "default", N_("Pointer")},
-    {bvt_magnify, "magnify", "zoom-in", N_("Magnify (Minify with alt)")},
-    {bvt_pencil, "pencil", "", N_("Set/Clear Pixels")},
-    {bvt_eyedropper, "color-picker", "", N_("Pick Color")},
-    {bvt_line, "line", "", N_("Draw a Line")},
-    {bvt_shift, "shift", "all-scroll", N_("Shift Entire Bitmap")},
-    {bvt_hand, "hand", "grab", N_("Scroll Bitmap")},
-    {bvt_rect, "rectangle", "", N_("Draw Rectangle")},
-    {bvt_filledrect, "rectangle_fill", "", N_("Draw Filled Rectangle")},
-    {bvt_elipse, "ellipse", "", N_("Draw Ellipse")},
-    {bvt_filledelipse, "ellipse_fill", "", N_("Draw Filled Ellipse")},
+    {bvt_pointer, "palettepointer-symbolic", "default", N_("Pointer")},
+    {bvt_magnify, "palettemagnify-symbolic", "zoom-in",
+     N_("Magnify (Minify with alt)")},
+    {bvt_pencil, "palettefreehand-symbolic", "", N_("Set/Clear Pixels")},
+    {bvt_eyedropper, "colorwheel-symbolic", "", N_("Pick Color")},
+    {bvt_line, "paletteline-symbolic", "", N_("Draw a Line")},
+    {bvt_shift, "paletteshift-symbolic", "all-scroll",
+     N_("Shift Entire Bitmap")},
+    {bvt_hand, "palettehand-symbolic", "grab", N_("Scroll Bitmap")},
+    {bvt_rect, "paletterect-symbolic", "", N_("Draw Rectangle")},
+    //     {bvt_filledrect, "rectangle_fill", "", N_("Draw Filled Rectangle")},
+    {bvt_elipse, "paletteelipse-symbolic", "", N_("Draw Ellipse")},
+    //     {bvt_filledelipse, "ellipse_fill", "", N_("Draw Filled Ellipse")},
 };
 void* p_bitmap_view_tools = &bitmap_view_tools;

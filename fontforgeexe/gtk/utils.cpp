@@ -186,6 +186,18 @@ Glib::RefPtr<Gdk::Pixbuf> load_image(const Glib::ustring& icon_name, int width,
     // Load icon by name from the theme
     auto icon_info = theme->lookup_icon(icon_name, width);
     if (icon_info) {
+        Gdk::RGBA fg =
+            ff::app::ColorManager::instance().get_color("theme_fg_color");
+        // Gdk::RGBA fg = Gdk::RGBA("#ffaaaa");
+        bool was_symbolic = icon_info.is_symbolic();
+        auto pixbuf = icon_info.load_symbolic(fg, Gdk::RGBA(), Gdk::RGBA(),
+                                              Gdk::RGBA(), was_symbolic);
+        if (pixbuf) {
+            std::cout << "Loaded symbolic icon: " << icon_name
+                      << " was symbolic: " << was_symbolic << std::endl;
+            return pixbuf;
+        }
+
         if (height == 0) {
             // Assume icon is requested.
             return theme->load_icon(icon_name, width,

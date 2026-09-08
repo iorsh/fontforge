@@ -184,25 +184,25 @@ Glib::RefPtr<Gdk::Pixbuf> ViewToolbar::make_tool_icon(
 
     const auto& dev_icons = kDeviceIcons.at(device);
 
-    // Lower left corner
-    if (!dev_icons[0].empty()) {
-        auto dev_icon = ff::ui_utils::load_icon(dev_icons[0], icon_width / 2);
-        int dst_x = 0;
-        int dst_y = icon->get_height() - dev_icon->get_height();
-        dev_icon->composite(icon, dst_x, dst_y, dev_icon->get_width(),
-                            dev_icon->get_height(), dst_x, dst_y, 1.0, 1.0,
-                            Gdk::INTERP_NEAREST, 255);
-    }
+    //     // Lower left corner
+    //     if (!dev_icons[0].empty()) {
+    //         auto dev_icon = ff::ui_utils::load_icon(dev_icons[0], icon_width
+    //         / 2); int dst_x = 0; int dst_y = icon->get_height() -
+    //         dev_icon->get_height(); dev_icon->composite(icon, dst_x, dst_y,
+    //         dev_icon->get_width(),
+    //                             dev_icon->get_height(), dst_x,
+    //                             dst_y, 1.0, 1.0, Gdk::INTERP_NEAREST, 255);
+    //     }
 
-    // Lower right corner
-    if (!dev_icons[1].empty()) {
-        auto dev_icon = ff::ui_utils::load_icon(dev_icons[1], icon_width / 2);
-        int dst_x = icon->get_width() - dev_icon->get_width();
-        int dst_y = icon->get_height() - dev_icon->get_height();
-        dev_icon->composite(icon, dst_x, dst_y, dev_icon->get_width(),
-                            dev_icon->get_height(), dst_x, dst_y, 1.0, 1.0,
-                            Gdk::INTERP_NEAREST, 255);
-    }
+    //     // Lower right corner
+    //     if (!dev_icons[1].empty()) {
+    //         auto dev_icon = ff::ui_utils::load_icon(dev_icons[1], icon_width
+    //         / 2); int dst_x = icon->get_width() - dev_icon->get_width(); int
+    //         dst_y = icon->get_height() - dev_icon->get_height();
+    //         dev_icon->composite(icon, dst_x, dst_y, dev_icon->get_width(),
+    //                             dev_icon->get_height(), dst_x,
+    //                             dst_y, 1.0, 1.0, Gdk::INTERP_NEAREST, 255);
+    //     }
 
     icon_cache[cache_key] = icon;
     return icon;

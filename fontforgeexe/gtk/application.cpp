@@ -62,12 +62,14 @@ Glib::RefPtr<Gtk::Application> GtkApp() {
             std::cerr << "Error: Failed to create Gtk::Application instance"
                       << std::endl;
         }
-        load_legacy_style();
+        // load_legacy_style();
 
         auto theme = Gtk::IconTheme::get_default();
         std::string pixmap_dir = getPixmapDir();
-        theme->prepend_search_path(pixmap_dir);
-        theme->prepend_search_path(pixmap_dir + "/svg");
+        std::cout << "pixmap_dir svg: " << pixmap_dir + "/../ztheme"
+                  << std::endl;
+        theme->prepend_search_path(pixmap_dir + "/../ztheme");
+        // theme->prepend_search_path(pixmap_dir + "/svg");
 
         initialized = true;
     }
