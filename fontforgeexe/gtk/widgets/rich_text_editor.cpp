@@ -469,6 +469,30 @@ void RichTextEditor::on_clipboard_rich_text_received(
     }
 }
 
+Gtk::ToolItem* RichTextEditor::build_families_combo(
+    const RichTextFontList& font_list) {
+    std::set<std::string> unique_families;
+    for (const auto& properties : font_list) {
+        unique_families.insert(properties.family_name);
+    }
+
+    Gtk::ComboBoxText* combo_box = Gtk::make_managed<Gtk::ComboBoxText>();
+
+    // Add entries to combo box
+    for (const auto& family_name : unique_families) {
+        combo_box->append("family|" + family_name, family_name);
+    }
+
+    // The default font is the first entry on the font list.
+    combo_box->set_active_id("family|" + font_list.front().family_name);
+    combo_box->set_focus_on_click(false);
+
+    Gtk::ToolItem* combo_tool_item = Gtk::make_managed<Gtk::ToolItem>();
+    combo_tool_item->add(*combo_box);
+
+    return combo_tool_item;
+}
+
 RichTextEditor::TagComboBox* RichTextEditor::build_stretch_combo() {
     std::string default_id = "width|medium";
 
@@ -594,34 +618,6 @@ RichTextEditor::TagComboBox* RichTextEditor::build_weight_combo() {
         }
 
         labels.emplace_back(tag_id, label);
-    }
-
-    return Gtk::make_managed<TagComboBox>(text_view_.get_buffer(), default_id,
-                                          tag_map, labels);
-}
-
-RichTextEditor::TagComboBox* RichTextEditor::build_families_combo(
-    const RichTextFontList& font_list) {
-    std::set<std::string> unique_families;
-    for (const auto& properties : font_list) {
-        unique_families.insert(properties.family_name);
-    }
-
-    // TODO (iorsh): implement properly, now it's a dummy combo.
-    std::map<std::string /*id*/, Glib::RefPtr<Gtk::TextTag>> tag_map;
-    std::vector<std::pair<std::string /*id*/, std::string /*label*/>> labels;
-    std::string default_id;
-
-    for (const auto& family_name : unique_families) {
-        std::string tag_id = "family|" + family_name;
-        if (default_id.empty()) {
-            default_id = tag_id;
-        } else {
-            auto tag = text_view_.get_buffer()->create_tag(tag_id);
-            tag_map[tag_id] = tag;
-        }
-
-        labels.emplace_back(tag_id, family_name);
     }
 
     return Gtk::make_managed<TagComboBox>(text_view_.get_buffer(), default_id,
