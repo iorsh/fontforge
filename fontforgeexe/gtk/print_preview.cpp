@@ -324,6 +324,8 @@ Gtk::Widget* PrintPreviewWidget::build_opentype_controls() {
 static widget::RichTextFontProperties make_rt_properties(
     const SplineFontProperties& font_props, const std::string& default_family) {
     widget::RichTextFontProperties rt_props;
+    rt_props.family_name = font_props.family_name;
+    rt_props.styles = font_props.styles;
     rt_props.weight = kWeightMap.count(font_props.os2_weight)
                           ? kWeightMap.at(font_props.os2_weight)
                           : Pango::WEIGHT_NORMAL;
@@ -346,8 +348,7 @@ void PrintPreviewWidget::build_sample_text_editor() {
         cairo_painter_.get_font_list();
     widget::RichTextFontList rt_font_list;
     for (const auto& font_props : font_list) {
-        rt_font_list.emplace_back(
-            font_props.full_name,
+        rt_font_list.push_back(
             make_rt_properties(font_props, font_list.front().family_name));
     }
     sample_text_ = Gtk::make_managed<widget::RichTextEditor>(kMultiPointsizes,

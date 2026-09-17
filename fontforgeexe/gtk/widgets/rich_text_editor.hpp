@@ -31,6 +31,8 @@
 namespace ff::widget {
 
 struct RichTextFontProperties {
+    std::string family_name;
+    std::string styles;
     Pango::Weight weight = Pango::WEIGHT_NORMAL;
     Pango::Style style = Pango::STYLE_NORMAL;
     Pango::Stretch stretch = Pango::STRETCH_NORMAL;
@@ -38,8 +40,7 @@ struct RichTextFontProperties {
 };
 
 // Each font name is associated with a set of properties.
-using RichTextFontList =
-    std::vector<std::pair<std::string, RichTextFontProperties>>;
+using RichTextFontList = std::vector<RichTextFontProperties>;
 
 class RichTextEditor : public Gtk::Grid {
  public:
@@ -166,12 +167,13 @@ class RichTextEditor : public Gtk::Grid {
     Gtk::ScrolledWindow scrolled_;
     Gtk::TextView text_view_;
 
+    TagComboBox* families_combo_ = nullptr;
+    TagComboBox* styles_combo_ = nullptr;
     ToggleTagButton* bold_button_ = nullptr;
     ToggleTagButton* italic_button_ = nullptr;
     TagComboBox* stretch_combo_ = nullptr;
     TagComboBox* size_combo_ = nullptr;
     TagComboBox* weight_combo_ = nullptr;
-    TagComboBox* fonts_combo_ = nullptr;
     Gtk::Toolbar* toolbar_ = nullptr;
 
     static void on_text_view_paste_clipboard(GtkTextView* text_view,
@@ -182,10 +184,11 @@ class RichTextEditor : public Gtk::Grid {
     void on_clipboard_rich_text_received(const Glib::ustring& format,
                                          const std::string& text);
 
+    TagComboBox* build_families_combo(const RichTextFontList& font_list);
+    TagComboBox* build_styles_combo(const RichTextFontList& font_list);
     TagComboBox* build_stretch_combo();
     TagComboBox* build_size_combo(const std::vector<double>& pointsizes);
     TagComboBox* build_weight_combo();
-    TagComboBox* build_fonts_combo(const RichTextFontList& font_list);
     Gtk::ToolButton* build_tools_menu();
 
     Gtk::Toolbar* build_toolbar(const RichTextFontList& font_list);

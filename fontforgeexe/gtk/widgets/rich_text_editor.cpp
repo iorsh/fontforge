@@ -600,7 +600,35 @@ RichTextEditor::TagComboBox* RichTextEditor::build_weight_combo() {
                                           tag_map, labels);
 }
 
-RichTextEditor::TagComboBox* RichTextEditor::build_fonts_combo(
+RichTextEditor::TagComboBox* RichTextEditor::build_families_combo(
+    const RichTextFontList& font_list) {
+    std::set<std::string> unique_families;
+    for (const auto& properties : font_list) {
+        unique_families.insert(properties.family_name);
+    }
+
+    // TODO (iorsh): implement properly, now it's a dummy combo.
+    std::map<std::string /*id*/, Glib::RefPtr<Gtk::TextTag>> tag_map;
+    std::vector<std::pair<std::string /*id*/, std::string /*label*/>> labels;
+    std::string default_id;
+
+    for (const auto& family_name : unique_families) {
+        std::string tag_id = "family|" + family_name;
+        if (default_id.empty()) {
+            default_id = tag_id;
+        } else {
+            auto tag = text_view_.get_buffer()->create_tag(tag_id);
+            tag_map[tag_id] = tag;
+        }
+
+        labels.emplace_back(tag_id, family_name);
+    }
+
+    return Gtk::make_managed<TagComboBox>(text_view_.get_buffer(), default_id,
+                                          tag_map, labels);
+}
+
+RichTextEditor::TagComboBox* RichTextEditor::build_styles_combo(
     const RichTextFontList& font_list) {
     // By convention, TextBuffer::Tag with name e.g. "font|New Century
     // Schoolbook" will be exported to XML tag as <font value="New Century
@@ -609,8 +637,9 @@ RichTextEditor::TagComboBox* RichTextEditor::build_fonts_combo(
     std::vector<std::pair<std::string /*id*/, std::string /*label*/>> labels;
     std::string default_id;
 
-    for (const auto& [font_name, properties] : font_list) {
-        std::string tag_id = "font|" + font_name;
+    for (const auto& properties : font_list) {
+        std::string tag_id =
+            "font|" + properties.family_name + "|" + properties.styles;
         if (default_id.empty()) {
             default_id = tag_id;
         } else {
@@ -622,7 +651,7 @@ RichTextEditor::TagComboBox* RichTextEditor::build_fonts_combo(
             tag_map[tag_id] = tag;
         }
 
-        labels.emplace_back(tag_id, font_name);
+        labels.emplace_back(tag_id, properties.styles);
     }
 
     return Gtk::make_managed<TagComboBox>(text_view_.get_buffer(), default_id,
@@ -656,8 +685,11 @@ Gtk::ToolButton* RichTextEditor::build_tools_menu() {
 }
 
 Gtk::Toolbar* RichTextEditor::build_toolbar(const RichTextFontList& font_list) {
-    fonts_combo_ = build_fonts_combo(font_list);
-    fonts_combo_->set_tooltip_text(_("Font"));
+    families_combo_ = build_families_combo(font_list);
+    families_combo_->set_tooltip_text(_("Font Family"));
+
+    styles_combo_ = build_styles_combo(font_list);
+    styles_combo_->set_tooltip_text(_("Font Style"));
 
     auto bold_tag = text_view_.get_buffer()->create_tag("bold");
     bold_tag->property_weight() = 700;
@@ -682,7 +714,8 @@ Gtk::Toolbar* RichTextEditor::build_toolbar(const RichTextFontList& font_list) {
     weight_combo_->set_tooltip_text(_("Weight Class"));
 
     Gtk::Toolbar* toolbar = Gtk::make_managed<Gtk::Toolbar>();
-    toolbar->append(*fonts_combo_);
+    toolbar->append(*families_combo_);
+    toolbar->append(*styles_combo_);
     toolbar->append(*bold_button_);
     toolbar->append(*italic_button_);
     toolbar->append(*stretch_combo_);
