@@ -115,10 +115,19 @@ class RichTextEditor : public Gtk::Grid {
             const std::map<std::string /*id*/, Glib::RefPtr<Gtk::TextTag>>&
                 tag_map,
             const std::vector<
-                std::pair<std::string /*id*/, std::string /*label*/>>& labels);
+                std::pair<std::string /*id*/, std::string /*label*/>>& labels,
+            const std::map<std::string /*id*/, RichTextFontProperties>&
+                property_map = {});
+
+        Gtk::ComboBoxText& get_combo_box() { return combo_box_; }
+        Pango::Weight get_weight() {
+            return property_map_.at(combo_box_.get_active_id()).weight;
+        }
 
         // The current_family is used to filter the list of available styles.
         void refresh_contents(const std::string& current_family);
+
+        void update(Pango::Weight weight_value);
 
         void apply_tag(const Gtk::TextBuffer::iterator& start,
                        const Gtk::TextBuffer::iterator& end);
@@ -146,6 +155,7 @@ class RichTextEditor : public Gtk::Grid {
         std::map<std::string /*id*/, Glib::RefPtr<Gtk::TextTag>> tag_map_;
         std::vector<std::pair<std::string /*id*/, std::string /*label*/>>
             labels_;
+        std::map<std::string /*id*/, RichTextFontProperties> property_map_;
 
         Glib::RefPtr<Gtk::TextBuffer> text_buffer_;
 
@@ -174,7 +184,7 @@ class RichTextEditor : public Gtk::Grid {
 
     Gtk::ToolItem* families_combo_ = nullptr;
     TagComboBox* styles_combo_ = nullptr;
-    ToggleTagButton* bold_button_ = nullptr;
+    Gtk::ToggleToolButton* bold_button_ = nullptr;
     ToggleTagButton* italic_button_ = nullptr;
     TagComboBox* stretch_combo_ = nullptr;
     TagComboBox* size_combo_ = nullptr;
@@ -191,6 +201,9 @@ class RichTextEditor : public Gtk::Grid {
 
     Gtk::ToolItem* build_families_combo(const RichTextFontList& font_list);
     TagComboBox* build_styles_combo(const RichTextFontList& font_list);
+    Gtk::ToggleToolButton* build_bold_button(
+        const std::set<Pango::Weight>& unique_weights);
+
     TagComboBox* build_stretch_combo();
     TagComboBox* build_size_combo(const std::vector<double>& pointsizes);
     TagComboBox* build_weight_combo();

@@ -323,10 +323,10 @@ void RichTextEditor::configure(bool bold_enabled, bool bold_value,
                                Pango::Stretch stretch_value,
                                bool weight_enabled,
                                Pango::Weight weight_value) {
-    if (!bold_enabled) {
-        bold_button_->set_active(bold_value);
-    }
-    bold_button_->set_sensitive(bold_enabled);
+    //     if (!bold_enabled) {
+    //         bold_button_->set_active(bold_value);
+    //     }
+    //     bold_button_->set_sensitive(bold_enabled);
     if (!italic_enabled) {
         italic_button_->set_active(italic_value);
     }
@@ -501,6 +501,36 @@ Gtk::ToolItem* RichTextEditor::build_families_combo(
     return combo_tool_item;
 }
 
+Gtk::ToggleToolButton* RichTextEditor::build_bold_button(
+    const std::set<Pango::Weight>& unique_weights) {
+    auto bold_button = Gtk::make_managed<Gtk::ToggleToolButton>();
+    bold_button->set_icon_name("format-text-bold");
+    bold_button->set_tooltip_text(_("Bold"));
+    if (unique_weights.size() == 1) {
+        bold_button->set_active(*unique_weights.rbegin() >=
+                                Pango::WEIGHT_SEMIBOLD);
+        bold_button->set_sensitive(false);
+    } else {
+        Pango::Weight val_off = *unique_weights.begin();
+        Pango::Weight val_on = *unique_weights.rbegin();
+
+        // Update styles combo when bold button is toggled.
+        bold_button->signal_toggled().connect(
+            [this, bold_button, val_off, val_on]() {
+                Pango::Weight weight_value =
+                    bold_button->get_active() ? val_on : val_off;
+                styles_combo_->update(weight_value);
+            });
+        // Update bold button when styles combo is changed.
+        styles_combo_->get_combo_box().signal_changed().connect(
+            [this, bold_button, val_off, val_on]() {
+                Pango::Weight weight_value = styles_combo_->get_weight();
+                bold_button->set_active(weight_value >= val_on);
+            });
+    }
+    return bold_button;
+}
+
 RichTextEditor::TagComboBox* RichTextEditor::build_stretch_combo() {
     std::string default_id = "width|medium";
 
@@ -638,6 +668,7 @@ RichTextEditor::TagComboBox* RichTextEditor::build_styles_combo(
     // Schoolbook" will be exported to XML tag as <font value="New Century
     // Schoolbook">. Unlike in XML, TextBuffer tags must have unique names.
     std::map<std::string /*id*/, Glib::RefPtr<Gtk::TextTag>> tag_map;
+    std::map<std::string /*id*/, RichTextFontProperties> property_map;
     std::vector<std::pair<std::string /*id*/, std::string /*label*/>> labels;
     std::string default_id;
 
@@ -654,12 +685,13 @@ RichTextEditor::TagComboBox* RichTextEditor::build_styles_combo(
             tag->property_underline() = properties.underline;
             tag_map[tag_id] = tag;
         }
+        property_map[tag_id] = properties;
 
         labels.emplace_back(tag_id, properties.styles);
     }
 
     return Gtk::make_managed<TagComboBox>(text_view_.get_buffer(), default_id,
-                                          tag_map, labels);
+                                          tag_map, labels, property_map);
 }
 
 Gtk::ToolButton* RichTextEditor::build_tools_menu() {
@@ -695,13 +727,13 @@ Gtk::Toolbar* RichTextEditor::build_toolbar(const RichTextFontList& font_list) {
     styles_combo_ = build_styles_combo(font_list);
     styles_combo_->set_tooltip_text(_("Font Style"));
 
-    auto bold_tag = text_view_.get_buffer()->create_tag("bold");
-    bold_tag->property_weight() = 700;
-
-    bold_button_ =
-        Gtk::make_managed<ToggleTagButton>(text_view_.get_buffer(), bold_tag);
-    bold_button_->set_icon_name("format-text-bold");
-    bold_button_->set_tooltip_text(_("Bold"));
+    std::set<Pango::Weight> unique_weights;
+    for (const auto& properties : font_list) {
+        unique_weights.insert(properties.weight);
+    }
+    if (unique_weights.size() <= 2) {
+        bold_button_ = build_bold_button(unique_weights);
+    }
 
     auto italic_tag = text_view_.get_buffer()->create_tag("italic");
     italic_tag->property_style() = Pango::STYLE_ITALIC;
@@ -720,7 +752,7 @@ Gtk::Toolbar* RichTextEditor::build_toolbar(const RichTextFontList& font_list) {
     Gtk::Toolbar* toolbar = Gtk::make_managed<Gtk::Toolbar>();
     toolbar->append(*families_combo_);
     toolbar->append(*styles_combo_);
-    toolbar->append(*bold_button_);
+    if (bold_button_) toolbar->append(*bold_button_);
     toolbar->append(*italic_button_);
     toolbar->append(*stretch_combo_);
     toolbar->append(*weight_combo_);
@@ -874,11 +906,13 @@ RichTextEditor::TagComboBox::TagComboBox(
     Glib::RefPtr<Gtk::TextBuffer> text_buffer, const std::string& default_id,
     const std::map<std::string /*id*/, Glib::RefPtr<Gtk::TextTag>>& tag_map,
     const std::vector<std::pair<std::string /*id*/, std::string /*label*/>>&
-        labels)
+        labels,
+    const std::map<std::string /*id*/, RichTextFontProperties>& property_map)
     : text_buffer_(text_buffer),
       default_id_(default_id),
       tag_map_(tag_map),
-      labels_(labels) {
+      labels_(labels),
+      property_map_(property_map) {
     refresh_contents(get_family_from_tag_id(default_id));
     combo_box_.set_focus_on_click(false);
     add(combo_box_);
@@ -912,6 +946,39 @@ void RichTextEditor::TagComboBox::refresh_contents(
     }
 
     combo_box_.set_active(0);
+}
+
+// The update needs to select the style which satisfies the requested weight
+// value (it is guaranteed that some style does indeed have that exact weight
+// value). When multiple styles satisfy the weight requirement, it should select
+// the closest to the current style.
+void RichTextEditor::TagComboBox::update(Pango::Weight weight_value) {
+    auto active_id = combo_box_.get_active_id();
+    const RichTextFontProperties& current_props = property_map_.at(active_id);
+
+    // The distance metric is defined as the number of properties that differ
+    // from the current properties. Difference by family is considered infinite,
+    // since the combo box only contains styles of the same family. We also
+    // require identical weight, because this is what user explicitly asked for.
+    auto metrics = [weight_value,
+                    current_props](const RichTextFontProperties& a) {
+        int distance = ((a.weight == current_props.weight) ? 0 : 1) +
+                       ((a.style == current_props.style) ? 0 : 1) +
+                       ((a.stretch == current_props.stretch) ? 0 : 1);
+        return (a.family_name != current_props.family_name)
+                   ? std::numeric_limits<int>::max()
+               : (a.weight != weight_value) ? std::numeric_limits<int>::max()
+                                            : distance;
+    };
+    auto comparator = [metrics](const auto& a, const auto& b) {
+        return metrics(a.second) < metrics(b.second);
+    };
+
+    auto min_it = std::min_element(property_map_.begin(), property_map_.end(),
+                                   comparator);
+    if (min_it != property_map_.end()) {
+        combo_box_.set_active_id(min_it->first);
+    }
 }
 
 void RichTextEditor::TagComboBox::apply_tag(
