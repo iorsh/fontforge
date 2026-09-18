@@ -480,15 +480,23 @@ Gtk::ToolItem* RichTextEditor::build_families_combo(
 
     // Add entries to combo box
     for (const auto& family_name : unique_families) {
-        combo_box->append("family|" + family_name, family_name);
+        combo_box->append(family_name, family_name);
     }
 
     // The default font is the first entry on the font list.
-    combo_box->set_active_id("family|" + font_list.front().family_name);
+    combo_box->set_active_id(font_list.front().family_name);
     combo_box->set_focus_on_click(false);
 
     Gtk::ToolItem* combo_tool_item = Gtk::make_managed<Gtk::ToolItem>();
     combo_tool_item->add(*combo_box);
+
+    combo_box->signal_changed().connect([this, combo_box]() {
+        if (!styles_combo_) {
+            return;
+        }
+        std::string family_id = combo_box->get_active_id();
+        styles_combo_->refresh_contents(family_id);
+    });
 
     return combo_tool_item;
 }
@@ -850,18 +858,28 @@ void RichTextEditor::ToggleTagButton::on_buffer_cursor_changed(
 ///                 RichTextEditor::TagComboBox                     ///
 ///////////////////////////////////////////////////////////////////////
 
+static std::string get_family_from_tag_id(const std::string& tag_id) {
+    if (tag_id.substr(0, 5) != "font|") {
+        return "";
+    }
+    std::string font_tag = tag_id.substr(5);
+    size_t first = font_tag.find('|');
+    if (first == std::string::npos) {
+        return "";
+    }
+    return font_tag.substr(0, first);
+}
+
 RichTextEditor::TagComboBox::TagComboBox(
     Glib::RefPtr<Gtk::TextBuffer> text_buffer, const std::string& default_id,
     const std::map<std::string /*id*/, Glib::RefPtr<Gtk::TextTag>>& tag_map,
     const std::vector<std::pair<std::string /*id*/, std::string /*label*/>>&
         labels)
-    : text_buffer_(text_buffer), default_id_(default_id), tag_map_(tag_map) {
-    // Add entries to combo box
-    for (const auto& [tag_id, label] : labels) {
-        combo_box_.append(tag_id, label);
-    }
-
-    combo_box_.set_active_id(default_id_);
+    : text_buffer_(text_buffer),
+      default_id_(default_id),
+      tag_map_(tag_map),
+      labels_(labels) {
+    refresh_contents(get_family_from_tag_id(default_id));
     combo_box_.set_focus_on_click(false);
     add(combo_box_);
 
@@ -880,6 +898,20 @@ RichTextEditor::TagComboBox::TagComboBox(
                 apply_tag(start, pos);
             }
         });
+}
+
+void RichTextEditor::TagComboBox::refresh_contents(
+    const std::string& current_family) {
+    combo_box_.remove_all();
+    // Add entries to combo box
+    for (const auto& [tag_id, label] : labels_) {
+        // Add only tags that match the current family.
+        if (get_family_from_tag_id(tag_id) == current_family) {
+            combo_box_.append(tag_id, label);
+        }
+    }
+
+    combo_box_.set_active(0);
 }
 
 void RichTextEditor::TagComboBox::apply_tag(

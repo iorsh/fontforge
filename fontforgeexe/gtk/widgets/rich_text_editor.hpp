@@ -117,6 +117,9 @@ class RichTextEditor : public Gtk::Grid {
             const std::vector<
                 std::pair<std::string /*id*/, std::string /*label*/>>& labels);
 
+        // The current_family is used to filter the list of available styles.
+        void refresh_contents(const std::string& current_family);
+
         void apply_tag(const Gtk::TextBuffer::iterator& start,
                        const Gtk::TextBuffer::iterator& end);
 
@@ -141,6 +144,8 @@ class RichTextEditor : public Gtk::Grid {
      protected:
         std::string default_id_;
         std::map<std::string /*id*/, Glib::RefPtr<Gtk::TextTag>> tag_map_;
+        std::vector<std::pair<std::string /*id*/, std::string /*label*/>>
+            labels_;
 
         Glib::RefPtr<Gtk::TextBuffer> text_buffer_;
 
