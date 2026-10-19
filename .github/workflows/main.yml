@@ -108,6 +108,15 @@ jobs:
           FFCONFIG="-DCMAKE_INSTALL_PREFIX=$PREFIX -DENABLE_FONTFORGE_EXTRAS=ON -DCMAKE_PREFIX_PATH=$HOMEBREW_PREFIX"
           mkdir build && pushd build && cmake -GNinja $FFCONFIG .. && popd
           ninja -C build install
+      - name: Verify libpng dependency
+        working-directory: repo
+        run: |
+          PNG_LIBRARY="$(sed -n 's/^PNG_LIBRARY_RELEASE:FILEPATH=//p' build/CMakeCache.txt)"
+          echo "CMake libpng library: $PNG_LIBRARY"
+          case "$PNG_LIBRARY" in
+            "$HOMEBREW_PREFIX"/*) ;;
+            *) echo "ERROR: libpng was not found under $HOMEBREW_PREFIX"; exit 1 ;;
+          esac
       - name: Run FontForge tests
         working-directory: repo
         run: CTEST_PARALLEL_LEVEL=100 ninja -C build check
@@ -141,6 +150,19 @@ jobs:
       - name: Build App Bundle
         working-directory: repo/build
         run: ninja macbundle
+      - name: Smoke test bundled FontForge
+        working-directory: repo/build/osx
+        run: |
+          FONTFORGE="$PWD/FontForge.app/Contents/Resources/opt/local/bin/fontforge"
+          if ! OUTPUT="$("$FONTFORGE" -version 2>&1)"; then
+            printf '%s\n' "$OUTPUT"
+            exit 1
+          fi
+          printf '%s\n' "$OUTPUT"
+          if grep -q 'Application built with libpng-.* but running with' <<< "$OUTPUT"; then
+            echo "ERROR: bundled FontForge uses an incompatible libpng"
+            exit 1
+          fi
       # Notarize + staple the dmg when notarization credentials are configured.
       # Skipped (no-op) otherwise. Uses an App Store Connect API key.
       - name: Notarize and staple
