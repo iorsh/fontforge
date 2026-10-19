@@ -96,14 +96,16 @@ jobs:
       - name: Install dependencies
         run: |
           brew install cairo coreutils fontconfig gettext giflib gtk+3 gtkmm3 jpeg libpng libspiro libtiff libtool libuninameslist python@3 wget woff2 --quiet
+          HOMEBREW_PREFIX="$(brew --prefix)"
           PREFIX=$GITHUB_WORKSPACE/target
           echo "PREFIX=$PREFIX" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig" >> $GITHUB_ENV
-          echo "PATH=/usr/local/opt/ruby/bin:/usr/local/opt/gettext/bin:$PATH" >> $GITHUB_ENV
+          echo "HOMEBREW_PREFIX=$HOMEBREW_PREFIX" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=$HOMEBREW_PREFIX/lib/pkgconfig:$HOMEBREW_PREFIX/share/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+          echo "PATH=$HOMEBREW_PREFIX/opt/ruby/bin:$HOMEBREW_PREFIX/opt/gettext/bin:$PATH" >> $GITHUB_ENV
       - name: Build FontForge
         working-directory: repo
         run: |
-          FFCONFIG="-DCMAKE_INSTALL_PREFIX=$PREFIX -DENABLE_FONTFORGE_EXTRAS=ON -DCMAKE_FIND_ROOT_PATH=/usr/local/opt/gettext"
+          FFCONFIG="-DCMAKE_INSTALL_PREFIX=$PREFIX -DENABLE_FONTFORGE_EXTRAS=ON -DCMAKE_PREFIX_PATH=$HOMEBREW_PREFIX"
           mkdir build && pushd build && cmake -GNinja $FFCONFIG .. && popd
           ninja -C build install
       - name: Run FontForge tests
