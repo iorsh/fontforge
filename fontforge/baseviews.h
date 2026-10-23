@@ -121,20 +121,13 @@ enum cvtools {
 	cvt_spirocorner=cvt_corner, cvt_spiroleft=cvt_tangent,
 	cvt_spiroright=cvt_pen};
 
-enum bvtools { bvt_pointer, bvt_magnify,
-	bvt_pencil, bvt_line,
-	bvt_shift, bvt_hand,
-	bvt_minify, bvt_max=bvt_minify, bvt_eyedropper,
-	bvt_setwidth, bvt_setvwidth,
-	bvt_rect, bvt_filledrect,
-	bvt_elipse, bvt_filledelipse,
-	bvt_max2 = bvt_filledelipse,
+enum bvxforms {
 	bvt_none = -1,
 	bvt_fliph=0, bvt_flipv, bvt_rotate90cw, bvt_rotate90ccw, bvt_rotate180, bvt_skew, bvt_transmove };
 enum drawmode { dm_grid, dm_back, dm_fore, dm_max };
 
 typedef struct bvtfunc {
-    enum bvtools func;
+    enum bvxforms func;
     int x,y;		/* used by skew and move */
 } BVTFunc;
 

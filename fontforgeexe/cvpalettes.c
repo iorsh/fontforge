@@ -43,6 +43,7 @@
 #include "splinefont.h"
 #include "ustring.h"
 #include "utype.h"
+#include "gtk/bitmap_view_shim.hpp"
 
 #include <math.h>
 

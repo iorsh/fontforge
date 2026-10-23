@@ -1058,7 +1058,6 @@ extern BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv,int 
 extern BitmapView *BitmapViewCreatePick(int enc, FontView *fv);
 extern void BitmapViewFree(BitmapView *bv);
 extern void BVMenuRotateInvoked(GWindow gw,struct gmenuitem *mi, GEvent *e);
-extern void BVRotateBitmap(BitmapView *bv,enum bvtools type );
 extern int  BVColor(BitmapView *bv);
 extern void BCGeneralFunction(BitmapView *bv,
 	void (*SetPoint)(BitmapView *,int x, int y, void *data),void *data);

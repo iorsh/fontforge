@@ -54,7 +54,7 @@ void skewselect(BVTFunc *bvtf,real t) {
     bvtf->y = best;
 }
 
-void BCTransFunc(BDFChar *bc,enum bvtools type,int xoff,int yoff) {
+void BCTransFunc(BDFChar *bc,enum bvxforms type,int xoff,int yoff) {
     int i, j;
     uint8_t *pt, *end, *pt2, *bitmap;
     int bpl, temp;
