@@ -74,7 +74,7 @@ extern struct cvshows {
 } CVShows;
 
 extern struct bvshows {
-    int showfore, showoutline, showgrid;
+    bool show_layers[3];
     int lastpixelsize;
 } BVShows;
 
@@ -334,13 +334,11 @@ typedef struct bitmapview {
     int scale;
     real scscale;
     struct bitmapview *next;
-    unsigned int showfore:1;
-    unsigned int showoutline:1;
-    unsigned int showgrid:1;
     unsigned int cntrldown:1;
     unsigned int recentchange:1;
     unsigned int clearing:1;
     unsigned int shades_hidden:1;
+    bool show_layers[3];
     /*GWindow tools, layers;*/
     int8_t had_control, active_tool;
     int pressed_x, pressed_y;

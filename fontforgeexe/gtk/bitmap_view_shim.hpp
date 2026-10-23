@@ -50,6 +50,12 @@ enum bvtools {
     bvt_filledelipse,
 };
 
+enum bvlayers {
+    bvl_bitmap,
+    bvl_outline,
+    bvl_guide,
+};
+
 #ifdef __cplusplus
 
 #include "l10n_text.hpp"
@@ -61,12 +67,6 @@ struct BitmapViewTool {
     L10nText label;
 
     static const BitmapViewTool none;
-};
-
-enum bvlayers {
-    bvl_bitmap,
-    bvl_outline,
-    bvl_guide,
 };
 
 struct BitmapViewLayer {

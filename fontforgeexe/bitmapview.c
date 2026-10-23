@@ -51,7 +51,7 @@ int bv_width = 270, bv_height=250;
 
 extern struct lconv localeinfo;
 extern char *coord_sep;
-struct bvshows BVShows = { 1, 1, 1, 0 };
+struct bvshows BVShows = { {1, 1, 1}, 0 };
 extern void* p_bitmap_view_tools;
 extern void* p_bitmap_view_layers;
 
@@ -735,7 +735,7 @@ static void BVExpose(BitmapView *bv, GWindow pixmap, GEvent *event ) {
 
     GDrawPushClip(pixmap,&event->u.expose.rect,&old);
     GDrawSetLineWidth(pixmap,0);
-    if ( bv->showfore ) {
+    if ( bv->show_layers[bvl_bitmap] ) {
 	/* fore ground is a misnomer. it's what we're interested in but we */
 	/*  actually need to draw it first, otherwise it obscures everything */
 	pixel.width = pixel.height = bv->scale+1;
@@ -750,7 +750,7 @@ static void BVExpose(BitmapView *bv, GWindow pixmap, GEvent *event ) {
 	if ( bv->bc->selection )
 	    BVDrawSelection(bv,pixmap);
     }
-    if ( bv->showgrid ) {
+    if ( bv->show_layers[bvl_guide] ) {
 	if ( bv->scale>2 ) {
 	    for ( i=bv->xoff+bv->scale; i<bv->width; i += bv->scale )
 		GDrawDrawLine(pixmap,i,0, i,bv->height,grid_color);
@@ -772,12 +772,12 @@ static void BVExpose(BitmapView *bv, GWindow pixmap, GEvent *event ) {
 	    GDrawDrawLine(pixmap,0,-bv->yoff+bv->height-(bv->bdf->ascent-bc->vwidth)*bv->scale,
 		    bv->width,-bv->yoff+bv->height-(bv->bdf->ascent-bc->vwidth)*bv->scale,width_guide_color);
     }
-    if ( bv->showfore ) {
+    if ( bv->show_layers[bvl_bitmap] ) {
 	/* Reference names are drawn after grid (otherwise some characters may get unreadable */
 	for ( bref=bc->refs; bref!=NULL; bref=bref->next )
 	    BVDrawRefName( bv,pixmap,bref,0 );
     }
-    if ( bv->showoutline ) {
+    if ( bv->show_layers[bvl_outline] ) {
 	memset(&cvtemp,'\0',sizeof(cvtemp));
 	cvtemp.v = bv->v;
 	cvtemp.width = bv->width;
@@ -2286,9 +2286,9 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv->color = 255;
     bv->shades_hidden = bdf->clut==NULL;
 
-    bv->showfore = BVShows.showfore;
-    bv->showoutline = BVShows.showoutline;
-    bv->showgrid = BVShows.showgrid;
+    bv->show_layers[bvl_bitmap] = BVShows.show_layers[bvl_bitmap];
+    bv->show_layers[bvl_outline] = BVShows.show_layers[bvl_outline];
+    bv->show_layers[bvl_guide] = BVShows.show_layers[bvl_guide];
     bv->scscale = ((real) (bdf->pixelsize))/(bdf->sf->ascent+bdf->sf->descent);
 
     memset(&wattrs,0,sizeof(wattrs));
