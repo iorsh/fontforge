@@ -66,8 +66,8 @@ extern void CVDebugFree(DebugView *dv);
 extern GDevEventMask input_em[];
 extern const int input_em_cnt;
 
-int cvvisible[2] = { 1, 1}, bvvisible[3]= { 1,1,1 };
-static GWindow cvlayers, cvtools, bvlayers, bvshades;
+int cvvisible[2] = { 1, 1}, bvvisible[2]= { 1,1 };
+static GWindow cvlayers, cvtools, bvlayers;
 static GWindow cvlayers2=NULL;
 
 #define LSHOW_CUBIC   1
@@ -98,7 +98,7 @@ struct l2 {
 
 struct l2 layer2 = { 2, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, NULL, NULL };
 static int layers2_active = -1;
-static GPoint cvtoolsoff = { -9999, -9999 }, cvlayersoff = { -9999, -9999 }, bvlayersoff = { -9999, -9999 }, bvshadesoff = { -9999, -9999 };
+static GPoint cvtoolsoff = { -9999, -9999 }, cvlayersoff = { -9999, -9999 }, bvlayersoff = { -9999, -9999 };
 int palettes_fixed=1;
 static GCursor tools[cvt_max+1] = { ct_pointer }, spirotools[cvt_max+1];
 
@@ -3886,13 +3886,9 @@ void _CVPaletteActivate(CharView *cv, int force, int docking_changed) {
 	BitmapView *bv = GDrawGetUserData(bvlayers);
 	if ( bv!=NULL ) {
 	    SaveOffsets(bv->gw,bvlayers,&bvlayersoff);
-	    if ( !bv->shades_hidden )
-		SaveOffsets(bv->gw,bvshades,&bvshadesoff);
 	    GDrawSetUserData(bvlayers,NULL);
-	    GDrawSetUserData(bvshades,NULL);
 	}
 	SetPaletteVisible(NULL, bvlayers, false);
-	SetPaletteVisible(NULL, bvshades, false);
     }
 }
 
@@ -4109,151 +4105,6 @@ return(bvlayers);
 return( bvlayers );
 }
 
-struct shades_layout {
-    int depth;
-    int div;
-    int cnt;		/* linear number of squares */
-    int size;
-};
-
-static void BVShadesDecompose(BitmapView *bv, struct shades_layout *lay) {
-    GRect r;
-    int temp;
-
-    GDrawGetSize(bvshades,&r);
-    lay->depth = BDFDepth(bv->bdf);
-    lay->div = 255/((1<<lay->depth)-1);
-    lay->cnt = lay->depth==8 ? 16 : lay->depth;
-    temp = r.width>r.height ? r.height : r.width;
-    lay->size = (temp-8+1)/lay->cnt - 1;
-}
-
-static void BVShadesExpose(GWindow pixmap, BitmapView *bv, GRect *r) {
-    struct shades_layout lay;
-    GRect old;
-    int i,j,index;
-    GRect block;
-    Color bg = default_background;
-    int greybg = (3*COLOR_RED(bg)+6*COLOR_GREEN(bg)+COLOR_BLUE(bg))/10;
-
-    GDrawSetLineWidth(pixmap,0);
-    BVShadesDecompose(bv,&lay);
-    GDrawPushClip(pixmap,r,&old);
-    for ( i=0; i<=lay.cnt; ++i ) {
-	int p = 3+i*(lay.size+1);
-	int m = 8+lay.cnt*(lay.size+1);
-	GDrawDrawLine(pixmap,p,0,p,m,bg);
-	GDrawDrawLine(pixmap,0,p,m,p,bg);
-    }
-    block.width = block.height = lay.size;
-    for ( i=0; i<lay.cnt; ++i ) {
-	block.y = 4 + i*(lay.size+1);
-	for ( j=0; j<lay.cnt; ++j ) {
-	    block.x = 4 + j*(lay.size+1);
-	    index = (i*lay.cnt+j)*lay.div;
-	    if (( bv->color >= index - lay.div/2 &&
-			bv->color <= index + lay.div/2 ) ||
-		 ( bv->color_under_cursor >= index - lay.div/2 &&
-		    bv->color_under_cursor <= index + lay.div/2 )) {
-		GRect outline;
-		outline.x = block.x-1; outline.y = block.y-1;
-		outline.width = block.width+1; outline.height = block.height+1;
-		GDrawDrawRect(pixmap,&outline,
-		    ( bv->color >= index - lay.div/2 &&
-			bv->color <= index + lay.div/2 )?0x00ff00:0xffffff);
-	    }
-	    index = (255-index) * greybg / 255;
-	    GDrawFillRect(pixmap,&block,0x010101*index);
-	}
-    }
-}
-
-static void BVShadesMouse(BitmapView *bv, GEvent *event) {
-    struct shades_layout lay;
-    int i, j;
-
-    GGadgetEndPopup();
-    if ( event->type == et_mousemove && !bv->shades_down )
-return;
-    BVShadesDecompose(bv,&lay);
-    if ( event->u.mouse.x<4 || event->u.mouse.y<4 ||
-	    event->u.mouse.x>=4+lay.cnt*(lay.size+1) ||
-	    event->u.mouse.y>=4+lay.cnt*(lay.size+1) )
-return;
-    i = (event->u.mouse.y-4)/(lay.size+1);
-    j = (event->u.mouse.x-4)/(lay.size+1);
-    if ( bv->color != (i*lay.cnt + j)*lay.div ) {
-	bv->color = (i*lay.cnt + j)*lay.div;
-	GDrawRequestExpose(bvshades,NULL,false);
-    }
-    if ( event->type == et_mousedown ) bv->shades_down = true;
-    else if ( event->type == et_mouseup ) bv->shades_down = false;
-    if ( event->type == et_mouseup )
-	GDrawRequestExpose(bv->gw,NULL,false);
-}
-
-static int bvshades_e_h(GWindow gw, GEvent *event) {
-    BitmapView *bv = (BitmapView *) GDrawGetUserData(gw);
-
-    if ( event->type==et_destroy && bvshades == gw ) {
-	bvshades = NULL;
-return( true );
-    }
-
-    if ( bv==NULL )
-return( true );
-
-    switch ( event->type ) {
-      case et_expose:
-	BVShadesExpose(gw,bv,&event->u.expose.rect);
-      break;
-      case et_mousemove:
-      case et_mouseup:
-      case et_mousedown:
-	BVShadesMouse(bv,event);
-      break;
-      case et_char: case et_charup:
-	PostCharToWindow(bv->gw,event);
-      break;
-      case et_destroy:
-      break;
-      case et_close:
-	SetPaletteVisible(NULL, gw, false);
-      break;
-      default: break;
-    }
-return( true );
-}
-
-static GWindow BVMakeShades(BitmapView *bv) {
-    GRect r;
-    GWindowAttrs wattrs;
-
-    if ( bvshades!=NULL )
-return( bvshades );
-    memset(&wattrs,0,sizeof(wattrs));
-    wattrs.mask = wam_events|wam_cursor|wam_utf8_wtitle|wam_positioned|wam_isdlg/*|wam_backcol*/;
-    wattrs.event_masks = -1;
-    wattrs.cursor = ct_eyedropper;
-    wattrs.positioned = true;
-    wattrs.is_dlg = true;
-    wattrs.background_color = 0xffffff;
-    wattrs.utf8_window_title = _("Shades");
-
-    r.width = BV_SHADES_HEIGHT; r.height = r.width;
-    r.x = -r.width-6; r.y = 225;
-    if ( palettes_docked ) {
-	r.x = 0; r.y = BV_TOOLS_HEIGHT+BV_LAYERS_HEIGHT+4;
-    } else if ( palettes_fixed ) {
-	r.x = 0; r.y = BV_TOOLS_HEIGHT+BV_LAYERS_HEIGHT+90;
-    }
-    bvshades = CreatePalette( bv->gw, &r, bvshades_e_h, bv, &wattrs, bv->v );
-    bv->shades_hidden = BDFDepth(bv->bdf)==1;
-    if ( bvvisible[2] && !bv->shades_hidden )
-	SetPaletteVisible(bv->gw, bvshades, true);
-return( bvshades );
-}
-
 static char *bvpopups[] = { N_("Pointer"), N_("Magnify (Minify with alt)"),
 				    N_("Set/Clear Pixels"), N_("Draw a Line"),
 			            N_("Shift Entire Bitmap"), N_("Scroll Bitmap") };
@@ -4343,23 +4194,18 @@ void BVToolsPopup(BitmapView *bv, GEvent *event) {
 static void BVPaletteCheck(BitmapView *bv) {
     if ( bvlayers==NULL ) {
 	BVMakeLayers(bv);
-	BVMakeShades(bv);
     }
 }
 
 int BVPaletteIsVisible(BitmapView *bv,int which) {
     BVPaletteCheck(bv);
-    if ( which==2 )
-return( bvshades!=NULL && GDrawIsVisible(bvshades) );
 
 return( bvlayers!=NULL && GDrawIsVisible(bvlayers) );
 }
 
 void BVPaletteSetVisible(BitmapView *bv,int which,int visible) {
     BVPaletteCheck(bv);
-    if ( which==2 && bvshades!=NULL)
-	SetPaletteVisible(bv->gw, bvshades, visible );
-    else if ( which==0 && bvlayers!=NULL )
+    if ( which==0 && bvlayers!=NULL )
 	SetPaletteVisible(bv->gw, bvlayers, visible );
     bvvisible[which] = visible;
     SavePrefs(true);
@@ -4372,33 +4218,25 @@ static void _BVPaletteActivate(BitmapView *bv, int force, int docking_changed) {
     if ( ((old = GDrawGetUserData(bvlayers)) != bv) || force ) {
 	if ( old!=NULL ) {
 	    SaveOffsets(old->gw,bvlayers,&bvlayersoff);
-	    SaveOffsets(old->gw,bvshades,&bvshadesoff);
 	}
 
     if ((palettes_docked && old != bv) || docking_changed) {
         // Recreate the bvtools if docked, similar to cvtools
         GDrawDestroyWindow(bvlayers);
-        GDrawDestroyWindow(bvshades);
-        bvlayers = bvshades = NULL;
+        bvlayers = NULL;
         BVPaletteCheck(bv);
     }
 
 	GDrawSetUserData(bvlayers,bv);
-	GDrawSetUserData(bvshades,bv);
 
     if (palettes_docked) {
         if (bvvisible[0])
             GDrawRequestExpose(bvlayers, NULL, false);
-        if (bvvisible[2])
-            GDrawRequestExpose(bvshades, NULL, false);
     } else {
 	    if ( bvvisible[0])
 		RestoreOffsets(bv->gw,bvlayers,&bvlayersoff);
-	    if ( bvvisible[2] && !bv->shades_hidden )
-		RestoreOffsets(bv->gw,bvshades,&bvshadesoff);
 	}
 	SetPaletteVisible(bv->gw, bvlayers, bvvisible[0]);
-	SetPaletteVisible(bv->gw, bvshades, bvvisible[2] && bv->bdf->clut!=NULL);
 	if ( bvvisible[0])
 	    BVLayersSet(bv);
     }
@@ -4430,11 +4268,8 @@ void BVPalettesHideIfMine(BitmapView *bv) {
 return;
     if ( GDrawGetUserData(bvlayers)==bv ) {
 	SaveOffsets(bv->gw,bvlayers,&bvlayersoff);
-	SaveOffsets(bv->gw,bvshades,&bvshadesoff);
 	SetPaletteVisible(NULL, bvlayers, false);
-	SetPaletteVisible(NULL, bvshades, false);
 	GDrawSetUserData(bvlayers,NULL);
-	GDrawSetUserData(bvshades,NULL);
     }
 }
 
@@ -4462,38 +4297,17 @@ void CVPaletteDeactivate(void) {
 	BitmapView *bv = GDrawGetUserData(bvlayers);
 	if ( bv!=NULL ) {
 	    SaveOffsets(bv->gw,bvlayers,&bvlayersoff);
-	    SaveOffsets(bv->gw,bvshades,&bvshadesoff);
 	    GDrawSetUserData(bvlayers,NULL);
-	    GDrawSetUserData(bvshades,NULL);
 	}
 	SetPaletteVisible(NULL, bvlayers, false);
-	SetPaletteVisible(NULL, bvshades, false);
-    }
-}
-
-void BVPaletteColorChange(BitmapView *bv) {
-    if ( bvshades!=NULL )
-	GDrawRequestExpose(bvshades,NULL,false);
-    GDrawRequestExpose(bv->gw,NULL,false);
-}
-
-void BVPaletteColorUnderChange(BitmapView *bv,int color_under) {
-    if ( bvshades!=NULL && color_under!=bv->color_under_cursor ) {
-	bv->color_under_cursor = color_under;
-	GDrawRequestExpose(bvshades,NULL,false);
     }
 }
 
 void BVPaletteChangedChar(BitmapView *bv) {
-    if ( bvshades!=NULL && bvvisible[2]) {
-	int hidden = bv->bdf->clut==NULL;
-	if ( hidden!=bv->shades_hidden ) {
-	    SetPaletteVisible(bv->gw, bvshades, !hidden);
-	    bv->shades_hidden = hidden;
-	    GDrawRequestExpose(bv->gw,NULL,false);
-	} else
-	    GDrawRequestExpose(bvshades,NULL,false);
-    }
+    // TODO(iorsh): Couit it happen that the shades palette is hidden for
+    // some glyphs?
+    int hidden = bv->bdf->clut==NULL;
+    (void)hidden;
 }
 
 void PalettesChangeDocking() {
