@@ -52,6 +52,7 @@ int bv_width = 270, bv_height=250;
 extern struct lconv localeinfo;
 extern char *coord_sep;
 struct bvshows BVShows = { {true, true, true}, 0 };
+int bvvisible[3]= { 1,1,1 };
 extern void* p_bitmap_view_tools;
 extern void* p_bitmap_view_layers;
 
@@ -279,7 +280,6 @@ return;
 	}
 #endif
 
-    BVPaletteActivate(bv);
     BVToolsSetCursor(bv,TrueCharState(event),NULL);
     if ( event->u.chr.keysym=='s' &&
 	    (event->u.chr.state&ksm_control) &&
@@ -1417,7 +1417,6 @@ static int v_e_h(GWindow gw, GEvent *event) {
 	BVToolsSetCursor(bv,event->u.mouse.state, event->u.mouse.device);
       break;
       case et_mousedown:
-	BVPaletteActivate(bv);
 	BVMouseDown(bv,event);
       break;
       case et_mousemove:
@@ -1466,22 +1465,14 @@ static int bv_e_h(GWindow gw, GEvent *event) {
       break;
       case et_destroy:
 	BVUnlinkView(bv);
-	BVPalettesHideIfMine(bv);
 	GDrawDestroyWindow(bv->v);
 	BitmapViewFree(bv);
-      break;
-      case et_map:
-	if ( event->u.map.is_visible )
-	    BVPaletteActivate(bv);
-	else
-	    BVPalettesHideIfMine(bv);
       break;
       case et_close:
 	GDrawDestroyWindow(gw);
       break;
       case et_mouseup: case et_mousedown:
 	GGadgetEndPopup();
-	BVPaletteActivate(bv);
       break;
       case et_mousemove:
 	enc = BVCurEnc(bv);
@@ -1682,10 +1673,11 @@ static void BVMenuPalettesDock(GWindow gw,struct gmenuitem *mi,GEvent *e) {
     PalettesChangeDocking();
 }
 
+// TODO(iorsh): Expand / collapse new paletts.
 static void BVMenuPaletteShow(GWindow gw,struct gmenuitem *mi,GEvent *g) {
-    BitmapView *bv = (BitmapView *) GDrawGetUserData(gw);
+//     BitmapView *bv = (BitmapView *) GDrawGetUserData(gw);
 
-    BVPaletteSetVisible(bv, mi->mid==BV_MID_Tools?1:mi->mid==BV_MID_Shades?2:0, !BVPaletteIsVisible(bv, mi->mid==BV_MID_Tools?1:mi->mid==BV_MID_Shades?2:0));
+//     BVPaletteSetVisible(bv, mi->mid==BV_MID_Tools?1:mi->mid==BV_MID_Shades?2:0, !BVPaletteIsVisible(bv, mi->mid==BV_MID_Tools?1:mi->mid==BV_MID_Shades?2:0));
 }
 
 static void BVUndo(GWindow gw,struct gmenuitem *mi,GEvent *e) {
@@ -1978,15 +1970,18 @@ static void pllistcheck(GWindow gw,struct gmenuitem *mi,GEvent *e) {
     for ( mi = mi->sub; mi->ti.text!=NULL || mi->ti.line ; ++mi ) {
 	switch ( mi->mid ) {
 	  case BV_MID_Tools:
-	    mi->ti.checked = BVPaletteIsVisible(bv,1);
+	    // TODO(iorsh): Account for expanded / collapsed state.
+	//     mi->ti.checked = BVPaletteIsVisible(bv,1);
 	  break;
 	  case BV_MID_Layers:
-	    mi->ti.checked = BVPaletteIsVisible(bv,0);
+	    // TODO(iorsh): Account for expanded / collapsed state.
+	//     mi->ti.checked = BVPaletteIsVisible(bv,0);
 	  break;
 	  case BV_MID_Shades:
 	    mi->ti.disabled = BDFDepth(bv->bdf)==1;
 	    if ( !mi->ti.disabled )
-		mi->ti.checked = BVPaletteIsVisible(bv,2);
+		// TODO(iorsh): Account for expanded / collapsed state.
+		// mi->ti.checked = BVPaletteIsVisible(bv,2);
 	  break;
 	  case BV_MID_DockPalettes:
 	    mi->ti.checked = palettes_docked;
@@ -2330,7 +2325,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     GDrawSetWindowTypeName(bv->gw, "BitmapView");
 
     GDrawGetSize(GDrawGetRoot(screen_display),&zoom);
-    zoom.x = BVPalettesWidth(); zoom.width -= zoom.x-10;
+    zoom.x = 0; zoom.width -= zoom.x-10;
     zoom.height -= 30;			/* Room for title bar & such */
     GDrawSetZoom(gw,&zoom,-1);
 
