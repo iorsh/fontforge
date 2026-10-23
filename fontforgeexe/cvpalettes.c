@@ -3958,9 +3958,9 @@ return( GGadgetScale(CV_LAYERS2_WIDTH));
 /* ************************************************************************** */
 
 static void BVLayersSet(BitmapView *bv) {
-    GGadgetSetChecked(GWidgetGetControl(bvlayers,CID_VFore),bv->showfore);
-    GGadgetSetChecked(GWidgetGetControl(bvlayers,CID_VBack),bv->showoutline);
-    GGadgetSetChecked(GWidgetGetControl(bvlayers,CID_VGrid),bv->showgrid);
+    GGadgetSetChecked(GWidgetGetControl(bvlayers,CID_VFore),bv->show_layers[bvl_bitmap]);
+    GGadgetSetChecked(GWidgetGetControl(bvlayers,CID_VBack),bv->show_layers[bvl_outline]);
+    GGadgetSetChecked(GWidgetGetControl(bvlayers,CID_VGrid),bv->show_layers[bvl_guide]);
 }
 
 static int bvlayers_e_h(GWindow gw, GEvent *event) {
@@ -3985,13 +3985,13 @@ return( true );
 	if ( event->u.control.subtype == et_radiochanged ) {
 	    switch(GGadgetGetCid(event->u.control.g)) {
 	      case CID_VFore:
-		BVShows.showfore = bv->showfore = GGadgetIsChecked(event->u.control.g);
+		BVShows.show_layers[bvl_bitmap] = bv->show_layers[bvl_bitmap] = GGadgetIsChecked(event->u.control.g);
 	      break;
 	      case CID_VBack:
-		BVShows.showoutline = bv->showoutline = GGadgetIsChecked(event->u.control.g);
+		BVShows.show_layers[bvl_outline] = bv->show_layers[bvl_outline] = GGadgetIsChecked(event->u.control.g);
 	      break;
 	      case CID_VGrid:
-		BVShows.showgrid = bv->showgrid = GGadgetIsChecked(event->u.control.g);
+		BVShows.show_layers[bvl_guide] = bv->show_layers[bvl_guide] = GGadgetIsChecked(event->u.control.g);
 	      break;
 	    }
 	    GDrawRequestExpose(bv->v,NULL,false);
@@ -4089,9 +4089,9 @@ return(bvlayers);
     hvarray[3][0] = &gcd[4]; hvarray[3][1] = GCD_ColSpan; hvarray[3][2] = NULL;
     hvarray[4][0] = NULL;
 
-    if ( bv->showfore ) gcd[2].gd.flags |= gg_cb_on;
-    if ( bv->showoutline ) gcd[3].gd.flags |= gg_cb_on;
-    if ( bv->showgrid ) gcd[4].gd.flags |= gg_cb_on;
+    if ( bv->show_layers[bvl_bitmap] ) gcd[2].gd.flags |= gg_cb_on;
+    if ( bv->show_layers[bvl_outline] ) gcd[3].gd.flags |= gg_cb_on;
+    if ( bv->show_layers[bvl_guide] ) gcd[4].gd.flags |= gg_cb_on;
 
     boxes[0].gd.pos.x = boxes[0].gd.pos.y = 2;
     boxes[0].gd.flags = gg_enabled|gg_visible;
