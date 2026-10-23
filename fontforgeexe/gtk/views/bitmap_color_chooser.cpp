@@ -35,6 +35,8 @@ extern "C" {
 #include "ustring.h"
 }
 
+#include "intl.h"
+
 #include "../utils.hpp"
 
 using ff::ui_utils::gtk_box_child_at_position;
@@ -57,29 +59,29 @@ BitmapColorChooser::BitmapColorChooser(ColorChooserMode mode)
 
 uint8_t BitmapColorChooser::intensity() const {
     if (monochrome_ribbon_) {
-        return monochrome_ribbon_->value();
+        return 255 - monochrome_ribbon_->value();
     } else if (color_chooser_widget_) {
-        int palette_size = (mode_ == ccm_gray16) ? 16 : 4;
-        GdkRGBA color;
+        GdkRGBA color;  // range [0, 1]
         gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(color_chooser_widget_),
                                    &color);
-        return static_cast<uint8_t>(color.red * (palette_size - 1));
+        return static_cast<uint8_t>((1 - color.red) * 255);
     }
     return 0;
 }
 
 void BitmapColorChooser::set_intensity(uint8_t intensity) {
+    uint8_t value = 255 - intensity;  // Invert the intensity to get the value
     if (monochrome_ribbon_) {
-        monochrome_ribbon_->set_value(intensity);
+        monochrome_ribbon_->set_value(value);
     } else if (color_chooser_widget_) {
-        int palette_size = (mode_ == ccm_gray16) ? 16 : 4;
-        GdkRGBA color{static_cast<double>(intensity) / (palette_size - 1),
-                      static_cast<double>(intensity) / (palette_size - 1),
-                      static_cast<double>(intensity) / (palette_size - 1), 1.0};
+        GdkRGBA color{static_cast<double>(value) / 255,
+                      static_cast<double>(value) / 255,
+                      static_cast<double>(value) / 255, 1.0};
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(color_chooser_widget_),
                                    &color);
     }
-    on_value_changed(intensity);
+
+    set_label(intensity);
 }
 
 void BitmapColorChooser::init_monochrome_ribbon() {
@@ -130,15 +132,22 @@ void BitmapColorChooser::init_color_chooser() {
 }
 
 void BitmapColorChooser::on_value_changed(uint8_t value) {
-    char* p_label = smprintf("Intensity: %u", value);
-    value_label_.set_text(p_label);
-    free(p_label);
+    // By convention, the black color (value 0) has the highest intensity, and
+    // the white color (value 255) has the lowest intensity.
+    uint8_t intensity = 255 - value;  // Invert the value to get intensity
 
-    signal_intensity_changed_.emit(value);
+    set_label(intensity);
+    signal_intensity_changed_.emit(intensity);
 }
 
 void BitmapColorChooser::on_color_chooser_value_changed() {
-    on_value_changed(intensity());
+    on_value_changed(255 - intensity());
+}
+
+void BitmapColorChooser::set_label(uint8_t intensity) {
+    char* p_label = smprintf(_("Intensity: %u"), intensity);
+    value_label_.set_text(p_label);
+    free(p_label);
 }
 
 }  // namespace ff::views

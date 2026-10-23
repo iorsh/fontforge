@@ -59,6 +59,8 @@ typedef struct bitmapview_context {
     void (*draw_gimage_in_cairo_context)(cairo_t* cc, GImage* image, GRect* src,
                                          int32_t x, int32_t y);
 
+    void (*set_intensity)(BitmapView* bv, uint8_t intensity);
+
 } BVContext;
 
 #ifdef __cplusplus

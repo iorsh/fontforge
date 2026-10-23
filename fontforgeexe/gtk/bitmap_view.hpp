@@ -73,6 +73,10 @@ class BitmapView {
                                        sb_pagesize);
     }
 
+    void set_intensity(uint8_t intensity) {
+        color_chooser_.set_intensity(intensity);
+    }
+
  private:
     Gtk::Box* build_infobar();
     void build_toolbar();

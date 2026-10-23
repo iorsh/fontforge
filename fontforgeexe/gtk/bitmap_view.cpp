@@ -80,6 +80,11 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
     pixel_grid.get_drawing_widget().signal_key_release_event().connect(
         sigc::mem_fun(*this, &BitmapView::on_key_event), false);
 
+    color_chooser_.signal_intensity_changed().connect(
+        [this](uint8_t intensity) {
+            context.legacy()->set_intensity(context.legacy()->bv, intensity);
+        });
+
     // For simplicity couple the preview redraw to the bitmap view drawing area
     // redraw. This is not the most efficient way to do this, but it is simple
     // and works well enough.
@@ -164,7 +169,7 @@ Gtk::ToolPalette* BitmapView::build_panels() {
     panels->add(*layers_panel);
 
     Gtk::ToolItemGroup* color_picker_panel =
-        Gtk::make_managed<Gtk::ToolItemGroup>(_("Color Picker"));
+        Gtk::make_managed<Gtk::ToolItemGroup>(_("Shades"));
     color_picker_panel->get_label_widget()->set_halign(Gtk::ALIGN_START);
     Gtk::ToolItem* color_chooser_item = Gtk::make_managed<Gtk::ToolItem>();
     color_chooser_item->add(color_chooser_);

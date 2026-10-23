@@ -62,6 +62,7 @@ class BitmapColorChooser : public Gtk::VBox {
 
     void init_color_chooser();
     void on_color_chooser_value_changed();
+    void set_label(uint8_t intensity);
 
     void on_value_changed(uint8_t value);
 
