@@ -97,14 +97,15 @@ void BitmapColorChooser::init_color_chooser() {
     gtk_box_pack_start(GTK_BOX(gobj()), color_chooser_widget_, TRUE, TRUE, 0);
     gtk_widget_show(color_chooser_widget_);
 
-    // WARNING: This is an egregious hack which strips the color chooser of all
-    // its functionality except for the palette. Don't try this at home!
+    // WARNING: This is an egregious hack which hides all color chooser
+    // functionality except for the palette. Don't try this at home!
     GtkWidget* palette_box =
         gtk_box_child_at_position(GTK_BOX(color_chooser_widget_), 0);
     GtkWidget* trash1 = gtk_box_child_at_position(GTK_BOX(palette_box), 1);
     GtkWidget* trash2 = gtk_box_child_at_position(GTK_BOX(palette_box), 2);
-    gtk_container_remove(GTK_CONTAINER(palette_box), trash1);
-    gtk_container_remove(GTK_CONTAINER(palette_box), trash2);
+    gtk_widget_hide(trash1);
+    gtk_widget_hide(trash2);
+    // End of hack.
 
     int palette_size = (mode_ == ccm_gray16) ? 16 : 4;
     std::vector<GdkRGBA> gray_palette(palette_size);
