@@ -81,7 +81,7 @@ class BitmapView {
     Gtk::Box* build_infobar();
     void build_toolbar();
     void build_layers_panel(const std::vector<BitmapViewLayer>& layer_defs);
-    Gtk::ToolPalette* build_panels();
+    Gtk::Widget* build_panels();
 
     void update_primary_cursor(const BitmapViewTool& tool_def);
 
