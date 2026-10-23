@@ -67,8 +67,8 @@ extern void CVDebugFree(DebugView *dv);
 extern GDevEventMask input_em[];
 extern const int input_em_cnt;
 
-int cvvisible[2] = { 1, 1}, bvvisible[2]= { 1,1 };
-static GWindow cvlayers, cvtools, bvlayers;
+int cvvisible[2] = { 1, 1};
+static GWindow cvlayers, cvtools;
 static GWindow cvlayers2=NULL;
 
 #define LSHOW_CUBIC   1
@@ -99,7 +99,7 @@ struct l2 {
 
 struct l2 layer2 = { 2, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, NULL, NULL };
 static int layers2_active = -1;
-static GPoint cvtoolsoff = { -9999, -9999 }, cvlayersoff = { -9999, -9999 }, bvlayersoff = { -9999, -9999 };
+static GPoint cvtoolsoff = { -9999, -9999 }, cvlayersoff = { -9999, -9999 };
 int palettes_fixed=1;
 static GCursor tools[cvt_max+1] = { ct_pointer }, spirotools[cvt_max+1];
 
@@ -3883,14 +3883,6 @@ void _CVPaletteActivate(CharView *cv, int force, int docking_changed) {
 	if ( cvvisible[0])
 	    CVLayersSet(cv);
     }
-    if ( bvlayers!=NULL ) {
-	BitmapView *bv = GDrawGetUserData(bvlayers);
-	if ( bv!=NULL ) {
-	    SaveOffsets(bv->gw,bvlayers,&bvlayersoff);
-	    GDrawSetUserData(bvlayers,NULL);
-	}
-	SetPaletteVisible(NULL, bvlayers, false);
-    }
 }
 
 void CVPaletteActivate(CharView *cv) {
@@ -3956,156 +3948,6 @@ return( GGadgetScale(CV_LAYERS2_WIDTH));
 /* ************************************************************************** */
 /* **************************** Bitmap Palettes ***************************** */
 /* ************************************************************************** */
-
-static void BVLayersSet(BitmapView *bv) {
-    GGadgetSetChecked(GWidgetGetControl(bvlayers,CID_VFore),bv->show_layers[bvl_bitmap]);
-    GGadgetSetChecked(GWidgetGetControl(bvlayers,CID_VBack),bv->show_layers[bvl_outline]);
-    GGadgetSetChecked(GWidgetGetControl(bvlayers,CID_VGrid),bv->show_layers[bvl_guide]);
-}
-
-static int bvlayers_e_h(GWindow gw, GEvent *event) {
-    BitmapView *bv = (BitmapView *) GDrawGetUserData(gw);
-
-    if ( event->type==et_destroy && bvlayers == gw ) {
-	bvlayers = NULL;
-return( true );
-    }
-
-    if ( bv==NULL )
-return( true );
-
-    switch ( event->type ) {
-      case et_close:
-	SetPaletteVisible(NULL, gw, false);
-      break;
-      case et_char: case et_charup:
-	PostCharToWindow(bv->gw,event);
-      break;
-      case et_controlevent:
-	if ( event->u.control.subtype == et_radiochanged ) {
-	    switch(GGadgetGetCid(event->u.control.g)) {
-	      case CID_VFore:
-		BVShows.show_layers[bvl_bitmap] = bv->show_layers[bvl_bitmap] = GGadgetIsChecked(event->u.control.g);
-	      break;
-	      case CID_VBack:
-		BVShows.show_layers[bvl_outline] = bv->show_layers[bvl_outline] = GGadgetIsChecked(event->u.control.g);
-	      break;
-	      case CID_VGrid:
-		BVShows.show_layers[bvl_guide] = bv->show_layers[bvl_guide] = GGadgetIsChecked(event->u.control.g);
-	      break;
-	    }
-	    GDrawRequestExpose(bv->v,NULL,false);
-	}
-      break;
-      default: break;
-    }
-return( true );
-}
-
-GWindow BVMakeLayers(BitmapView *bv) {
-    GRect r;
-    GWindowAttrs wattrs;
-    GGadgetCreateData gcd[8], boxes[2], *hvarray[5][3];
-    GTextInfo label[8];
-    static GBox radio_box = { bt_none, bs_rect, 0, 0, 0, 0, 0, 0, 0, 0, COLOR_DEFAULT, COLOR_DEFAULT, 0, 0, 0, 0, 0, 0, 0 };
-    int i;
-
-    if ( bvlayers!=NULL )
-return(bvlayers);
-    memset(&wattrs,0,sizeof(wattrs));
-    wattrs.mask = wam_events|wam_cursor|wam_utf8_wtitle|wam_positioned|wam_isdlg;
-    wattrs.event_masks = -1;
-    wattrs.cursor = ct_mypointer;
-    wattrs.positioned = true;
-    wattrs.is_dlg = true;
-    wattrs.utf8_window_title = _("Layers");
-
-    r.width = GGadgetScale(BV_LAYERS_WIDTH); r.height = BV_LAYERS_HEIGHT;
-    r.x = -r.width-6; r.y = BV_TOOLS_HEIGHT+45/*25*/;	/* 45 is right if there's decor, is in kde, not in twm. Sigh */
-    if ( palettes_docked ) {
-	r.x = 0; r.y = BV_TOOLS_HEIGHT+4;
-    } else if ( palettes_fixed ) {
-	r.x = 0; r.y = BV_TOOLS_HEIGHT+45;
-    }
-    bvlayers = CreatePalette( bv->gw, &r, bvlayers_e_h, bv, &wattrs, bv->v );
-
-    memset(&label,0,sizeof(label));
-    memset(&gcd,0,sizeof(gcd));
-    memset(&boxes,0,sizeof(boxes));
-
-    for ( i=0; i<sizeof(label)/sizeof(label[0]); ++i )
-	label[i].font = layerspalette_font.fi;
-
-/* GT: Abbreviation for "Visible" */
-    label[0].text = (unichar_t *) _("V");
-    label[0].text_is_1byte = true;
-    gcd[0].gd.label = &label[0];
-    gcd[0].gd.pos.x = 7; gcd[0].gd.pos.y = 5; 
-    gcd[0].gd.flags = gg_enabled|gg_visible|gg_pos_in_pixels;
-    gcd[0].gd.popup_msg = _("Is Layer Visible?");
-    gcd[0].creator = GLabelCreate;
-
-    label[1].text = (unichar_t *) "Layer";
-    label[1].text_is_1byte = true;
-    gcd[1].gd.label = &label[1];
-    gcd[1].gd.pos.x = 23; gcd[1].gd.pos.y = 5; 
-    gcd[1].gd.flags = gg_enabled|gg_visible|gg_pos_in_pixels;
-    gcd[1].gd.popup_msg = _("Is Layer Visible?");
-    gcd[1].creator = GLabelCreate;
-    hvarray[0][0] = &gcd[0]; hvarray[0][1] = &gcd[1]; hvarray[0][2] = NULL;
-
-    gcd[2].gd.pos.x = 5; gcd[2].gd.pos.y = 21; 
-    gcd[2].gd.flags = gg_enabled|gg_visible|gg_dontcopybox|gg_pos_in_pixels;
-    gcd[2].gd.cid = CID_VFore;
-    gcd[2].gd.popup_msg = _("Is Layer Visible?");
-    gcd[2].gd.box = &radio_box;
-    gcd[2].creator = GCheckBoxCreate;
-    label[2].text = (unichar_t *) _("Bitmap");
-    label[2].text_is_1byte = true;
-    gcd[2].gd.label = &label[2];
-    hvarray[1][0] = &gcd[2]; hvarray[1][1] = GCD_ColSpan; hvarray[1][2] = NULL;
-
-    gcd[3].gd.pos.x = 5; gcd[3].gd.pos.y = 37; 
-    gcd[3].gd.flags = gg_enabled|gg_visible|gg_dontcopybox|gg_pos_in_pixels;
-    gcd[3].gd.cid = CID_VBack;
-    gcd[3].gd.popup_msg = _("Is Layer Visible?");
-    gcd[3].gd.box = &radio_box;
-    gcd[3].creator = GCheckBoxCreate;
-    label[3].text = (unichar_t *) _("Outline");
-    label[3].text_is_1byte = true;
-    gcd[3].gd.label = &label[3];
-    hvarray[2][0] = &gcd[3]; hvarray[2][1] = GCD_ColSpan; hvarray[2][2] = NULL;
-
-    gcd[4].gd.pos.x = 5; gcd[4].gd.pos.y = 53; 
-    gcd[4].gd.flags = gg_enabled|gg_visible|gg_dontcopybox|gg_pos_in_pixels;
-    gcd[4].gd.cid = CID_VGrid;
-    gcd[4].gd.popup_msg = _("Is Layer Visible?");
-    gcd[4].gd.box = &radio_box;
-    gcd[4].creator = GCheckBoxCreate;
-    label[4].text = (unichar_t *) _("_Guide");
-    label[4].text_is_1byte = true;
-    label[4].text_in_resource = true;
-    gcd[4].gd.label = &label[4];
-    hvarray[3][0] = &gcd[4]; hvarray[3][1] = GCD_ColSpan; hvarray[3][2] = NULL;
-    hvarray[4][0] = NULL;
-
-    if ( bv->show_layers[bvl_bitmap] ) gcd[2].gd.flags |= gg_cb_on;
-    if ( bv->show_layers[bvl_outline] ) gcd[3].gd.flags |= gg_cb_on;
-    if ( bv->show_layers[bvl_guide] ) gcd[4].gd.flags |= gg_cb_on;
-
-    boxes[0].gd.pos.x = boxes[0].gd.pos.y = 2;
-    boxes[0].gd.flags = gg_enabled|gg_visible;
-    boxes[0].gd.u.boxelements = hvarray[0];
-    boxes[0].creator = GHVGroupCreate;
-
-    GGadgetsCreate(bvlayers,boxes);
-    GHVBoxFitWindow(boxes[0].ret);
-
-    if ( bvvisible[0] )
-	SetPaletteVisible(bv->gw, bvlayers, true);
-return( bvlayers );
-}
-
 static char *bvpopups[] = { N_("Pointer"), N_("Magnify (Minify with alt)"),
 				    N_("Set/Clear Pixels"), N_("Draw a Line"),
 			            N_("Shift Entire Bitmap"), N_("Scroll Bitmap") };
@@ -4192,88 +4034,6 @@ void BVToolsPopup(BitmapView *bv, GEvent *event) {
     GMenuCreatePopupMenu(bv->v,event, mi);
 }
 
-static void BVPaletteCheck(BitmapView *bv) {
-    if ( bvlayers==NULL ) {
-	BVMakeLayers(bv);
-    }
-}
-
-int BVPaletteIsVisible(BitmapView *bv,int which) {
-    BVPaletteCheck(bv);
-
-return( bvlayers!=NULL && GDrawIsVisible(bvlayers) );
-}
-
-void BVPaletteSetVisible(BitmapView *bv,int which,int visible) {
-    BVPaletteCheck(bv);
-    if ( which==0 && bvlayers!=NULL )
-	SetPaletteVisible(bv->gw, bvlayers, visible );
-    bvvisible[which] = visible;
-    SavePrefs(true);
-}
-
-static void _BVPaletteActivate(BitmapView *bv, int force, int docking_changed) {
-    BitmapView *old;
-
-    BVPaletteCheck(bv);
-    if ( ((old = GDrawGetUserData(bvlayers)) != bv) || force ) {
-	if ( old!=NULL ) {
-	    SaveOffsets(old->gw,bvlayers,&bvlayersoff);
-	}
-
-    if ((palettes_docked && old != bv) || docking_changed) {
-        // Recreate the bvtools if docked, similar to cvtools
-        GDrawDestroyWindow(bvlayers);
-        bvlayers = NULL;
-        BVPaletteCheck(bv);
-    }
-
-	GDrawSetUserData(bvlayers,bv);
-
-    if (palettes_docked) {
-        if (bvvisible[0])
-            GDrawRequestExpose(bvlayers, NULL, false);
-    } else {
-	    if ( bvvisible[0])
-		RestoreOffsets(bv->gw,bvlayers,&bvlayersoff);
-	}
-	SetPaletteVisible(bv->gw, bvlayers, bvvisible[0]);
-	if ( bvvisible[0])
-	    BVLayersSet(bv);
-    }
-    if ( cvtools!=NULL ) {
-	CharView *cv = GDrawGetUserData(cvtools);
-	if ( cv!=NULL ) {
-	    SaveOffsets(cv->gw,cvtools,&cvtoolsoff);
-	    SaveOffsets(cv->gw,cvlayers,&cvlayersoff);
-	    GDrawSetUserData(cvtools,NULL);
-	    if ( cvlayers!=NULL )
-		GDrawSetUserData(cvlayers,NULL);
-	    if ( cvlayers2!=NULL )
-		GDrawSetUserData(cvlayers2,NULL);
-	}
-	SetPaletteVisible(NULL, cvtools, false);
-	if ( cvlayers!=NULL )
-	    SetPaletteVisible(NULL, cvlayers, false);
-	if ( cvlayers2!=NULL )
-	    SetPaletteVisible(NULL, cvlayers2, false);
-    }
-}
-
-void BVPaletteActivate(BitmapView *bv) {
-    _BVPaletteActivate(bv, false, false);
-}
-
-void BVPalettesHideIfMine(BitmapView *bv) {
-    if ( bvlayers==NULL )
-return;
-    if ( GDrawGetUserData(bvlayers)==bv ) {
-	SaveOffsets(bv->gw,bvlayers,&bvlayersoff);
-	SetPaletteVisible(NULL, bvlayers, false);
-	GDrawSetUserData(bvlayers,NULL);
-    }
-}
-
 void CVPaletteDeactivate(void) {
     if ( cvtools!=NULL ) {
 	CharView *cv = GDrawGetUserData(cvtools);
@@ -4294,14 +4054,6 @@ void CVPaletteDeactivate(void) {
 	if ( cvlayers2!=NULL )
 	    SetPaletteVisible(NULL, cvlayers2, false);
     }
-    if ( bvlayers!=NULL ) {
-	BitmapView *bv = GDrawGetUserData(bvlayers);
-	if ( bv!=NULL ) {
-	    SaveOffsets(bv->gw,bvlayers,&bvlayersoff);
-	    GDrawSetUserData(bvlayers,NULL);
-	}
-	SetPaletteVisible(NULL, bvlayers, false);
-    }
 }
 
 void BVPaletteChangedChar(BitmapView *bv) {
@@ -4316,12 +4068,6 @@ void PalettesChangeDocking() {
 
     if (cvtools != NULL)
         _CVPaletteActivate((CharView*)GDrawGetUserData(cvtools), true, true);
-    if (bvlayers != NULL)
-        _BVPaletteActivate((BitmapView*)GDrawGetUserData(bvlayers), true, true);
 
     SavePrefs(true);
-}
-
-int BVPalettesWidth(void) {
-return( GGadgetScale(BV_LAYERS_WIDTH));
 }

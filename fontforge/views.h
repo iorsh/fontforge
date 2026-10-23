@@ -879,16 +879,10 @@ extern void _CVPaletteActivate(CharView *cv,int force,int docking_changed);
 extern void CVPaletteActivate(CharView *cv);
 extern void CV_LayerPaletteCheck(SplineFont *sf);
 extern void CVPalettesHideIfMine(CharView *cv);
-extern int BVPaletteIsVisible(BitmapView *bv,int which);
-extern void BVPaletteSetVisible(BitmapView *bv,int which,int visible);
-extern void BVPaletteActivate(BitmapView *bv);
-extern void BVPalettesHideIfMine(BitmapView *bv);
-extern void BVPaletteColorChange(BitmapView *bv);
 extern void BVPaletteChangedChar(BitmapView *bv);
 extern void CVPaletteDeactivate(void);
 extern void PalettesChangeDocking(void);
 extern int CVPalettesWidth(void);
-extern int BVPalettesWidth(void);
 extern int CVInSpiro( CharView *cv );
 
 extern void CVDoTransform(CharView *cv, enum cvtools cvt );
