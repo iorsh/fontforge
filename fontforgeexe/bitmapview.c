@@ -1904,7 +1904,7 @@ return( 0 );
 return( 1 );
 }
 
-void BVRotateBitmap(BitmapView *bv,enum bvtools type ) {
+void BVRotateBitmap(BitmapView *bv,enum bvxforms type ) {
     int xoff=0, yoff=0;
 
     if ( type==bvt_skew )

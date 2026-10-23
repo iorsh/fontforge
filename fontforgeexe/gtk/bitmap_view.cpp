@@ -256,7 +256,7 @@ bool BitmapView::on_key_event(GdkEventKey* event) {
         BVDevice device = (event->type == GDK_KEY_PRESS) ? bvd_mouse_ctrl_btn1
                                                          : bvd_mouse_btn1;
         const BitmapViewTool& tool_def = toolbar_.find_tool_definition(device);
-        if (tool_def.tool_id != bvt_none) {
+        if (tool_def.tool_id != bvt_invalid) {
             update_primary_cursor(tool_def);
         }
     }
@@ -280,7 +280,7 @@ bool BitmapView::on_button_press_event(GdkEventButton* event) {
 
     const BitmapViewTool& tool_def = toolbar_.find_tool_definition(device);
     bvtools active_tool = tool_def.tool_id;
-    if (active_tool == bvt_none)
+    if (active_tool == bvt_invalid)
         return false;  // no tool assigned to this device
 
     // Alt key activates minifier when magnigier tool is active
