@@ -341,7 +341,6 @@ typedef struct bitmapview {
     unsigned int recentchange:1;
     unsigned int clearing:1;
     unsigned int shades_hidden:1;
-    unsigned int shades_down:1;
     /*GWindow tools, layers;*/
     int8_t had_control, active_tool;
     int pressed_x, pressed_y;
@@ -892,7 +891,6 @@ extern void BVPaletteSetVisible(BitmapView *bv,int which,int visible);
 extern void BVPaletteActivate(BitmapView *bv);
 extern void BVPalettesHideIfMine(BitmapView *bv);
 extern void BVPaletteColorChange(BitmapView *bv);
-extern void BVPaletteColorUnderChange(BitmapView *bv,int color);
 extern void BVPaletteChangedChar(BitmapView *bv);
 extern void CVPaletteDeactivate(void);
 extern void PalettesChangeDocking(void);
