@@ -51,7 +51,7 @@ int bv_width = 270, bv_height=250;
 
 extern struct lconv localeinfo;
 extern char *coord_sep;
-struct bvshows BVShows = { {1, 1, 1}, 0 };
+struct bvshows BVShows = { {true, true, true}, 0 };
 extern void* p_bitmap_view_tools;
 extern void* p_bitmap_view_layers;
 
@@ -1061,6 +1061,12 @@ return ( (bv->color+div/2)/div );
 
 void BVSetIntensity(BitmapView *bv, uint8_t intensity) {
     bv->color = intensity;
+}
+
+void BVSetLayerVisibility(BitmapView* bv, int /*enum bvlayers*/ layer,
+                          bool visible) {
+    BVShows.show_layers[layer] = bv->show_layers[layer] = visible;
+    GDrawRequestExpose(bv->v, NULL, false);
 }
 
 static int IsReferenceTouched(BitmapView *bv, BDFRefChar *ref, int x, int y){
@@ -2316,6 +2322,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv_context->create_overview_image = BVCreateOverviewImage;
     bv_context->draw_gimage_in_cairo_context = GGDKDrawDrawImageInContext;
     bv_context->set_intensity = BVSetIntensity;
+    bv_context->set_layer_visibility = BVSetLayerVisibility;
 
     bv->gtk_window = create_bitmap_view(&bv_context, pos.width, pos.height);
 
