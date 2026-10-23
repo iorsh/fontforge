@@ -66,6 +66,8 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
 
     Gtk::Box* infobar = build_infobar();
     build_toolbar();
+    build_layers_panel(*static_cast<std::vector<BitmapViewLayer>*>(
+        context.legacy()->p_bitmap_view_layers));
     Gtk::ToolPalette* panels = build_panels();
 
     pixel_grid.get_drawing_widget().signal_motion_notify_event().connect(
@@ -149,6 +151,17 @@ void BitmapView::build_toolbar() {
     toolbar_.add(*regen_button);
 }
 
+void BitmapView::build_layers_panel(
+    const std::vector<BitmapViewLayer>& layer_defs) {
+    for (const auto& layer_def : layer_defs) {
+        Gtk::CheckButton* layer_button =
+            Gtk::make_managed<Gtk::CheckButton>(layer_def.label, true);
+        layer_button->set_can_focus(false);
+        layer_button->set_tooltip_text(_("Is layer visible?"));
+        layers_panel_.pack_start(*layer_button, Gtk::PACK_SHRINK);
+    }
+}
+
 Gtk::ToolPalette* BitmapView::build_panels() {
     Gtk::ToolPalette* panels = Gtk::make_managed<Gtk::ToolPalette>();
     panels->set_orientation(Gtk::ORIENTATION_VERTICAL);
@@ -164,8 +177,9 @@ Gtk::ToolPalette* BitmapView::build_panels() {
     Gtk::ToolItemGroup* layers_panel =
         Gtk::make_managed<Gtk::ToolItemGroup>(_("Layers"));
     layers_panel->get_label_widget()->set_halign(Gtk::ALIGN_START);
-    Gtk::ToolButton* dummy2 = Gtk::make_managed<Gtk::ToolButton>("DUMMY 2");
-    layers_panel->insert(*dummy2, 0);
+    Gtk::ToolItem* layer_panel_item = Gtk::make_managed<Gtk::ToolItem>();
+    layer_panel_item->add(layers_panel_);
+    layers_panel->insert(*layer_panel_item, 0);
     panels->add(*layers_panel);
 
     Gtk::ToolItemGroup* color_picker_panel =
