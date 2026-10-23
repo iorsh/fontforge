@@ -74,3 +74,9 @@ void bv_set_scroller_bounds(void* bv_opaque, bool is_vertical, int32_t sb_min,
         static_cast<ff::views::BitmapView*>(bv_opaque);
     bitmap_view->set_scroller_bounds(is_vertical, sb_min, sb_max, sb_pagesize);
 }
+
+void bv_set_intensity(void* bv_opaque, uint8_t intensity) {
+    ff::views::BitmapView* bitmap_view =
+        static_cast<ff::views::BitmapView*>(bv_opaque);
+    bitmap_view->set_intensity(intensity);
+}

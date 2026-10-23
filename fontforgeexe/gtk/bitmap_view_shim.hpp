@@ -94,6 +94,8 @@ void bv_set_scroller_position(void* bv_opaque, bool is_vertical,
 void bv_set_scroller_bounds(void* bv_opaque, bool is_vertical, int32_t sb_min,
                             int32_t sb_max, int32_t sb_pagesize);
 
+void bv_set_intensity(void* bv_opaque, uint8_t intensity);
+
 #ifdef __cplusplus
 }
 #endif

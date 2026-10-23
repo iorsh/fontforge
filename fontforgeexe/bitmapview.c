@@ -1058,6 +1058,10 @@ int BVColor(BitmapView *bv) {
 return ( (bv->color+div/2)/div );
 }
 
+void BVSetIntensity(BitmapView *bv, uint8_t intensity) {
+    bv->color = intensity;
+}
+
 static int IsReferenceTouched(BitmapView *bv, BDFRefChar *ref, int x, int y){
     BDFRefChar *head;
     BDFChar *rbc;
@@ -1139,6 +1143,7 @@ return;
       case bvt_eyedropper:
 	bv->color = color_under_cursor;
 	/* Store color as a number between 0 and 255 no matter what the clut size is */
+        bv_set_intensity(bv->gtk_window,bv->color);
 	BVPaletteColorChange(bv);
       break;
       case bvt_pencil: case bvt_line:
@@ -2320,6 +2325,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv_context->active_width_tool = BVActiveWidthTool;
     bv_context->create_overview_image = BVCreateOverviewImage;
     bv_context->draw_gimage_in_cairo_context = GGDKDrawDrawImageInContext;
+    bv_context->set_intensity = BVSetIntensity;
 
     bv->gtk_window = create_bitmap_view(&bv_context, pos.width, pos.height);
 
