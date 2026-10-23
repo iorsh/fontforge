@@ -64,6 +64,9 @@ typedef struct bitmapview_context {
 
     void (*set_intensity)(BitmapView* bv, uint8_t intensity);
 
+    void (*set_layer_visibility)(BitmapView* bv, int /*enum bvlayers*/ layer_id,
+                                 bool visible);
+
 } BVContext;
 
 #ifdef __cplusplus

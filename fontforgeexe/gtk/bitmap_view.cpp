@@ -158,6 +158,15 @@ void BitmapView::build_layers_panel(
             Gtk::make_managed<Gtk::CheckButton>(layer_def.label, true);
         layer_button->set_can_focus(false);
         layer_button->set_tooltip_text(_("Is layer visible?"));
+        layer_button->set_active(BVShows.show_layers[layer_def.layer_id]);
+
+        layer_button->signal_toggled().connect([this, layer_def,
+                                                layer_button]() {
+            context.legacy()->set_layer_visibility(context.legacy()->bv,
+                                                   layer_def.layer_id,
+                                                   layer_button->get_active());
+        });
+
         layers_panel_.pack_start(*layer_button, Gtk::PACK_SHRINK);
     }
 }

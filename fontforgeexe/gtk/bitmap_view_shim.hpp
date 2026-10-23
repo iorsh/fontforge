@@ -56,6 +56,11 @@ enum bvlayers {
     bvl_guide,
 };
 
+extern struct bvshows {
+    bool show_layers[3];
+    int lastpixelsize;
+} BVShows;
+
 #ifdef __cplusplus
 
 #include "l10n_text.hpp"

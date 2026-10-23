@@ -73,11 +73,6 @@ extern struct cvshows {
     int alwaysshowcontrolpoints; //< Always show the BCP even when their splinepoint is not selected
 } CVShows;
 
-extern struct bvshows {
-    bool show_layers[3];
-    int lastpixelsize;
-} BVShows;
-
 enum debug_wins { dw_registers=0x1, dw_stack=0x2, dw_storage=0x4, dw_points=0x8,
 	dw_cvt=0x10, dw_raster=0x20, dw_gloss=0x40 };
 
