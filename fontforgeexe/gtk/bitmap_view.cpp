@@ -68,7 +68,7 @@ BitmapView::BitmapView(std::shared_ptr<BVContext> bv_context, int width,
     build_toolbar();
     build_layers_panel(*static_cast<std::vector<BitmapViewLayer>*>(
         context.legacy()->p_bitmap_view_layers));
-    Gtk::ToolPalette* panels = build_panels();
+    Gtk::Widget* panels = build_panels();
 
     pixel_grid.get_drawing_widget().signal_motion_notify_event().connect(
         sigc::mem_fun(*this, &BitmapView::on_motion_notify_event));
@@ -171,8 +171,8 @@ void BitmapView::build_layers_panel(
     }
 }
 
-Gtk::ToolPalette* BitmapView::build_panels() {
-    Gtk::ToolPalette* panels = Gtk::make_managed<Gtk::ToolPalette>();
+Gtk::Widget* BitmapView::build_panels() {
+    auto* panels = Gtk::make_managed<Gtk::ToolPalette>();
     panels->set_orientation(Gtk::ORIENTATION_VERTICAL);
 
     Gtk::ToolItemGroup* preview_panel =
@@ -199,7 +199,11 @@ Gtk::ToolPalette* BitmapView::build_panels() {
     color_picker_panel->insert(*color_chooser_item, 0);
     panels->add(*color_picker_panel);
 
-    return panels;
+    auto* scroller = Gtk::make_managed<Gtk::ScrolledWindow>();
+    scroller->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+    scroller->add(*panels);
+
+    return scroller;
 }
 
 void BitmapView::update_primary_cursor(const BitmapViewTool& tool_def) {
