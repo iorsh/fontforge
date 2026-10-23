@@ -80,6 +80,7 @@ class BitmapView {
  private:
     Gtk::Box* build_infobar();
     void build_toolbar();
+    void build_layers_panel(const std::vector<BitmapViewLayer>& layer_defs);
     Gtk::ToolPalette* build_panels();
 
     void update_primary_cursor(const BitmapViewTool& tool_def);
@@ -98,6 +99,7 @@ class BitmapView {
     PixelGrid pixel_grid;
     ViewToolbar toolbar_;
     BitmapPreview preview_;
+    Gtk::VBox layers_panel_;
     BitmapColorChooser color_chooser_;
 };
 
