@@ -72,6 +72,17 @@ struct BitmapViewTool {
     static const BitmapViewTool none;
 };
 
+enum bvlayers {
+    bvl_bitmap,
+    bvl_outline,
+    bvl_guide,
+};
+
+struct BitmapViewLayer {
+    bvlayers layer_id;
+    L10nText label;
+};
+
 inline const BitmapViewTool BitmapViewTool::none{bvt_none, "", "",
                                                  L10nText("")};
 

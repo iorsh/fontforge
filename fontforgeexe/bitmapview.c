@@ -53,6 +53,7 @@ extern struct lconv localeinfo;
 extern char *coord_sep;
 struct bvshows BVShows = { 1, 1, 1, 0 };
 extern void* p_bitmap_view_tools;
+extern void* p_bitmap_view_layers;
 
 
 static Color guide_color = 0x404040;
@@ -2307,6 +2308,7 @@ BitmapView *BitmapViewCreate(BDFChar *bc, BDFFont *bdf, FontView *fv, int enc) {
     bv_context->bv = bv;
     bv_context->depth = BDFDepth(bdf);
     bv_context->p_bitmap_view_tools = p_bitmap_view_tools;
+    bv_context->p_bitmap_view_layers = p_bitmap_view_layers;
     bv_context->scroll_bitmapview_to_position_cb = BVScrollToPos;
     bv_context->get_pixel_and_tool_coords = BVInfoGetText;
     bv_context->activate_tool = BVActivateTool;

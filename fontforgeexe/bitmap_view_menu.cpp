@@ -44,3 +44,10 @@ std::vector<BitmapViewTool> bitmap_view_tools = {
     {bvt_filledelipse, "ellipse_fill", "", N_("Draw Filled Ellipse")},
 };
 void* p_bitmap_view_tools = &bitmap_view_tools;
+
+std::vector<BitmapViewLayer> bitmap_view_layers = {
+    {bvl_bitmap, N_("Bitmap")},
+    {bvl_outline, N_("Outline")},
+    {bvl_guide, N_("_Guide")},
+};
+void* p_bitmap_view_layers = &bitmap_view_layers;
