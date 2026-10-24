@@ -1488,14 +1488,6 @@ static int bv_e_h(GWindow gw, GEvent *event) {
       case et_close:
 	GDrawDestroyWindow(gw);
       break;
-      case et_mouseup: case et_mousedown:
-	GGadgetEndPopup();
-      break;
-      case et_mousemove:
-	enc = BVCurEnc(bv);
-	SCPreparePopup(bv->gw,bv->bc->sc,bv->fv->b.map->remap,enc,
-		UniFromEnc(enc,bv->fv->b.map->enc));
-      break;
       case et_focus:
       break;
       default: break;
