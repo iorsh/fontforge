@@ -40,8 +40,8 @@
 #include "splinesaveafm.h"
 #include "ustring.h"
 #include "utype.h"
-#include "bv_mids.h"
 #include "gtk/bitmap_view_shim.hpp"
+#include "gtk/bv_mids.h"
 #include "gtk/c_context.h"
 
 #include <locale.h>
