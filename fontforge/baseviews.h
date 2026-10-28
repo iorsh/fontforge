@@ -121,9 +121,6 @@ enum cvtools {
 	cvt_spirocorner=cvt_corner, cvt_spiroleft=cvt_tangent,
 	cvt_spiroright=cvt_pen};
 
-enum bvxforms {
-	bvt_none = -1,
-	bvt_fliph=0, bvt_flipv, bvt_rotate90cw, bvt_rotate90ccw, bvt_rotate180, bvt_skew, bvt_transmove };
 enum drawmode { dm_grid, dm_back, dm_fore, dm_max };
 
 typedef struct bvtfunc {

@@ -151,3 +151,14 @@ enum layer_type {
     /* Possibly other background layers for normal fonts */
     ly_none = -3
 };
+
+enum bvxforms {
+    bvt_none = -1,
+    bvt_fliph = 0,
+    bvt_flipv,
+    bvt_rotate90cw,
+    bvt_rotate90ccw,
+    bvt_rotate180,
+    bvt_skew,
+    bvt_transmove
+};

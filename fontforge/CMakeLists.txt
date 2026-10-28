@@ -115,6 +115,14 @@ set(FONTFORGE_INST_HEADERS
   views.h
 )
 
+add_library(fontforge_enum_headers INTERFACE)
+target_include_directories(fontforge_enum_headers INTERFACE
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_sources(fontforge_enum_headers INTERFACE
+  splinefont_enums.h
+)
+
 add_library(fontforge
   ${FONTFORGE_NOINST_HEADERS}
   ${FONTFORGE_INST_HEADERS}
