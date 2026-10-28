@@ -28,6 +28,8 @@
 
 #include <stdint.h>
 
+#include "splinefont_enums.h"
+
 typedef struct _GtkWidget GtkWidget;
 typedef struct bitmapview_context BVContext;
 
@@ -76,6 +78,11 @@ struct BitmapViewTool {
 
 struct BitmapViewLayer {
     bvlayers layer_id;
+    L10nText label;
+};
+
+struct BitmapXform {
+    bvxforms xform_id;
     L10nText label;
 };
 

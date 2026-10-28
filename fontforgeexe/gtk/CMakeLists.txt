@@ -41,6 +41,7 @@ add_library(ffgtk OBJECT
 
 target_link_libraries(ffgtk PUBLIC
   fontforge_common_headers
+  fontforge_enum_headers
   ffgtk_widgets
   gutils
   PkgConfig::GTKMM

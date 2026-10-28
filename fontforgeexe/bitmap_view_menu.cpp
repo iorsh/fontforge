@@ -51,3 +51,14 @@ std::vector<BitmapViewLayer> bitmap_view_layers = {
     {bvl_guide, N_("_Guide")},
 };
 void* p_bitmap_view_layers = &bitmap_view_layers;
+
+std::vector<BitmapXform> bitmap_view_xforms = {
+    {bvt_fliph, N_("Flip Horizontally")},
+    {bvt_flipv, N_("Flip Vertically")},
+    /* GT: "CW" means Clockwise */
+    {bvt_rotate90cw, N_("Rotate 90° CW")},
+    /* GT: "CW" means Counter-Clockwise */
+    {bvt_rotate90ccw, N_("Rotate 90° CCW")},
+    {bvt_rotate180, N_("Rotate 180°")},
+    {bvt_skew, N_("Skew...")},
+};

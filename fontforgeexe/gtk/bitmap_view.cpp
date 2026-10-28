@@ -33,6 +33,8 @@
 
 #include "intl.h"
 
+extern std::vector<BitmapXform> bitmap_view_xforms;
+
 namespace ff::views {
 
 static ColorChooserMode get_color_chooser_mode(int depth) {
@@ -226,6 +228,14 @@ std::vector<MenuInfo> BitmapView::build_popup_menu_desc() {
     for (const auto& tool_def : bitmap_view_tools) {
         MenuInfo menu_item{
             {tool_def.label, "", ""}, {}, NoAction, tool_def.tool_id};
+        popup_menu_desc.push_back(std::move(menu_item));
+    }
+
+    popup_menu_desc.push_back(kMenuSeparator);
+
+    for (const auto& xform_def : bitmap_view_xforms) {
+        MenuInfo menu_item{
+            {xform_def.label, "", ""}, {}, NoAction, xform_def.xform_id};
         popup_menu_desc.push_back(std::move(menu_item));
     }
 
