@@ -23,6 +23,10 @@ fi
 
 builddate=`date +%Y-%m-%d`
 
+"$PYTHON" -m pip install --upgrade --force-reinstall --no-cache-dir -vvv pip
+"$PYTHON" -c 'import certifi; print("certifi:", certifi.__file__); print("bundle:", certifi.where())'
+"$PYTHON" -c 'import pip._vendor.certifi as c; print("pip vendored certifi:", c.__file__); print("bundle:", c.where())'
+
 if [ -z "$LDDX" ]; then
     LDDX="$SCRIPT_BASE/lddx"
     if [ ! -f "$LDDX" ]; then
