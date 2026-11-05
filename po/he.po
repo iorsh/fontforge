@@ -25701,80 +25701,80 @@ msgid ""
 "There are so few glyphs selected that it seems unlikely to me that you will "
 "get a representative sample of this aspect of your font. If you deselect "
 "everything the command will apply to all glyphs in the font"
-msgstr ""
+msgstr "נבחרו מעט מדי גליפים, ולא נראה שהגרף יוכל לייצג נאמנה את תכונות הגופן. ניתן לנקות את הבחירה, ואז הפקודה תחול על כלל הגליפים בגופן."
 
 #: ../fontforgeexe/gtk/show_histogram.cpp:209
 msgid "Smoothing window:"
-msgstr ""
+msgstr "חלון החלקה:"
 
 #: ../fontforgeexe/gtk/show_histogram.cpp:227
 msgid "Bar width:"
-msgstr ""
+msgstr "רוחב עמודה:"
 
 #: ../fontforgeexe/gtk/show_histogram.cpp:275
 #, c-format
 msgid "Position: %d"
-msgstr ""
+msgstr "מיקום: %d"
 
 #: ../fontforgeexe/gtk/show_histogram.cpp:275
 #, c-format
 msgid "Width: %d"
-msgstr ""
+msgstr "רוחב: %d"
 
 #: ../fontforgeexe/gtk/show_histogram.cpp:280
 #, c-format
 msgid "Count: %u (average: %.2f)"
-msgstr ""
+msgstr "סך הכל: %u (ממוצע: %.2f)"
 
 #: ../fontforgeexe/gtk/show_histogram.cpp:282
 #, c-format
 msgid "Count: %u"
-msgstr ""
+msgstr "סך הכל: %u"
 
 #: ../fontforgeexe/gtk/show_histogram.cpp:291
 #, c-format
 msgid "Percentage of Max: %d%%"
-msgstr ""
+msgstr "אחוז מהמקסימום: %d%%"
 
 #: ../fontforgeexe/gtk/show_histogram.cpp:367
 msgid "BlueValues come in pairs. Select another."
-msgstr ""
+msgstr "ערכי BlueValues באים בזוגות. יש לבחור ערך נוסף."
 
 #: ../fontforgeexe/gtk/show_histogram_shim.hpp:86
 msgid "Horizontal Stem Hints"
-msgstr ""
+msgstr "רמזים לקווים אופקיים"
 
 #: ../fontforgeexe/gtk/show_histogram_shim.hpp:86
 msgid "StdHW:"
-msgstr ""
+msgstr "ערכי StdHW:"
 
 #: ../fontforgeexe/gtk/show_histogram_shim.hpp:86
 msgid "StemSnapH:"
-msgstr ""
+msgstr "ערכי StemSnapH:"
 
 #: ../fontforgeexe/gtk/show_histogram_shim.hpp:87
 msgid "StdVW:"
-msgstr ""
+msgstr "ערכי StdVW:"
 
 #: ../fontforgeexe/gtk/show_histogram_shim.hpp:87
 msgid "StemSnapV:"
-msgstr ""
+msgstr "ערכי StemSnapV:"
 
 #: ../fontforgeexe/gtk/show_histogram_shim.hpp:87
 msgid "Vertical Stem Hints"
-msgstr ""
+msgstr "רמזים לקווים אנכיים"
 
 #: ../fontforgeexe/gtk/show_histogram_shim.hpp:88
 msgid "BlueValues:"
-msgstr ""
+msgstr "ערכי StemSnapV:"
 
 #: ../fontforgeexe/gtk/show_histogram_shim.hpp:88
 msgid "Blues"
-msgstr ""
+msgstr "ערכי Blues"
 
 #: ../fontforgeexe/gtk/show_histogram_shim.hpp:88
 msgid "OtherBlues:"
-msgstr ""
+msgstr "ערכי OtherBlues:"
 
 #: ../fontforgeexe/gtk/simple_dialogs.cpp:104
 msgid "Add Encoding Slots..."
