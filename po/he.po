@@ -25744,12 +25744,36 @@ msgstr ""
 msgid "Horizontal Stem Hints"
 msgstr ""
 
+#: ../fontforgeexe/gtk/show_histogram_shim.hpp:86
+msgid "StdHW:"
+msgstr ""
+
+#: ../fontforgeexe/gtk/show_histogram_shim.hpp:86
+msgid "StemSnapH:"
+msgstr ""
+
+#: ../fontforgeexe/gtk/show_histogram_shim.hpp:87
+msgid "StdVW:"
+msgstr ""
+
+#: ../fontforgeexe/gtk/show_histogram_shim.hpp:87
+msgid "StemSnapV:"
+msgstr ""
+
 #: ../fontforgeexe/gtk/show_histogram_shim.hpp:87
 msgid "Vertical Stem Hints"
 msgstr ""
 
 #: ../fontforgeexe/gtk/show_histogram_shim.hpp:88
+msgid "BlueValues:"
+msgstr ""
+
+#: ../fontforgeexe/gtk/show_histogram_shim.hpp:88
 msgid "Blues"
+msgstr ""
+
+#: ../fontforgeexe/gtk/show_histogram_shim.hpp:88
+msgid "OtherBlues:"
 msgstr ""
 
 #: ../fontforgeexe/gtk/simple_dialogs.cpp:104
