@@ -19,6 +19,7 @@ add_custom_target(potfiles
     ../fontforgeexe/*.c
     ../fontforgeexe/*.cpp
     ../fontforgeexe/gtk/*.cpp
+    ../fontforgeexe/gtk/*.hpp
     ../gdraw/*.c
     ../gutils/*.c
     ../inc/*.h
