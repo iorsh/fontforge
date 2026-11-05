@@ -31356,7 +31356,7 @@ msgstr ""
 
 #: ../fontforgeexe/problems.cpp:2832
 msgid "Non-_integral coordinates"
-msgstr ""
+msgstr "קואורדינטות לא שלמות"
 
 #: ../fontforgeexe/problems.cpp:2833
 msgid ""
@@ -31364,61 +31364,61 @@ msgid ""
 "integers (if they are not integers then FontForge will round them when it "
 "outputs them, potentially causing havoc). Even in PostScript fonts it is "
 "generally a good idea to use integral values."
-msgstr ""
+msgstr "הקואורדינטות של כל הנקודות ונקודות הבקרה בגופני TrueType חייבות להיות שלמות. FontForge תעגל נקודות לא שלמות בייצוא, והדבר עלול לפגוע במראה הגופן. גם בגופני PostScript מומלץ להשתמש בערכים שלמים בלבד."
 
 #: ../fontforgeexe/problems.cpp:2839
 msgid "_X near¹"
-msgstr ""
+msgstr "‫X קרוב¹ ל־"
 
 #: ../fontforgeexe/problems.cpp:2840
 msgid ""
 "Allows you to check that vertical stems in several characters start at the "
 "same location."
-msgstr ""
+msgstr "הבדיקה מוודאת שקווים אנכיים בגליפים הנבחרים מתחילים באותו מיקום"
 
 #: ../fontforgeexe/problems.cpp:2843
 msgid "_Y near¹"
-msgstr ""
+msgstr "‫Y קרוב¹ ל־"
 
 #: ../fontforgeexe/problems.cpp:2844
 msgid ""
 "Allows you to check that horizontal stems in several characters start at the "
 "same location."
-msgstr ""
+msgstr "הבדיקה מוודאת שקווים אופקיים בגליפים הנבחרים מתחילים באותו מיקום"
 
 #: ../fontforgeexe/problems.cpp:2847
 msgid "Y near¹ _standard heights"
-msgstr ""
+msgstr "‫Y קרוב¹ לגבהים סטנדרטיים"
 
 #: ../fontforgeexe/problems.cpp:2848
 msgid ""
 "Allows you to find points which are slightly off from the baseline, xheight, "
 "cap height, ascender, descender heights."
-msgstr ""
+msgstr "הבדיקה מוצאת נקודות הסוטות במעט מקו הבסיס, גובה אות, גובה אות ראשית וכד׳"
 
 #: ../fontforgeexe/problems.cpp:2851 ../fontforgeexe/problems.cpp:3081
 msgid "_Control points near horizontal/vertical"
-msgstr ""
+msgstr "נקודות בקרה קרובות לקו אנכי או אופקי"
 
 #: ../fontforgeexe/problems.cpp:2852
 msgid ""
 "Allows you to find control points which are almost, but not quite horizontal "
 "or vertical from their base point (or at the italic angle)."
-msgstr ""
+msgstr "הבדיקה מוצאת נקודות בקרה שנמצאות כמעט, אבל לא בדיוק בקו אופקי או בקו אנכי מנקודת הבסיס שלהן (או בזווית הטיה)"
 
 #: ../fontforgeexe/problems.cpp:2856
 msgid "Control points _beyond spline"
-msgstr ""
+msgstr "נקודות בקרה חורגות מפונקציית איפוץ"
 
 #: ../fontforgeexe/problems.cpp:2857
 msgid ""
 "Allows you to find control points which when projected onto the line segment "
 "between the two end points lie outside of those end points"
-msgstr ""
+msgstr "הבדיקה מוצאת נקודות בקרה אשר היטל שלהן על קטע ישר בין נקודות הקצה חורג הקצוות האלה"
 
 #: ../fontforgeexe/problems.cpp:2861
 msgid "Check for _irrelevant control points with factor (%)"
-msgstr ""
+msgstr "חפש נקודות בקרה מיותרות עם שיעור (%)"
 
 #: ../fontforgeexe/problems.cpp:2862
 msgid ""
@@ -31426,28 +31426,28 @@ msgid ""
 "make a significant difference in the shape of the curve. The minimum "
 "relevant distance is computed as a factor of distance between the main "
 "points."
-msgstr ""
+msgstr "נקודת בקרה נחשבת מיותרת אם היא צמודה מדי לנקודת קצה ולא משפיעה על צורת העקום. מרחק משמעותי מינימלי מחושב כחלק יחסי של מרחק בין נקודות הקצה."
 
 #: ../fontforgeexe/problems.cpp:2867
 msgid "Poin_ts too close"
-msgstr ""
+msgstr "נקודות קרובות מדי"
 
 #: ../fontforgeexe/problems.cpp:2868
 msgid ""
 "If two adjacent points on the same path are less than a few emunits apart "
 "they will cause problems for some of FontForge's commands. PostScript "
 "shouldn't care though."
-msgstr ""
+msgstr "נקודות עוקבות על אותו נתיב שהמרחק ביניהן קטן מיחידות em בודדות, עלולות לגרום לבעיות בפקודות מסיימות של FontForge. עם זאת, תצוגת הגופן אינה מושפעת."
 
 #: ../fontforgeexe/problems.cpp:2872
 msgid "_Points too far"
-msgstr ""
+msgstr "נקודות רחוקות מדי"
 
 #: ../fontforgeexe/problems.cpp:2873
 msgid ""
 "Most font formats cannot specify adjacent points (or control points) which "
 "are more than 32767 em-units apart in either the x or y direction"
-msgstr ""
+msgstr "רוב סוגי גופנים אינם תומכים בנקודות בסיס עוקבות או נקודות בקרה שהמרחק ביניהן עולה על 32767 יחידות em בציר x או y"
 
 #: ../fontforgeexe/problems.cpp:2879
 msgid "O_pen paths"
