@@ -2176,6 +2176,7 @@ msgid "No lookups to copy"
 msgstr ""
 
 #: ../fontforge/cvundoes.c:2919 ../fontforgeexe/justifydlg.c:51
+#: ../fontforgeexe/problems.cpp:3050
 msgid "Lookups"
 msgstr ""
 
@@ -31809,10 +31810,6 @@ msgstr ""
 
 #: ../fontforgeexe/problems.cpp:3049
 msgid "References"
-msgstr ""
-
-#: ../fontforgeexe/problems.cpp:3050
-msgid "ATT"
 msgstr ""
 
 #: ../fontforgeexe/problems.cpp:3050
