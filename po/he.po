@@ -31443,54 +31443,54 @@ msgstr "רוב סוגי גופנים אינם תומכים בנקודות בסי
 
 #: ../fontforgeexe/problems.cpp:2879
 msgid "O_pen paths"
-msgstr ""
+msgstr "נתיבים פתוחים"
 
 #: ../fontforgeexe/problems.cpp:2880
 msgid "All paths should be closed loops, there should be no exposed endpoints"
-msgstr ""
+msgstr "כל הנתיבים אמורים להיות לולאות סגורות, אין להשאיר קצוות חופשיים"
 
 #: ../fontforgeexe/problems.cpp:2883
 msgid "Intersecting paths"
-msgstr ""
+msgstr "נתיבים מצטלבים"
 
 #: ../fontforgeexe/problems.cpp:2884
 msgid "No paths with within a glyph should intersect"
-msgstr ""
+msgstr "נתיבים המרכיבים את הגליף לא אמורים לחצות זה את זה"
 
 #: ../fontforgeexe/problems.cpp:2885 ../fontforgeexe/problems.cpp:3086
 msgid "_Edges near horizontal/vertical"
-msgstr ""
+msgstr "קווים כמעט אופקיים או אנכיים"
 
 #: ../fontforgeexe/problems.cpp:2886
 msgid ""
 "Allows you to find lines which are almost, but not quite horizontal or "
 "vertical (or at the italic angle)."
-msgstr ""
+msgstr "הבדיקה מאתרת קווים שהם כמעט, אבל לא בדיוק אופקיים או אנכיים (או בזווית ההטיה של הגופן)"
 
 #: ../fontforgeexe/problems.cpp:2889
 msgid "Check _outermost paths clockwise"
-msgstr ""
+msgstr "נתיבים חיצוניים בכיוון השעון"
 
 #: ../fontforgeexe/problems.cpp:2890
 msgid ""
 "FontForge internally uses paths drawn in a clockwise direction. This lets "
 "you check that they are. Before doing this test insure that no paths self-"
 "intersect."
-msgstr ""
+msgstr "הייצוג הפנימי של הנתיבים ב־FontForge נעשה בכיוון השעון. בדיקה זו מוודאת שזה אכן המצב. יש לוודא שאף נתיב אינו חוצה את עצמו לפני ביצוע בדיקה זו."
 
 #: ../fontforgeexe/problems.cpp:2894
 msgid "Check _missing extrema"
-msgstr ""
+msgstr "נקודות קיצון חסרות"
 
 #: ../fontforgeexe/problems.cpp:2895
 msgid ""
 "PostScript and TrueType require that when a path reaches its maximum or "
 "minimum position there must be a point at that location."
-msgstr ""
+msgstr "גופנים מסוג PostScript ו־TrueType דורשים נקודות בסיס בכל נקודות הקיצון של כל נתיב."
 
 #: ../fontforgeexe/problems.cpp:2898
 msgid "_More points than:"
-msgstr ""
+msgstr "יותר נקודות מ־"
 
 #: ../fontforgeexe/problems.cpp:2899
 msgid ""
@@ -31500,7 +31500,8 @@ msgid ""
 "contours in a character make up one path. Modern interpreters tend to "
 "support paths with more points than this limit. (Note a truetype font after "
 "conversion to PS will contain twice as many control points)"
-msgstr ""
+msgstr "בהתאם למדריך הייעץ של שפת PostScript (נספח B) אין חובה לתמוך בנתיבים המונים מעל 1500 נקודות. לדעתנו מניין זה כולל גם את נקודות הבקרה, ובגליף המורכב ממספר נתיבים כל נקודותיהם נספרות יחדיו. "
+"תוכנות פענוח מודרניות נוטות לתמוך במספר נקודות רב יותר ממגבלה זו. יש לשים לב שגופן TrueType יכלול מספר כפול של נקודות בקרה אחרי המרה ל־PostScript."
 
 #: ../fontforgeexe/problems.cpp:2909
 msgid "Check _flipped references"
