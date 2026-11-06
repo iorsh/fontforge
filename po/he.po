@@ -25662,17 +25662,9 @@ msgstr ""
 msgid "Set All"
 msgstr ""
 
-#: ../fontforgeexe/gtk/find_problems.cpp:68
-msgid "¹ \"Near\" means within"
-msgstr ""
-
-#: ../fontforgeexe/gtk/find_problems.cpp:71 ../fontforgeexe/scstylesui.c:1259
-#: ../fontforgeexe/scstylesui.c:1323 ../fontforgeexe/scstylesui.c:1367
-#: ../fontforgeexe/scstylesui.c:1484 ../fontforgeexe/scstylesui.c:1527
-#: ../fontforgeexe/scstylesui.c:1570 ../fontforgeexe/scstylesui.c:1640
-#: ../fontforgeexe/simplifydlg.c:189 ../fontforgeexe/simplifydlg.c:353
-#: ../fontforgeexe/simplifydlg.c:391
-msgid "em-units"
+#: ../fontforgeexe/gtk/find_problems.cpp:64
+#, c-format
+msgid "¹ \"Near\" means within %f em-units"
 msgstr ""
 
 #: ../fontforgeexe/gtk/language_list.cpp:39
@@ -33175,6 +33167,14 @@ msgstr ""
 
 #: ../fontforgeexe/scstylesui.c:1240
 msgid "Threshold between \"thin\" and \"thick\":"
+msgstr ""
+
+#: ../fontforgeexe/scstylesui.c:1259 ../fontforgeexe/scstylesui.c:1323
+#: ../fontforgeexe/scstylesui.c:1367 ../fontforgeexe/scstylesui.c:1484
+#: ../fontforgeexe/scstylesui.c:1527 ../fontforgeexe/scstylesui.c:1570
+#: ../fontforgeexe/scstylesui.c:1640 ../fontforgeexe/simplifydlg.c:189
+#: ../fontforgeexe/simplifydlg.c:353 ../fontforgeexe/simplifydlg.c:391
+msgid "em-units"
 msgstr ""
 
 #: ../fontforgeexe/scstylesui.c:1275
