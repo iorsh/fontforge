@@ -25587,68 +25587,68 @@ msgstr ""
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:122
 msgid "Bitmap Strikes Available"
-msgstr ""
+msgstr "גדלים זמינים של גופני סיביות"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:123
 msgid "The list of current pixel bitmap sizes"
-msgstr ""
+msgstr "רשימת הגדלים הנוכחית של גופני סיביות"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:124
 msgid " Removing a size will delete it."
-msgstr ""
+msgstr "מחיקת גודל תמחק את גופן הסיביות המתאים"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:126
 msgid " Adding a size will create it by scaling."
-msgstr ""
+msgstr "הוספת גודל תיצור גופן סיביות ע״י סילום"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:127
 msgid " Adding a size will create it."
-msgstr ""
+msgstr "הוספת גודל תיצור גופן סיביות"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:129
 msgid "Regenerate Bitmap Glyphs"
-msgstr ""
+msgstr "ייצור מחדש של גליפי סיביות"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:130
 msgid "Specify bitmap sizes to be regenerated"
-msgstr ""
+msgstr "ציינו גדלים של גופני סיביות לייצור מחדש"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:132
 msgid "Remove Bitmap Glyphs"
-msgstr ""
+msgstr "מחיקת גליפי סיביות"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:133
 msgid "Specify bitmap sizes to be removed"
-msgstr ""
+msgstr "ציינו גדלים של גופני סיביות למחיקה"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:154
 msgid "Pixel Sizes:"
-msgstr ""
+msgstr "גדלים בפיקסלים"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:171
 #, c-format
 msgid "Point sizes on this monitor (%d PPI)"
-msgstr ""
+msgstr "גדלים בנקודות על צג זה (%d פיקסלים לאינטש)"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:179
 msgid "Point sizes on a 96 PPI monitor"
-msgstr ""
+msgstr "גדלים בנקודות על צג 96 פיקסלים לאינטש"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:202
 msgid "Create Rasterized Strikes (Not empty ones)"
-msgstr ""
+msgstr "ליצור גדלים ברסטריזציה (לא ריקים)"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:223
 msgid "All Glyphs"
-msgstr ""
+msgstr "כל הגליפים"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:224
 msgid "Selected Glyphs"
-msgstr ""
+msgstr "גליפים נבחרים"
 
 #: ../fontforgeexe/gtk/bitmaps_dlg.cpp:225
 msgid "Current Glyph"
-msgstr ""
+msgstr "גליף נוכחי"
 
 #: ../fontforgeexe/gtk/find_problems.cpp:40
 msgid "Find Problems"
