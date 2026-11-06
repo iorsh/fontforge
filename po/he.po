@@ -25652,20 +25652,20 @@ msgstr ""
 
 #: ../fontforgeexe/gtk/find_problems.cpp:40
 msgid "Find Problems"
-msgstr ""
+msgstr "איתור בעיות"
 
 #: ../fontforgeexe/gtk/find_problems.cpp:49 ../fontforgeexe/kernclass.c:1430
 msgid "Clear All"
-msgstr ""
+msgstr "לנקות הכל"
 
 #: ../fontforgeexe/gtk/find_problems.cpp:50
 msgid "Set All"
-msgstr ""
+msgstr "לסמן הכל"
 
 #: ../fontforgeexe/gtk/find_problems.cpp:64
 #, c-format
 msgid "¹ \"Near\" means within %f em-units"
-msgstr ""
+msgstr "¹ \"קרוב\" משמעותו פחות מ־%f יחידות em"
 
 #: ../fontforgeexe/gtk/language_list.cpp:39
 msgid "Language List"
