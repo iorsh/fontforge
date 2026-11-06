@@ -2178,7 +2178,7 @@ msgstr ""
 #: ../fontforge/cvundoes.c:2919 ../fontforgeexe/justifydlg.c:51
 #: ../fontforgeexe/problems.cpp:3050
 msgid "Lookups"
-msgstr ""
+msgstr "מתווים"
 
 #: ../fontforge/cvundoes.c:2920
 msgid "Choose which lookups to copy"
@@ -16225,7 +16225,7 @@ msgstr ""
 
 #: ../fontforgeexe/cvdebug.c:880 ../fontforgeexe/problems.cpp:3048
 msgid "Points"
-msgstr ""
+msgstr "נקודות"
 
 #: ../fontforgeexe/cvdebug.c:881 ../fontforgeexe/cvdebug.c:1926
 msgid "Cvt"
@@ -17401,7 +17401,7 @@ msgstr ""
 
 #: ../fontforgeexe/cvpalettes.c:655 ../fontforgeexe/problems.cpp:3051
 msgid "Bounding Box"
-msgstr ""
+msgstr "תיבה תוחמת"
 
 #: ../fontforgeexe/cvpalettes.c:662
 msgid "Center Out"
@@ -31647,178 +31647,178 @@ msgstr "אין להגדיר רמזים חופפים בגליף, וגם אין ל
 
 #: ../fontforgeexe/problems.cpp:2979
 msgid "Check for missing _glyph names"
-msgstr ""
+msgstr "שמות גליפים חסרים"
 
 #: ../fontforgeexe/problems.cpp:2980
 msgid ""
 "Check whether a substitution, kerning class, etc. uses a glyph name which "
 "does not match any glyph in the font"
-msgstr ""
+msgstr "הבדיקה מאתרת שמות גליפים בטבלאות תחליפים, ציפוף וכד׳ שאינם תואמים לאף גליף בגופן"
 
 #: ../fontforgeexe/problems.cpp:2983
 msgid "Check for missing _scripts in features"
-msgstr ""
+msgstr "סוגי כתב חסרים בתכונות"
 
 #: ../fontforgeexe/problems.cpp:2984
 msgid ""
 "In every lookup that uses a glyph, check that at least one feature is active "
 "for the glyph's script."
-msgstr ""
+msgstr "לכל מתווה שמשתמש בגליף בודקים שיש לפחות תכונה פעילה אחת עבור סוג הכתב של אותו גליף"
 
 #: ../fontforgeexe/problems.cpp:2987
 msgid "Check substitutions for empty chars"
-msgstr ""
+msgstr "תחליפים ריקים"
 
 #: ../fontforgeexe/problems.cpp:2988
 msgid ""
 "Check for characters which contain 'GSUB' entries which refer to empty "
 "characters"
-msgstr ""
+msgstr "הבדיקה מאתרת גליפים שאחת הרשומות שלהם בטבלת GSUB מפנה לגליף ריק"
 
 #: ../fontforgeexe/problems.cpp:2991
 msgid "Check for incomplete mark to base subtables"
-msgstr ""
+msgstr "תת־טבלאות סימן־לבסיס לא שלמות"
 
 #: ../fontforgeexe/problems.cpp:2992
 msgid ""
 "The OpenType documentation suggests in a rather confusing way that if a base "
 "glyph (or base mark) contains an anchor point for one class in a lookup "
 "subtable, then it should contain anchors for all classes in the subtable"
-msgstr ""
+msgstr "סטנדרט OpenType רומז בצורה מבלבלת שאם גליף בסיס (או סימן בסיס) כולל עוגן עבור מחלקה אחת בתת־טבלה, אז הוא צריך לכלול עוגנים עבור כל המחלקות באותה תת־טבלה"
 
 #: ../fontforgeexe/problems.cpp:2999
 msgid "Check for CIDs defined _twice"
-msgstr ""
+msgstr "מזהי תווים כפולים"
 
 #: ../fontforgeexe/problems.cpp:3000
 msgid "Check whether a CID is defined in more than one sub-font"
-msgstr ""
+msgstr "הבדיקה מאתרת מזהי תווים שהוגדרו ביותר מתת־גופן אחד"
 
 #: ../fontforgeexe/problems.cpp:3001
 msgid "Check for _undefined CIDs"
-msgstr ""
+msgstr "מזהי תווים לא מוגדרים"
 
 #: ../fontforgeexe/problems.cpp:3002
 msgid "Check whether a CID is undefined in all sub-fonts"
-msgstr ""
+msgstr "הבדיקה מאתרת מזהי תווים שלא הוגדרו באף תת־גופן"
 
 #: ../fontforgeexe/problems.cpp:3005
 msgid "Glyph bounding box above"
-msgstr ""
+msgstr "תיבה תוחמת של גליף גבוהה מ־"
 
 #: ../fontforgeexe/problems.cpp:3006
 msgid "Are there any glyph's whose bounding boxes extend above this number?"
-msgstr ""
+msgstr "האם ישנם גליפים עם תיבה תוחמת חורגת מעל הערך המוצג"
 
 #: ../fontforgeexe/problems.cpp:3008
 msgid "Glyph bounding box below"
-msgstr ""
+msgstr "תיבה תוחמת של גליף נמוכה מ־"
 
 #: ../fontforgeexe/problems.cpp:3009
 msgid "Are there any glyph's whose bounding boxes extend below this number?"
-msgstr ""
+msgstr "האם ישנם גליפים עם תיבה תוחמת חורגת מתחת לערך המוצג"
 
 #: ../fontforgeexe/problems.cpp:3011
 msgid "Glyph bounding box right of"
-msgstr ""
+msgstr "תיבה תוחמת של גליף מימין ל־"
 
 #: ../fontforgeexe/problems.cpp:3012
 msgid ""
 "Are there any glyphs whose bounding boxes extend to the right of this number?"
-msgstr ""
+msgstr "האם ישנם גליפים עם תיבה תוחמת חורגת ימינה מהערך המוצג"
 
 #: ../fontforgeexe/problems.cpp:3015
 msgid "Glyph bounding box left of"
-msgstr ""
+msgstr "תיבה תוחמת של גליף משמאל ל־"
 
 #: ../fontforgeexe/problems.cpp:3016
 msgid ""
 "Are there any glyph's whose bounding boxes extend to the left of this number?"
-msgstr ""
+msgstr "האם ישנם גליפים עם תיבה תוחמת חורגת שמאלה מהערך המוצג"
 
 #: ../fontforgeexe/problems.cpp:3019
 msgid "Check advance:"
-msgstr ""
+msgstr "בדיקת קידום"
 
 #: ../fontforgeexe/problems.cpp:3020
 msgid "Check for characters whose advance width is not the displayed value."
-msgstr ""
+msgstr "איתור גליפים עם רוחב קידום שונה מהערך המוצג"
 
 #: ../fontforgeexe/problems.cpp:3022
 msgid "Check vertical advance:"
-msgstr ""
+msgstr "בדיקת קידום אנכי"
 
 #: ../fontforgeexe/problems.cpp:3023
 msgid ""
 "Check for characters whose vertical advance width is not the displayed value."
-msgstr ""
+msgstr "איתור גליפים עם גובה קידום שונה מהערך המוצג"
 
 #: ../fontforgeexe/problems.cpp:3028
 msgid "Check missing _bitmaps"
-msgstr ""
+msgstr "בדיקת גליפי סיביות חסרים"
 
 #: ../fontforgeexe/problems.cpp:3029
 msgid ""
 "Are there any outline characters which don't have a bitmap version in one of "
 "the bitmap fonts? Conversely are there any bitmap characters without a "
 "corresponding outline character?"
-msgstr ""
+msgstr "האם ישנם גליפי מתאר עם גליפי סיביות תואמים חסרים באחד מגופני סיביות? לחילופין, האם ישנם גליפי סיביות ללא גליף מתאר תואם?"
 
 #: ../fontforgeexe/problems.cpp:3033
 msgid "Bitmap/outline _advance mismatch"
-msgstr ""
+msgstr "אי התאמת קידום בין גליף מתאר לסיביות"
 
 #: ../fontforgeexe/problems.cpp:3034
 msgid ""
 "Are there any bitmap glyphs whose advance width is not is expected from "
 "scaling and rounding the outline's advance width?"
-msgstr ""
+msgstr "האם ישנם גליפי סיביות שרוחב הקידום שלהם שונה מהצפוי בהתחשב ברוחב קידום של גליפי מתאר תואמים לאחר סילום ועיגול?"
 
 #: ../fontforgeexe/problems.cpp:3037
 msgid "Check multiple Unicode"
-msgstr ""
+msgstr "בדיקת כפל יוניקוד"
 
 #: ../fontforgeexe/problems.cpp:3038
 msgid "Check for multiple characters with the same Unicode code point"
-msgstr ""
+msgstr "הבדיקה מאתרת גליפים כפולים עם אותו קוד יוניקוד"
 
 #: ../fontforgeexe/problems.cpp:3040
 msgid "Check multiple names"
-msgstr ""
+msgstr "בדיקת כפל שמות"
 
 #: ../fontforgeexe/problems.cpp:3041
 msgid "Check for multiple characters with the same name"
-msgstr ""
+msgstr "הבדיקה מאתרת גליפים כפולים עם אותו שם"
 
 #: ../fontforgeexe/problems.cpp:3042
 msgid "Check Unicode/name mismatch"
-msgstr ""
+msgstr "בדיקת אי תאימות שם ליוניקוד"
 
 #: ../fontforgeexe/problems.cpp:3043
 msgid ""
 "Check for characters whose name maps to a unicode code point which does not "
 "map the character's assigned code point."
-msgstr ""
+msgstr "הבדיקה מאתרת גליפים עם שם שתואם לקוד יוניקוד שונה מהקוד שנקבע עבור אותו גליף"
 
 #: ../fontforgeexe/problems.cpp:3048
 msgid "Paths"
-msgstr ""
+msgstr "נתיבים"
 
 #: ../fontforgeexe/problems.cpp:3049 ../fontforgeexe/savefontdlg.c:580
 msgid "Hints"
-msgstr ""
+msgstr "רמזים"
 
 #: ../fontforgeexe/problems.cpp:3049
 msgid "References"
-msgstr ""
+msgstr "הפניות"
 
 #: ../fontforgeexe/problems.cpp:3050
 msgid "CID"
-msgstr ""
+msgstr "מזה״ת"
 
 #: ../fontforgeexe/problems.cpp:3051
 msgid "Random"
-msgstr ""
+msgstr "שונות"
 
 #: ../fontforgeexe/problems.cpp:3082
 msgid "Control points near horizontal/vertical/italic"
