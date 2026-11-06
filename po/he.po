@@ -31576,36 +31576,36 @@ msgstr "רק הפניה אחת יכולה לסמן סיבית \"מידות־של
 
 #: ../fontforgeexe/problems.cpp:2945
 msgid "_Hints controlling no points"
-msgstr ""
+msgstr "רמזים שלא משפיעים על אף נקודה"
 
 #: ../fontforgeexe/problems.cpp:2946
 msgid ""
 "Ghostview (perhaps other interpreters) has a problem when a hint exists "
 "without any points that lie on it."
-msgstr ""
+msgstr "תוכנת Ghostview (ואולי עוד מפענחים) נכשלת כקיים רמז ללא נקודות ששוכנות בו"
 
 #: ../fontforgeexe/problems.cpp:2949
 msgid "_Points near¹ hint edges"
-msgstr ""
+msgstr "נקודות קרובות¹ לשולי הרמז"
 
 #: ../fontforgeexe/problems.cpp:2950
 msgid ""
 "Often if a point is slightly off from a hint it is because a stem is made up "
 "of several segments, and one of them has the wrong width."
-msgstr ""
+msgstr "לפעמים כשנקודה נמצאת צמוד לרמז אך מחוץ לטווח שלו, זה קורה בגלל קו שעשוי ממספר מקטעים כשחלקם ברוחב שגוי"
 
 #: ../fontforgeexe/problems.cpp:2953
 msgid "Hint _width near¹"
-msgstr ""
+msgstr "רוחב רמז קרוב¹ ל־"
 
 #: ../fontforgeexe/problems.cpp:2954
 msgid "Allows you to check that stems have consistent widths.."
-msgstr ""
+msgstr "הבדיקה מוודאת שלקווי הגליפים יש רוחב עקבי"
 
 #. GT: The _3 is used to mark an accelerator
 #: ../fontforgeexe/problems.cpp:2957
 msgid "Almost stem_3 hint"
-msgstr ""
+msgstr "רמזים כמעט בתבנית stem3"
 
 #: ../fontforgeexe/problems.cpp:2958
 msgid ""
@@ -31613,35 +31613,36 @@ msgid ""
 "requirements for a stem3 hint. That is, either vertically or horizontally, "
 "there must be exactly three hints, and they must have the same width and "
 "they must be evenly spaced."
-msgstr ""
+msgstr "הבדיקה מאתרת גליפים שעונים כמעט, אך לא בדיוק, לדרישות תבנית רמזים stem3. היינו, "
+"ישנם בדיוק שלושה רמזים אנכיים ואופקיים שהם באותו רוחב ובמרחק שווה"
 
 #: ../fontforgeexe/problems.cpp:2964
 msgid "_Show exact *stem3"
-msgstr ""
+msgstr "הצגת תבניות stem3 מדוייקות"
 
 #: ../fontforgeexe/problems.cpp:2965
 msgid "Shows when this character is exactly a stem3 hint"
-msgstr ""
+msgstr "הצגת גליפים שעונים בדיוק לדרישות תבנית stem3"
 
 #: ../fontforgeexe/problems.cpp:2969
 msgid "_More hints than:"
-msgstr ""
+msgstr "מספר רמזים מעל:"
 
 #: ../fontforgeexe/problems.cpp:2970
 msgid ""
 "The Type 2 Charstring Reference (Appendix B) says that there may be at most "
 "96 horizontal and vertical stem hints in a character."
-msgstr ""
+msgstr "מדריך הייעץ של Type 2 (נספח B) קובע שניתן להגדיר לכל היותר 96 רמזים אופקיים ואנכיים בכל גליף"
 
 #: ../fontforgeexe/problems.cpp:2973
 msgid "_Overlapped hints"
-msgstr ""
+msgstr "רמזים חופפים"
 
 #: ../fontforgeexe/problems.cpp:2974
 msgid ""
 "Either a glyph should have no overlapping hints, or a glyph with hint masks "
 "should have no overlapping hints within a hint mask."
-msgstr ""
+msgstr "אין להגדיר רמזים חופפים בגליף, וגם אין להגדיר רמזים חופפים במסכה המשוייכת לנקודה מסויימת"
 
 #: ../fontforgeexe/problems.cpp:2979
 msgid "Check for missing _glyph names"
