@@ -1929,7 +1929,7 @@ msgstr ""
 #: ../gdraw/gaskdlg.c:805 ../gdraw/gaskdlg.c:856 ../gdraw/gcolor.c:674
 #: ../gdraw/gfiledlg.c:123 ../gdraw/gmatrixedit.c:1212 ../gdraw/gresedit.c:2200
 msgid "_OK"
-msgstr ""
+msgstr "אישור"
 
 #: ../fontforge/cvundoes.c:2085 ../fontforge/cvundoes.c:2098
 #: ../fontforge/fontviewbase.c:130 ../fontforgeexe/metricsview.c:2310
@@ -2152,7 +2152,7 @@ msgstr ""
 #: ../gdraw/gfiledlg.c:147 ../gdraw/gmatrixedit.c:1222 ../gdraw/gresedit.c:2216
 #: ../gdraw/gsavefiledlg.c:211
 msgid "_Cancel"
-msgstr ""
+msgstr "ביטול"
 
 #. GT: I'm not happy with this phrase. Suggestions for improvements are welcome
 #. GT:  Here I am generating a list of lookup names representing data that can
@@ -31400,7 +31400,7 @@ msgstr "הבדיקה מוצאת נקודות בקרה שנמצאות כמעט, �
 
 #: ../fontforgeexe/problems.cpp:2856
 msgid "Control points _beyond spline"
-msgstr "נקודות בקרה חורגות מפונקציית איפוץ"
+msgstr "נקודות בקרה חורגות מעקומת האיפוץ"
 
 #: ../fontforgeexe/problems.cpp:2857
 msgid ""
@@ -31505,7 +31505,7 @@ msgstr "בהתאם למדריך הייעץ של שפת PostScript (נספח B) �
 
 #: ../fontforgeexe/problems.cpp:2909
 msgid "Check _flipped references"
-msgstr ""
+msgstr "גליפים מופנים הפוכים"
 
 #: ../fontforgeexe/problems.cpp:2910
 msgid ""
@@ -31513,65 +31513,66 @@ msgid ""
 "direction. If you have a reference that has been flipped then the paths in "
 "that reference will probably be counter-clockwise. You should unlink it and "
 "do Element->Correct direction on it."
-msgstr ""
+msgstr "בגופני PostScript ו־TrueType הנתיבים חייבים להיות בכיוון השעון. אם הגליף כולל הפניה לגליף אחר שהפכו אותה מצד לצד, הנתיבים מתוך אותה הפניה כנראה יהיו נגד כיוון השעון."
+" יש לנתק את ההפניה ולהפעיל על הגליף פעולת \"אלמנט->תיקון כיוון\"."
 
 #: ../fontforgeexe/problems.cpp:2916
 msgid "References with bad TrueType transformation matrices"
-msgstr ""
+msgstr "הפניות עם מטריצת התמרת TrueType לא תקינה"
 
 #: ../fontforgeexe/problems.cpp:2917
 msgid ""
 "TrueType requires that all scaling and rotational entries in a "
 "transformation matrix be between -2 and 2"
-msgstr ""
+msgstr "תקן TrueType דורש שכל ערכי סילום וסיבוב במטריצת ההתמרה יהיו בטווח בין -2 ל־2"
 
 #: ../fontforgeexe/problems.cpp:2920
 msgid "Mixed contours and references"
-msgstr ""
+msgstr "עירבוב של נתיבים והפניות"
 
 #: ../fontforgeexe/problems.cpp:2921
 msgid "TrueType glyphs can either contain references or contours. Not both."
-msgstr ""
+msgstr "גליפים מסוג TrueType יכולים להכיל נתיבים או הפניות, אך לא את שניהם"
 
 #: ../fontforgeexe/problems.cpp:2925
 msgid "References with bad PostScript transformation matrices"
-msgstr ""
+msgstr "הפניות עם מטריצת התמרת PostScript לא תקינה"
 
 #: ../fontforgeexe/problems.cpp:2926
 msgid ""
 "Type1 and 2 fonts only support translation of references. The first four "
 "entries of the transformation matrix should be [1 0 0 1]."
-msgstr ""
+msgstr "גופני Type1 או 2 תומכים בהפניות עם הזזה בלבד. ארבעת הערכים הראשונים של מטריצת ההתמרה חייבים להיות [1 0 0 1]"
 
 #: ../fontforgeexe/problems.cpp:2929
 msgid "References neste_d deeper than:"
-msgstr ""
+msgstr "עומק הפניות מעל:"
 
 #: ../fontforgeexe/problems.cpp:2930
 msgid ""
 "The Type 2 Charstring Reference (Appendix B) says that subroutines may not "
 "be nested more than 10 deep. Each nesting level for references requires one "
 "subroutine level, and hints may require another level."
-msgstr ""
+msgstr "מדריך הייעץ של Type 2 דורש שעומק תתי־שגרות מקוננות יהיה לכל היותר 10. כל שכבת הפניה דורשת שכבת קינון אחת, ורמזים עשויים לדרוש עוד שכבה"
 
 #: ../fontforgeexe/problems.cpp:2935
 msgid "References with out of date point matching"
-msgstr ""
+msgstr "הפניות עם התאמת נקודות לא מעודכנת"
 
 #: ../fontforgeexe/problems.cpp:2936
 msgid ""
 "If a glyph has been edited so that it has a different number of points now, "
 "then any references which use point matching and depended on that glyph's "
 "point count will be incorrect."
-msgstr ""
+msgstr "אם הגליף המופנה נערך כך שמספר הנקודות בו השתנה, ההפניות שמסתמכות על התאמת נקודות ותלויות במספר נקודות מוגדר, עשויות להיות לא תקינות"
 
 #: ../fontforgeexe/problems.cpp:2940
 msgid "Multiple references with use-my-metrics"
-msgstr ""
+msgstr "הפניות מרובות עם סיבית .\"מידות־שלי\""
 
 #: ../fontforgeexe/problems.cpp:2941
 msgid "There may be at most one reference with the use-my-metrics bit set"
-msgstr ""
+msgstr "רק הפניה אחת יכולה לסמן סיבית \"מידות־שלי\""
 
 #: ../fontforgeexe/problems.cpp:2945
 msgid "_Hints controlling no points"
