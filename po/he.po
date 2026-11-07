@@ -16614,23 +16614,23 @@ msgstr ""
 #: ../fontforgeexe/cvgetinfo.cpp:664
 #, c-format
 msgid "%d x %d pixels"
-msgstr ""
+msgstr "%d × %d פיקסלים"
 
 #: ../fontforgeexe/cvgetinfo.cpp:668
 msgid "Image at:"
-msgstr ""
+msgstr "מיקום תמונה (y, x):"
 
 #: ../fontforgeexe/cvgetinfo.cpp:669
 msgid "Scaled by:"
-msgstr ""
+msgstr "שיעור הגדלה (רוחב, גובה):"
 
 #: ../fontforgeexe/cvgetinfo.cpp:670
 msgid "Image Size:"
-msgstr ""
+msgstr "גודל תמונה (רוחב × גובה):"
 
 #: ../fontforgeexe/cvgetinfo.cpp:672
 msgid "Image Info"
-msgstr ""
+msgstr "מאפייני תמונה"
 
 #: ../fontforgeexe/cvgetinfo.cpp:924
 msgid "Last Anchor Point"
@@ -29399,7 +29399,7 @@ msgstr ""
 
 #: ../fontforgeexe/metricsview.c:842 ../fontforgeexe/pluginui.cpp:68
 msgid "Name:"
-msgstr ""
+msgstr "שם:"
 
 #: ../fontforgeexe/metricsview.c:859
 msgid "LBearing:"
@@ -30092,32 +30092,32 @@ msgstr ""
 
 #: ../fontforgeexe/pluginui.cpp:69
 msgid "Package Name:"
-msgstr ""
+msgstr "שם החבילה:"
 
 #: ../fontforgeexe/pluginui.cpp:70 ../fontforgeexe/pluginui.cpp:72
 #: ../fontforgeexe/pluginui.cpp:75 ../fontforgeexe/pluginui.cpp:76
 msgid "[Unknown]"
-msgstr ""
+msgstr "[לא ידוע]"
 
 #: ../fontforgeexe/pluginui.cpp:71
 msgid "Module Name:"
-msgstr ""
+msgstr "שם המודול:"
 
 #: ../fontforgeexe/pluginui.cpp:73
 msgid "'attrs' (if any):"
-msgstr ""
+msgstr "שדה 'attrs' (אם קיים)"
 
 #: ../fontforgeexe/pluginui.cpp:74
 msgid "Package URL:"
-msgstr ""
+msgstr "אתר החבילה:"
 
 #: ../fontforgeexe/pluginui.cpp:76
 msgid "Summary:"
-msgstr ""
+msgstr "תקציר:"
 
 #: ../fontforgeexe/pluginui.cpp:78
 msgid "Plugin Information"
-msgstr ""
+msgstr "מידע אודות התוסף"
 
 #: ../fontforgeexe/pluginui.cpp:316
 msgid "Load Plugin?"
