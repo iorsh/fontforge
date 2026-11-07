@@ -25670,24 +25670,24 @@ msgstr "¹ \"קרוב\" משמעותו פחות מ־%f יחידות em"
 
 #: ../fontforgeexe/gtk/language_list.cpp:39
 msgid "Language List"
-msgstr ""
+msgstr "רשימת שפות"
 
 #: ../fontforgeexe/gtk/language_list.cpp:67
 msgid ""
 "Select as many languages as needed\n"
 "Hold down the control key when clicking\n"
 "to make disjoint selections."
-msgstr ""
+msgstr "ניתן לבחור את כל השפות הנדרשות. יש ללחוץ על מקש Ctrl כדי לבחור שורות נפרדות"
 
 #: ../fontforgeexe/gtk/language_list.cpp:91
 msgid "Language Missing"
-msgstr ""
+msgstr "לא נבחרה שפה"
 
 #: ../fontforgeexe/gtk/language_list.cpp:92
 msgid ""
 "You must select at least one language.\n"
 "Use the \"Default\" language if nothing else fits."
-msgstr ""
+msgstr "יש לבחור שפה אחת לפחות.\nניתן לבחור שפת \"ברירת מחדל\" אם אין שפה מתאימה אחרת."
 
 #: ../fontforgeexe/gtk/show_histogram.cpp:182
 msgid ""
