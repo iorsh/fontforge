@@ -391,19 +391,6 @@ return(0);
 return( ret );
 }
 
-int ExportSVG(char *filename,SplineChar *sc,int layer, ExportParams *ep) {
-    FILE *svg;
-    int ret;
-
-    svg = fopen(filename,"w");
-    if ( svg==NULL ) {
-return(0);
-    }
-    ret = _ExportSVG(svg,sc,layer,ep);
-    fclose(svg);
-return( ret );
-}
-
 int ExportGlif(char *filename,SplineChar *sc,int layer,int version) {
     FILE *glif;
     int ret;

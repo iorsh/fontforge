@@ -12,6 +12,7 @@ extern char **NamesReadSVG(char *filename);
 extern Entity *EntityInterpretSVG(const char *filename, char *memory, int memlen,
                                   int em_size, int ascent, bool scale);
 extern int _ExportSVG(FILE *svg, SplineChar *sc, int layer, ExportParams *ep);
+extern int ExportSVGToBuffer(char ** p_buffer,int *p_len,SplineChar *sc,int layer, ExportParams *ep);
 extern int SFFindOrder(SplineFont *sf);
 extern int SFLFindOrder(SplineFont *sf, int layerdest);
 extern int WriteSVGFont(const char *fontname, SplineFont *sf, enum fontformat format, int flags, EncMap *enc, int layer);

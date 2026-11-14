@@ -1145,6 +1145,39 @@ int _ExportSVG(FILE *svg,SplineChar *sc,int layer,ExportParams *ep) {
 return( !ferror(svg));
 }
 
+extern "C" int ExportSVG(char* filename, SplineChar* sc, int layer,
+                         ExportParams* ep) {
+    FILE* svg;
+    int ret;
+
+    svg = fopen(filename, "w");
+    if (svg == NULL) {
+        return (0);
+    }
+    ret = _ExportSVG(svg, sc, layer, ep);
+    fclose(svg);
+    return (ret);
+}
+
+extern "C" int ExportSVGToBuffer(char** p_buffer, int* p_len, SplineChar* sc,
+                                 int layer, ExportParams* ep) {
+    FILE* svg = GFileTmpfile();
+    if (svg == NULL) {
+        *p_buffer = NULL;
+        *p_len = 0;
+        return (0);
+    }
+    _ExportSVG(svg, sc, layer, ep);
+
+    fseek(svg, 0, SEEK_END);
+    *p_len = ftell(svg);
+    *p_buffer = (char*)malloc(*p_len);
+    rewind(svg);
+    fread(*p_buffer, 1, *p_len, svg);
+    fclose(svg);
+    return (1);
+}
+
 /* ************************************************************************** */
 /* *****************************    SVG Input    **************************** */
 /* ************************************************************************** */

@@ -1389,7 +1389,6 @@ static void *copybuffer2svg(void *UNUSED(_copybuffer),int32_t *len) {
     Undoes *cur = &copybuffer;
     SplineChar dummy;
     static Layer layers[2];
-    FILE *svg;
     char *ret;
     int old_order2;
     int lcnt;
@@ -1415,18 +1414,11 @@ static void *copybuffer2svg(void *UNUSED(_copybuffer),int32_t *len) {
 return( copy(""));
     }
 
-    svg = GFileTmpfile();
-    if ( svg==NULL ) {
-	*len=0;
-return( copy(""));
-    }
-
     memset(&dummy,0,sizeof(dummy));
     dummy.layers = layers;
     dummy.layer_cnt = 2;
 
     if ( !FFClipToSC(&dummy,cur) ) {
-	fclose(svg);
 	*len=0;
 return( copy(""));
     }
@@ -1434,7 +1426,7 @@ return( copy(""));
     old_order2 = dummy.parent->layers[ly_fore].order2;
     dummy.parent->layers[ly_fore].order2 = cur->was_order2;
     dummy.layers[ly_fore].order2 = cur->was_order2;
-    _ExportSVG(svg,&dummy,ly_fore,ExportParamsState());
+    ExportSVGToBuffer(&ret,len,&dummy,ly_fore,ExportParamsState());
     dummy.parent->layers[ly_fore].order2 = old_order2;
 
     for ( lcnt = ly_fore; lcnt<dummy.layer_cnt; ++lcnt )
@@ -1442,12 +1434,6 @@ return( copy(""));
     if ( dummy.layer_cnt!=2 && dummy.layers != layers )
 	free( dummy.layers );
 
-    fseek(svg,0,SEEK_END);
-    *len = ftell(svg);
-    ret = malloc(*len);
-    rewind(svg);
-    fread(ret,1,*len,svg);
-    fclose(svg);
 return( ret );
 }
 
