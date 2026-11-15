@@ -99,6 +99,7 @@
 #include <wchar.h>
 
 #include <algorithm>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -4868,8 +4869,14 @@ static PyObject *PyFFLayer_export(PyFF_Layer *self, PyObject *args,
     pt = strrchr(locfilename,'.');
     if ( pt==NULL ) pt=locfilename;
 
+    bool is_ofstream = ( strcasecmp(pt,".svg")==0 );
+    std::ofstream stream;
+    if ( is_ofstream )
+        stream.open(locfilename, std::ios::binary);
+    else
     file = fopen( locfilename,"wb");
-    if ( file==NULL ) {
+
+    if ( is_ofstream && !stream.is_open() || !is_ofstream && file==NULL ) {
 	PyErr_SetFromErrnoWithFilename(PyExc_IOError,locfilename);
 	free(locfilename);
 return( NULL );
@@ -4888,7 +4895,7 @@ return( NULL );
     else if ( strcasecmp(pt,".pdf")==0 )
 	_ExportPDF(file,&sc,ly_fore);
     else if ( strcasecmp(pt,".svg")==0 )
-	_ExportSVG(file,&sc,ly_fore,epp);
+	_ExportSVG(stream,&sc,ly_fore,epp);
     else if ( strcasecmp(pt,".glif")==0 )
 	_ExportGlif(file,&sc,ly_fore,3);
     else if ( strcasecmp(pt,".glif2")==0 )
@@ -4901,11 +4908,13 @@ return( NULL );
     else {
 	PyErr_Format(PyExc_ValueError, "Unknown file name extension \"%s\" to export", pt );
 	free( locfilename );
-	fclose(file);
+	if (!is_ofstream)
+	    fclose(file);
 	SplinePointListsFree(dummylayers[ly_fore].splines);
 return( NULL );
     }
-    fclose(file);
+    if (!is_ofstream)
+        fclose(file);
 
     SplinePointListsFree(dummylayers[ly_fore].splines);
     free( locfilename );
@@ -8964,8 +8973,14 @@ static PyObject *PyFFGlyph_export(PyObject *self, PyObject *args,
 return( NULL );
 	}
     } else {
-	file = fopen( locfilename,"wb");
-	if ( file==NULL ) {
+	bool is_ofstream = ( strcasecmp(pt,".svg")==0 );
+	std::ofstream stream;
+	if ( is_ofstream )
+	    stream.open(locfilename, std::ios::binary);
+	else
+	    file = fopen( locfilename,"wb");
+
+	if ( is_ofstream && !stream.is_open() || !is_ofstream && file==NULL ) {
 	    PyErr_SetFromErrnoWithFilename(PyExc_IOError,locfilename);
 	    free(locfilename);
 return( NULL );
@@ -8975,14 +8990,16 @@ return( NULL );
 	    layer = LayerArgToLayer(sc->parent, obj1);
 	    if ( layer==ly_none ) {
 		free(locfilename);
-		fclose(file);
+		if (!is_ofstream)
+		    fclose(file);
 		return NULL;
 	    }
 	}
 	if ( layer<0 || layer>=sc->layer_cnt ) {
 	    PyErr_Format(PyExc_ValueError, "Layer is out of range" );
 	    free(locfilename);
-	    fclose(file);
+	    if (!is_ofstream)
+		fclose(file);
 return( NULL );
 	}
 
@@ -8991,7 +9008,7 @@ return( NULL );
 	else if ( strcasecmp(pt,".pdf")==0 )
 	    _ExportPDF(file,sc,layer);
 	else if ( strcasecmp(pt,".svg")==0 )
-	    _ExportSVG(file,sc,layer,epp);
+	    _ExportSVG(stream,sc,layer,epp);
 	else if ( strcasecmp(pt,".glif")==0 )
 	    _ExportGlif(file,sc,layer,3);
 	else if ( strcasecmp(pt,".glif2")==0 )
@@ -9004,10 +9021,12 @@ return( NULL );
 	else {
 	    PyErr_Format(PyExc_TypeError, "Unknown extension to export: %s", pt );
 	    free( locfilename );
-	    fclose(file);
+	    if (!is_ofstream)
+		fclose(file);
 return( NULL );
 	}
-	fclose(file);
+	if (!is_ofstream)
+	    fclose(file);
     }
     free( locfilename );
 Py_RETURN( self );

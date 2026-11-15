@@ -29,6 +29,12 @@
 
 #include "svg.h"
 
+#include <cstring>
+#include <fstream>
+#include <limits>
+#include <sstream>
+#include <iomanip>
+
 #include "autohint.h"
 #include "cvimages.h"
 #include "dumppfa.h"
@@ -65,18 +71,18 @@
 /* ****************************    SVG Output    **************************** */
 /* ************************************************************************** */
 
-static void latin1ToUtf8Out(FILE *file,char *str) {
+static void latin1ToUtf8Out(std::ostream &stream,char *str) {
     /* beware of characters above 0x80, also &, <, > (things that are magic for xml) */
     while ( *str ) {
 	if ( *str=='&' || *str=='<' || *str=='>' || (*str&0x80) )
-	    fprintf( file, "&#%d;", (uint8_t) *str);
+	    stream << "&#" << (int)(uint8_t) *str << ";";
 	else
-	    putc(*str,file);
+	    stream << *str;
 	++str;
     }
 }
 
-static int svg_outfontheader(FILE *file, SplineFont *sf,int layer) {
+static int svg_outfontheader(std::ostream &stream, SplineFont *sf,int layer) {
     int defwid = SFFigureDefWidth(sf,NULL);
     struct pfminfo info;
     static const char *condexp[] = { "squinchy", "ultra-condensed", "extra-condensed",
@@ -93,77 +99,77 @@ static int svg_outfontheader(FILE *file, SplineFont *sf,int layer) {
     SplineFontLayerFindBounds(sf,layer,&bb);
     QuickBlues(sf,layer,&bd);
 
-    fprintf( file, "<?xml version=\"1.0\" standalone=\"no\"?>\n" );
-    fprintf( file, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\" >\n" );
+    stream << "<?xml version=\"1.0\" standalone=\"no\"?>\n";
+    stream << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\" >\n";
     if ( sf->comments!=NULL ) {
-	fprintf( file, "<!--\n" );
-	latin1ToUtf8Out(file,sf->comments);
-	fprintf( file, "\n-->\n" );
+	stream << "<!--\n";
+	latin1ToUtf8Out(stream,sf->comments);
+	stream << "\n-->\n";
     }
-    fprintf( file, "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\">\n" );
-    fprintf( file, "<metadata>\nCreated by FontForge %s at %s",
-	    FONTFORGE_VERSION, ctime((time_t*)&sf->modificationtime) );
+    stream << "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\">\n";
+    stream << "<metadata>\nCreated by FontForge " << FONTFORGE_VERSION << " at " << ctime((time_t*)&sf->modificationtime);
     if ( author!=NULL )
-	fprintf(file," By %s\n", author);
+	stream << " By " << author << "\n";
     else
-	fprintf(file,"\n" );
+	stream << "\n";
     if ( sf->copyright!=NULL ) {
-	latin1ToUtf8Out(file,sf->copyright);
-	putc('\n',file);
+	latin1ToUtf8Out(stream,sf->copyright);
+	stream << "\n";
     }
-    fprintf( file, "</metadata>\n" );
-    fprintf( file, "<defs>\n" );
-    fprintf( file, "<font id=\"");
-    latin1ToUtf8Out(file, sf->fontname);
-    fprintf(file, "\" horiz-adv-x=\"%d\" ", defwid );
+    stream << "</metadata>\n";
+    stream << "<defs>\n";
+    stream << "<font id=\"";
+    latin1ToUtf8Out(stream, sf->fontname);
+    stream << "\" horiz-adv-x=\"" << defwid << "\" ";
     if ( sf->hasvmetrics )
-	fprintf( file, "vert-adv-y=\"%d\" ", sf->ascent+sf->descent );
-    putc('>',file); putc('\n',file);
-    fprintf( file, "  <font-face \n" );
+	stream << "vert-adv-y=\"" << sf->ascent+sf->descent << "\" ";
+    stream << ">\n";
+    stream << "  <font-face \n";
     if (sf->familyname_with_timestamp != NULL || sf->familyname != NULL) {
-	fprintf( file, "    font-family=\"");
-	latin1ToUtf8Out(file, sf->familyname_with_timestamp ? sf->familyname_with_timestamp : sf->familyname );
-	fprintf( file, "\"\n");
+	stream << "    font-family=\"";
+	latin1ToUtf8Out(stream, sf->familyname_with_timestamp ? sf->familyname_with_timestamp : sf->familyname );
+	stream << "\"\n";
     } else {
 	LogError(_("An SVG font without a familyname value might not be usable."));
     }
-    fprintf( file, "    font-weight=\"%d\"\n", info.weight );
+    stream << "    font-weight=\"" << info.weight << "\"\n";
     if ( strstrmatch(sf->fontname,"obli") || strstrmatch(sf->fontname,"slanted") )
-	fprintf( file, "    font-style=\"oblique\"\n" );
+	stream << "    font-style=\"oblique\"\n";
     else if ( MacStyleCode(sf,NULL)&sf_italic )
-	fprintf( file, "    font-style=\"italic\"\n" );
+	stream << "    font-style=\"italic\"\n";
     if ( strstrmatch(sf->fontname,"small") || strstrmatch(sf->fontname,"cap") )
-	fprintf( file, "    font-variant=\"small-caps\"\n" );
-    fprintf( file, "    font-stretch=\"%s\"\n", condexp[info.width]);
-    fprintf( file, "    units-per-em=\"%d\"\n", sf->ascent+sf->descent );
-    fprintf( file, "    panose-1=\"%d %d %d %d %d %d %d %d %d %d\"\n", info.panose[0],
-	info.panose[1], info.panose[2], info.panose[3], info.panose[4], info.panose[5],
-	info.panose[6], info.panose[7], info.panose[8], info.panose[9]);
-    fprintf( file, "    ascent=\"%d\"\n", sf->ascent );
-    fprintf( file, "    descent=\"%d\"\n", -sf->descent );
+	stream << "    font-variant=\"small-caps\"\n";
+    stream << "    font-stretch=\"" << condexp[info.width] << "\"\n";
+    stream << "    units-per-em=\"" << sf->ascent+sf->descent << "\"\n";
+    stream << "    panose-1=\"";
+    for ( i=0; i<10; ++i )
+	stream << (i ? " " : "") << (int) info.panose[i];
+    stream << "\"\n";
+    stream << "    ascent=\"" << sf->ascent << "\"\n";
+    stream << "    descent=\"" << -sf->descent << "\"\n";
     if ( bd.xheight>0 )
-	fprintf( file, "    x-height=\"%g\"\n", (double) bd.xheight );
+	stream << "    x-height=\"" << (double) bd.xheight << "\"\n";
     if ( bd.caph>0 )
-	fprintf( file, "    cap-height=\"%g\"\n", (double) bd.caph );
-    fprintf( file, "    bbox=\"%g %g %g %g\"\n", (double) bb.minx, (double) bb.miny, (double) bb.maxx, (double) bb.maxy );
-    fprintf( file, "    underline-thickness=\"%g\"\n", (double) sf->uwidth );
-    fprintf( file, "    underline-position=\"%g\"\n", (double) sf->upos );
+	stream << "    cap-height=\"" << (double) bd.caph << "\"\n";
+    stream << "    bbox=\"" << (double) bb.minx << " " << (double) bb.miny << " " << (double) bb.maxx << " " << (double) bb.maxy << "\"\n";
+    stream << "    underline-thickness=\"" << (double) sf->uwidth << "\"\n";
+    stream << "    underline-position=\"" << (double) sf->upos << "\"\n";
     if ( sf->italicangle!=0 )
-	fprintf(file, "    slope=\"%g\"\n", (double) sf->italicangle );
+	stream << "    slope=\"" << (double) sf->italicangle << "\"\n";
     hash = PSDictHasEntry(sf->private_dict,"StdHW");
     hasv = PSDictHasEntry(sf->private_dict,"StdVW");
     if ( hash!=NULL ) {
 	if ( *hash=='[' ) ++hash;
 	ch = hash[strlen(hash)-1];
 	if ( ch==']' ) hash[strlen(hash)-1] = '\0';
-	fprintf(file, "    stemh=\"%s\"\n", hash );
+	stream << "    stemh=\"" << hash << "\"\n";
 	if ( ch==']' ) hash[strlen(hash)] = ch;
     }
     if ( hasv!=NULL ) {
 	if ( *hasv=='[' ) ++hasv;
 	ch = hasv[strlen(hasv)-1];
 	if ( ch==']' ) hasv[strlen(hasv)-1] = '\0';
-	fprintf(file, "    stemv=\"%s\"\n", hasv );
+	stream << "    stemv=\"" << hasv << "\"\n";
 	if ( ch==']' ) hasv[strlen(hasv)] = ch;
     }
     minu = 0x7fffff; maxu = 0;
@@ -172,12 +178,14 @@ static int svg_outfontheader(FILE *file, SplineFont *sf,int layer) {
 	if ( sf->glyphs[i]->unicodeenc>maxu ) maxu = sf->glyphs[i]->unicodeenc;
     }
     if ( maxu!=0 )
-	fprintf(file, "    unicode-range=\"U+%04X-%04X\"\n", minu, maxu );
-    fprintf( file, "  />\n" );
+	stream << "    unicode-range=\"U+" << std::hex << std::uppercase << std::setfill('0')
+	       << std::setw(4) << minu << "-" << std::setw(4) << maxu
+	       << std::dec << std::nouppercase << std::setfill(' ') << "\"\n";
+    stream << "  />\n";
 return( defwid );
 }
 
-static int svg_pathdump(FILE *file, SplineSet *spl, int lineout,
+static int svg_pathdump(std::ostream &stream, SplineSet *spl, int lineout,
 	int forceclosed, int do_clips) {
     BasePoint last;
     char buffer[85];
@@ -191,8 +199,8 @@ static int svg_pathdump(FILE *file, SplineSet *spl, int lineout,
     while ( spl!=NULL ) {
       if ( (do_clips && spl->is_clip_path) || (!do_clips && !spl->is_clip_path)) {
 	sprintf( buffer, "M%g %g", (double) spl->first->me.x, (double) spl->first->me.y );
-	if ( lineout+strlen(buffer)>=255 ) { putc('\n',file); lineout = 0; }
-	fputs( buffer,file );
+	if ( lineout+strlen(buffer)>=255 ) { stream << '\n'; lineout = 0; }
+	stream << buffer;
 	lineout += strlen( buffer );
 	last = spl->first->me;
 	closed = false;
@@ -232,14 +240,14 @@ static int svg_pathdump(FILE *file, SplineSet *spl, int lineout,
 			    (double) (sp->to->prevcp.x-last.x), (double) (sp->to->prevcp.y-last.y),
 			    (double) (sp->to->me.x-last.x),(double) (sp->to->me.y-last.y));
 	    }
-	    if ( lineout+strlen(buffer)>=255 ) { putc('\n',file); lineout = 0; }
-	    fputs( buffer,file );
+	    if ( lineout+strlen(buffer)>=255 ) { stream << '\n'; lineout = 0; }
+	    stream << buffer;
 	    lineout += strlen( buffer );
 	    last = sp->to->me;
 	}
 	if ( !closed && (forceclosed || spl->first->prev!=NULL) ) {
-	    if ( lineout>=254 ) { putc('\n',file); lineout=0; }
-	    putc('z',file);
+	    if ( lineout>=254 ) { stream << '\n'; lineout=0; }
+	    stream << 'z';
 	    ++lineout;
 	}
       }
@@ -248,7 +256,7 @@ static int svg_pathdump(FILE *file, SplineSet *spl, int lineout,
 return( lineout );
 }
 
-static void svg_dumpstroke(FILE *file, struct pen *cpen, struct pen *fallback,
+static void svg_dumpstroke(std::ostream &stream, struct pen *cpen, struct pen *fallback,
 	const char *scname, SplineChar *nested, int layer, int istop) {
     static const char *joins[] = { "miter", "round", "bevel", "inherit", NULL };
     static const char *caps[] = { "butt", "round", "square", "inherit", NULL };
@@ -266,46 +274,47 @@ static void svg_dumpstroke(FILE *file, struct pen *cpen, struct pen *fallback,
     }
 
     if ( pen.brush.gradient!=NULL ) {
-	fprintf( file, "stroke=\"url(#%s", scname );
+	stream << "stroke=\"url(#" << scname;
 	if ( nested!=NULL )
-	    fprintf( file, "-%s", nested->name );
-	fprintf( file, "-ly%d-stroke-grad)\" ", layer );
+	    stream << "-" << nested->name;
+	stream << "-ly" << layer << "-stroke-grad)\" ";
     } else if ( pen.brush.pattern!=NULL && istop ) {
-	fprintf( file, "stroke=\"url(#%s", scname );
+	stream << "stroke=\"url(#" << scname;
 	if ( nested!=NULL )
-	    fprintf( file, "-%s", nested->name );
-	fprintf( file, "-ly%d-stroke-pattern)\" ", layer );
+	    stream << "-" << nested->name;
+	stream << "-ly" << layer << "-stroke-pattern)\" ";
     } else {
 	if ( pen.brush.col!=COLOR_INHERITED )
-	    fprintf( file, "stroke=\"#%02x%02x%02x\" ",
-		    COLOR_RED(pen.brush.col), COLOR_GREEN(pen.brush.col), COLOR_BLUE(pen.brush.col));
+	    stream << "stroke=\"#" << std::hex << std::setw(2) << std::setfill('0') << COLOR_RED(pen.brush.col)
+		   << std::setw(2) << std::setfill('0') << COLOR_GREEN(pen.brush.col)
+		   << std::setw(2) << std::setfill('0') << COLOR_BLUE(pen.brush.col) << std::dec << std::setfill(' ') << "\" ";
 	else
-	    fprintf( file, "stroke=\"currentColor\" " );
+	    stream << "stroke=\"currentColor\" ";
 	if ( pen.brush.opacity>=0 )
-	    fprintf( file, "stroke-opacity=\"%g\" ", (double)pen.brush.opacity);
+	    stream << "stroke-opacity=\"" << (double)pen.brush.opacity << "\" ";
     }
     if ( pen.width!=WIDTH_INHERITED )
-	fprintf( file, "stroke-width=\"%g\" ", (double)pen.width );
+	stream << "stroke-width=\"" << (double)pen.width << "\" ";
     if ( pen.linecap!=lc_inherited )
-	fprintf( file, "stroke-linecap=\"%s\" ", caps[pen.linecap] );
+	stream << "stroke-linecap=\"" << caps[pen.linecap] << "\" ";
     if ( pen.linejoin!=lc_inherited )
-	fprintf( file, "stroke-linejoin=\"%s\" ", joins[pen.linejoin] );
+	stream << "stroke-linejoin=\"" << joins[pen.linejoin] << "\" ";
 /* the current transformation matrix will not affect the fill, but it will */
 /*  affect the way stroke looks. So we must include it here. BUT the spline */
 /*  set has already been transformed, so we must apply the inverse transform */
 /*  to the splineset before outputting it, so that applying the transform */
 /*  will give us the splines we desire. */
     if ( pen.trans[0]!=1.0 || pen.trans[3]!=1.0 || pen.trans[1]!=0 || pen.trans[2]!=0 )
-	fprintf( file, "transform=\"matrix(%g, %g, %g, %g, 0, 0)\" ",
-		(double) pen.trans[0], (double) pen.trans[1], (double) pen.trans[2], (double) pen.trans[3] );
+	stream << "transform=\"matrix(" << (double) pen.trans[0] << ", " << (double) pen.trans[1] << ", "
+	       << (double) pen.trans[2] << ", " << (double) pen.trans[3] << ", 0, 0)\" ";
     if ( pen.dashes[0]==0 && pen.dashes[1]==DASH_INHERITED ) {
-	fprintf( file, "stroke-dasharray=\"inherit\" " );
+	stream << "stroke-dasharray=\"inherit\" ";
     } else if ( pen.dashes[0]!=0 ) {
 	int i;
-	fprintf( file, "stroke-dasharray=\"" );
+	stream << "stroke-dasharray=\"";
 	for ( i=0; i<DASH_MAX && pen.dashes[i]!=0; ++i )
-	    fprintf( file, "%d ", pen.dashes[i]);
-	fprintf( file,"\" ");
+	    stream << (int) pen.dashes[i] << " ";
+	stream << "\" ";
     } else {
         /* That's the default, don't need to say it */
 	/* fprintf( file, "stroke-dasharray=\"none\" " )*/
@@ -313,12 +322,12 @@ static void svg_dumpstroke(FILE *file, struct pen *cpen, struct pen *fallback,
     }
 }
 
-static void svg_dumpfill(FILE *file, struct brush *cbrush, struct brush *fallback,
+static void svg_dumpfill(std::ostream &stream, struct brush *cbrush, struct brush *fallback,
 	int dofill, const char *scname, SplineChar *nested, int layer, int istop ) {
     struct brush brush;
 
     if ( !dofill ) {
-	fprintf( file, "fill=\"none\" " );
+	stream << "fill=\"none\" ";
 return;
     }
 
@@ -329,23 +338,24 @@ return;
     }
 
     if ( brush.gradient!=NULL ) {
-	fprintf( file, "fill=\"url(#%s", scname );
+	stream << "fill=\"url(#" << scname;
 	if ( nested!=NULL )
-	    fprintf( file, "-%s", nested->name );
-	fprintf( file, "-ly%d-fill-grad)\" ", layer );
+	    stream << "-" << nested->name;
+	stream << "-ly" << layer << "-fill-grad)\" ";
     } else if ( brush.pattern!=NULL && istop ) {
-	fprintf( file, "fill=\"url(#%s", scname );
+	stream << "fill=\"url(#" << scname;
 	if ( nested!=NULL )
-	    fprintf( file, "-%s", nested->name );
-	fprintf( file, "-ly%d-fill-pattern)\" ", layer );
+	    stream << "-" << nested->name;
+	stream << "-ly" << layer << "-fill-pattern)\" ";
     } else {
 	if ( brush.col!=COLOR_INHERITED )
-	    fprintf( file, "fill=\"#%02x%02x%02x\" ",
-		    COLOR_RED(brush.col), COLOR_GREEN(brush.col), COLOR_BLUE(brush.col));
+	    stream << "fill=\"#" << std::hex << std::setw(2) << std::setfill('0') << COLOR_RED(brush.col)
+		   << std::setw(2) << std::setfill('0') << COLOR_GREEN(brush.col)
+		   << std::setw(2) << std::setfill('0') << COLOR_BLUE(brush.col) << std::dec << std::setfill(' ') << "\" ";
 	else
-	    fprintf( file, "fill=\"currentColor\" " );
+	    stream << "fill=\"currentColor\" ";
 	if ( brush.opacity>=0 )
-	    fprintf( file, "fill-opacity=\"%g\" ", (double)brush.opacity);
+	    stream << "fill-opacity=\"" << (double)brush.opacity << "\" ";
     }
 }
 
@@ -386,7 +396,7 @@ static int base64tab[] = {
     '0','1','2','3','4','5','6','7','8','9','+', '/'
 };
 
-static void DataURI_ImageDump(FILE *file,struct gimage *img) {
+static void DataURI_ImageDump(std::ostream &file,struct gimage *img) {
     const char *mimetype=NULL;
     FILE *imgf;
     int done = false;
@@ -415,7 +425,7 @@ static void DataURI_ImageDump(FILE *file,struct gimage *img) {
 	mimetype = "image/bmp";
     }
 
-    fprintf( file,"%s;base64,", mimetype );
+    file << mimetype << ";base64,";
     rewind(imgf);
 
     /* Now do base64 output conversion */
@@ -438,13 +448,13 @@ static void DataURI_ImageDump(FILE *file,struct gimage *img) {
 		fourchars[3] = '=';
 	    if ( i<2 )
 		fourchars[2] = '=';
-	    putc(fourchars[0],file);
-	    putc(fourchars[1],file);
-	    putc(fourchars[2],file);
-	    putc(fourchars[3],file);
+	    file << (char)fourchars[0];
+	    file << (char)fourchars[1];
+	    file << (char)fourchars[2];
+	    file << (char)fourchars[3];
 	    ch_on_line += 4;
 	    if ( ch_on_line>=72 ) {
-		putc('\n',file);
+		file << '\n';
 		ch_on_line = 0;
 	    }
 	}
@@ -452,36 +462,30 @@ static void DataURI_ImageDump(FILE *file,struct gimage *img) {
     fclose(imgf);
 }
 
-static void svg_dumpgradient(FILE *file,struct gradient *gradient,
+static void svg_dumpgradient(std::ostream &stream,struct gradient *gradient,
 	const char *scname,SplineChar *nested,int layer,int is_fill) {
     int i;
     Color csame; float osame;
 
-    fprintf( file, "    <%s ", gradient->radius==0 ? "linearGradient" : "radialGradient" );
+    stream << "    <" << (gradient->radius==0 ? "linearGradient" : "radialGradient") << " ";
     if ( nested==NULL )
-	fprintf( file, " id=\"%s-ly%d-%s-grad\"", scname, layer, is_fill ? "fill" : "stroke" );
+	stream << " id=\"" << scname << "-ly" << layer << "-" << (is_fill ? "fill" : "stroke") << "-grad\"";
     else
-	fprintf( file, " id=\"%s-%s-ly%d-%s-grad\"", scname, nested->name, layer, is_fill ? "fill" : "stroke" );
-    fprintf(file, "\n\tgradientUnits=\"userSpaceOnUse\"" );
+	stream << " id=\"" << scname << "-" << nested->name << "-ly" << layer << "-" << (is_fill ? "fill" : "stroke") << "-grad\"";
+    stream << "\n\tgradientUnits=\"userSpaceOnUse\"";
     if ( gradient->radius==0 ) {
-	fprintf( file, "\n\tx1=\"%g\" y1=\"%g\" x2=\"%g\" y2=\"%g\"",
-		(double) gradient->start.x, (double) gradient->start.y,
-		(double) gradient->stop.x, (double) gradient->stop.y );
+	stream << "\n\tx1=\"" << (double) gradient->start.x << "\" y1=\"" << (double) gradient->start.y
+	       << "\" x2=\"" << (double) gradient->stop.x << "\" y2=\"" << (double) gradient->stop.y << "\"";
     } else {
 	if ( gradient->start.x==gradient->stop.x && gradient->start.y==gradient->stop.y )
-	    fprintf( file, "\n\tcx=\"%g\" cy=\"%g\" r=\"%g\"",
-		(double) gradient->stop.x, (double) gradient->stop.y,
-		(double) gradient->radius );
+	    stream << "\n\tcx=\"" << (double) gradient->stop.x << "\" cy=\"" << (double) gradient->stop.y << "\" r=\"" << (double) gradient->radius << "\"";
 	else
-	    fprintf( file, "\n\tfx=\"%g\" fy=\"%g\" cx=\"%g\" cy=\"%g\" r=\"%g\"",
-		(double) gradient->start.x, (double) gradient->start.y,
-		(double) gradient->stop.x, (double) gradient->stop.y,
-		(double) gradient->radius );
+	    stream << "\n\tfx=\"" << (double) gradient->start.x << "\" fy=\"" << (double) gradient->start.y
+		   << "\" cx=\"" << (double) gradient->stop.x << "\" cy=\"" << (double) gradient->stop.y << "\" r=\"" << (double) gradient->radius << "\"";
     }
-    fprintf(file, "\n\tspreadMethod=\"%s\">\n",
-		gradient->sm == sm_pad ? "pad" :
-		gradient->sm == sm_reflect ? "reflect" :
-		"repeat" );
+    stream << "\n\tspreadMethod=\"" << (gradient->sm == sm_pad ? "pad" :
+				       gradient->sm == sm_reflect ? "reflect" :
+				       "repeat") << "\">\n";
 
     csame = (Color)-1; osame = -1;
     for ( i=0; i<gradient->stop_cnt; ++i ) {
@@ -495,99 +499,93 @@ static void svg_dumpgradient(FILE *file,struct gradient *gradient,
 	    osame = -2;
     }
     for ( i=0; i<gradient->stop_cnt; ++i ) {
-	fprintf( file, "      <stop offset=\"%g\"", (double) gradient->grad_stops[i].offset );
+	stream << "      <stop offset=\"" << (double) gradient->grad_stops[i].offset << "\"";
 	if ( csame==(Color)-2 ) {
 	    if ( gradient->grad_stops[i].col==COLOR_INHERITED )
-		fprintf( file, " stop-color=\"inherit\"" );
+		stream << " stop-color=\"inherit\"";
 	    else
-		fprintf( file, " stop-color=\"#%06x\"", gradient->grad_stops[i].col );
+		stream << " stop-color=\"#" << std::hex << std::setw(6) << std::setfill('0') << gradient->grad_stops[i].col << std::dec << std::setfill(' ') << "\"";
 	}
 	if ( osame<0 ) {
 	    if ( gradient->grad_stops[i].opacity==COLOR_INHERITED )
-		fprintf( file, " stop-opacity=\"inherit\"" );
+		stream << " stop-opacity=\"inherit\"";
 	    else
-		fprintf( file, " stop-opacity=\"%g\"", (double) gradient->grad_stops[i].opacity );
+		stream << " stop-opacity=\"" << (double) gradient->grad_stops[i].opacity << "\"";
 	}
-	fprintf( file, "/>\n" );
+	stream << "/>\n";
     }
-    fprintf( file, "    </%s>\n", gradient->radius==0 ? "linearGradient" : "radialGradient" );
+    stream << "    </" << (gradient->radius==0 ? "linearGradient" : "radialGradient") << ">\n";
 }
 
-static void svg_dumpscdefs(FILE *file,SplineChar *sc,const char *name,int istop);
-static void svg_dumptype3(FILE *file,SplineChar *sc,const char *name,int istop);
+static void svg_dumpscdefs(std::ostream& stream,SplineChar *sc,const char *name,int istop);
+static void svg_dumptype3(std::ostream& stream,SplineChar *sc,const char *name,int istop);
 
-static void svg_dumppattern(FILE *file,struct pattern *pattern,
+static void svg_dumppattern(std::ostream& stream,struct pattern *pattern,
 	const char *scname, SplineChar *base,SplineChar *nested,int layer,int is_fill) {
     SplineChar *pattern_sc = SFGetChar(base->parent,-1,pattern->pattern);
     char *patsubname = NULL;
 
     if ( pattern_sc!=NULL ) {
 	patsubname = strconcat3(scname,"-",pattern->pattern);
-	svg_dumpscdefs(file,pattern_sc,patsubname,false);
+	svg_dumpscdefs(stream,pattern_sc,patsubname,false);
     } else
 	LogError(_("No glyph named %s, used as a pattern in %s"), pattern->pattern, scname);
 
-    fprintf( file, "    <pattern " );
+    stream << "    <pattern ";
     if ( nested==NULL )
-	fprintf( file, " id=\"%s-ly%d-%s-pattern\"", scname, layer, is_fill ? "fill" : "stroke" );
+	stream << " id=\"" << scname << "-ly" << layer << "-" << (is_fill ? "fill" : "stroke") << "-pattern\"";
     else
-	fprintf( file, " id=\"%s-%s-ly%d-%s-pattern\"", scname, nested->name, layer, is_fill ? "fill" : "stroke" );
-    fprintf(file, "\n\tpatternUnits=\"userSpaceOnUse\"" );
+	stream << " id=\"" << scname << "-" << nested->name << "-ly" << layer << "-" << (is_fill ? "fill" : "stroke") << "-pattern\"";
+    stream << "\n\tpatternUnits=\"userSpaceOnUse\"";
     if ( pattern_sc!=NULL ) {
 	DBounds b;
 	PatternSCBounds(pattern_sc,&b);
-	fprintf( file, "\n\tviewBox=\"%g %g %g %g\"",
-		(double) b.minx, (double) b.miny,
-		(double) (b.maxx-b.minx), (double) (b.maxy-b.miny) );
+	stream << "\n\tviewBox=\"" << (double) b.minx << " " << (double) b.miny << " " << (double) (b.maxx-b.minx) << " " << (double) (b.maxy-b.miny) << "\"";
     }
-    fprintf( file, "\n\twidth=\"%g\" height=\"%g\"",
-	    (double) pattern->width, (double) pattern->height );
+    stream << "\n\twidth=\"" << (double) pattern->width << "\" height=\"" << (double) pattern->height << "\"";
     if ( pattern->transform[0]!=1 || pattern->transform[1]!=0 ||
 	    pattern->transform[2]!=0 || pattern->transform[3]!=1 ||
 	    pattern->transform[4]!=0 || pattern->transform[5]!=0 ) {
-	fprintf( file, "\n\tpatternTransform=\"matrix(%g %g %g %g %g %g)\"",
-		(double) pattern->transform[0], (double) pattern->transform[1],
-		(double) pattern->transform[2], (double) pattern->transform[3],
-		(double) pattern->transform[4], (double) pattern->transform[5] );
+	stream << "\n\tpatternTransform=\"matrix(" << (double) pattern->transform[0] << " " << (double) pattern->transform[1] << " " << (double) pattern->transform[2] << " " << (double) pattern->transform[3] << " " << (double) pattern->transform[4] << " " << (double) pattern->transform[5] << ")\"";
     }
     if ( pattern_sc!=NULL )
-	svg_dumpscdefs(file,pattern_sc,patsubname,false);
-    fprintf( file, "    </pattern>\n" );
+	svg_dumpscdefs(stream,pattern_sc,patsubname,false);
+    stream << "    </pattern>\n";
     free(patsubname);
 }
 
-static void svg_layer_defs(FILE *file, SplineSet *splines,struct brush *fill_brush,struct pen *stroke_pen,
+static void svg_layer_defs(std::ostream& stream, SplineSet *splines,struct brush *fill_brush,struct pen *stroke_pen,
 	SplineChar *sc, const char *scname, SplineChar *nested, int layer, int istop ) {
     if ( SSHasClip(splines)) {
 	if ( nested==NULL )
-	    fprintf( file, "    <clipPath id=\"%s-ly%d-clip\">\n", scname, layer );
+	    stream << "    <clipPath id=\"" << scname << "-ly" << layer << "-clip\">\n";
 	else
-	    fprintf( file, "    <clipPath id=\"%s-%s-ly%d-clip\">\n", scname, nested->name, layer );
-	fprintf(file, "      <path d=\"\n");
-	svg_pathdump(file,sc->layers[layer].splines,16,true,true);
-	fprintf(file, "\"/>\n" );
-	fprintf( file, "    </clipPath>\n" );
+	    stream << "    <clipPath id=\"" << scname << "-" << nested->name << "-ly" << layer << "-clip\">\n";
+	stream << "      <path d=\"\n";
+	svg_pathdump(stream,sc->layers[layer].splines,16,true,true);
+	stream << "\"/>\n";
+	stream << "    </clipPath>\n";
     }
     if ( fill_brush->gradient!=NULL )
-	svg_dumpgradient(file,fill_brush->gradient,scname,nested,layer,true);
+	svg_dumpgradient(stream,fill_brush->gradient,scname,nested,layer,true);
     else if ( fill_brush->pattern!=NULL && istop )
-	svg_dumppattern(file,fill_brush->pattern,scname,sc,nested,layer,true);
+	svg_dumppattern(stream,fill_brush->pattern,scname,sc,nested,layer,true);
     if ( stroke_pen->brush.gradient!=NULL )
-	svg_dumpgradient(file,stroke_pen->brush.gradient,scname,nested,layer,false);
+	svg_dumpgradient(stream,stroke_pen->brush.gradient,scname,nested,layer,false);
     else if ( stroke_pen->brush.pattern!=NULL && istop )
-	svg_dumppattern(file,stroke_pen->brush.pattern,scname,sc,nested,layer,false);
+	svg_dumppattern(stream,stroke_pen->brush.pattern,scname,sc,nested,layer,false);
 }
 
-static void svg_dumpscdefs(FILE *file,SplineChar *sc,const char *name,int istop) {
+static void svg_dumpscdefs(std::ostream& stream,SplineChar *sc,const char *name,int istop) {
     int i, j;
     RefChar *ref;
 
     for ( i=ly_fore; i<sc->layer_cnt ; ++i ) {
-	svg_layer_defs(file,sc->layers[i].splines,&sc->layers[i].fill_brush,&sc->layers[i].stroke_pen,
+	svg_layer_defs(stream,sc->layers[i].splines,&sc->layers[i].fill_brush,&sc->layers[i].stroke_pen,
 		sc,name,NULL,i,istop);
 	for ( ref=sc->layers[i].refs ; ref!=NULL; ref = ref->next ) {
 	    for ( j=0; j<ref->layer_cnt; ++j ) if ( ref->layers[j].splines!=NULL ) {
-		svg_layer_defs(file,ref->layers[j].splines,&ref->layers[j].fill_brush,&ref->layers[j].stroke_pen,
+		svg_layer_defs(stream,ref->layers[j].splines,&ref->layers[j].fill_brush,&ref->layers[j].stroke_pen,
 			sc,name,ref->sc,j,istop);
 	    }
 	}
@@ -598,7 +596,7 @@ static char* svg_sc_name(SplineChar *sc) {
     return sc->glif_name ? sc->glif_name : sc->name;
 }
 
-static void svg_dumptype3(FILE *file,SplineChar *sc,const char *name,int istop) {
+static void svg_dumptype3(std::ostream& stream,SplineChar *sc,const char *name,int istop) {
     int i, j;
     RefChar *ref;
     ImageList *images;
@@ -606,59 +604,58 @@ static void svg_dumptype3(FILE *file,SplineChar *sc,const char *name,int istop) 
 
     for ( i=ly_fore; i<sc->layer_cnt ; ++i ) {
 	if ( SSHasDrawn(sc->layers[i].splines) ) {
-	    fprintf(file, "  <g " );
+	    stream << "  <g ";
 	    if ( SSHasClip(sc->layers[i].splines))
-		fprintf( file, "clip-path=\"url(#%s-ly%d-clip)\" ", name, i );
+		stream << "clip-path=\"url(#" << name << "-ly" << i << "-clip)\" ";
 	    transed = sc->layers[i].splines;
 	    if ( sc->layers[i].dostroke ) {
-		svg_dumpstroke(file,&sc->layers[i].stroke_pen,NULL,name,NULL,i,istop);
+		svg_dumpstroke(stream,&sc->layers[i].stroke_pen,NULL,name,NULL,i,istop);
 		transed = TransBy(transed,sc->layers[i].stroke_pen.trans);
 	    }
-	    svg_dumpfill(file,&sc->layers[i].fill_brush,NULL,sc->layers[i].dofill,name,NULL,i,istop);
-	    fprintf( file, ">\n" );
-	    fprintf(file, "    <path d=\"\n");
-	    svg_pathdump(file,transed,12,!sc->layers[i].dostroke,false);
-	    fprintf(file, "\"/>\n" );
+	    svg_dumpfill(stream,&sc->layers[i].fill_brush,NULL,sc->layers[i].dofill,name,NULL,i,istop);
+	    stream << ">\n";
+	    stream << "    <path d=\"\n";
+	    svg_pathdump(stream,transed,12,!sc->layers[i].dostroke,false);
+	    stream << "\"/>\n";
 	    if ( transed!=sc->layers[i].splines )
 		SplinePointListsFree(transed);
-	    fprintf(file, "  </g>\n" );
+	    stream << "  </g>\n";
 	}
 	for ( ref=sc->layers[i].refs ; ref!=NULL; ref = ref->next ) {
 	    for ( j=0; j<ref->layer_cnt; ++j ) if ( ref->layers[j].splines!=NULL ) {
-		fprintf(file, "   <g " );
+		stream << "   <g ";
 		transed = ref->layers[j].splines;
 		if ( SSHasClip(transed))
-		    fprintf( file, "clip-path=\"url(#%s-%s-ly%d-clip)\" ", name, svg_sc_name(ref->sc), j );
+		    stream << "clip-path=\"url(#" << name << "-" << svg_sc_name(ref->sc) << "-ly" << j << "-clip)\" ";
 		if ( ref->layers[j].dostroke ) {
-		    svg_dumpstroke(file,&ref->layers[j].stroke_pen,&sc->layers[i].stroke_pen,svg_sc_name(sc),ref->sc,j,istop);
+		    svg_dumpstroke(stream,&ref->layers[j].stroke_pen,&sc->layers[i].stroke_pen,svg_sc_name(sc),ref->sc,j,istop);
 		    transed = TransBy(transed,ref->layers[j].stroke_pen.trans);
 		}
-		svg_dumpfill(file,&ref->layers[j].fill_brush,&sc->layers[i].fill_brush,ref->layers[j].dofill,svg_sc_name(sc),ref->sc,j,istop);
-		fprintf( file, ">\n" );
-		fprintf(file, "  <path d=\"\n");
-		svg_pathdump(file,transed,12,!ref->layers[j].dostroke,false);
-		fprintf(file, "\"/>\n" );
+		svg_dumpfill(stream,&ref->layers[j].fill_brush,&sc->layers[i].fill_brush,ref->layers[j].dofill,svg_sc_name(sc),ref->sc,j,istop);
+		stream << ">\n";
+		stream << "  <path d=\"\n";
+		svg_pathdump(stream,transed,12,!ref->layers[j].dostroke,false);
+		stream << "\"/>\n";
 		if ( transed!=ref->layers[j].splines )
 		    SplinePointListsFree(transed);
-		fprintf(file, "   </g>\n" );
+		stream << "   </g>\n";
 	    }
 	}
 	for ( images=sc->layers[i].images ; images!=NULL; images = images->next ) {
 	    struct _GImage *base;
-	    fprintf(file, "      <image\n" );
+	    stream << "      <image\n";
 	    base = images->image->list_len==0 ? images->image->u.image :
 		    images->image->u.images[0];
-	    fprintf(file, "\twidth=\"%g\"\n\theight=\"%g\"\n",
-		    (double) (base->width*images->xscale), (double) (base->height*images->yscale) );
-	    fprintf(file, "\tx=\"%g\"\n\ty=\"%g\"\n", (double) images->xoff, (double) images->yoff );
-	    fprintf(file, "\txlink:href=\"data:" );
-	    DataURI_ImageDump(file,images->image);
-	    fprintf(file, "\" />\n" );
+	    stream << "\twidth=\"" << (double) (base->width*images->xscale) << "\"\n\theight=\"" << (double) (base->height*images->yscale) << "\"\n";
+	    stream << "\tx=\"" << (double) images->xoff << "\"\n\ty=\"" << (double) images->yoff << "\"\n";
+	    stream << "\txlink:href=\"data:";
+	    DataURI_ImageDump(stream,images->image);
+	    stream << "\" />\n";
 	}
     }
 }
 
-static void svg_scpathdump(FILE *file, SplineChar *sc,const char *endpath,int layer) {
+static void svg_scpathdump(std::ostream& stream, SplineChar *sc,const char *endpath,int layer) {
     RefChar *ref;
     int lineout;
     int i,j;
@@ -667,28 +664,28 @@ static void svg_scpathdump(FILE *file, SplineChar *sc,const char *endpath,int la
     if ( !svg_sc_any(sc,layer) ) {
 	/* I think a space is represented by leaving out the d (path) entirely*/
 	/*  rather than having d="" */
-	fputs(" />\n",file);
+	stream << " />\n";
     } else if ( sc->parent!=NULL && sc->parent->strokedfont ) {
 	/* Can't be done with a path, requires nested elements (I think) */
-	fprintf(file,">\n  <g stroke=\"currentColor\" stroke-width=\"%g\" fill=\"none\">\n", (double) sc->parent->strokewidth );
-	fprintf( file,"    <path d=\"");
-	lineout = svg_pathdump(file,sc->layers[layer].splines,3,false,false);
+	stream << ">\n  <g stroke=\"currentColor\" stroke-width=\"" << (double) sc->parent->strokewidth << "\" fill=\"none\">\n";
+	stream << "    <path d=\"";
+	lineout = svg_pathdump(stream,sc->layers[layer].splines,3,false,false);
 	for ( ref= sc->layers[layer].refs; ref!=NULL; ref=ref->next )
-	    lineout = svg_pathdump(file,ref->layers[0].splines,lineout,false,false);
-	if ( lineout>=255-4 ) putc('\n',file );
-	putc('"',file);
-	fputs(" />\n  </g>\n",file);
-	fputs(endpath,file);
+	    lineout = svg_pathdump(stream,ref->layers[0].splines,lineout,false,false);
+	if ( lineout>=255-4 ) stream.put('\n');
+	stream.put('"');
+	stream << " />\n  </g>\n";
+	stream << endpath;
     } else if ( sc->parent==NULL || !sc->parent->multilayer ) {
-	fprintf( file,"d=\"");
-	lineout = svg_pathdump(file,sc->layers[layer].splines,3,true,false);
+	stream << "d=\"";
+	lineout = svg_pathdump(stream,sc->layers[layer].splines,3,true,false);
 	for ( ref= sc->layers[layer].refs; ref!=NULL; ref=ref->next )
-	    lineout = svg_pathdump(file,ref->layers[0].splines,lineout,true,false);
-	if ( lineout>=255-4 ) putc('\n',file );
-	putc('"',file);
-	fputs(" />\n",file);
+	    lineout = svg_pathdump(stream,ref->layers[0].splines,lineout,true,false);
+	if ( lineout>=255-4 ) stream.put('\n');
+	stream.put('"');
+	stream << " />\n";
     } else {
-	fputs(">\n",file);
+	stream << ">\n";
 	for ( i=ly_fore; i<sc->layer_cnt && !needs_defs ; ++i ) {
 	    if ( SSHasClip(sc->layers[i].splines))
 		needs_defs = true;
@@ -710,12 +707,12 @@ static void svg_scpathdump(FILE *file, SplineChar *sc,const char *endpath,int la
 	    }
 	}
 	if ( needs_defs ) {
-	    fprintf(file, "  <defs>\n" );
-	    svg_dumpscdefs(file,sc,svg_sc_name(sc),true);
-	    fprintf(file, "  </defs>\n" );
+	    stream << "  <defs>\n";
+	    svg_dumpscdefs(stream,sc,svg_sc_name(sc),true);
+	    stream << "  </defs>\n";
 	}
-	svg_dumptype3(file,sc,svg_sc_name(sc),true);
-	fputs(endpath,file);
+	svg_dumptype3(stream,sc,svg_sc_name(sc),true);
+	stream << endpath;
     }
 }
 
@@ -774,7 +771,7 @@ return( SFGetChar(sc->parent,-1,pst->u.subs.variant));
 return( NULL );
 }
 
-static void svg_scdump(FILE *file, SplineChar *sc,int defwid, int encuni, int vs,int layer) {
+static void svg_scdump(std::ostream &stream, SplineChar *sc,int defwid, int encuni, int vs,int layer) {
     PST *best=NULL;
     const unichar_t *alt;
     int32_t univals[50];
@@ -782,18 +779,18 @@ static void svg_scdump(FILE *file, SplineChar *sc,int defwid, int encuni, int vs
 
     best = HasLigature(sc);
     if ( sc->comment!=NULL ) {
-	fprintf( file, "\n<!--\n%s\n-->\n",sc->comment );
+	stream << "\n<!--\n" << sc->comment << "\n-->\n";
     }
-    fprintf(file,"    <glyph glyph-name=\"%s\" ",svg_sc_name(sc) );
+    stream << "    <glyph glyph-name=\"" << svg_sc_name(sc) << "\" ";
     if ( best!=NULL ) {
 	c = LigCnt(sc->parent,best,univals,sizeof(univals)/sizeof(univals[0]));
-	fputs("unicode=\"",file);
+	stream << "unicode=\"";
 	for ( i=0; i<c; ++i )
 	    if ( univals[i]>='A' && univals[i]<='z' )
-		putc(univals[i],file);
+		stream << (char)univals[i];
 	    else
-		fprintf(file,"&#x%x;", (unsigned int) univals[i]);
-	fputs("\" ",file);
+		stream << "&#x" << std::hex << (unsigned int) univals[i] << std::dec << ";";
+	stream << "\" ";
     } else if ( encuni!=-1 && encuni<0x110000 ) {
 	if ( encuni!=0x9 &&
 		encuni!=0xa &&
@@ -811,38 +808,38 @@ static void svg_scdump(FILE *file, SplineChar *sc,int defwid, int encuni, int vs
 	else if ( encuni>=32 && encuni<127 &&
 		encuni!='"' && encuni!='&' &&
 		encuni!='<' && encuni!='>' )
-	    fprintf( file, "unicode=\"%c\" ", encuni);
+	    stream << "unicode=\"" << (char)encuni << "\" ";
 	else if (( isarabisolated(encuni) || isarabinitial(encuni) || isarabmedial(encuni) || isarabfinal(encuni) ) &&
 		(alt = unialt(encuni))!=NULL && alt[1]=='\0' )
 	    /* For arabic forms use the base representation in the 0600 block */
-	    fprintf( file, "unicode=\"&#x%x;\" ", alt[0]);
+	    stream << "unicode=\"&#x" << std::hex << (unsigned int) alt[0] << std::dec << ";\" ";
 	else if ( vs!=-1 )
-	    fprintf( file, "unicode=\"&#x%x;\" ", vs);
+	    stream << "unicode=\"&#x" << std::hex << (unsigned int) vs << std::dec << ";\" ";
 	else
-	    fprintf( file, "unicode=\"&#x%x;\" ", encuni);
+	    stream << "unicode=\"&#x" << std::hex << (unsigned int) encuni << std::dec << ";\" ";
     }
     if ( sc->width!=defwid )
-	fprintf( file, "horiz-adv-x=\"%d\" ", sc->width );
+	stream << "horiz-adv-x=\"" << sc->width << "\" ";
     if ( sc->parent->hasvmetrics && sc->vwidth!=sc->parent->ascent+sc->parent->descent )
-	fprintf( file, "vert-adv-y=\"%d\" ", sc->vwidth );
+	stream << "vert-adv-y=\"" << sc->vwidth << "\" ";
     if ( strstr(sc->name,".vert")!=NULL || strstr(sc->name,".vrt2")!=NULL )
-	fprintf( file, "orientation=\"v\" " );
+	stream << "orientation=\"v\" ";
     if ( encuni!=-1 ) {
 	if ( isarabinitial(encuni))
-	    fprintf( file,"arabic-form=\"initial\" " );
+	    stream << "arabic-form=\"initial\" ";
 	else if ( isarabmedial(encuni))
-	    fprintf( file,"arabic-form=\"medial\" ");
+	    stream << "arabic-form=\"medial\" ";
 	else if ( isarabfinal(encuni))
-	    fprintf( file,"arabic-form=\"final\" ");
+	    stream << "arabic-form=\"final\" ";
 	else if ( isarabisolated(encuni))
-	    fprintf( file,"arabic-form=\"isolated\" ");
+	    stream << "arabic-form=\"isolated\" ";
     }
-    putc('\n',file);
-    svg_scpathdump(file,sc," </glyph>\n",layer);
+    stream << '\n';
+    svg_scpathdump(stream,sc," </glyph>\n",layer);
     sc->ticked = true;
 }
 
-static void svg_notdefdump(FILE *file, SplineFont *sf,int defwid,int layer) {
+static void svg_notdefdump(std::ostream &stream, SplineFont *sf,int defwid,int layer) {
     int notdefpos;
 
     notdefpos = SFFindNotdef(sf,-2);
@@ -850,33 +847,33 @@ static void svg_notdefdump(FILE *file, SplineFont *sf,int defwid,int layer) {
     if ( notdefpos!=-1 ) {
 	SplineChar *sc = sf->glyphs[notdefpos];
 
-	fprintf(file, "<missing-glyph ");
+	stream << "<missing-glyph ";
 	if ( sc->width!=defwid )
-	    fprintf( file, "horiz-adv-x=\"%d\" ", sc->width );
+	    stream << "horiz-adv-x=\"" << sc->width << "\" ";
 	if ( sc->parent->hasvmetrics && sc->vwidth!=sc->parent->ascent+sc->parent->descent )
-	    fprintf( file, "vert-adv-y=\"%d\" ", sc->vwidth );
-	putc('\n',file);
-	svg_scpathdump(file,sc," </glyph>\n",layer);
+	    stream << "vert-adv-y=\"" << sc->vwidth << "\" ";
+	stream << '\n';
+	svg_scpathdump(stream,sc," </glyph>\n",layer);
     } else {
 	/* We'll let both the horiz and vert advances default to the values */
 	/*  specified by the font, and I think a space is done by omitting */
 	/*  d (the path) altogether */
-	fprintf(file,"    <missing-glyph />\n");	/* Is this a blank space? */
+	stream << "    <missing-glyph />\n";	/* Is this a blank space? */
     }
 }
 
-static void fputkerns( FILE *file, char *names) {
+static void fputkerns(std::ostream &stream, char *names) {
     while ( *names ) {
 	if ( *names==' ' ) {
-	    putc(',',file);
+	    stream << ",";
 	    while ( names[1]==' ' ) ++names;
 	} else
-	    putc(*names,file);
+	    stream << *names;
 	++names;
     }
 }
 
-static void svg_dumpkerns(FILE *file,SplineFont *sf,int isv) {
+static void svg_dumpkerns(std::ostream &stream,SplineFont *sf,int isv) {
     int i,j;
     KernPair *kp;
     KernClass *kc;
@@ -885,20 +882,20 @@ static void svg_dumpkerns(FILE *file,SplineFont *sf,int isv) {
 	for ( kp = isv ? sf->glyphs[i]->vkerns : sf->glyphs[i]->kerns;
 		kp!=NULL; kp = kp->next )
 	    if ( kp->off!=0 && SCWorthOutputting(kp->sc)) {
-		fprintf( file, isv ? "    <vkern " : "    <hkern " );
+		stream << (isv ? "    <vkern " : "    <hkern " );
 		if ( sf->glyphs[i]->unicodeenc==-1 || HasLigature(sf->glyphs[i]))
-		    fprintf( file, "g1=\"%s\" ", sf->glyphs[i]->name );
+		    stream << "g1=\"" << sf->glyphs[i]->name << "\" ";
 		else if ( sf->glyphs[i]->unicodeenc>='A' && sf->glyphs[i]->unicodeenc<='z' )
-		    fprintf( file, "u1=\"%c\" ", sf->glyphs[i]->unicodeenc );
+		    stream << "u1=\"" << (char) sf->glyphs[i]->unicodeenc << "\" ";
 		else
-		    fprintf( file, "u1=\"&#x%x;\" ", sf->glyphs[i]->unicodeenc );
+		    stream << "u1=\"&#x" << std::hex << sf->glyphs[i]->unicodeenc << std::dec << ";\" ";
 		if ( kp->sc->unicodeenc==-1 || HasLigature(kp->sc))
-		    fprintf( file, "g2=\"%s\" ", svg_sc_name(kp->sc) );
+		    stream << "g2=\"" << svg_sc_name(kp->sc) << "\" ";
 		else if ( kp->sc->unicodeenc>='A' && kp->sc->unicodeenc<='z' )
-		    fprintf( file, "u2=\"%c\" ", kp->sc->unicodeenc );
+		    stream << "u2=\"" << (char) kp->sc->unicodeenc << "\" ";
 		else
-		    fprintf( file, "u2=\"&#x%x;\" ", kp->sc->unicodeenc );
-		fprintf( file, "k=\"%d\" />\n", -kp->off );
+		    stream << "u2=\"&#x" << std::hex << kp->sc->unicodeenc << std::dec << ";\" ";
+		stream << "k=\"" << -kp->off << "\" />\n";
 	    }
     }
 
@@ -908,12 +905,11 @@ static void svg_dumpkerns(FILE *file,SplineFont *sf,int isv) {
                 for ( j=0; j<kc->second_cnt; ++j ) {
                     if ( kc->seconds[j] && *kc->seconds[j]!='\0' &&
                          kc->offsets[i*kc->second_cnt+j]!=0 ) {
-                        fprintf( file, isv ? "    <vkern g1=\"" : "    <hkern g1=\"" );
-                        fputkerns( file, kc->firsts[i]);
-                        fprintf( file, "\"\n\tg2=\"" );
-                        fputkerns( file, kc->seconds[j]);
-                        fprintf( file, "\"\n\tk=\"%d\" />\n",
-                                -kc->offsets[i*kc->second_cnt+j]);
+                        stream << (isv ? "    <vkern g1=\"" : "    <hkern g1=\"" );
+                        fputkerns( stream, kc->firsts[i]);
+                        stream << "\"\n\tg2=\"" ;
+                        fputkerns( stream, kc->seconds[j]);
+                        stream << "\"\n\tk=\"" << -kc->offsets[i*kc->second_cnt+j] << "\" />\n";
                     }
                 }
             }
@@ -921,9 +917,9 @@ static void svg_dumpkerns(FILE *file,SplineFont *sf,int isv) {
     }
 }
 
-static void svg_outfonttrailer(FILE *file) {
-    fprintf(file,"  </font>\n");
-    fprintf(file,"</defs></svg>\n" );
+static void svg_outfonttrailer(std::ostream &stream) {
+    stream << "  </font>\n";
+    stream << "</defs></svg>\n";
 }
 
 static int AnyArabicForm( SplineChar *sc ) {
@@ -955,7 +951,7 @@ return( uni==-1 || uni>=0x10000 ||
 		 isarabisolated(uni)));
 }
 
-static void svg_sfdump(FILE *file,SplineFont *sf,int layer) {
+static void svg_sfdump(std::ostream &stream,SplineFont *sf,int layer) {
     int defwid, i, formeduni;
     struct altuni *altuni;
 
@@ -965,18 +961,18 @@ static void svg_sfdump(FILE *file,SplineFont *sf,int layer) {
     for ( i=0; i<sf->glyphcnt; ++i ) if ( sf->glyphs[i]!=NULL )
 	sf->glyphs[i]->ticked = false;
 
-    defwid = svg_outfontheader(file,sf,layer);
-    svg_notdefdump(file,sf,defwid,layer);
+    defwid = svg_outfontheader(stream,sf,layer);
+    svg_notdefdump(stream,sf,defwid,layer);
 
     /* Ligatures must be output before their initial components */
     for ( i=0; i<sf->glyphcnt; ++i ) {
 	if ( SCWorthOutputting(sf->glyphs[i]) ) {
 	    if ( HasLigature(sf->glyphs[i]))
-		svg_scdump(file, sf->glyphs[i],defwid,sf->glyphs[i]->unicodeenc,-1,layer);
+		svg_scdump(stream, sf->glyphs[i],defwid,sf->glyphs[i]->unicodeenc,-1,layer);
 	    /* Variation selectors should probably be treated as ligatures */
 	    for ( altuni = sf->glyphs[i]->altuni; altuni!=NULL; altuni = altuni->next )
 		if ( altuni->vs!=-1 && altuni->fid==0 )
-		    svg_scdump(file, sf->glyphs[i],defwid,altuni->unienc,altuni->vs,layer);
+		    svg_scdump(stream, sf->glyphs[i],defwid,altuni->unienc,altuni->vs,layer);
 	}
     }
     /* And formed arabic before unformed */
@@ -984,7 +980,7 @@ static void svg_sfdump(FILE *file,SplineFont *sf,int layer) {
 	SplineChar *sc = sf->glyphs[i];
 	if ( SCWorthOutputting(sc) && !sc->ticked ) {
 	    if ( (formeduni = AnyArabicForm(sc))!=-1 )
-		svg_scdump(file, sc,defwid,formeduni,-1,layer);
+		svg_scdump(stream, sc,defwid,formeduni,-1,layer);
 	    else if ( sc->unicodeenc>=0x0600 && sc->unicodeenc<=0x06ff ) {
 		/* The conventions now (as I understand them) suggest that */
 		/*  fonts not use the unicode encodings for formed arabic */
@@ -994,67 +990,66 @@ static void svg_sfdump(FILE *file,SplineFont *sf,int layer) {
 		formed = SCHasSubs(sc,CHR('i','n','i','t'));
 		if ( SCWorthOutputting(formed) && formed->unicodeenc==-1 &&
 			!formed->ticked && form->initial!=0 )
-		    svg_scdump(file,formed,defwid,form->initial,-1,layer);
+		    svg_scdump(stream,formed,defwid,form->initial,-1,layer);
 		formed = SCHasSubs(sc,CHR('m','e','d','i'));
 		if ( SCWorthOutputting(formed) && formed->unicodeenc==-1 &&
 			!formed->ticked && form->medial!=0 )
-		    svg_scdump(file,formed,defwid,form->medial,-1,layer);
+		    svg_scdump(stream,formed,defwid,form->medial,-1,layer);
 		formed = SCHasSubs(sc,CHR('f','i','n','a'));
 		if ( SCWorthOutputting(formed) && formed->unicodeenc==-1 &&
 			!formed->ticked && form->final!=0 )
-		    svg_scdump(file,formed,defwid,form->final,-1,layer);
+		    svg_scdump(stream,formed,defwid,form->final,-1,layer);
 		formed = SCHasSubs(sc,CHR('i','s','o','l'));
 		if ( SCWorthOutputting(formed) && formed->unicodeenc==-1 &&
 			!formed->ticked && form->isolated!=0 )
-		    svg_scdump(file,formed,defwid,form->isolated,-1,layer);
+		    svg_scdump(stream,formed,defwid,form->isolated,-1,layer);
 	    }
 	}
     }
     for ( i=0; i<sf->glyphcnt; ++i ) {
 	if ( SCWorthOutputting(sf->glyphs[i]) && !sf->glyphs[i]->ticked ) {
 	    if ( UnformedUni(sf->glyphs[i]->unicodeenc) )
-		svg_scdump(file, sf->glyphs[i],defwid,sf->glyphs[i]->unicodeenc,-1,layer);
+		svg_scdump(stream, sf->glyphs[i],defwid,sf->glyphs[i]->unicodeenc,-1,layer);
 	    for ( altuni = sf->glyphs[i]->altuni; altuni!=NULL; altuni = altuni->next )
 		if ( altuni->vs==-1 && altuni->fid==0 )
-		    svg_scdump(file, sf->glyphs[i],defwid,altuni->unienc,altuni->vs,layer);
+		    svg_scdump(stream, sf->glyphs[i],defwid,altuni->unienc,altuni->vs,layer);
 	}
     }
-    svg_dumpkerns(file,sf,false);
-    svg_dumpkerns(file,sf,true);
-    svg_outfonttrailer(file);
+    svg_dumpkerns(stream,sf,false);
+    svg_dumpkerns(stream,sf,true);
+    svg_outfonttrailer(stream);
     switch_to_old_locale(&tmplocale, &oldlocale); // Switch to the cached locale.
 }
 
-int _WriteSVGFont(FILE *file,SplineFont *sf,int flags,
+void WriteSVGFontToBuffer(char ** p_buffer,int *p_len,SplineFont *sf,int flags,
 	EncMap *map,int layer) {
-    int ret;
+    *p_buffer = NULL;
+    *p_len = 0;
 
-    svg_sfdump(file,sf,layer);
-    ret = true;
-    if ( ferror(file))
-	ret = false;
-return( ret );
+    std::ostringstream svg;
+    svg_sfdump(svg,sf,layer);
+
+    std::string data = svg.str();
+    *p_len = data.size();
+    *p_buffer = (char*)malloc(*p_len + 1);
+    memcpy(*p_buffer, data.data(), *p_len);
+    (*p_buffer)[*p_len] = '\0';
 }
 
 int WriteSVGFont(const char *fontname,SplineFont *sf,enum fontformat format,int flags,
 	EncMap *map,int layer) {
-    FILE *file;
-    int ret;
+    std::ofstream svg(fontname);
 
-    if (( file=fopen(fontname,"w+"))==NULL )
-return( 0 );
-    svg_sfdump(file,sf,layer);
-    ret = true;
-    if ( ferror(file))
-	ret = false;
-    if ( fclose(file)==-1 )
-return( 0 );
-return( ret );
+    if (!svg.is_open()) {
+        return (0);
+    }
+    svg_sfdump(svg,sf,layer);
+    return svg.good() ? 1 : 0;
 }
 
 #define SVGMINLRPAD 10
 
-int _ExportSVG(FILE *svg,SplineChar *sc,int layer,ExportParams *ep) {
+int _ExportSVG(std::ostream& svg,SplineChar *sc,int layer,ExportParams *ep) {
     const char *end;
     int em_size, xstart, xend, ascent;
     real trans[6] = { 1.0, 0.0, 0.0, 1.0, 0.0, 0.0 };
@@ -1077,8 +1072,8 @@ int _ExportSVG(FILE *svg,SplineChar *sc,int layer,ExportParams *ep) {
 
     locale_t tmplocale; locale_t oldlocale; // Declare temporary locale storage.
     switch_to_c_locale(&tmplocale, &oldlocale); // Switch to the C locale temporarily and cache the old locale.
-    fprintf(svg, "<?xml version=\"1.0\" standalone=\"no\"?>\n" );
-    fprintf(svg, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\" >\n" );
+    svg << "<?xml version=\"1.0\" standalone=\"no\"?>\n";
+    svg << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\" >\n";
     // Adjust horizontal ViewBox to display entire glyph
     xstart = floor(b.minx);
     if (xstart > SVGMINLRPAD)
@@ -1090,10 +1085,10 @@ int _ExportSVG(FILE *svg,SplineChar *sc,int layer,ExportParams *ep) {
 	xend = ceil(sc->width); // End at the advance width when sufficiently short of it
     else
 	xend += SVGMINLRPAD; // Give glyphs ending near or past the advance width some extra space
-    fprintf(svg, "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" viewBox=\"%d 0 %d %d\">\n",
-	    xstart, xend - xstart, (int) ceil(em_size));
+    svg << "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" viewBox=\""
+        << xstart << " 0 " << (xend - xstart) << " " << (int)ceil(em_size) << "\">\n";
     if ( ep->use_transform ) {
-	fprintf(svg, "  <g transform=\"matrix(1 0 0 -1 0 %d)\">\n", ascent );
+	svg << "  <g transform=\"matrix(1 0 0 -1 0 " << ascent << ")\">\n";
 	scc = sc;
     } else {
 	trans[3] = -1;
@@ -1122,15 +1117,15 @@ int _ExportSVG(FILE *svg,SplineChar *sc,int layer,ExportParams *ep) {
          && (   scc->parent->multilayer
              || scc->parent->strokedfont
              || !svg_sc_any(scc,layer)) ) {
-	fprintf(svg, "   <g ");
+	svg << "   <g ";
 	end = "   </g>\n";
     } else {
-	fprintf(svg, "   <path fill=\"currentColor\"\n");
+	svg << "   <path fill=\"currentColor\"\n";
 	end = "   </path>\n";
     }
     svg_scpathdump(svg,scc,end,layer);
     if ( ep->use_transform )
-	fprintf(svg, "  </g>\n\n" );
+	svg << "  </g>\n\n";
     else {
 	if ( sc->parent )
 	    SplineCharFree(scc);
@@ -1139,42 +1134,38 @@ int _ExportSVG(FILE *svg,SplineChar *sc,int layer,ExportParams *ep) {
 	    sc->layers[layer].splines = orig;
 	}
     }
-    fprintf(svg, "</svg>\n" );
+    svg << "</svg>\n";
 
     switch_to_old_locale(&tmplocale, &oldlocale); // Switch to the cached locale.
-return( !ferror(svg));
+return( svg.rdstate() == std::ios::goodbit ? 1 : 0 );
 }
 
 extern "C" int ExportSVG(char* filename, SplineChar* sc, int layer,
                          ExportParams* ep) {
-    FILE* svg;
-    int ret;
+    std::ofstream svg(filename);
 
-    svg = fopen(filename, "w");
-    if (svg == NULL) {
+    if (!svg.is_open()) {
         return (0);
     }
-    ret = _ExportSVG(svg, sc, layer, ep);
-    fclose(svg);
-    return (ret);
+    return _ExportSVG(svg, sc, layer, ep);
 }
 
 extern "C" int ExportSVGToBuffer(char** p_buffer, int* p_len, SplineChar* sc,
                                  int layer, ExportParams* ep) {
-    FILE* svg = GFileTmpfile();
-    if (svg == NULL) {
-        *p_buffer = NULL;
-        *p_len = 0;
+    *p_buffer = NULL;
+    *p_len = 0;
+
+    std::ostringstream svg;
+    if (!_ExportSVG(svg, sc, layer, ep)) {
         return (0);
     }
-    _ExportSVG(svg, sc, layer, ep);
 
-    fseek(svg, 0, SEEK_END);
-    *p_len = ftell(svg);
-    *p_buffer = (char*)malloc(*p_len);
-    rewind(svg);
-    fread(*p_buffer, 1, *p_len, svg);
-    fclose(svg);
+    std::string data = svg.str();
+    *p_len = data.size();
+    *p_buffer = (char*)malloc(*p_len + 1);
+    memcpy(*p_buffer, data.data(), *p_len);
+    (*p_buffer)[*p_len] = '\0';
+
     return (1);
 }
 

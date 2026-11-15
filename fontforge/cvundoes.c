@@ -1446,15 +1446,8 @@ static void *copybuffer2svgmult(void *UNUSED(_copybuffer),int32_t *len) {
     Layer *ly;
     SplineChar *sc=NULL;
     int old_order2, o2=false;
-    FILE *svg;
 
     if ( cur->undotype!=ut_multiple || !CopyContainsVectors() || FontViewFirst()==NULL ) {
-	*len=0;
-return( copy(""));
-    }
-
-    svg = GFileTmpfile();
-    if ( svg==NULL ) {
 	*len=0;
 return( copy(""));
     }
@@ -1483,7 +1476,7 @@ return( copy(""));
 	sf->ascent = sc->parent->ascent;
 	sf->descent = sc->parent->descent;
     }
-    _WriteSVGFont(svg,sf,0,NULL,ly_fore);
+    WriteSVGFontToBuffer(&ret,len,sf,0,NULL,ly_fore);
     if ( sc!=NULL )
 	sc->parent->layers[ly_fore].order2 = old_order2;
 
@@ -1495,12 +1488,6 @@ return( copy(""));
     }
     SplineFontFree(sf);
 
-    fseek(svg,0,SEEK_END);
-    *len = ftell(svg);
-    ret = malloc(*len);
-    rewind(svg);
-    fread(ret,1,*len,svg);
-    fclose(svg);
 return( ret );
 }
 
