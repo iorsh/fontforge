@@ -8904,12 +8904,67 @@ return(NULL);
 Py_RETURN( self );
 }
 
+static bool is_raster_type(const char* type) {
+    return (strcasecmp(type, "xbm") == 0 || strcasecmp(type, "bmp") == 0 ||
+            strcasecmp(type, "png") == 0);
+}
+
+static bool prepare_output(PyObject* filename_or_blob, const char*& type,
+                           std::string& filename, FILE*& file,
+                           std::unique_ptr<std::ostream>& stream) {
+    if (PyByteArray_Check(filename_or_blob)) {
+        if (type == NULL) {
+            PyErr_Format(PyExc_TypeError,
+                         "Type must be specified when exporting to bytearray");
+            return false;
+        } else if (strcasecmp(type, "svg") != 0) {
+            PyErr_Format(
+                PyExc_TypeError,
+                "Only 'svg' type is supported when exporting to bytearray");
+            return false;
+        } else {
+            stream = std::make_unique<std::ostringstream>();
+        }
+    } else if (PyUnicode_Check(filename_or_blob)) {
+        if (type != NULL) {
+            PyErr_Format(PyExc_TypeError,
+                         "The type is derived from extension when exporting to "
+                         "file, it should not be specified");
+            return false;
+        }
+        char* tmp = utf82def_copy(PyUnicode_AsUTF8(filename_or_blob));
+        filename = tmp;
+        free(tmp);
+
+        size_t dot_pos = filename.rfind('.');
+        if (dot_pos != std::string::npos)
+            type = filename.c_str() + dot_pos + 1;
+        else
+            type = filename.c_str();
+    }
+
+    if (!is_raster_type(type)) {
+        bool is_svg = (strcasecmp(type, "svg") == 0);
+        if (is_svg) {
+            if (!stream)
+                stream =
+                    std::make_unique<std::ofstream>(filename, std::ios::binary);
+        } else
+            file = fopen(filename.c_str(), "wb");
+
+        if (is_svg && stream->fail() || !is_svg && file == NULL) {
+            PyErr_SetFromErrnoWithFilename(PyExc_IOError, filename.c_str());
+            return false;
+        }
+    }
+    return true;
+}
+
 static const char *glyph_export_keywords[] = { "filename", "layer", "pixelsize",
     "bitdepth", "usetransform", "usesystem", "asksystem", "type", NULL };
 
 static PyObject *PyFFGlyph_export(PyObject *self, PyObject *args,
                                   PyObject *keywds) {
-    char *filename;
     std::string locfilename;
     const char *type=NULL;
     int pixels=100, bits=8;
@@ -8932,36 +8987,14 @@ static PyObject *PyFFGlyph_export(PyObject *self, PyObject *args,
                                       &ep.use_transform, &use_system,
                                       &ask_system, &type) ) {
 	PyErr_Clear();
-	if ( !PyArg_ParseTuple(args,"s|OO",&filename,&obj1,&obj2) ) {
+	if ( !PyArg_ParseTuple(args,"O|OO",&filename_or_blob,&obj1,&obj2) ) {
 	    PyErr_Format(PyExc_TypeError, "Invalid arguments to export" );
 	    return NULL;
 	}
     }
 
-    if ( PyByteArray_Check(filename_or_blob) ) {
-	if ( type == NULL ) {
-		PyErr_Format(PyExc_TypeError, "Unknown type to export: %s", type );
-		return NULL;
-	} else if ( strcasecmp(type, "svg") != 0 ) {
-		PyErr_Format(PyExc_TypeError, "Only 'svg' type is supported when exporting to bytearray");
-		return NULL;
-	} else {
-		stream = std::make_unique<std::ostringstream>();
-	}
-    } else if ( PyUnicode_Check(filename_or_blob) ) {
-	if ( type != NULL ) {
-		PyErr_Format(PyExc_TypeError, "The type is derived from extension when exporting to file, it should not be specified");
-		return NULL;
-	}
-	char* tmp = utf82def_copy(PyUnicode_AsUTF8(filename_or_blob));
-        locfilename = tmp;
-	free(tmp);
-
-	size_t dot_pos = locfilename.rfind('.');
-	if (dot_pos != std::string::npos)
-	    type = locfilename.c_str() + dot_pos + 1;
-	else
-	    type = locfilename.c_str();
+    if (!prepare_output(filename_or_blob, type, locfilename, file, stream)) {
+        return NULL;
     }
 
     if ( use_system || ask_system ) {
@@ -8998,16 +9031,6 @@ static PyObject *PyFFGlyph_export(PyObject *self, PyObject *args,
 return( NULL );
 	}
     } else {
-	bool is_svg = ( strcasecmp(type,"svg")==0 );
-	if ( is_svg ) {
-	    if (!stream) stream = std::make_unique<std::ofstream>(locfilename, std::ios::binary);
-	} else
-	    file = fopen( locfilename.c_str(),"wb");
-	if ( is_svg && stream->fail() || !is_svg && file==NULL ) {
-	    PyErr_SetFromErrnoWithFilename(PyExc_IOError,locfilename.c_str());
-return( NULL );
-	}
-
 	if ( obj1!=NULL ) {
 	    layer = LayerArgToLayer(sc->parent, obj1);
 	    if ( layer==ly_none ) {
