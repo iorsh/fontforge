@@ -100,8 +100,10 @@
 
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
+#include <memory>
 
 #ifdef __cplusplus
 extern "C" {
@@ -8903,36 +8905,64 @@ Py_RETURN( self );
 }
 
 static const char *glyph_export_keywords[] = { "filename", "layer", "pixelsize",
-    "bitdepth", "usetransform", "usesystem", "asksystem", NULL };
+    "bitdepth", "usetransform", "usesystem", "asksystem", "type", NULL };
 
 static PyObject *PyFFGlyph_export(PyObject *self, PyObject *args,
                                   PyObject *keywds) {
     char *filename;
-    char *locfilename = NULL;
-    char *pt;
+    std::string locfilename;
+    const char *type=NULL;
     int pixels=100, bits=8;
     int format=-1, use_system=false, ask_system=false;
-    FILE *file;
+    FILE *file = NULL;
     int layer = ((PyFF_Glyph *) self)->layer;
-    PyObject *layerobj = NULL, *obj1=NULL, *obj2=NULL;
+    PyObject *filename_or_blob=NULL, *layerobj = NULL, *obj1=NULL, *obj2=NULL;
     ExportParams ep, *epp;
     SplineChar *sc = PyFF_Glyph_GetSC((PyFF_Glyph *) self);
+    std::unique_ptr<std::ostream> stream;
     if (sc == NULL) {
 	return NULL;
     }
 
     InitExportParams(&ep);
 
-    if ( !PyArg_ParseTupleAndKeywords(args, keywds, "s|$Oiippp",
-                                      (char**)glyph_export_keywords, &filename,
+    if ( !PyArg_ParseTupleAndKeywords(args, keywds, "O|$Oiippps",
+                                      (char**)glyph_export_keywords, &filename_or_blob,
                                       &layerobj, &pixels, &bits,
                                       &ep.use_transform, &use_system,
-                                      &ask_system) ) {
+                                      &ask_system, &type) ) {
 	PyErr_Clear();
-	if ( !PyArg_ParseTuple(args,"s|OO",&filename,&obj1,&obj2) )
+	if ( !PyArg_ParseTuple(args,"s|OO",&filename,&obj1,&obj2) ) {
+	    PyErr_Format(PyExc_TypeError, "Invalid arguments to export" );
 	    return NULL;
+	}
     }
-    locfilename = utf82def_copy(filename);
+
+    if ( PyByteArray_Check(filename_or_blob) ) {
+	if ( type == NULL ) {
+		PyErr_Format(PyExc_TypeError, "Unknown type to export: %s", type );
+		return NULL;
+	} else if ( strcasecmp(type, "svg") != 0 ) {
+		PyErr_Format(PyExc_TypeError, "Only 'svg' type is supported when exporting to bytearray");
+		return NULL;
+	} else {
+		stream = std::make_unique<std::ostringstream>();
+	}
+    } else if ( PyUnicode_Check(filename_or_blob) ) {
+	if ( type != NULL ) {
+		PyErr_Format(PyExc_TypeError, "The type is derived from extension when exporting to file, it should not be specified");
+		return NULL;
+	}
+	char* tmp = utf82def_copy(PyUnicode_AsUTF8(filename_or_blob));
+        locfilename = tmp;
+	free(tmp);
+
+	size_t dot_pos = locfilename.rfind('.');
+	if (dot_pos != std::string::npos)
+	    type = locfilename.c_str() + dot_pos + 1;
+	else
+	    type = locfilename.c_str();
+    }
 
     if ( use_system || ask_system ) {
 	epp = ExportParamsState();
@@ -8941,13 +8971,11 @@ static PyObject *PyFFGlyph_export(PyObject *self, PyObject *args,
     } else
 	epp = &ep;
 
-    pt = strrchr(locfilename,'.');
-    if ( pt==NULL ) pt=locfilename;
-    if ( strcasecmp(pt,".xbm")==0 ) {
+    if ( strcasecmp(type,"xbm")==0 ) {
 	format=0; bits=1;
-    } else if ( strcasecmp(pt,".bmp")==0 )
+    } else if ( strcasecmp(type,"bmp")==0 )
 	format=1;
-    else if ( strcasecmp(pt,".png")==0 )
+    else if ( strcasecmp(type,"png")==0 )
 	format=2;
 
     if ( format!=-1 ) {
@@ -8955,7 +8983,6 @@ static PyObject *PyFFGlyph_export(PyObject *self, PyObject *args,
 	    if ( PyLong_Check(obj1) ) {
 		pixels = PyLong_AsLong(obj1);
 	    } else {
-		free(locfilename);
 		return NULL;
 	    }
 	}
@@ -8963,72 +8990,65 @@ static PyObject *PyFFGlyph_export(PyObject *self, PyObject *args,
 	    if ( PyLong_Check(obj2) ) {
 		bits = PyLong_AsLong(obj2);
 	    } else {
-		free(locfilename);
 		return NULL;
 	    }
 	}
-	if ( !ExportImage(locfilename,sc,layer,format,pixels,bits)) {
-	    PyErr_Format(PyExc_EnvironmentError, "Could not create image file \"%s\"", locfilename );
-	    free(locfilename);
+	if ( !ExportImage(locfilename.c_str(),sc,layer,format,pixels,bits)) {
+	    PyErr_Format(PyExc_EnvironmentError, "Could not create image file \"%s\"", locfilename.c_str() );
 return( NULL );
 	}
     } else {
-	bool is_ofstream = ( strcasecmp(pt,".svg")==0 );
-	std::ofstream stream;
-	if ( is_ofstream )
-	    stream.open(locfilename, std::ios::binary);
-	else
-	    file = fopen( locfilename,"wb");
-
-	if ( is_ofstream && !stream.is_open() || !is_ofstream && file==NULL ) {
-	    PyErr_SetFromErrnoWithFilename(PyExc_IOError,locfilename);
-	    free(locfilename);
+	bool is_svg = ( strcasecmp(type,"svg")==0 );
+	if ( is_svg ) {
+	    if (!stream) stream = std::make_unique<std::ofstream>(locfilename, std::ios::binary);
+	} else
+	    file = fopen( locfilename.c_str(),"wb");
+	if ( is_svg && stream->fail() || !is_svg && file==NULL ) {
+	    PyErr_SetFromErrnoWithFilename(PyExc_IOError,locfilename.c_str());
 return( NULL );
 	}
 
 	if ( obj1!=NULL ) {
 	    layer = LayerArgToLayer(sc->parent, obj1);
 	    if ( layer==ly_none ) {
-		free(locfilename);
-		if (!is_ofstream)
-		    fclose(file);
+		if (file) fclose(file);
 		return NULL;
 	    }
 	}
 	if ( layer<0 || layer>=sc->layer_cnt ) {
 	    PyErr_Format(PyExc_ValueError, "Layer is out of range" );
-	    free(locfilename);
-	    if (!is_ofstream)
-		fclose(file);
+	    if (file) fclose(file);
 return( NULL );
 	}
 
-	if ( strcasecmp(pt,".eps")==0 || strcasecmp(pt,".ps")==0 || strcasecmp(pt,".art")==0 )
+	if ( strcasecmp(type,"eps")==0 || strcasecmp(type,"ps")==0 || strcasecmp(type,"art")==0 )
 	    _ExportEPS(file,sc,layer,true);
-	else if ( strcasecmp(pt,".pdf")==0 )
+	else if ( strcasecmp(type,"pdf")==0 )
 	    _ExportPDF(file,sc,layer);
-	else if ( strcasecmp(pt,".svg")==0 )
-	    _ExportSVG(stream,sc,layer,epp);
-	else if ( strcasecmp(pt,".glif")==0 )
+	else if ( strcasecmp(type,"svg")==0 )
+	    _ExportSVG(*stream,sc,layer,epp);
+	else if ( strcasecmp(type,"glif")==0 )
 	    _ExportGlif(file,sc,layer,3);
-	else if ( strcasecmp(pt,".glif2")==0 )
+	else if ( strcasecmp(type,"glif2")==0 )
 	    _ExportGlif(file,sc,layer,2);
-	else if ( strcasecmp(pt,".glif3")==0 )
+	else if ( strcasecmp(type,"glif3")==0 )
 	    _ExportGlif(file,sc,layer,3);
-	else if ( strcasecmp(pt,".plate")==0 )
+	else if ( strcasecmp(type,"plate")==0 )
 	    _ExportPlate(file,sc,layer);
 	/* else if ( strcasecmp(pt,".fig")==0 )*/
 	else {
-	    PyErr_Format(PyExc_TypeError, "Unknown extension to export: %s", pt );
-	    free( locfilename );
-	    if (!is_ofstream)
-		fclose(file);
+	    PyErr_Format(PyExc_TypeError, "Unknown extension to export: %s", type );
+	    if (file) fclose(file);
 return( NULL );
 	}
-	if (!is_ofstream)
+	if (file)
 	    fclose(file);
-    }
-    free( locfilename );
+	else if ( dynamic_cast<std::ostringstream*>(stream.get()) ) {
+	    std::string svg_content = static_cast<std::ostringstream*>(stream.get())->str();
+	    PyByteArray_Resize(filename_or_blob, svg_content.size());
+	    memcpy(PyByteArray_AsString(filename_or_blob), svg_content.c_str(), svg_content.size());
+	}
+}
 Py_RETURN( self );
 }
 

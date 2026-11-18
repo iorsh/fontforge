@@ -42,4 +42,9 @@ with tempfile.TemporaryDirectory() as temp_dir:
     if "<path" not in svg_text:
         raise ValueError("Exported SVG does not contain <path")
 
+    blob = bytearray()
+    ref.export(blob, type="svg")
+
+    print(blob.decode("utf-8"))
+
 font.close()
