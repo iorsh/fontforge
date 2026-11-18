@@ -25,11 +25,10 @@ ref.addReference("A")
 if len(ref.references) != 1:
     raise ValueError("Expected exactly one reference in glyph B")
 
-# Export a glyph with a reference to SVG and check that the file is created and
-# contains a <path>.
 with tempfile.TemporaryDirectory() as temp_dir:
+    # Export a glyph with a reference to SVG and check that the file is created
+    # and contains a <path>.
     svg_path = os.path.join(temp_dir, "glyph-B.svg")
-
     ref.export(svg_path)
 
     if not os.path.exists(svg_path):
@@ -42,16 +41,16 @@ with tempfile.TemporaryDirectory() as temp_dir:
     if "<path" not in svg_text:
         raise ValueError("Exported SVG file does not contain <path")
 
-    # Export glyph to a bytearray
+    # Export a glyph to a bytearray
     glyph_blob = bytearray()
-    ref.export(glyph_blob, type="svg")
+    base.export(glyph_blob, type="svg")
     svg_text = glyph_blob.decode("utf-8")
     if "<path" not in svg_text:
         raise ValueError("Exported SVG blob does not contain <path")
 
-    # Export layer to a bytearray
+    # Export a layer to a bytearray
     layer_blob = bytearray()
-    ref.foreground.export(layer_blob, type="svg")
+    base.foreground.export(layer_blob, type="svg")
     svg_text = layer_blob.decode("utf-8")
     if "<path" not in svg_text:
         raise ValueError("Exported SVG layer blob does not contain <path")
