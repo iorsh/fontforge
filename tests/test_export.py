@@ -40,11 +40,20 @@ with tempfile.TemporaryDirectory() as temp_dir:
         print(svg_text)
 
     if "<path" not in svg_text:
-        raise ValueError("Exported SVG does not contain <path")
+        raise ValueError("Exported SVG file does not contain <path")
 
-    blob = bytearray()
-    ref.export(blob, type="svg")
+    # Export glyph to a bytearray
+    glyph_blob = bytearray()
+    ref.export(glyph_blob, type="svg")
+    svg_text = glyph_blob.decode("utf-8")
+    if "<path" not in svg_text:
+        raise ValueError("Exported SVG blob does not contain <path")
 
-    print(blob.decode("utf-8"))
+    # Export layer to a bytearray
+    layer_blob = bytearray()
+    ref.foreground.export(layer_blob, type="svg")
+    svg_text = layer_blob.decode("utf-8")
+    if "<path" not in svg_text:
+        raise ValueError("Exported SVG layer blob does not contain <path")
 
 font.close()
