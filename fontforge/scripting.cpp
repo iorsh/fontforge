@@ -948,13 +948,13 @@ static void btoupper(Context *c) {
 	    ch = utf8_ildb(&ipt);
 	    if ( ch==-1 )
 	break;
-	    ch = toupper(ch);
+	    ch = ff_unicode_toupper(ch);
 	    pt = utf8_idpb(pt,ch,UTF8IDPB_NOZERO);
 	}
 	*pt = '\0';
     } else if ( c->a.vals[1].type==v_int || c->a.vals[1].type==v_unicode ) {
 	c->return_val.type = v_int;
-	c->return_val.u.ival = toupper(c->a.vals[1].u.ival);
+	c->return_val.u.ival = ff_unicode_toupper(c->a.vals[1].u.ival);
     } else
 	c->error = ce_badargtype;
 }
@@ -970,13 +970,13 @@ static void btolower(Context *c) {
 	    ch = utf8_ildb(&ipt);
 	    if ( ch==-1 )
 	break;
-	    ch = tolower(ch);
+	    ch = ff_unicode_tolower(ch);
 	    pt = utf8_idpb(pt,ch,UTF8IDPB_NOZERO);
 	}
 	*pt = '\0';
     } else if ( c->a.vals[1].type==v_int || c->a.vals[1].type==v_unicode ) {
 	c->return_val.type = v_int;
-	c->return_val.u.ival = tolower(c->a.vals[1].u.ival);
+	c->return_val.u.ival = ff_unicode_tolower(c->a.vals[1].u.ival);
     } else
 	c->error = ce_badargtype;
 }
