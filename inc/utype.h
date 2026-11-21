@@ -158,8 +158,11 @@ extern const unichar_t* ff_unicode_unialt(unichar_t ch);
 #define istitle(ch)                  ff_unicode_istitle((ch))
 #define pose(ch)                     ff_unicode_pose((ch))
 #define combiningclass(ch)           ff_unicode_combiningclass((ch))
+#ifndef __cplusplus
+/* C++ uses ff_unicode_toupper/tolower directly to avoid collisions with std headers. */
 #define tolower(ch)                  ff_unicode_tolower((ch))
 #define toupper(ch)                  ff_unicode_toupper((ch))
+#endif
 #define totitle(ch)                  ff_unicode_totitle((ch))
 #define tomirror(ch)                 ff_unicode_tomirror((ch))
 #define hasunialt(ch)                ff_unicode_hasunialt((ch))
